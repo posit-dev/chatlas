@@ -78,6 +78,19 @@ def test_image_resizing(tmp_path):
     assert content_image_file(str(img_path), resize="100x100>!") is not None
 
 
+def test_resize_can_ignore_aspect_ratio(tmp_path):
+    # Bigger than the box, so `!` actually resizes (the 60x30 image above is
+    # small enough that `>` skips the resize entirely).
+    path = tmp_path / "test.png"
+    Image.new("RGB", (600, 300), color="red").save(path)
+
+    obj = content_image_file(str(path), resize="200x200!")
+
+    img = Image.open(io.BytesIO(base64.b64decode(obj.data)))
+    assert img.size == (200, 200)
+    assert img.format == "PNG"
+
+
 def test_useful_errors_if_no_display():
     plt.close("all")  # Close all plots
     with pytest.raises(RuntimeError, match="No matplotlib figure to save"):
