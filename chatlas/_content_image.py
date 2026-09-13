@@ -171,6 +171,7 @@ def content_image_file(
             )
 
         img = Image.open(path)
+        img_format = img.format
 
         if isinstance(resize, MISSING_TYPE):
             warnings.warn(
@@ -207,7 +208,7 @@ def content_image_file(
                 raise ValueError(f"Invalid resize value: {resize}")
 
         buffer = io.BytesIO()
-        img.save(buffer, format=img.format)
+        img.save(buffer, format=img_format)
         base64_data = base64.b64encode(buffer.getvalue()).decode("utf-8")
 
     return ContentImageInline(image_content_type=content_type, data=base64_data)
