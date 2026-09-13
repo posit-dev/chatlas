@@ -1,5 +1,6 @@
 import pytest
 from chatlas import ChatSnowflake
+from chatlas._content import ContentThinking
 
 from .conftest import (
     assert_data_extraction,
@@ -87,6 +88,36 @@ async def test_tool_variations_async():
 @pytest.mark.filterwarnings("ignore")
 def test_data_extraction():
     assert_data_extraction(chat_fun)
+
+
+# claude-sonnet-5 streams extended thinking blocks as a delta type ("anthropic")
+# that claude-sonnet-4-6 never sends, so it needs its own coverage.
+def chat_fun_thinking(**kwargs):
+    return ChatSnowflake(
+        connection_name="posit",
+        model="claude-sonnet-5",
+        **kwargs,
+    )
+
+
+@pytest.mark.filterwarnings("ignore")
+def test_extended_thinking_request():
+    chat = chat_fun_thinking()
+    chat.chat("Say hi in 3 words", echo="none")
+    turn = chat.get_last_turn()
+    assert turn is not None
+    assert any(isinstance(c, ContentThinking) for c in turn.contents)
+
+
+@pytest.mark.asyncio
+@pytest.mark.filterwarnings("ignore")
+async def test_extended_thinking_streaming_request():
+    chat = chat_fun_thinking()
+    async for _ in await chat.stream_async("Say hi in 3 words"):
+        pass
+    turn = chat.get_last_turn()
+    assert turn is not None
+    assert any(isinstance(c, ContentThinking) for c in turn.contents)
 
 
 # def test_images():

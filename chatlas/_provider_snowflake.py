@@ -19,6 +19,8 @@ from ._content import (
     Content,
     ContentJson,
     ContentText,
+    ContentThinking,
+    ContentThinkingDelta,
     ContentToolRequest,
     ContentToolResult,
 )
@@ -389,7 +391,12 @@ class SnowflakeProvider(
         if not chunk.choices:
             return []
         delta = chunk.choices[0].delta
-        if delta is None or "content" not in delta:
+        if delta is None:
+            return []
+        if delta.get("type") == "anthropic":
+            thinking = delta["content_list"][-1]["anthropic"]["thinking"].get("thinking")
+            return [ContentThinkingDelta(thinking=thinking)] if thinking else []
+        if "content" not in delta:
             return []
         return [ContentText.model_construct(text=delta["content"])]
 
@@ -457,6 +464,24 @@ class SnowflakeProvider(
                 # if we don't find it, just append to the end
                 # this shouldn't happen, but just in case
                 content_list.append({"type": "text", "text": text})
+        elif new_delta["type"] == "anthropic":
+            # Extended thinking blocks stream in as a "thinking" fragment
+            # followed by a "signature" fragment, both under the same item.
+            new_thinking = new_content_list[-1]["anthropic"]["thinking"]
+            for i in range(len(content_list) - 1, -1, -1):
+                if content_list[i].get("type") == "anthropic":
+                    thinking = content_list[i]["anthropic"]["thinking"]
+                    if "thinking" in new_thinking:
+                        thinking["thinking"] = (
+                            thinking.get("thinking", "") + new_thinking["thinking"]
+                        )
+                    if "signature" in new_thinking:
+                        thinking["signature"] = (
+                            thinking.get("signature", "") + new_thinking["signature"]
+                        )
+                    break
+            else:
+                content_list.append(new_content_list[-1])
         else:
             raise ValueError(
                 f"Unexpected streaming delta type: {new_delta['type']}. Please report this issue."
@@ -582,6 +607,16 @@ class SnowflakeProvider(
                     contents.append(ContentJson(value=data))
                 else:
                     contents.append(ContentText(text=content["text"]))
+            elif "anthropic" in content:
+                thinking = content["anthropic"].get("thinking", {})
+                contents.append(
+                    ContentThinking(
+                        thinking=thinking.get("thinking", ""),
+                        extra={"signature": thinking["signature"]}
+                        if "signature" in thinking
+                        else None,
+                    )
+                )
             elif "tool_use_id" in content:
                 params = content.get("input", "{}")
                 try:
