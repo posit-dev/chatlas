@@ -14,12 +14,25 @@ def test_equal_values():
     assert merge_dicts({"a": True}, {"a": True}) == {"a": True}
     assert merge_dicts({"a": False}, {"a": False}) == {"a": False}
 
-    assert merge_dicts({"a": "x"}, {"a": "x"}) == {"a": "x"}
 
-
-def test_strings_are_concatenated():
+def test_strings_are_always_concatenated():
+    # Strings always concatenate, even when equal. This is essential for
+    # streaming: a delta can legitimately equal everything accumulated so far
+    # (e.g. a leading "\n\n" arriving as two "\n" chunks).
+    # https://github.com/posit-dev/chatlas/issues/435
     assert merge_dicts({"a": "a"}, {"a": "b"}) == {"a": "ab"}
+    assert merge_dicts({"a": "x"}, {"a": "x"}) == {"a": "xx"}
+    assert merge_dicts({"a": "\n"}, {"a": "\n"}) == {"a": "\n\n"}
     assert merge_dicts({"a": {"b": "a"}}, {"a": {"b": "b"}}) == {"a": {"b": "ab"}}
+
+
+def test_equal_dicts_still_recurse():
+    # Equal dicts must recurse — they can carry accumulating string leaves.
+    # https://github.com/posit-dev/chatlas/issues/435
+    assert merge_dicts(
+        {"delta": {"content": "\n", "role": "assistant"}},
+        {"delta": {"content": "\n", "role": "assistant"}},
+    ) == {"delta": {"content": "\n\n", "role": "assistantassistant"}}
 
 
 def test_merge_dictionaries_with_different_keys():
