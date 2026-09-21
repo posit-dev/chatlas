@@ -140,8 +140,6 @@ class TestChatBedrockDispatch:
         )
 
     def test_cross_region_prefix_is_stripped_from_the_responses_model(self):
-        # Converse needs the prefix, but mantle 404s if it's included in the
-        # request's model id.
         chat = ChatBedrock(model="us.openai.gpt-5.4", aws_region="us-east-1")
         assert chat.provider.model == "openai.gpt-5.4"
 
@@ -230,10 +228,6 @@ class TestMessagesProvider:
         )
 
     def test_default_model_is_served_by_mantle(self):
-        # The default model carries a cross-region prefix (needed for
-        # Converse), but it must still resolve to a model mantle's Anthropic
-        # endpoint actually serves when `api="messages"` is requested
-        # explicitly without a model.
         from chatlas._provider_bedrock import DEFAULT_MODEL
 
         chat = ChatBedrock(api="messages", aws_region="us-east-1")
@@ -241,8 +235,6 @@ class TestMessagesProvider:
         assert DEFAULT_MODEL == "us.anthropic.claude-sonnet-5"
 
     def test_cross_region_prefix_is_stripped_from_the_messages_model(self):
-        # Converse needs the prefix, but mantle 404s if it's included in the
-        # request's model id.
         chat = ChatBedrock(model="us.anthropic.claude-mythos-5", aws_region="us-east-1")
         assert chat.provider.model == "anthropic.claude-mythos-5"
 

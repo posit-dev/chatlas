@@ -184,8 +184,6 @@ def ChatBedrock(
             )
         return Chat(
             provider=BedrockResponsesProvider(
-                # Converse needs the cross-region inference prefix, but mantle
-                # rejects it on the model id in the request.
                 model=bedrock_strip_region_prefix(model),
                 aws_profile=aws_profile,
                 aws_region=region,
@@ -218,8 +216,6 @@ def ChatBedrock(
 
     return Chat(
         provider=BedrockMessagesProvider(
-            # Converse needs the cross-region inference prefix, but mantle
-            # rejects it on the model id in the request.
             model=bedrock_strip_region_prefix(model),
             aws_profile=aws_profile,
             aws_region=region,
