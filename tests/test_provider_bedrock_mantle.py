@@ -139,6 +139,10 @@ class TestChatBedrockDispatch:
             "https://bedrock-mantle.us-west-2.api.aws/openai/v1"
         )
 
+    def test_cross_region_prefix_is_stripped_from_the_responses_model(self):
+        chat = ChatBedrock(model="us.openai.gpt-5.4", aws_region="us-east-1")
+        assert chat.provider.model == "openai.gpt-5.4"
+
     def test_list_models_uses_the_v1_mantle_path(self):
         # Mantle serves model listings at /v1/models; /openai/v1/models 404s,
         # so list_models() must hit a different base URL than chat requests do.
@@ -222,6 +226,17 @@ class TestMessagesProvider:
         assert base_url.rstrip("/") == (
             "https://bedrock-mantle.us-east-1.api.aws/anthropic"
         )
+
+    def test_default_model_is_served_by_mantle(self):
+        from chatlas._provider_bedrock import DEFAULT_MODEL
+
+        chat = ChatBedrock(api="messages", aws_region="us-east-1")
+        assert chat.provider.model == "anthropic.claude-sonnet-5"
+        assert DEFAULT_MODEL == "us.anthropic.claude-sonnet-5"
+
+    def test_cross_region_prefix_is_stripped_from_the_messages_model(self):
+        chat = ChatBedrock(model="us.anthropic.claude-mythos-5", aws_region="us-east-1")
+        assert chat.provider.model == "anthropic.claude-mythos-5"
 
     def test_cache_auto_becomes_a_5m_ttl(self):
         chat = ChatBedrock(
