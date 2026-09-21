@@ -403,6 +403,13 @@ class AnthropicProvider(
         self._client = Anthropic(**sync_kwargs)  # type: ignore
         self._async_client = AsyncAnthropic(**async_kwargs)
 
+    def close(self) -> None:
+        self._client.close()
+
+    async def close_async(self) -> None:
+        self.close()
+        await self._async_client.close()
+
     def list_models(self):
         models = self._client.models.list()
 
@@ -885,17 +892,14 @@ class AnthropicProvider(
                 raise ValueError(f"Unknown role {turn.role}")
 
             content: list[ContentBlockParam] = [
-                self._as_content_block(c)
+                self._as_content_block(self._as_replayable_content(c))
                 for c in turn.contents
                 if not isinstance(c, PROVIDER_ANNOTATION_TYPES)
                 or anthropic_replayable(c)
             ]
 
-            # An assistant turn with no content can't simply be dropped:
-            # doing so could produce two consecutive user messages,
-            # violating the API's user/assistant alternation requirement.
-            # Send a placeholder instead (the API also requires all
-            # messages to have non-empty content).
+            # Dropping an empty assistant turn could produce two consecutive
+            # user messages, violating the API's alternation requirement.
             if turn.role == "assistant" and len(content) == 0:
                 content = [
                     cast("TextBlockParam", {"type": "text", "text": "[empty string]"})
@@ -912,6 +916,15 @@ class AnthropicProvider(
             role = "user" if isinstance(turn, UserTurn) else "assistant"
             messages.append({"role": role, "content": content})
         return messages
+
+    @staticmethod
+    def _as_replayable_content(content: Content) -> Content:
+        # The API rejects unsigned thinking blocks, so replay them as text
+        if isinstance(content, ContentThinking) and not (content.extra or {}).get(
+            "signature"
+        ):
+            return ContentText(text=str(content))
+        return content
 
     @staticmethod
     def _as_content_block(content: Content) -> "ContentBlockParam":

@@ -103,6 +103,25 @@ class TestBaseUrl:
             "https://bedrock-runtime.us-west-2.amazonaws.com"
         )
 
+    def test_generic_endpoint_url_applies_to_converse(self, monkeypatch):
+        monkeypatch.delenv("AWS_ENDPOINT_URL_BEDROCK_RUNTIME", raising=False)
+        monkeypatch.setenv("AWS_ENDPOINT_URL", "https://proxy.example")
+        assert bedrock_base_url("converse", "us-west-2") == "https://proxy.example"
+
+    def test_generic_endpoint_url_applies_to_mantle(self, monkeypatch):
+        monkeypatch.delenv("AWS_ENDPOINT_URL_BEDROCK_MANTLE", raising=False)
+        monkeypatch.setenv("AWS_ENDPOINT_URL", "https://proxy.example")
+        assert bedrock_base_url("messages", "us-west-2") == (
+            "https://proxy.example/anthropic"
+        )
+
+    def test_service_specific_var_outranks_generic(self, monkeypatch):
+        monkeypatch.setenv("AWS_ENDPOINT_URL", "https://generic.example")
+        monkeypatch.setenv(
+            "AWS_ENDPOINT_URL_BEDROCK_RUNTIME", "https://specific.example"
+        )
+        assert bedrock_base_url("converse", "us-west-2") == "https://specific.example"
+
 
 class TestChatBedrockDispatch:
     def test_responses_model_builds_an_openai_backed_provider(self):
@@ -119,6 +138,10 @@ class TestChatBedrockDispatch:
         assert base_url.rstrip("/") == (
             "https://bedrock-mantle.us-west-2.api.aws/openai/v1"
         )
+
+    def test_cross_region_prefix_is_stripped_from_the_responses_model(self):
+        chat = ChatBedrock(model="us.openai.gpt-5.4", aws_region="us-east-1")
+        assert chat.provider.model == "openai.gpt-5.4"
 
     def test_list_models_uses_the_v1_mantle_path(self):
         # Mantle serves model listings at /v1/models; /openai/v1/models 404s,
@@ -203,6 +226,17 @@ class TestMessagesProvider:
         assert base_url.rstrip("/") == (
             "https://bedrock-mantle.us-east-1.api.aws/anthropic"
         )
+
+    def test_default_model_is_served_by_mantle(self):
+        from chatlas._provider_bedrock import DEFAULT_MODEL
+
+        chat = ChatBedrock(api="messages", aws_region="us-east-1")
+        assert chat.provider.model == "anthropic.claude-sonnet-5"
+        assert DEFAULT_MODEL == "us.anthropic.claude-sonnet-5"
+
+    def test_cross_region_prefix_is_stripped_from_the_messages_model(self):
+        chat = ChatBedrock(model="us.anthropic.claude-mythos-5", aws_region="us-east-1")
+        assert chat.provider.model == "anthropic.claude-mythos-5"
 
     def test_cache_auto_becomes_a_5m_ttl(self):
         chat = ChatBedrock(

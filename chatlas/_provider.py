@@ -197,6 +197,48 @@ class Provider(
     def model(self, value: str):
         self._model = value
 
+    def set_model(self, value: str) -> "Provider[Any, Any, Any, Any]":
+        """
+        Set the model used by the provider.
+
+        The default implementation just updates the model name and returns
+        the provider unchanged. Providers that dispatch to a different API
+        flavor based on the model name (e.g., Posit AI) override this to
+        return a different provider instance when the new model belongs to
+        another flavor.
+
+        Returns
+        -------
+        Provider
+            The provider to use for subsequent requests (possibly `self`).
+        """
+        self._model = value
+        return self
+
+    def close(self) -> None:
+        """
+        Release resources held by this provider (e.g., HTTP connection pools,
+        database sessions).
+
+        This is best-effort and only closes synchronous resources; use
+        `close_async()` to also release asynchronous resources. Providers only
+        close resources they created themselves -- clients or connections
+        supplied by the caller are left open. Implementations must be safe to
+        call multiple times.
+
+        The default implementation does nothing.
+        """
+        pass
+
+    async def close_async(self) -> None:
+        """
+        Asynchronous variant of `close()`.
+
+        Releases both synchronous and asynchronous resources held by this
+        provider. The default implementation calls `close()`.
+        """
+        self.close()
+
     @abstractmethod
     def list_models(self) -> list[ModelInfo]:
         """

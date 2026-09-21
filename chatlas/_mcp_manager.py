@@ -147,6 +147,11 @@ class MCPSessionManager:
     def __init__(self):
         self._mcp_sessions: dict[str, SessionInfo] = {}
 
+    @property
+    def has_open_sessions(self) -> bool:
+        """Whether any MCP server sessions are currently registered."""
+        return bool(self._mcp_sessions)
+
     async def register_http_stream_tools(
         self,
         *,

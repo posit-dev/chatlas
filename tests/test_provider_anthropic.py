@@ -929,11 +929,7 @@ def test_anthropic_list_models():
 
 
 def test_anthropic_empty_assistant_turn_placeholder():
-    """Empty assistant turns get a placeholder instead of being dropped (#416).
-
-    Dropping the turn could produce two consecutive user messages, violating
-    the API's user/assistant alternation requirement.
-    """
+    """Empty assistant turns get a placeholder instead of being dropped (#416)."""
     chat = chat_func()
     chat.set_turns(
         [
@@ -943,12 +939,9 @@ def test_anthropic_empty_assistant_turn_placeholder():
         ]
     )
 
-    # Get the message params that would be sent to the API
     provider = cast(AnthropicProvider, chat.provider)
     turns_json = provider._as_message_params(chat.get_turns())
 
-    # The empty assistant turn is kept (with placeholder content), so
-    # user/assistant roles still alternate as the API requires
     assert [m["role"] for m in turns_json] == ["user", "assistant", "user"]
     assert turns_json[1]["content"] == [{"type": "text", "text": "[empty string]"}]
     assert turns_json[2]["content"][0]["text"] == "What did I just say?"  # type: ignore
@@ -1151,3 +1144,42 @@ def test_anthropic_value_cost_prices_fallback_at_serving_models_rate():
 
     # opus-4-8 rates ($5/$25 per 1M), not fable-5's ($10/$50).
     assert cost == pytest.approx((1000 * 5 + 50 * 25) / 1e6)
+
+
+def test_anthropic_message_params_convert_unsigned_thinking_blocks():
+    from chatlas._content import ContentText, ContentThinking
+
+    provider = AnthropicProvider(model="claude-sonnet-4-5", api_key="dummy")
+
+    turns = [
+        UserTurn("hi"),
+        AssistantTurn(
+            [ContentThinking(thinking="hmm"), ContentText(text="hello")]
+        ),
+        UserTurn("again"),
+    ]
+    messages = provider._as_message_params(turns)
+    assert messages[1]["content"] == [
+        {"text": "<thinking>\nhmm\n</thinking>\n", "type": "text"},
+        {"text": "hello", "type": "text"},
+    ]
+
+    turns[1] = AssistantTurn(
+        [
+            ContentThinking(thinking="hmm", extra={"signature": "sig"}),
+            ContentText(text="hello"),
+        ]
+    )
+    messages = provider._as_message_params(turns)
+    assert messages[1]["content"][0] == {
+        "type": "thinking",
+        "thinking": "hmm",
+        "signature": "sig",
+    }
+
+    turns[1] = AssistantTurn([ContentThinking(thinking="hmm")])
+    messages = provider._as_message_params(turns)
+    assert len(messages) == 3
+    assert messages[1]["content"] == [
+        {"text": "<thinking>\nhmm\n</thinking>\n", "type": "text"}
+    ]

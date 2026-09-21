@@ -77,7 +77,7 @@ dev = [
     "polars",
     "openai",
     "anthropic[bedrock]>=1.0.0",
-    "google-genai>=1.14.0",
+    "google-genai>=2.0.0",
     "numpy>1.24.4",
     "tiktoken",
     "databricks-sdk",
@@ -117,7 +117,7 @@ databricks = ["databricks-sdk"]
 # Intentionally empty since these providers used to require 
 # an additional openai install, but that's now included 
 github = []
-google = ["google-genai>=1.14.0"]
+google = ["google-genai>=2.0.0"]
 groq = []
 ollama = []
 openai = []
@@ -127,7 +127,7 @@ posit = ["anthropic>=1.0.0"]
 # Version requirement avoids an install issue with recent Python versions.
 # Remove it when snowflake-ml-python can be installed without a requirement.
 snowflake = ["snowflake-ml-python<=1.9.0"]
-vertex = ["google-genai>=1.14.0"]
+vertex = ["google-genai>=2.0.0"]
 
 [dependency-groups]
 dev = [
