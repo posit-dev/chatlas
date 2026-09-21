@@ -891,17 +891,19 @@ class AnthropicProvider(
             if not isinstance(turn, (UserTurn, AssistantTurn)):
                 raise ValueError(f"Unknown role {turn.role}")
 
-            content = [
+            content: list[ContentBlockParam] = [
                 self._as_content_block(self._as_replayable_content(c))
                 for c in turn.contents
                 if not isinstance(c, PROVIDER_ANNOTATION_TYPES)
                 or anthropic_replayable(c)
             ]
 
-            # Drop empty assistant turns to avoid an API error
-            # (all messages must have non-empty content)
+            # Dropping an empty assistant turn could produce two consecutive
+            # user messages, violating the API's alternation requirement.
             if turn.role == "assistant" and len(content) == 0:
-                continue
+                content = [
+                    cast("TextBlockParam", {"type": "text", "text": "[empty string]"})
+                ]
 
             # Add cache control to the last content block in the last turn
             # https://docs.claude.com/en/docs/build-with-claude/prompt-caching#how-automatic-prefix-checking-works

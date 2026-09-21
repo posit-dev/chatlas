@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Anthropic-backed providers (`ChatAnthropic()`, `ChatPosit()`, `ChatBedrock()`, etc.) no longer fail with `Invalid signature in thinking block` when the conversation history contains reasoning from a non-Claude model (e.g., after switching `chat.model` across families); such thinking is now replayed as plain text so the model can still see it.
 * `content_image_file()` no longer fails with `ValueError: unknown file extension` when `resize` uses the `!` (ignore aspect ratio) flag on an image larger than the requested box, e.g. `resize="200x200!"`. (#433)
 * `params(top_k=)` is no longer sent as `top_logprobs` for OpenAI-based providers (the two are unrelated; OpenAI has no `top_k` sampling parameter). `top_k` is now dropped with the standard unsupported-parameter warning. (#412)
+* `ChatAnthropic()` no longer drops assistant turns that have no content; doing so could produce two consecutive user messages, violating the API's user/assistant alternation requirement. A `"[empty string]"` placeholder is sent instead, matching how empty text content is already normalized. (#416)
 
 
 ## [0.23.0] - 2026-09-04
@@ -35,7 +36,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `ChatBedrock()` now defaults `base_url` to the official AWS SDKs' endpoint override environment variables when set: `AWS_ENDPOINT_URL_BEDROCK_RUNTIME` for `api="converse"`, and `AWS_ENDPOINT_URL_BEDROCK_MANTLE` for `api="messages"` and `api="responses"`. Similarly, `ChatAnthropic()` respects the `ANTHROPIC_BASE_URL` environment variable (via the anthropic SDK). Setting these variables is enough to route requests through a proxy or gateway, so you don't have to pass `base_url` on every call.
 
 ### Bug fixes
-
 * `ChatBedrock()`'s default model (previously `"us.anthropic.claude-sonnet-4-6"`) is now `"us.anthropic.claude-sonnet-5"`, which mantle's `api="messages"` endpoint actually serves. Separately, the cross-region inference prefix (e.g. `"us."`) is now stripped from the model id sent in requests to `api="messages"` and `api="responses"`, since mantle rejects it even though Converse requires it. Previously, a mantle-only model with a cross-region prefix (e.g. `model="us.openai.gpt-5.4"`) would 404. (#411)
 * `ChatDatabricks()` no longer drops the assistant's reply from the conversation when a GPT-OSS endpoint streams typed content. The typed part array was merged into the accumulated completion before it was normalized, so every later text delta was appended to it one character at a time and the finished turn came back empty. (#409)
 * `.to_solver()` no longer corrupts the system prompt or the prior turns it reads out of Inspect AI's message state. The system prompt was being set to the `repr()` of the `ChatMessageSystem` object rather than its text, and message content arriving in Inspect AI's `str` form (rather than as a list of `Content`) was iterated one character at a time. (#407)

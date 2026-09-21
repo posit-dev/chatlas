@@ -928,24 +928,23 @@ def test_anthropic_list_models():
     assert_list_models(chat_func)
 
 
-def test_anthropic_removes_empty_assistant_turns():
-    """Test that empty assistant turns are dropped to avoid API errors."""
+def test_anthropic_empty_assistant_turn_placeholder():
+    """Empty assistant turns get a placeholder instead of being dropped (#416)."""
     chat = chat_func()
     chat.set_turns(
         [
             UserTurn("Don't say anything"),
             AssistantTurn([]),
+            UserTurn("What did I just say?"),
         ]
     )
 
-    # Get the message params that would be sent to the API
     provider = cast(AnthropicProvider, chat.provider)
     turns_json = provider._as_message_params(chat.get_turns())
 
-    # Should only have the user turn, not the empty assistant turn
-    assert len(turns_json) == 1
-    assert turns_json[0]["role"] == "user"
-    assert turns_json[0]["content"][0]["text"] == "Don't say anything"  # type: ignore
+    assert [m["role"] for m in turns_json] == ["user", "assistant", "user"]
+    assert turns_json[1]["content"] == [{"type": "text", "text": "[empty string]"}]
+    assert turns_json[2]["content"][0]["text"] == "What did I just say?"  # type: ignore
 
 
 @pytest.mark.vcr
