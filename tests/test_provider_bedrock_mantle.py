@@ -103,6 +103,25 @@ class TestBaseUrl:
             "https://bedrock-runtime.us-west-2.amazonaws.com"
         )
 
+    def test_generic_endpoint_url_applies_to_converse(self, monkeypatch):
+        monkeypatch.delenv("AWS_ENDPOINT_URL_BEDROCK_RUNTIME", raising=False)
+        monkeypatch.setenv("AWS_ENDPOINT_URL", "https://proxy.example")
+        assert bedrock_base_url("converse", "us-west-2") == "https://proxy.example"
+
+    def test_generic_endpoint_url_applies_to_mantle(self, monkeypatch):
+        monkeypatch.delenv("AWS_ENDPOINT_URL_BEDROCK_MANTLE", raising=False)
+        monkeypatch.setenv("AWS_ENDPOINT_URL", "https://proxy.example")
+        assert bedrock_base_url("messages", "us-west-2") == (
+            "https://proxy.example/anthropic"
+        )
+
+    def test_service_specific_var_outranks_generic(self, monkeypatch):
+        monkeypatch.setenv("AWS_ENDPOINT_URL", "https://generic.example")
+        monkeypatch.setenv(
+            "AWS_ENDPOINT_URL_BEDROCK_RUNTIME", "https://specific.example"
+        )
+        assert bedrock_base_url("converse", "us-west-2") == "https://specific.example"
+
 
 class TestChatBedrockDispatch:
     def test_responses_model_builds_an_openai_backed_provider(self):
