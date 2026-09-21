@@ -10,7 +10,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Bug fixes
+
+* `ChatBedrock()` (with the default `api="converse"`) no longer sends assistant turns with an empty `content` array, which Converse rejects. This happens when a response carries no content blocks, for example when a guardrail intervenes before the model produces any. A `"[empty string]"` placeholder is sent instead, matching how empty text content is already normalized. (#426)
+* `ChatPosit()` now handles setting `chat.model` to a model from the other family (Claude vs. non-Claude): the underlying provider is swapped so requests go to the correct endpoint, instead of failing with a mismatched request. The `cache` setting is preserved across switches.
+* Anthropic-backed providers (`ChatAnthropic()`, `ChatPosit()`, `ChatBedrock()`, etc.) no longer fail with `Invalid signature in thinking block` when the conversation history contains reasoning from a non-Claude model (e.g., after switching `chat.model` across families); such thinking is now replayed as plain text so the model can still see it.
+* `content_image_file()` no longer fails with `ValueError: unknown file extension` when `resize` uses the `!` (ignore aspect ratio) flag on an image larger than the requested box, e.g. `resize="200x200!"`. (#433)
+
+
+## [0.23.0] - 2026-09-04
+
 ### New features
+
+* `Chat` gains `close()` and `close_async()` methods (plus context-manager support) for releasing resources held by the provider -- HTTP connection pools, the Snowflake Snowpark session/connection, and (via `close_async()`) MCP server sessions. This is useful in long-lived applications like Shiny that create a chat per user session: `session.on_ended(chat.close)`. Providers only close resources they created themselves; caller-supplied clients are left open.
+
+* `ChatSnowflake()` gains a `session` parameter for supplying an existing `snowflake.snowpark.Session`, mirroring `ChatDatabricks()`'s `workspace_client`. This lets one session be shared across multiple chats; `Chat.close()` only closes sessions that chatlas created itself, leaving caller-supplied sessions open.
 
 * When running on Posit Connect, chatlas now forwards the Shiny viewer's session token to Connect's LLM gateway (as a `Posit-Connect-User-Session-Token` header) so gateway usage can be attributed to the viewer. This happens automatically for Shiny content and only affects requests to the gateway.
 
