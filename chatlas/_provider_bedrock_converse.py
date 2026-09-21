@@ -299,11 +299,15 @@ def as_converse_content(
                     "Bedrock Converse redacted reasoning content must be bytes."
                 )
             return {"reasoningContent": {"redactedContent": redacted_content}}
+        signature = extra.get("signature")
+        if not signature:
+            # Claude models reject unsigned reasoning, so replay it as text
+            return {"text": str(content)}
         return {
             "reasoningContent": {
                 "reasoningText": {
                     "text": content.thinking,
-                    "signature": extra.get("signature", ""),
+                    "signature": signature,
                 }
             }
         }
@@ -324,6 +328,12 @@ def as_converse_messages(turns: list[Turn]) -> list[MessageUnionTypeDef]:
         for c in turn.contents:
             content.append(as_converse_content(c, document_index=index))
             index += 1
+
+        # Converse requires non-empty content, and dropping the turn instead
+        # would leave two consecutive user messages.
+        if role == "assistant" and not content:
+            content = [{"text": "[empty string]"}]
+
         messages.append({"role": role, "content": content})
     return messages
 
@@ -446,6 +456,13 @@ class BedrockConverseProvider(
         self._async_client = httpx.AsyncClient(
             auth=auth, base_url=resolved_base_url, **async_client_kwargs
         )
+
+    def close(self) -> None:
+        self._client.close()
+
+    async def close_async(self) -> None:
+        self.close()
+        await self._async_client.aclose()
 
     def list_models(self) -> list[ModelInfo]:
         # boto3 should come via the `bedrock` extra's `anthropic[bedrock]`,

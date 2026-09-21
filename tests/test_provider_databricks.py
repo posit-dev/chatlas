@@ -1,4 +1,5 @@
 import asyncio
+import warnings
 from types import SimpleNamespace
 from typing import Any, cast
 from unittest.mock import Mock
@@ -9,6 +10,9 @@ from chatlas import ChatDatabricks
 from chatlas._content import ContentText, ContentThinking, ContentThinkingDelta
 from chatlas._provider_databricks import DatabricksProvider
 from openai import OpenAI
+from openai.types.chat import ChatCompletionChunk
+from openai.types.chat.chat_completion_chunk import Choice as ChunkChoice
+from openai.types.chat.chat_completion_chunk import ChoiceDelta
 
 from .conftest import (
     assert_data_extraction,
@@ -283,5 +287,80 @@ def test_stream_content_preserves_plain_string_content():
 
         result = provider.stream_content(chunk, None)
         assert result == [ContentText(text="partial text")]
+    finally:
+        provider._client.close()
+
+
+def _stream_chunk(content: Any) -> ChatCompletionChunk:
+    """A chunk shaped like the ones a real stream carries, with choices[].index."""
+    return ChatCompletionChunk.model_construct(
+        id="c",
+        model="gpt-oss",
+        object="chat.completion.chunk",
+        created=0,
+        choices=[
+            ChunkChoice.model_construct(
+                index=0,
+                delta=ChoiceDelta.model_construct(role="assistant", content=content),
+                finish_reason=None,
+            )
+        ],
+    )
+
+
+def test_stream_merge_chunks_normalizes_typed_content_array():
+    """The accumulated completion holds text, not the typed part array (#409)."""
+    provider = _databricks_provider()
+    try:
+        chunks = [
+            _stream_chunk(
+                [
+                    {
+                        "type": "reasoning",
+                        "summary": [{"type": "summary_text", "text": "thinking"}],
+                    }
+                ]
+            ),
+            _stream_chunk("Hello"),
+            _stream_chunk(" world"),
+        ]
+
+        result = None
+        streamed = []
+        with warnings.catch_warnings(record=True) as caught:
+            warnings.simplefilter("always")
+            for chunk in chunks:
+                result = provider.stream_merge_chunks(result, chunk)
+                streamed.extend(provider.stream_content(chunk, result))
+
+        delta = result["choices"][0]["delta"]
+        assert delta["content"] == "Hello world"
+        assert delta["reasoning"] == "thinking"
+        assert [
+            w
+            for w in caught
+            if "PydanticSerializationUnexpectedValue" in str(w.message)
+        ] == []
+        assert streamed == [
+            ContentThinkingDelta(thinking="thinking"),
+            ContentText(text="Hello"),
+            ContentText(text=" world"),
+        ]
+
+        turn = provider.stream_turn(result, has_data_model=False)
+        assert turn.text == "Hello world"
+    finally:
+        provider._client.close()
+
+
+def test_stream_merge_chunks_preserves_plain_string_content():
+    """Non-array content (the common case) is untouched by the normalization."""
+    provider = _databricks_provider()
+    try:
+        result = None
+        for chunk in [_stream_chunk("Hello"), _stream_chunk(" world")]:
+            result = provider.stream_merge_chunks(result, chunk)
+
+        assert result["choices"][0]["delta"]["content"] == "Hello world"
     finally:
         provider._client.close()

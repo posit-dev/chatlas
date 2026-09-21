@@ -600,16 +600,12 @@ class OpenAIProvider(
             # determine whether to include `message.output_text.logprobs`
             res["log_probs"] = params["log_probs"]  # type: ignore
 
-        if "top_k" in params:
-            res["top_logprobs"] = params["top_k"]
-
         return res
 
     def supported_model_params(self) -> set[StandardModelParamNames]:
         return {
             "temperature",
             "top_p",
-            "top_k",
             "max_tokens",
             "log_probs",
         }

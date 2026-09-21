@@ -97,7 +97,10 @@ def ChatDatabricks(
         choosing a model for all but the most casual use.
     workspace_client
         A `databricks.sdk.WorkspaceClient()` to use for the connection. If not
-        provided, a new client will be created.
+        provided, a new client will be created. Note that calling
+        [`Chat.close()`](`chatlas.Chat.close`) does not close a
+        caller-supplied `WorkspaceClient` -- it only closes the OpenAI-compatible
+        client that chatlas derives from it.
 
     Returns
     -------
@@ -195,6 +198,17 @@ class DatabricksProvider(OpenAICompletionsProvider):
             if reasoning:
                 setattr(delta, "reasoning", reasoning)
         return super().stream_content(chunk, completion, turns)
+
+    # The streaming loop merges each chunk before it yields its content, so the
+    # typed array reaches `model_dump()` unless it is normalized here as well.
+    def stream_merge_chunks(self, completion, chunk):
+        delta = chunk.choices[0].delta if chunk.choices else None
+        if delta is not None and isinstance(delta.content, list):
+            text, reasoning = _normalize_content_parts(delta.content)
+            delta.content = text
+            if reasoning:
+                setattr(delta, "reasoning", reasoning)
+        return super().stream_merge_chunks(completion, chunk)
 
     # Same normalization for the non-streaming/completed-response path.
     @staticmethod

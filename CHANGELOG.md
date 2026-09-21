@@ -10,17 +10,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Bug fixes
+
+* `ChatBedrock()` (with the default `api="converse"`) no longer sends assistant turns with an empty `content` array, which Converse rejects. This happens when a response carries no content blocks, for example when a guardrail intervenes before the model produces any. A `"[empty string]"` placeholder is sent instead, matching how empty text content is already normalized. (#426)
+* `ChatPosit()` now handles setting `chat.model` to a model from the other family (Claude vs. non-Claude): the underlying provider is swapped so requests go to the correct endpoint, instead of failing with a mismatched request. The `cache` setting is preserved across switches.
+* Anthropic-backed providers (`ChatAnthropic()`, `ChatPosit()`, `ChatBedrock()`, etc.) no longer fail with `Invalid signature in thinking block` when the conversation history contains reasoning from a non-Claude model (e.g., after switching `chat.model` across families); such thinking is now replayed as plain text so the model can still see it.
+* `content_image_file()` no longer fails with `ValueError: unknown file extension` when `resize` uses the `!` (ignore aspect ratio) flag on an image larger than the requested box, e.g. `resize="200x200!"`. (#433)
+* `params(top_k=)` is no longer sent as `top_logprobs` for OpenAI-based providers (the two are unrelated; OpenAI has no `top_k` sampling parameter). `top_k` is now dropped with the standard unsupported-parameter warning. (#412)
+
+
+## [0.23.0] - 2026-09-04
+
 ### New features
+
+* `Chat` gains `close()` and `close_async()` methods (plus context-manager support) for releasing resources held by the provider -- HTTP connection pools, the Snowflake Snowpark session/connection, and (via `close_async()`) MCP server sessions. This is useful in long-lived applications like Shiny that create a chat per user session: `session.on_ended(chat.close)`. Providers only close resources they created themselves; caller-supplied clients are left open.
+
+* `ChatSnowflake()` gains a `session` parameter for supplying an existing `snowflake.snowpark.Session`, mirroring `ChatDatabricks()`'s `workspace_client`. This lets one session be shared across multiple chats; `Chat.close()` only closes sessions that chatlas created itself, leaving caller-supplied sessions open.
 
 * When running on Posit Connect, chatlas now forwards the Shiny viewer's session token to Connect's LLM gateway (as a `Posit-Connect-User-Session-Token` header) so gateway usage can be attributed to the viewer. This happens automatically for Shiny content and only affects requests to the gateway.
 
 ### Changes
 
+- `ChatHuggingFace()`'s default `model` is now `Qwen/Qwen3-235B-A22B-Instruct-2507` (previously `meta-llama/Llama-3.1-8B-Instruct`), matching ellmer's default. (#414)
 - `ChatBedrock()` now defaults `base_url` to the official AWS SDKs' endpoint override environment variables when set: `AWS_ENDPOINT_URL_BEDROCK_RUNTIME` for `api="converse"`, and `AWS_ENDPOINT_URL_BEDROCK_MANTLE` for `api="messages"` and `api="responses"`. Similarly, `ChatAnthropic()` respects the `ANTHROPIC_BASE_URL` environment variable (via the anthropic SDK). Setting these variables is enough to route requests through a proxy or gateway, so you don't have to pass `base_url` on every call.
 
 ### Bug fixes
 
 * `ChatBedrock()`'s default model (previously `"us.anthropic.claude-sonnet-4-6"`) is now `"us.anthropic.claude-sonnet-5"`, which mantle's `api="messages"` endpoint actually serves. Separately, the cross-region inference prefix (e.g. `"us."`) is now stripped from the model id sent in requests to `api="messages"` and `api="responses"`, since mantle rejects it even though Converse requires it. Previously, a mantle-only model with a cross-region prefix (e.g. `model="us.openai.gpt-5.4"`) would 404. (#411)
+* `ChatDatabricks()` no longer drops the assistant's reply from the conversation when a GPT-OSS endpoint streams typed content. The typed part array was merged into the accumulated completion before it was normalized, so every later text delta was appended to it one character at a time and the finished turn came back empty. (#409)
 * `.to_solver()` no longer corrupts the system prompt or the prior turns it reads out of Inspect AI's message state. The system prompt was being set to the `repr()` of the `ChatMessageSystem` object rather than its text, and message content arriving in Inspect AI's `str` form (rather than as a list of `Content`) was iterated one character at a time. (#407)
 * `ChatGoogle()` no longer raises `ValueError: Unknown content type: ContentThinking` on the second and later turns when `reasoning` is enabled; thinking content is now replayed to the model as thought parts, and the `thought_signature` on thought parts is preserved (previously only tool-call parts kept it). (#403)
 * `ChatOllama()` now distinguishes a remote endpoint it can't reach from a genuinely missing local install, and validates a supplied `model` against `/api/tags` at construction time instead of only when `model` is omitted. (#393)

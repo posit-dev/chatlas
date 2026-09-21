@@ -2,22 +2,22 @@ interactions:
 - request:
     body: '{"messages": [{"content": "Return very minimal output, AND ONLY USE UPPERCASE.",
       "role": "system"}, {"content": [{"type": "text", "text": "What is the name of
-      Winnie the Pooh''s human friend?"}], "role": "user"}], "model": "meta-llama/Llama-3.1-8B-Instruct",
+      Winnie the Pooh''s human friend?"}], "role": "user"}], "model": "Qwen/Qwen3-235B-A22B-Instruct-2507",
       "stream": true, "stream_options": {"include_usage": true}}'
     headers:
-      Accept:
+      accept:
       - application/json
-      Accept-Encoding:
+      accept-encoding:
       - gzip, deflate
-      Connection:
+      connection:
       - keep-alive
-      Content-Length:
-      - '298'
-      Content-Type:
+      content-length:
+      - '300'
+      content-type:
       - application/json
-      Host:
+      host:
       - router.huggingface.co
-      X-Stainless-Async:
+      x-stainless-async:
       - 'false'
       x-stainless-read-timeout:
       - '600'
@@ -25,97 +25,120 @@ interactions:
     uri: https://router.huggingface.co/v1/chat/completions
   response:
     body:
-      string: 'data: {"id":"chatcmpl-3938b3f3-b067-4dfa-989b-70e58dd89e80","choices":[{"delta":{"role":"assistant"},"index":0}],"created":1767213634,"model":"llama3.1-8b","system_fingerprint":"fp_2df2c50ce520692a7dce","object":"chat.completion.chunk"}
+      string: 'data: {"id":"chatcmpl-795d4206-5da9-4b77-a50e-eb833ea4f2a0","object":"chat.completion.chunk","created":1788482532,"model":"qwen3-235b-a22b-instruct-2507","choices":[{"index":0,"delta":{"role":"assistant","content":"","reasoning_content":null},"logprobs":null,"finish_reason":null}],"usage":null}
 
 
-        data: {"id":"chatcmpl-3938b3f3-b067-4dfa-989b-70e58dd89e80","choices":[{"delta":{"content":"CHR"},"index":0}],"created":1767213634,"model":"llama3.1-8b","system_fingerprint":"fp_2df2c50ce520692a7dce","object":"chat.completion.chunk"}
+        data: {"id":"chatcmpl-795d4206-5da9-4b77-a50e-eb833ea4f2a0","object":"chat.completion.chunk","created":1788482532,"model":"qwen3-235b-a22b-instruct-2507","choices":[{"index":0,"delta":{"content":"CHR","reasoning_content":null},"logprobs":null,"finish_reason":null,"token_ids":null}],"usage":null}
 
 
-        data: {"id":"chatcmpl-3938b3f3-b067-4dfa-989b-70e58dd89e80","choices":[{"delta":{"content":"ISTOPHER
-        ROBIN."},"index":0}],"created":1767213634,"model":"llama3.1-8b","system_fingerprint":"fp_2df2c50ce520692a7dce","object":"chat.completion.chunk"}
+        data: {"id":"chatcmpl-795d4206-5da9-4b77-a50e-eb833ea4f2a0","object":"chat.completion.chunk","created":1788482532,"model":"qwen3-235b-a22b-instruct-2507","choices":[{"index":0,"delta":{"content":"IST","reasoning_content":null},"logprobs":null,"finish_reason":null,"token_ids":null}],"usage":null}
 
 
-        data: {"id":"chatcmpl-3938b3f3-b067-4dfa-989b-70e58dd89e80","choices":[{"delta":{},"finish_reason":"stop","index":0}],"created":1767213634,"model":"llama3.1-8b","system_fingerprint":"fp_2df2c50ce520692a7dce","object":"chat.completion.chunk","usage":{"total_tokens":70,"completion_tokens":8,"prompt_tokens":62,"prompt_tokens_details":{"cached_tokens":0}},"time_info":{"queue_time":0.0000397,"prompt_time":0.003675159,"completion_time":0.00311883,"total_time":0.00815582275390625,"created":1767213634.068277}}
+        data: {"id":"chatcmpl-795d4206-5da9-4b77-a50e-eb833ea4f2a0","object":"chat.completion.chunk","created":1788482532,"model":"qwen3-235b-a22b-instruct-2507","choices":[{"index":0,"delta":{"content":"OP","reasoning_content":null},"logprobs":null,"finish_reason":null,"token_ids":null}],"usage":null}
+
+
+        data: {"id":"chatcmpl-795d4206-5da9-4b77-a50e-eb833ea4f2a0","object":"chat.completion.chunk","created":1788482532,"model":"qwen3-235b-a22b-instruct-2507","choices":[{"index":0,"delta":{"content":"HER","reasoning_content":null},"logprobs":null,"finish_reason":null,"token_ids":null}],"usage":null}
+
+
+        data: {"id":"chatcmpl-795d4206-5da9-4b77-a50e-eb833ea4f2a0","object":"chat.completion.chunk","created":1788482532,"model":"qwen3-235b-a22b-instruct-2507","choices":[{"index":0,"delta":{"content":"
+        RO","reasoning_content":null},"logprobs":null,"finish_reason":null,"token_ids":null}],"usage":null}
+
+
+        data: {"id":"chatcmpl-795d4206-5da9-4b77-a50e-eb833ea4f2a0","object":"chat.completion.chunk","created":1788482532,"model":"qwen3-235b-a22b-instruct-2507","choices":[{"index":0,"delta":{"content":"BIN","reasoning_content":null},"logprobs":null,"finish_reason":null,"token_ids":null}],"usage":null}
+
+
+        data: {"id":"chatcmpl-795d4206-5da9-4b77-a50e-eb833ea4f2a0","object":"chat.completion.chunk","created":1788482532,"model":"qwen3-235b-a22b-instruct-2507","choices":[{"index":0,"delta":{"content":"","reasoning_content":null},"logprobs":null,"finish_reason":"stop","stop_reason":null,"token_ids":null}],"usage":null}
+
+
+        data: {"id":"chatcmpl-795d4206-5da9-4b77-a50e-eb833ea4f2a0","object":"chat.completion.chunk","created":1788482532,"model":"qwen3-235b-a22b-instruct-2507","choices":[],"usage":{"prompt_tokens":40,"total_tokens":47,"completion_tokens":7}}
+
+
+        data: [DONE]
 
 
         '
     headers:
-      Access-Control-Allow-Origin:
+      access-control-allow-credentials:
+      - 'true'
+      access-control-allow-headers:
+      - User-Agent,X-Requested-With,X-Forwarded-For,If-Modified-Since,Cache-Control,Content-Type,
+        Range,Authorization,Access-Control-Allow-Origin,Referer,X-Stainless-Os,X-Stainless-Runtime,
+        X-Stainless-Runtime-Version,X-Stainless-Arch,X-Stainless-Lang,X-Stainless-Package-Version,
+        X-Stainless-Retry-Count,X-Stainless-Timeout
+      access-control-allow-methods:
+      - GET, POST, OPTIONS
+      access-control-allow-origin:
       - '*'
-      Access-Control-Expose-Headers:
+      access-control-expose-headers:
       - X-Repo-Commit,X-Request-Id,X-Error-Code,X-Error-Message,X-Total-Count,ETag,Link,Accept-Ranges,Content-Range,X-Linked-Size,X-Linked-ETag,X-Xet-Hash
-      Connection:
+      connection:
       - keep-alive
-      Content-Type:
+      content-type:
       - text/event-stream; charset=utf-8
-      Date:
-      - Wed, 31 Dec 2025 20:40:32 GMT
-      Transfer-Encoding:
-      - chunked
-      Vary:
-      - Origin
-      Via:
-      - 1.1 43d5c5ecf18f23d15311f4b123f7fa1e.cloudfront.net (CloudFront)
-      X-Amz-Cf-Id:
-      - UrGNgJgoLn-zcUhgbdpUT0jQZ0mLAcu-KduomXhRKs4fbpQXiZ7xrQ==
-      X-Amz-Cf-Pop:
-      - MSP50-P2
-      X-Cache:
-      - Miss from cloudfront
-      X-Powered-By:
-      - huggingface-moon
-      X-Robots-Tag:
-      - none
-      cf-cache-status:
-      - DYNAMIC
       cross-origin-opener-policy:
       - same-origin
-      inference-id:
-      - chatcmpl-3938b3f3-b067-4dfa-989b-70e58dd89e80
+      date:
+      - Fri, 04 Sep 2026 00:42:12 GMT
       referrer-policy:
       - strict-origin-when-cross-origin
       server:
-      - cloudflare
+      - envoy
       strict-transport-security:
-      - max-age=3600; includeSubDomains
-      x-content-type-options:
-      - nosniff
+      - max-age=31536000
+      transfer-encoding:
+      - chunked
+      vary:
+      - Origin
+      via:
+      - 1.1 990606ab91bf6503d073ad5fee40784c.cloudfront.net (CloudFront)
+      x-amz-cf-id:
+      - i-OyPw11KVGuVebXOYeMNgmckPIVKkR_wUBaUfu4NF52tWzdw5rQcg==
+      x-amz-cf-pop:
+      - MSP50-P2
+      x-cache:
+      - Miss from cloudfront
+      x-envoy-upstream-service-time:
+      - '67'
       x-inference-provider:
-      - cerebras
-      x-ratelimit-remaining-requests-day:
-      - '2879997'
-      x-ratelimit-remaining-requests-hour:
-      - '119997'
-      x-ratelimit-remaining-requests-minute:
-      - '1997'
-      x-ratelimit-remaining-tokens-day:
-      - '9223372036854767616'
-      x-ratelimit-remaining-tokens-hour:
-      - '9223372036854767616'
-      x-ratelimit-remaining-tokens-minute:
-      - '9223372036854767616'
+      - scaleway
+      x-powered-by:
+      - huggingface-moon
+      x-ratelimit-limit-requests:
+      - '600'
+      x-ratelimit-limit-tokens:
+      - '1000000'
+      x-ratelimit-remaining-requests:
+      - '299'
+      x-ratelimit-remaining-tokens:
+      - '499999'
+      x-ratelimit-reset-requests:
+      - 100ms
+      x-ratelimit-reset-tokens:
+      - 0ms
+      x-robots-tag:
+      - none
     status:
       code: 200
       message: OK
 - request:
     body: '{"messages": [{"content": "Return very minimal output, AND ONLY USE UPPERCASE.",
       "role": "system"}, {"content": [{"type": "text", "text": "What is the name of
-      Winnie the Pooh''s human friend?"}], "role": "user"}], "model": "meta-llama/Llama-3.1-8B-Instruct",
+      Winnie the Pooh''s human friend?"}], "role": "user"}], "model": "Qwen/Qwen3-235B-A22B-Instruct-2507",
       "stream": true, "stream_options": {"include_usage": true}}'
     headers:
-      Accept:
+      accept:
       - application/json
-      Accept-Encoding:
+      accept-encoding:
       - gzip, deflate
-      Connection:
+      connection:
       - keep-alive
-      Content-Length:
-      - '298'
-      Content-Type:
+      content-length:
+      - '300'
+      content-type:
       - application/json
-      Host:
+      host:
       - router.huggingface.co
-      X-Stainless-Async:
+      x-stainless-async:
       - 'false'
       x-stainless-read-timeout:
       - '600'
@@ -123,75 +146,98 @@ interactions:
     uri: https://router.huggingface.co/v1/chat/completions
   response:
     body:
-      string: 'data: {"id":"chatcmpl-770494fa-4f97-4a6a-94f7-b46a99c3b7ec","choices":[{"delta":{"role":"assistant"},"index":0}],"created":1767213634,"model":"llama3.1-8b","system_fingerprint":"fp_2df2c50ce520692a7dce","object":"chat.completion.chunk"}
+      string: 'data: {"id":"chatcmpl-c1d45839-f939-4b8e-b22d-ca00a4f53b08","object":"chat.completion.chunk","created":1788482532,"model":"qwen3-235b-a22b-instruct-2507","choices":[{"index":0,"delta":{"role":"assistant","content":"","reasoning_content":null},"logprobs":null,"finish_reason":null}],"usage":null}
 
 
-        data: {"id":"chatcmpl-770494fa-4f97-4a6a-94f7-b46a99c3b7ec","choices":[{"delta":{"content":"CHR"},"index":0}],"created":1767213634,"model":"llama3.1-8b","system_fingerprint":"fp_2df2c50ce520692a7dce","object":"chat.completion.chunk"}
+        data: {"id":"chatcmpl-c1d45839-f939-4b8e-b22d-ca00a4f53b08","object":"chat.completion.chunk","created":1788482532,"model":"qwen3-235b-a22b-instruct-2507","choices":[{"index":0,"delta":{"content":"CHR","reasoning_content":null},"logprobs":null,"finish_reason":null,"token_ids":null}],"usage":null}
 
 
-        data: {"id":"chatcmpl-770494fa-4f97-4a6a-94f7-b46a99c3b7ec","choices":[{"delta":{"content":"ISTOPHER
-        ROBIN."},"index":0}],"created":1767213634,"model":"llama3.1-8b","system_fingerprint":"fp_2df2c50ce520692a7dce","object":"chat.completion.chunk"}
+        data: {"id":"chatcmpl-c1d45839-f939-4b8e-b22d-ca00a4f53b08","object":"chat.completion.chunk","created":1788482532,"model":"qwen3-235b-a22b-instruct-2507","choices":[{"index":0,"delta":{"content":"IST","reasoning_content":null},"logprobs":null,"finish_reason":null,"token_ids":null}],"usage":null}
 
 
-        data: {"id":"chatcmpl-770494fa-4f97-4a6a-94f7-b46a99c3b7ec","choices":[{"delta":{},"finish_reason":"stop","index":0}],"created":1767213634,"model":"llama3.1-8b","system_fingerprint":"fp_2df2c50ce520692a7dce","object":"chat.completion.chunk","usage":{"total_tokens":70,"completion_tokens":8,"prompt_tokens":62,"prompt_tokens_details":{"cached_tokens":0}},"time_info":{"queue_time":0.000162471,"prompt_time":0.00275803,"completion_time":0.003120066,"total_time":0.007386922836303711,"created":1767213634.6693082}}
+        data: {"id":"chatcmpl-c1d45839-f939-4b8e-b22d-ca00a4f53b08","object":"chat.completion.chunk","created":1788482532,"model":"qwen3-235b-a22b-instruct-2507","choices":[{"index":0,"delta":{"content":"OP","reasoning_content":null},"logprobs":null,"finish_reason":null,"token_ids":null}],"usage":null}
+
+
+        data: {"id":"chatcmpl-c1d45839-f939-4b8e-b22d-ca00a4f53b08","object":"chat.completion.chunk","created":1788482532,"model":"qwen3-235b-a22b-instruct-2507","choices":[{"index":0,"delta":{"content":"HER","reasoning_content":null},"logprobs":null,"finish_reason":null,"token_ids":null}],"usage":null}
+
+
+        data: {"id":"chatcmpl-c1d45839-f939-4b8e-b22d-ca00a4f53b08","object":"chat.completion.chunk","created":1788482532,"model":"qwen3-235b-a22b-instruct-2507","choices":[{"index":0,"delta":{"content":"
+        RO","reasoning_content":null},"logprobs":null,"finish_reason":null,"token_ids":null}],"usage":null}
+
+
+        data: {"id":"chatcmpl-c1d45839-f939-4b8e-b22d-ca00a4f53b08","object":"chat.completion.chunk","created":1788482532,"model":"qwen3-235b-a22b-instruct-2507","choices":[{"index":0,"delta":{"content":"BIN","reasoning_content":null},"logprobs":null,"finish_reason":null,"token_ids":null}],"usage":null}
+
+
+        data: {"id":"chatcmpl-c1d45839-f939-4b8e-b22d-ca00a4f53b08","object":"chat.completion.chunk","created":1788482532,"model":"qwen3-235b-a22b-instruct-2507","choices":[{"index":0,"delta":{"content":"","reasoning_content":null},"logprobs":null,"finish_reason":"stop","stop_reason":null,"token_ids":null}],"usage":null}
+
+
+        data: {"id":"chatcmpl-c1d45839-f939-4b8e-b22d-ca00a4f53b08","object":"chat.completion.chunk","created":1788482532,"model":"qwen3-235b-a22b-instruct-2507","choices":[],"usage":{"prompt_tokens":40,"total_tokens":47,"completion_tokens":7}}
+
+
+        data: [DONE]
 
 
         '
     headers:
-      Access-Control-Allow-Origin:
+      access-control-allow-credentials:
+      - 'true'
+      access-control-allow-headers:
+      - User-Agent,X-Requested-With,X-Forwarded-For,If-Modified-Since,Cache-Control,Content-Type,
+        Range,Authorization,Access-Control-Allow-Origin,Referer,X-Stainless-Os,X-Stainless-Runtime,
+        X-Stainless-Runtime-Version,X-Stainless-Arch,X-Stainless-Lang,X-Stainless-Package-Version,
+        X-Stainless-Retry-Count,X-Stainless-Timeout
+      access-control-allow-methods:
+      - GET, POST, OPTIONS
+      access-control-allow-origin:
       - '*'
-      Access-Control-Expose-Headers:
+      access-control-expose-headers:
       - X-Repo-Commit,X-Request-Id,X-Error-Code,X-Error-Message,X-Total-Count,ETag,Link,Accept-Ranges,Content-Range,X-Linked-Size,X-Linked-ETag,X-Xet-Hash
-      Connection:
+      connection:
       - keep-alive
-      Content-Type:
+      content-type:
       - text/event-stream; charset=utf-8
-      Date:
-      - Wed, 31 Dec 2025 20:40:32 GMT
-      Transfer-Encoding:
-      - chunked
-      Vary:
-      - Origin
-      Via:
-      - 1.1 8668391dce76a5e01d23980e8e8d3454.cloudfront.net (CloudFront)
-      X-Amz-Cf-Id:
-      - XZrk9wVTFah0nlBBBzgAU4glR5CV1Sh_9HbQ7EBONgg1ffCwZA12pw==
-      X-Amz-Cf-Pop:
-      - MSP50-P2
-      X-Cache:
-      - Miss from cloudfront
-      X-Powered-By:
-      - huggingface-moon
-      X-Robots-Tag:
-      - none
-      cf-cache-status:
-      - DYNAMIC
       cross-origin-opener-policy:
       - same-origin
-      inference-id:
-      - chatcmpl-770494fa-4f97-4a6a-94f7-b46a99c3b7ec
+      date:
+      - Fri, 04 Sep 2026 00:42:12 GMT
       referrer-policy:
       - strict-origin-when-cross-origin
       server:
-      - cloudflare
+      - envoy
       strict-transport-security:
-      - max-age=3600; includeSubDomains
-      x-content-type-options:
-      - nosniff
+      - max-age=31536000
+      transfer-encoding:
+      - chunked
+      vary:
+      - Origin
+      via:
+      - 1.1 48a0ac8b67842a09a9b585c294dc3108.cloudfront.net (CloudFront)
+      x-amz-cf-id:
+      - R7Cg5FA8R18vIH8pb2QvD4MWmhAwo8jAAbAmnRS5A4u2GvsTrd23mQ==
+      x-amz-cf-pop:
+      - MSP50-P2
+      x-cache:
+      - Miss from cloudfront
+      x-envoy-upstream-service-time:
+      - '63'
       x-inference-provider:
-      - cerebras
-      x-ratelimit-remaining-requests-day:
-      - '2879996'
-      x-ratelimit-remaining-requests-hour:
-      - '119996'
-      x-ratelimit-remaining-requests-minute:
-      - '1996'
-      x-ratelimit-remaining-tokens-day:
-      - '9223372036854767616'
-      x-ratelimit-remaining-tokens-hour:
-      - '9223372036854767616'
-      x-ratelimit-remaining-tokens-minute:
-      - '9223372036854767616'
+      - scaleway
+      x-powered-by:
+      - huggingface-moon
+      x-ratelimit-limit-requests:
+      - '600'
+      x-ratelimit-limit-tokens:
+      - '1000000'
+      x-ratelimit-remaining-requests:
+      - '299'
+      x-ratelimit-remaining-tokens:
+      - '499999'
+      x-ratelimit-reset-requests:
+      - 100ms
+      x-ratelimit-reset-tokens:
+      - 0ms
+      x-robots-tag:
+      - none
     status:
       code: 200
       message: OK
@@ -199,22 +245,22 @@ interactions:
     body: '{"messages": [{"content": [{"type": "text", "text": "My name is Steve"}],
       "role": "user"}, {"role": "assistant", "content": [{"type": "text", "text":
       "Hello Steve, how can I help you today?"}]}, {"content": [{"type": "text", "text":
-      "What is my name?"}], "role": "user"}], "model": "meta-llama/Llama-3.1-8B-Instruct",
+      "What is my name?"}], "role": "user"}], "model": "Qwen/Qwen3-235B-A22B-Instruct-2507",
       "stream": true, "stream_options": {"include_usage": true}}'
     headers:
-      Accept:
+      accept:
       - application/json
-      Accept-Encoding:
+      accept-encoding:
       - gzip, deflate
-      Connection:
+      connection:
       - keep-alive
-      Content-Length:
-      - '348'
-      Content-Type:
+      content-length:
+      - '350'
+      content-type:
       - application/json
-      Host:
+      host:
       - router.huggingface.co
-      X-Stainless-Async:
+      x-stainless-async:
       - 'false'
       x-stainless-read-timeout:
       - '600'
@@ -222,75 +268,81 @@ interactions:
     uri: https://router.huggingface.co/v1/chat/completions
   response:
     body:
-      string: 'data: {"id":"chatcmpl-6bda916f-edda-4aa4-afbb-721ae7e5f169","choices":[{"delta":{"role":"assistant"},"index":0}],"created":1767213635,"model":"llama3.1-8b","system_fingerprint":"fp_2df2c50ce520692a7dce","object":"chat.completion.chunk"}
-
-
-        data: {"id":"chatcmpl-6bda916f-edda-4aa4-afbb-721ae7e5f169","choices":[{"delta":{"content":"Your"},"index":0}],"created":1767213635,"model":"llama3.1-8b","system_fingerprint":"fp_2df2c50ce520692a7dce","object":"chat.completion.chunk"}
-
-
-        data: {"id":"chatcmpl-6bda916f-edda-4aa4-afbb-721ae7e5f169","choices":[{"delta":{"content":"
-        name is Steve."},"index":0}],"created":1767213635,"model":"llama3.1-8b","system_fingerprint":"fp_2df2c50ce520692a7dce","object":"chat.completion.chunk"}
-
-
-        data: {"id":"chatcmpl-6bda916f-edda-4aa4-afbb-721ae7e5f169","choices":[{"delta":{},"finish_reason":"stop","index":0}],"created":1767213635,"model":"llama3.1-8b","system_fingerprint":"fp_2df2c50ce520692a7dce","object":"chat.completion.chunk","usage":{"total_tokens":70,"completion_tokens":6,"prompt_tokens":64,"prompt_tokens_details":{"cached_tokens":0}},"time_info":{"queue_time":0.00013735,"prompt_time":0.003542346,"completion_time":0.002342371,"total_time":0.00757908821105957,"created":1767213635.3406544}}
-
-
-        '
+      string: "data: {\"id\":\"chatcmpl-b38b34f5-7d71-4814-bf0f-d27ff16b712f\",\"object\":\"chat.completion.chunk\",\"created\":1788482532,\"model\":\"qwen3-235b-a22b-instruct-2507\",\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\"\",\"reasoning_content\":null},\"logprobs\":null,\"finish_reason\":null}],\"usage\":null}\n\ndata:
+        {\"id\":\"chatcmpl-b38b34f5-7d71-4814-bf0f-d27ff16b712f\",\"object\":\"chat.completion.chunk\",\"created\":1788482532,\"model\":\"qwen3-235b-a22b-instruct-2507\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"Your\",\"reasoning_content\":null},\"logprobs\":null,\"finish_reason\":null,\"token_ids\":null}],\"usage\":null}\n\ndata:
+        {\"id\":\"chatcmpl-b38b34f5-7d71-4814-bf0f-d27ff16b712f\",\"object\":\"chat.completion.chunk\",\"created\":1788482532,\"model\":\"qwen3-235b-a22b-instruct-2507\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"
+        name\",\"reasoning_content\":null},\"logprobs\":null,\"finish_reason\":null,\"token_ids\":null}],\"usage\":null}\n\ndata:
+        {\"id\":\"chatcmpl-b38b34f5-7d71-4814-bf0f-d27ff16b712f\",\"object\":\"chat.completion.chunk\",\"created\":1788482532,\"model\":\"qwen3-235b-a22b-instruct-2507\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"
+        is\",\"reasoning_content\":null},\"logprobs\":null,\"finish_reason\":null,\"token_ids\":null}],\"usage\":null}\n\ndata:
+        {\"id\":\"chatcmpl-b38b34f5-7d71-4814-bf0f-d27ff16b712f\",\"object\":\"chat.completion.chunk\",\"created\":1788482532,\"model\":\"qwen3-235b-a22b-instruct-2507\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"
+        Steve\",\"reasoning_content\":null},\"logprobs\":null,\"finish_reason\":null,\"token_ids\":null}],\"usage\":null}\n\ndata:
+        {\"id\":\"chatcmpl-b38b34f5-7d71-4814-bf0f-d27ff16b712f\",\"object\":\"chat.completion.chunk\",\"created\":1788482532,\"model\":\"qwen3-235b-a22b-instruct-2507\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\".\",\"reasoning_content\":null},\"logprobs\":null,\"finish_reason\":null,\"token_ids\":null}],\"usage\":null}\n\ndata:
+        {\"id\":\"chatcmpl-b38b34f5-7d71-4814-bf0f-d27ff16b712f\",\"object\":\"chat.completion.chunk\",\"created\":1788482532,\"model\":\"qwen3-235b-a22b-instruct-2507\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"\",\"reasoning_content\":null},\"logprobs\":null,\"finish_reason\":null,\"token_ids\":null}],\"usage\":null}\n\ndata:
+        {\"id\":\"chatcmpl-b38b34f5-7d71-4814-bf0f-d27ff16b712f\",\"object\":\"chat.completion.chunk\",\"created\":1788482532,\"model\":\"qwen3-235b-a22b-instruct-2507\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"
+        \U0001F60A\",\"reasoning_content\":null},\"logprobs\":null,\"finish_reason\":null,\"token_ids\":null}],\"usage\":null}\n\ndata:
+        {\"id\":\"chatcmpl-b38b34f5-7d71-4814-bf0f-d27ff16b712f\",\"object\":\"chat.completion.chunk\",\"created\":1788482532,\"model\":\"qwen3-235b-a22b-instruct-2507\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"\",\"reasoning_content\":null},\"logprobs\":null,\"finish_reason\":\"stop\",\"stop_reason\":null,\"token_ids\":null}],\"usage\":null}\n\ndata:
+        {\"id\":\"chatcmpl-b38b34f5-7d71-4814-bf0f-d27ff16b712f\",\"object\":\"chat.completion.chunk\",\"created\":1788482532,\"model\":\"qwen3-235b-a22b-instruct-2507\",\"choices\":[],\"usage\":{\"prompt_tokens\":37,\"total_tokens\":45,\"completion_tokens\":8}}\n\ndata:
+        [DONE]\n\n"
     headers:
-      Access-Control-Allow-Origin:
+      access-control-allow-credentials:
+      - 'true'
+      access-control-allow-headers:
+      - User-Agent,X-Requested-With,X-Forwarded-For,If-Modified-Since,Cache-Control,Content-Type,
+        Range,Authorization,Access-Control-Allow-Origin,Referer,X-Stainless-Os,X-Stainless-Runtime,
+        X-Stainless-Runtime-Version,X-Stainless-Arch,X-Stainless-Lang,X-Stainless-Package-Version,
+        X-Stainless-Retry-Count,X-Stainless-Timeout
+      access-control-allow-methods:
+      - GET, POST, OPTIONS
+      access-control-allow-origin:
       - '*'
-      Access-Control-Expose-Headers:
+      access-control-expose-headers:
       - X-Repo-Commit,X-Request-Id,X-Error-Code,X-Error-Message,X-Total-Count,ETag,Link,Accept-Ranges,Content-Range,X-Linked-Size,X-Linked-ETag,X-Xet-Hash
-      Connection:
+      connection:
       - keep-alive
-      Content-Type:
+      content-type:
       - text/event-stream; charset=utf-8
-      Date:
-      - Wed, 31 Dec 2025 20:40:33 GMT
-      Transfer-Encoding:
-      - chunked
-      Vary:
-      - Origin
-      Via:
-      - 1.1 24f41ad6cec46a6e94a3e850d746e294.cloudfront.net (CloudFront)
-      X-Amz-Cf-Id:
-      - iMln4YNOYhYEEYPjtv0dHYrDUjBdb0FdSNKkixC9aERUEhAIoTr8Kw==
-      X-Amz-Cf-Pop:
-      - MSP50-P2
-      X-Cache:
-      - Miss from cloudfront
-      X-Powered-By:
-      - huggingface-moon
-      X-Robots-Tag:
-      - none
-      cf-cache-status:
-      - DYNAMIC
       cross-origin-opener-policy:
       - same-origin
-      inference-id:
-      - chatcmpl-6bda916f-edda-4aa4-afbb-721ae7e5f169
+      date:
+      - Fri, 04 Sep 2026 00:42:13 GMT
       referrer-policy:
       - strict-origin-when-cross-origin
       server:
-      - cloudflare
+      - envoy
       strict-transport-security:
-      - max-age=3600; includeSubDomains
-      x-content-type-options:
-      - nosniff
+      - max-age=31536000
+      transfer-encoding:
+      - chunked
+      vary:
+      - Origin
+      via:
+      - 1.1 ecac0584adf202eebfc7cd3800ff47ae.cloudfront.net (CloudFront)
+      x-amz-cf-id:
+      - imy3Nn0CnRlguV4sED_PFVEgSGNlDWW4dCOR9FPbTOk9vru846EI8g==
+      x-amz-cf-pop:
+      - MSP50-P2
+      x-cache:
+      - Miss from cloudfront
+      x-envoy-upstream-service-time:
+      - '44'
       x-inference-provider:
-      - cerebras
-      x-ratelimit-remaining-requests-day:
-      - '2879999'
-      x-ratelimit-remaining-requests-hour:
-      - '119999'
-      x-ratelimit-remaining-requests-minute:
-      - '1999'
-      x-ratelimit-remaining-tokens-day:
-      - '9223372036854767616'
-      x-ratelimit-remaining-tokens-hour:
-      - '9223372036854767616'
-      x-ratelimit-remaining-tokens-minute:
-      - '9223372036854767616'
+      - scaleway
+      x-powered-by:
+      - huggingface-moon
+      x-ratelimit-limit-requests:
+      - '600'
+      x-ratelimit-limit-tokens:
+      - '1000000'
+      x-ratelimit-remaining-requests:
+      - '299'
+      x-ratelimit-remaining-tokens:
+      - '499999'
+      x-ratelimit-reset-requests:
+      - 100ms
+      x-ratelimit-reset-tokens:
+      - 0ms
+      x-robots-tag:
+      - none
     status:
       code: 200
       message: OK

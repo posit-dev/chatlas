@@ -31,6 +31,7 @@ from ._utils import drop_none
 if TYPE_CHECKING:
     import snowflake.core.cortex.inference_service._generated.models as models
     from snowflake.core.rest import Event, SSEClient
+    from snowflake.snowpark import Session
 
     Completion = models.NonStreamingCompleteResponse
     CompletionChunk = models.StreamingCompleteResponseDataEvent
@@ -69,12 +70,18 @@ def ChatSnowflake(
     password: Optional[str] = None,
     private_key_file: Optional[str] = None,
     private_key_file_pwd: Optional[str] = None,
+    session: Optional["Session"] = None,
     kwargs: Optional[dict[str, "str | int"]] = None,
 ) -> Chat["CompleteRequest", "Completion"]:
     """
     Chat with a Snowflake Cortex LLM
 
     https://docs.snowflake.com/en/user-guide/snowflake-cortex/llm-functions
+
+    Each `ChatSnowflake()` holds an underlying Snowpark session (and Snowflake
+    connection). In long-lived applications that create a chat per session
+    (e.g., Shiny), call [`Chat.close()`](`chatlas.Chat.close`) when the session
+    ends to release it -- for example, `session.on_ended(chat.close)`.
 
     Prerequisites
     -------------
@@ -131,6 +138,13 @@ def ChatSnowflake(
     private_key_file_pwd
         The password for your private key file. Required if you are using key pair authentication.
         https://docs.snowflake.com/en/user-guide/key-pair-auth
+    session
+        A `snowflake.snowpark.Session` to use for the connection. If not
+        provided, a new session will be created from the other connection
+        parameters. Note that calling
+        [`Chat.close()`](`chatlas.Chat.close`) does not close a
+        caller-supplied `Session` -- it only closes a session that chatlas
+        created itself.
     kwargs
         Additional keyword arguments passed along to the Snowflake connection builder. These can
         include any parameters supported by the `snowflake-ml-python` package.
@@ -149,6 +163,7 @@ def ChatSnowflake(
             password=password,
             private_key_file=private_key_file,
             private_key_file_pwd=private_key_file_pwd,
+            session=session,
             kwargs=kwargs,
         ),
         system_prompt=system_prompt,
@@ -168,6 +183,7 @@ class SnowflakeProvider(
         password: Optional[str],
         private_key_file: Optional[str],
         private_key_file_pwd: Optional[str],
+        session: Optional["Session"],
         name: str = "Snowflake",
         kwargs: Optional[dict[str, "str | int"]],
     ):
@@ -188,21 +204,34 @@ class SnowflakeProvider(
         # https://docs.snowflake.com/en/developer-guide/python-connector/python-connector-api#functions
         application = os.environ.get("SF_PARTNER", "py_chatlas")
 
-        configs: dict[str, str | int] = drop_none(
-            {
-                "connection_name": connection_name,
-                "account": account,
-                "user": user,
-                "password": password,
-                "private_key_file": private_key_file,
-                "private_key_file_pwd": private_key_file_pwd,
-                "application": application,
-                **(kwargs or {}),
-            }
-        )
+        if session is None:
+            configs: dict[str, str | int] = drop_none(
+                {
+                    "connection_name": connection_name,
+                    "account": account,
+                    "user": user,
+                    "password": password,
+                    "private_key_file": private_key_file,
+                    "private_key_file_pwd": private_key_file_pwd,
+                    "application": application,
+                    **(kwargs or {}),
+                }
+            )
+            session = Session.builder.configs(configs).create()
+            self._owns_session = True
+        else:
+            self._owns_session = False
 
-        session = Session.builder.configs(configs).create()
-        self._cortex_service = Root(session).cortex_inference_service
+        self._session = session
+        self._cortex_service = Root(self._session).cortex_inference_service
+
+    def close(self) -> None:
+        """
+        Close the underlying Snowpark session (and its Snowflake connection),
+        unless the session was supplied by the caller.
+        """
+        if self._owns_session:
+            self._session.close()
 
     def list_models(self):
         raise NotImplementedError(

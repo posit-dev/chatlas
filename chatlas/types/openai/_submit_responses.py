@@ -18,6 +18,7 @@ import openai.types.responses.namespace_tool_param
 import openai.types.responses.response_code_interpreter_tool_call_param
 import openai.types.responses.response_compaction_item_param_param
 import openai.types.responses.response_computer_tool_call_param
+import openai.types.responses.response_configuration_update_item_param_param
 import openai.types.responses.response_conversation_param_param
 import openai.types.responses.response_create_params
 import openai.types.responses.response_custom_tool_call_output_param
@@ -90,6 +91,7 @@ class SubmitInputArgs(TypedDict, total=False):
                 openai.types.responses.response_input_param.ToolSearchCall,
                 openai.types.responses.response_tool_search_output_item_param_param.ResponseToolSearchOutputItemParamParam,
                 openai.types.responses.response_input_param.AdditionalTools,
+                openai.types.responses.response_configuration_update_item_param_param.ResponseConfigurationUpdateItemParamParam,
                 openai.types.responses.response_reasoning_item_param.ResponseReasoningItemParam,
                 openai.types.responses.response_compaction_item_param_param.ResponseCompactionItemParamParam,
                 openai.types.responses.response_input_param.ImageGenerationCall,
@@ -121,6 +123,7 @@ class SubmitInputArgs(TypedDict, total=False):
     model: Union[
         str,
         Literal[
+            "gpt-6-astra",
             "gpt-5.6-sol",
             "gpt-5.6-terra",
             "gpt-5.6-luna",
@@ -140,7 +143,6 @@ class SubmitInputArgs(TypedDict, total=False):
             "gpt-5.1",
             "gpt-5.1-2025-11-13",
             "gpt-5.1-codex",
-            "gpt-5.1-mini",
             "gpt-5.1-chat-latest",
             "gpt-5",
             "gpt-5-mini",
@@ -171,6 +173,8 @@ class SubmitInputArgs(TypedDict, total=False):
             "gpt-4o-2024-11-20",
             "gpt-4o-2024-08-06",
             "gpt-4o-2024-05-13",
+            "gpt-audio-mini",
+            "gpt-audio-mini-2025-12-15",
             "gpt-4o-audio-preview",
             "gpt-4o-audio-preview-2024-10-01",
             "gpt-4o-audio-preview-2024-12-17",
@@ -204,6 +208,7 @@ class SubmitInputArgs(TypedDict, total=False):
             "gpt-3.5-turbo-1106",
             "gpt-3.5-turbo-0125",
             "gpt-3.5-turbo-16k-0613",
+            "gpt-5.1-mini",
         ],
         Literal[
             "o1-pro",

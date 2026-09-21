@@ -537,3 +537,119 @@ def test_chat_posit_importable_from_package_root():
     import chatlas
 
     assert chatlas.ChatPosit is ChatPosit
+
+
+def test_chat_posit_set_model_switches_from_anthropic_to_openai():
+    chat = ChatPosit(model="claude-sonnet-4-6", credentials=lambda: "test-token")
+    chat.model = "qwen3-8b"
+
+    assert isinstance(chat.provider, PositOpenAIProvider)
+    assert chat.provider.model == "qwen3-8b"
+    assert (
+        str(chat.provider._client.base_url).rstrip("/")
+        == "https://gateway.posit.ai/openai/v1"
+    )
+
+
+def test_chat_posit_set_model_switches_from_openai_to_anthropic():
+    chat = ChatPosit(model="qwen3-8b", credentials=lambda: "test-token")
+    chat.model = "claude-sonnet-4-6"
+
+    assert isinstance(chat.provider, PositAnthropicProvider)
+    assert chat.provider.model == "claude-sonnet-4-6"
+    assert (
+        str(chat.provider._client.base_url).rstrip("/")
+        == "https://gateway.posit.ai/anthropic"
+    )
+
+
+def test_chat_posit_set_model_within_family_is_a_noop():
+    chat = ChatPosit(model="claude-sonnet-4-6", credentials=lambda: "test-token")
+    provider = chat.provider
+
+    chat.model = "claude-opus-4-1"
+
+    assert chat.provider is provider
+    assert chat.provider.model == "claude-opus-4-1"
+
+    chat = ChatPosit(model="qwen3-8b", credentials=lambda: "test-token")
+    provider = chat.provider
+
+    chat.model = "gpt-4o"
+
+    assert chat.provider is provider
+    assert chat.provider.model == "gpt-4o"
+
+
+def test_chat_posit_set_model_carries_over_credentials():
+    chat = ChatPosit(model="claude-sonnet-4-6", credentials=lambda: "test-token")
+    chat.model = "qwen3-8b"
+    assert chat.provider._credentials() == "test-token"
+
+    chat.model = "claude-sonnet-4-6"
+    assert chat.provider._credentials() == "test-token"
+
+
+def test_chat_posit_set_model_preserves_cache_across_family_switches():
+    chat = ChatPosit(
+        model="claude-sonnet-4-6", cache="1h", credentials=lambda: "test-token"
+    )
+
+    chat.model = "qwen3-8b"
+    assert isinstance(chat.provider, PositOpenAIProvider)
+
+    chat.model = "claude-sonnet-4-6"
+    assert isinstance(chat.provider, PositAnthropicProvider)
+    assert chat.provider._cache == "1h"
+
+
+def test_chat_posit_set_model_openai_start_honors_cache_on_switch():
+    chat = ChatPosit(
+        model="qwen3-8b", cache="none", credentials=lambda: "test-token"
+    )
+
+    chat.model = "claude-sonnet-4-6"
+
+    assert isinstance(chat.provider, PositAnthropicProvider)
+    assert chat.provider._cache == "none"
+
+
+def test_chat_posit_set_model_preserves_custom_name_across_family_switches():
+    provider = PositAnthropicProvider(
+        base_url="https://gateway.posit.ai",
+        model="claude-sonnet-4-6",
+        credentials=lambda: "test-token",
+        name="Custom",
+    )
+
+    openai_provider = provider.set_model("qwen3-8b")
+    assert isinstance(openai_provider, PositOpenAIProvider)
+    assert openai_provider.name == "Custom"
+
+    anthropic_provider = openai_provider.set_model("claude-sonnet-4-6")
+    assert isinstance(anthropic_provider, PositAnthropicProvider)
+    assert anthropic_provider.name == "Custom"
+
+
+def test_chat_posit_set_model_closes_old_provider_on_family_switch():
+    chat = ChatPosit(model="claude-sonnet-4-6", credentials=lambda: "test-token")
+    old_provider = chat.provider
+
+    chat.model = "qwen3-8b"
+
+    assert old_provider._client.is_closed()
+
+    chat = ChatPosit(model="qwen3-8b", credentials=lambda: "test-token")
+    old_provider = chat.provider
+
+    chat.model = "claude-sonnet-4-6"
+
+    assert old_provider._client.is_closed()
+
+
+def test_chat_posit_set_model_within_family_does_not_close_provider():
+    chat = ChatPosit(model="claude-sonnet-4-6", credentials=lambda: "test-token")
+
+    chat.model = "claude-opus-4-1"
+
+    assert not chat.provider._client.is_closed()
