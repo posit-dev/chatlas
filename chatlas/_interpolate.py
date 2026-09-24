@@ -109,7 +109,7 @@ def interpolate_file(
         variables = _infer_variables(frame)
         del frame
 
-    with open(path, "r") as file:
+    with open(path, "r", encoding="utf-8") as file:
         return interpolate(
             file.read(),
             variables=variables,
