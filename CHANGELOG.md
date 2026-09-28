@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Anthropic-backed providers (`ChatAnthropic()`, `ChatPosit()`, `ChatBedrock()`, etc.) no longer fail with `Invalid signature in thinking block` when the conversation history contains reasoning from a non-Claude model (e.g., after switching `chat.model` across families); such thinking is now replayed as plain text so the model can still see it.
 * `content_image_file()` no longer fails with `ValueError: unknown file extension` when `resize` uses the `!` (ignore aspect ratio) flag on an image larger than the requested box, e.g. `resize="200x200!"`. (#433)
 * `params(top_k=)` is no longer sent as `top_logprobs` for OpenAI-based providers (the two are unrelated; OpenAI has no `top_k` sampling parameter). `top_k` is now dropped with the standard unsupported-parameter warning. (#412)
+* `Chat.export()` and `interpolate_file()` now always read and write files as UTF-8. Previously they relied on the platform's default locale encoding, so on a non-UTF-8 locale `export()` could raise `UnicodeEncodeError` and `interpolate_file()` could silently return a corrupted (mojibake) prompt instead of the file's contents. (#437)
 
 
 ## [0.23.0] - 2026-09-04
