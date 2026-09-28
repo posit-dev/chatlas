@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Bug fixes
 
+* `ChatBedrock()` (with `api="messages"` or `api="responses"`) no longer sends a URL for `content_pdf_url()`/`content_document_url()` content, which `bedrock-mantle` rejects since it can't fetch URLs itself. The bytes are downloaded and sent instead, as they already were before URL passthrough was added. (#410)
 * `ChatBedrock()` (with the default `api="converse"`) no longer sends assistant turns with an empty `content` array, which Converse rejects. This happens when a response carries no content blocks, for example when a guardrail intervenes before the model produces any. A `"[empty string]"` placeholder is sent instead, matching how empty text content is already normalized. (#426)
 * `ChatPosit()` now handles setting `chat.model` to a model from the other family (Claude vs. non-Claude): the underlying provider is swapped so requests go to the correct endpoint, instead of failing with a mismatched request. The `cache` setting is preserved across switches.
 * Anthropic-backed providers (`ChatAnthropic()`, `ChatPosit()`, `ChatBedrock()`, etc.) no longer fail with `Invalid signature in thinking block` when the conversation history contains reasoning from a non-Claude model (e.g., after switching `chat.model` across families); such thinking is now replayed as plain text so the model can still see it.
