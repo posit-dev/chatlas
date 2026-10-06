@@ -581,8 +581,94 @@ class OpenAIProvider(
                     x
                 ):
                     continue
-                res.append(as_input_param(x, turn.role))
+                res.append(self._as_input_param(x, turn.role))
         return res
+
+    @staticmethod
+    def _as_input_param(content: Content, role: Role) -> "ResponseInputItemParam":
+        if isinstance(content, ContentText):
+            if role == "assistant":
+                # Assistant messages use output_text, but the SDK incorrectly requires an id.
+                return cast(
+                    "ResponseInputItemParam",
+                    {
+                        "role": "assistant",
+                        "content": [
+                            {
+                                "type": "output_text",
+                                "text": content.text,
+                                "annotations": [],
+                            }
+                        ],
+                        "status": "completed",
+                        "type": "message",
+                    },
+                )
+            else:
+                return as_message({"type": "input_text", "text": content.text}, role)
+        elif isinstance(content, ContentJson):
+            text = orjson.dumps(content.value).decode("utf-8")
+            return OpenAIProvider._as_input_param(ContentText(text=text), role)
+        elif isinstance(content, ContentImageRemote):
+            return as_message(
+                {
+                    "type": "input_image",
+                    "image_url": content.url,
+                    "detail": content.detail,
+                },
+                role,
+            )
+        elif isinstance(content, ContentImageInline):
+            check_image_content_type_supported("OpenAI", content.image_content_type)
+            return as_message(
+                {
+                    "type": "input_image",
+                    "image_url": f"data:{content.image_content_type};base64,{content.data}",
+                    "detail": "auto",
+                },
+                role,
+            )
+        elif isinstance(content, ContentPDF):
+            return as_message(as_input_file_param(content, "application/pdf"), role)
+        elif isinstance(content, ContentDocument):
+            return as_message(as_input_file_param(content, content.mime_type), role)
+        elif isinstance(content, ContentThinking):
+            # Filter out 'status' which is output-only and not accepted as input
+            extra = content.extra or {}
+            return cast(
+                "ResponseReasoningItemParam",
+                {k: v for k, v in extra.items() if k != "status"},
+            )
+        elif isinstance(content, ContentToolResult):
+            return {
+                "type": "function_call_output",
+                "call_id": content.id,
+                "output": cast(str, content.get_model_value()),
+            }
+        elif isinstance(content, ContentToolRequest):
+            return {
+                "type": "function_call",
+                "call_id": content.id,
+                "name": content.name,
+                "arguments": orjson.dumps(content.arguments).decode("utf-8"),
+            }
+        elif isinstance(content, (ContentToolRequestSearch, ContentToolRequestFetch)):
+            # The raw `web_search_call` item, replayed verbatim (see openai_replayable)
+            return cast("ResponseInputItemParam", content.extra)
+        elif isinstance(content, ContentUploaded):
+            if content.provider != "openai":
+                raise ValueError(
+                    f"This file was uploaded to provider '{content.provider}', but "
+                    "is being used with OpenAI. Re-upload it with an OpenAI chat."
+                )
+            part: "ResponseInputContentParam"
+            if content.mime_type.startswith("image/"):
+                part = {"type": "input_image", "file_id": content.id, "detail": "auto"}
+            else:
+                part = {"type": "input_file", "file_id": content.id}
+            return as_message(part, role)
+        else:
+            raise ValueError(f"Unsupported content type: {type(content)}")
 
     def translate_model_params(self, params: StandardModelParams) -> "SubmitInputArgs":
         res: "SubmitInputArgs" = {}
@@ -708,92 +794,6 @@ def openai_replayable(content: ProviderAnnotation) -> bool:
         and isinstance(extra, dict)
         and extra.get("type") == "web_search_call"
     )
-
-
-def as_input_param(content: Content, role: Role) -> "ResponseInputItemParam":
-    if isinstance(content, ContentText):
-        if role == "assistant":
-            # Assistant messages use output_text, but the SDK incorrectly requires an id.
-            return cast(
-                "ResponseInputItemParam",
-                {
-                    "role": "assistant",
-                    "content": [
-                        {
-                            "type": "output_text",
-                            "text": content.text,
-                            "annotations": [],
-                        }
-                    ],
-                    "status": "completed",
-                    "type": "message",
-                },
-            )
-        else:
-            return as_message({"type": "input_text", "text": content.text}, role)
-    elif isinstance(content, ContentJson):
-        text = orjson.dumps(content.value).decode("utf-8")
-        return as_input_param(ContentText(text=text), role)
-    elif isinstance(content, ContentImageRemote):
-        return as_message(
-            {
-                "type": "input_image",
-                "image_url": content.url,
-                "detail": content.detail,
-            },
-            role,
-        )
-    elif isinstance(content, ContentImageInline):
-        check_image_content_type_supported("OpenAI", content.image_content_type)
-        return as_message(
-            {
-                "type": "input_image",
-                "image_url": f"data:{content.image_content_type};base64,{content.data}",
-                "detail": "auto",
-            },
-            role,
-        )
-    elif isinstance(content, ContentPDF):
-        return as_message(as_input_file_param(content, "application/pdf"), role)
-    elif isinstance(content, ContentDocument):
-        return as_message(as_input_file_param(content, content.mime_type), role)
-    elif isinstance(content, ContentThinking):
-        # Filter out 'status' which is output-only and not accepted as input
-        extra = content.extra or {}
-        return cast(
-            "ResponseReasoningItemParam",
-            {k: v for k, v in extra.items() if k != "status"},
-        )
-    elif isinstance(content, ContentToolResult):
-        return {
-            "type": "function_call_output",
-            "call_id": content.id,
-            "output": cast(str, content.get_model_value()),
-        }
-    elif isinstance(content, ContentToolRequest):
-        return {
-            "type": "function_call",
-            "call_id": content.id,
-            "name": content.name,
-            "arguments": orjson.dumps(content.arguments).decode("utf-8"),
-        }
-    elif isinstance(content, (ContentToolRequestSearch, ContentToolRequestFetch)):
-        # The raw `web_search_call` item, replayed verbatim (see openai_replayable)
-        return cast("ResponseInputItemParam", content.extra)
-    elif isinstance(content, ContentUploaded):
-        if content.provider != "openai":
-            raise ValueError(
-                f"This file was uploaded to provider '{content.provider}', but "
-                "is being used with OpenAI. Re-upload it with an OpenAI chat."
-            )
-        part: "ResponseInputContentParam"
-        if content.mime_type.startswith("image/"):
-            part = {"type": "input_image", "file_id": content.id, "detail": "auto"}
-        else:
-            part = {"type": "input_file", "file_id": content.id}
-        return as_message(part, role)
-    else:
-        raise ValueError(f"Unsupported content type: {type(content)}")
 
 
 def as_message(x: "ResponseInputContentParam", role: Role) -> "EasyInputMessageParam":
