@@ -24,11 +24,7 @@ import httpx2
 class ChatClientArgs(TypedDict, total=False):
     api_key: str | None
     auth_token: str | None
-    credentials: (
-        anthropic.lib.credentials._types.AccessTokenProvider
-        | anthropic.lib.credentials._types.AsyncAccessTokenProvider
-        | None
-    )
+    credentials: anthropic.lib.credentials._types.AccessTokenProvider | None
     config: Optional[Mapping[str, Any]]
     profile: str | None
     webhook_key: str | None
