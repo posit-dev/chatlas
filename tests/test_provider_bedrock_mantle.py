@@ -7,7 +7,7 @@ import httpx
 import httpx2
 import pytest
 from chatlas import Chat, ChatBedrock, UserTurn
-from chatlas._content import ContentDocument, ContentPDF
+from chatlas._content import ContentDocument, ContentImageRemote, ContentPDF
 from chatlas._provider_bedrock import (
     bedrock_api_for_model,
     bedrock_base_url,
@@ -411,6 +411,21 @@ class TestUrlContentFallsBackToBytes:
         assert part["file_data"] == (
             f"data:application/pdf;base64,{base64.b64encode(b'%PDF-1.4').decode('utf-8')}"
         )
+
+    def test_messages_remote_image_raises(self):
+        from chatlas._provider_bedrock import BedrockMessagesProvider
+
+        with pytest.raises(ValueError, match="Remote images aren't supported"):
+            BedrockMessagesProvider._as_content_block(
+                ContentImageRemote(url="https://example.com/i.png")
+            )
+
+    def test_responses_remote_image_raises(self):
+        chat = ChatBedrock(model="openai.gpt-5.6-sol", aws_region="us-east-1")
+        turn = UserTurn([ContentImageRemote(url="https://example.com/i.png")])
+
+        with pytest.raises(ValueError, match="Remote images aren't supported"):
+            chat.provider._turns_as_inputs([turn])
 
 
 class TestNativeSdkClients:

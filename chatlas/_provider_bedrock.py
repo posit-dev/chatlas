@@ -9,14 +9,12 @@ from typing import TYPE_CHECKING, Any, Literal, Optional, cast
 import httpx
 
 from ._chat import Chat
-from ._content import ContentDocument, ContentPDF
-from ._content_file import FileContent, ensure_bytes
+from ._content_file import materialize_url_content
 from ._logging import log_model_default
 from ._provider import ModelInfo, no_file_management
 from ._provider_anthropic import AnthropicProvider
 from ._provider_openai import OpenAIProvider
 from ._provider_openai_generic import openai_models_to_info
-from ._turn import Turn
 from ._utils import MISSING, MISSING_TYPE, AnyTypeDict, split_http_client_kwargs
 
 if TYPE_CHECKING:
@@ -26,6 +24,7 @@ if TYPE_CHECKING:
     from ._content import Content
     from ._provider_anthropic import ContentBlockParam
     from ._provider_openai import ResponseInputItemParam
+    from ._turn import Role
     from .types.anthropic import ChatClientArgs as AnthropicClientArgs
     from .types.bedrock import ChatClientArgs as ConverseClientArgs
     from .types.openai import ChatClientArgs as OpenAIClientArgs
@@ -285,14 +284,10 @@ class BedrockResponsesProvider(OpenAIProvider):
         models_client = self._client.with_options(base_url=self._models_base_url)
         return openai_models_to_info(models_client.models.list(), self.name)
 
-    def _turns_as_inputs(self, turns: list[Turn]) -> "list[ResponseInputItemParam]":
-        turns = [
-            turn.model_copy(
-                update={"contents": [bedrock_materialize_url(c) for c in turn.contents]}
-            )
-            for turn in turns
-        ]
-        return super()._turns_as_inputs(turns)
+    @staticmethod
+    def _as_input_param(content: "Content", role: "Role") -> "ResponseInputItemParam":
+        content = materialize_url_content(content)
+        return OpenAIProvider._as_input_param(content, role)
 
 
 @no_file_management
@@ -365,18 +360,7 @@ class BedrockMessagesProvider(AnthropicProvider):
 
     @staticmethod
     def _as_content_block(content: "Content") -> "ContentBlockParam":
-        if isinstance(content, ContentPDF):
-            content = bedrock_materialize_url(content)
-        return AnthropicProvider._as_content_block(content)
-
-
-def bedrock_materialize_url(content: "Content") -> "Content":
-    """Swap URL content for its bytes, since bedrock-mantle can't fetch URLs."""
-    if not isinstance(content, (ContentPDF, ContentDocument)) or content.url is None:
-        return content
-    kind = "PDF" if isinstance(content, ContentPDF) else "document"
-    data = ensure_bytes(cast(FileContent, content), kind)
-    return content.model_copy(update={"data": data, "url": None})
+        return AnthropicProvider._as_content_block(materialize_url_content(content))
 
 
 def bedrock_client_kwargs(
