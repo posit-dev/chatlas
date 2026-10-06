@@ -14,11 +14,13 @@ import anthropic.types.code_execution_tool_20260120_param
 import anthropic.types.code_execution_tool_20260521_param
 import anthropic.types.computer_toolset_20260801_param
 import anthropic.types.container_params
+import anthropic.types.diagnostics_param
 import anthropic.types.memory_tool_20250818_param
 import anthropic.types.message_param
 import anthropic.types.output_config_param
 import anthropic.types.text_block_param
 import anthropic.types.thinking_config_adaptive_param
+import anthropic.types.thinking_config_between_tools_param
 import anthropic.types.thinking_config_disabled_param
 import anthropic.types.thinking_config_enabled_param
 import anthropic.types.tool_bash_20250124_param
@@ -46,6 +48,10 @@ class SubmitInputArgs(TypedDict, total=False):
     messages: Iterable[anthropic.types.message_param.MessageParam]
     model: Union[
         Literal[
+            "claude-sonnet-5-5",
+            "claude-fable-5-1",
+            "claude-opus-5-5",
+            "claude-mythos-5-1",
             "claude-sonnet-5",
             "claude-fable-5",
             "claude-mythos-5",
@@ -72,6 +78,9 @@ class SubmitInputArgs(TypedDict, total=False):
     container: Union[
         anthropic.types.container_params.ContainerParams, str, None, anthropic.Omit
     ]
+    diagnostics: Union[
+        anthropic.types.diagnostics_param.DiagnosticsParam, None, anthropic.Omit
+    ]
     inference_geo: Union[str, None, anthropic.Omit]
     output_config: (
         anthropic.types.output_config_param.OutputConfigParam | anthropic.Omit
@@ -85,6 +94,7 @@ class SubmitInputArgs(TypedDict, total=False):
     thinking: Union[
         anthropic.types.thinking_config_enabled_param.ThinkingConfigEnabledParam,
         anthropic.types.thinking_config_disabled_param.ThinkingConfigDisabledParam,
+        anthropic.types.thinking_config_between_tools_param.ThinkingConfigBetweenToolsParam,
         anthropic.types.thinking_config_adaptive_param.ThinkingConfigAdaptiveParam,
         anthropic.Omit,
     ]
@@ -124,6 +134,7 @@ class SubmitInputArgs(TypedDict, total=False):
         anthropic.Omit,
     ]
     user_profile_id: str | anthropic.Omit
+    workspace_id: str | anthropic.Omit
     extra_headers: Optional[Mapping[str, Union[str, anthropic.Omit]]]
     extra_query: Optional[Mapping[str, object]]
     extra_body: object | None
