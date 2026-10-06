@@ -89,7 +89,8 @@ def ChatSnowflake(
     ::: {.callout-note}
     ## Python requirements
 
-    `ChatSnowflake`, requires the `snowflake-ml-python` package:
+    `ChatSnowflake`, requires the `snowflake-core` and
+    `snowflake-snowpark-python` packages:
     `pip install "chatlas[snowflake]"`.
     :::
 
@@ -147,7 +148,7 @@ def ChatSnowflake(
         created itself.
     kwargs
         Additional keyword arguments passed along to the Snowflake connection builder. These can
-        include any parameters supported by the `snowflake-ml-python` package.
+        include any parameters supported by the `snowflake-snowpark-python` package.
         https://docs.snowflake.com/en/developer-guide/snowpark/python/creating-session#connect-by-specifying-connection-parameters
     """
 
@@ -192,8 +193,9 @@ class SnowflakeProvider(
             from snowflake.snowpark import Session
         except ImportError:
             raise ImportError(
-                "`ChatSnowflake()` requires the `snowflake-ml-python` package. "
-                "Please install it via `pip install snowflake-ml-python`."
+                "`ChatSnowflake()` requires the `snowflake-core` and "
+                "`snowflake-snowpark-python` packages. "
+                "Please install them via `pip install 'chatlas[snowflake]'`."
             )
         super().__init__(name=name, model=model)
 

@@ -81,9 +81,8 @@ dev = [
     "numpy>1.24.4",
     "tiktoken",
     "databricks-sdk",
-    "snowflake-ml-python>=1.8.4",
-    # torch (a dependency of snowflake-ml-python) is not yet compatible with Python >3.11
-    "torch;python_version<='3.11'",
+    "snowflake-core>=1.5.0",
+    "snowflake-snowpark-python",
     "tenacity",
     "opentelemetry-sdk>=1.0",
 ]
@@ -124,9 +123,10 @@ openai = []
 azure-openai = []
 perplexity = []
 posit = ["anthropic>=1.0.0"]
-# Version requirement avoids an install issue with recent Python versions.
-# Remove it when snowflake-ml-python can be installed without a requirement.
-snowflake = ["snowflake-ml-python<=1.9.0"]
+# The provider talks to the Cortex REST API via snowflake.core and manages
+# connections via snowflake.snowpark -- snowflake-ml-python is not needed
+# (and its torch dependency chain doesn't support recent Python versions).
+snowflake = ["snowflake-core>=1.5.0", "snowflake-snowpark-python"]
 vertex = ["google-genai>=2.0.0"]
 
 [dependency-groups]
