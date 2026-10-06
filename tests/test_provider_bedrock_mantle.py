@@ -140,8 +140,8 @@ class TestChatBedrockDispatch:
         )
 
     def test_cross_region_prefix_is_stripped_from_the_responses_model(self):
-        chat = ChatBedrock(model="us.openai.gpt-5.4", aws_region="us-east-1")
-        assert chat.provider.model == "openai.gpt-5.4"
+        chat = ChatBedrock(model="us.openai.gpt-5.6-sol", aws_region="us-east-1")
+        assert chat.provider.model == "openai.gpt-5.6-sol"
 
     def test_list_models_uses_the_v1_mantle_path(self):
         # Mantle serves model listings at /v1/models; /openai/v1/models 404s,
