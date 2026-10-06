@@ -3,7 +3,7 @@ interactions:
     body: '{"contents": [{"parts": [{"text": "Which region in the attached CSV had
       the highest q3 value?"}, {"text": "Reply with the region name only."}, {"inlineData":
       {"data": "cmVnaW9uLHExLHEyLHEzCk5vcnRoZWFzdCwxMjAsMTM1LDE1MApTb3V0aHdlc3QsOTgsMTAyLDg4Ck1pZHdlc3QsMjEwLDIwNSwyNjQKUGFjaWZpYywxNzUsMTgwLDE5Mwo=",
-      "mimeType": "text/csv"}}], "role": "user"}], "generationConfig": {"temperature":
+      "mime_type": "text/csv"}}], "role": "user"}], "generationConfig": {"temperature":
       0}}'
     headers:
       accept:
@@ -13,28 +13,28 @@ interactions:
       connection:
       - keep-alive
       content-length:
-      - '387'
+      - '388'
       content-type:
       - application/json
       host:
       - generativelanguage.googleapis.com
       x-goog-api-client:
-      - google-genai-sdk/2.14.0 gl-python/3.12.13
+      - google-genai-sdk/2.28.0 gl-python/3.12.13
     method: POST
     uri: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:streamGenerateContent?alt=sse
   response:
     body:
       string: "data: {\"candidates\": [{\"content\": {\"parts\": [{\"text\": \"Midwest\"}],\"role\":
         \"model\"},\"index\": 0}],\"usageMetadata\": {\"promptTokenCount\": 89,\"candidatesTokenCount\":
-        2,\"totalTokenCount\": 391,\"promptTokensDetails\": [{\"modality\": \"TEXT\",\"tokenCount\":
-        89}],\"thoughtsTokenCount\": 300,\"serviceTier\": \"standard\"},\"modelVersion\":
-        \"gemini-3.5-flash\",\"responseId\": \"aIhqaoOrBpa6jrEPxYRG\"}\r\n\r\ndata:
+        2,\"totalTokenCount\": 425,\"promptTokensDetails\": [{\"modality\": \"TEXT\",\"tokenCount\":
+        89}],\"thoughtsTokenCount\": 334,\"serviceTier\": \"standard\"},\"modelVersion\":
+        \"gemini-3.5-flash\",\"responseId\": \"iXDFas_oJIzwjrEPjtvekAE\"}\r\n\r\ndata:
         {\"candidates\": [{\"content\": {\"parts\": [{\"text\": \"\",\"thoughtSignature\":
-        \"EpwICpkIARFNMg9TRhaTdLtakweTY02szmM26gH2zm5wWeaT6/jO8ccT3a+wzNO8Z4Vm1TfegXvj4WHxAjFnm8KYDHbaDcTiwpBHve5XzTmd9Rd0LhbctlNpFquydmNSjbqreTfI2NovIrVk6msN2xOSRybV96TBBuuJJJsWaGRPIFk32rhBcP5YlFF7mXMTDHFoHQCzbZ1iaTZCgjxW60bybrHZ0B0ZjyfB3pt3I6+foDlICSwVSTeNekkWSVPXS3MegaBB5R2hShU1nSyq6bJX1G4q3fHsS8vsO8L446reuwrtupekXRNeiRTg8x9NK3+hD1W8M0rTO2ci/hJTvk7xmZCDyQI31zTTfEFCkBcE6iNckyib5XjG1zo/OsNyq5Zba6bZFRU3bWkJkg/Flemzsmk4jPZoakiHOFxKteR1A5Dwvmdxi2xv+8vHvpcTLkPY3aFYJtRrTaKD6bNb9344eAnohRTl6DtQIx+3tuLbJaHUiwtKCwnY8lVA3oXrlL5y6DqGG5q8Gd1TkMfnosX50iCcYyoYDgSiHisla9Mbfw4KGaPAQ7qpfhtdUWxZS3hXN8CqSbNCFomJmUyBsTdHlQG1yVaenak5Qn1b85ka2UuXop1uHgPrqtrrimIMI2jOvFS1I+4GGfKSIKD7CfDE4Iky75Q1K2iomd7iURDNdjFYQqZ+Jze4xQVt23VrmX7ZxsEWmTnlpGvSxeScp0KWPU8JqTiAvBJAy57+6t30fytBu+eZ+aQgj+QUs1L+bVG7lbYEbckAPbMlQmZc0kSAo79/cn0PTEofm3NDy653vaoK7lF4HUkfLLFIkZPc4hbUziHWqpkmdR3XhQIcobb6gtwDTHwJ4L8tbRqV2yfhHhH5Ad45ryb0R8hvlVEbst4drB/XZbHd0Skm0WmWbb39BnlkWJ4i6Wel6M7VIXwhv7hIhBeY0G5CBcQpx1GVLewz+9hxwaeb4rnt1gXOEPT7yvU9DCeIhu1DWNycPYUzF0Pj9if5PUVuOlx2NMA4z5mWKQLJdoxMM79repgJGJto9oPj3ihCDnUrJOuUqCrjK76dMd7k5zKA5Y69RpNrniPILBiiE2uQzoK1FJ40SIErqN5I8CrVe7emhCowiDVCoD2YWeNaEc/eHkokq9OL7BblIaU8K+o9q/GP2RHGn1CESHsAWcmwMH/WSJKLxs/ily+AwGKfT5NkH8eNlmkk6pFZhLPCj57k/6wQHD+akIugdIhh8rU2RSXDXkejNFZTIGgyEIn7ZgXGDh5Or7/pYvSZEA4muOiEVDg3MLPcR4C6ML3gPb6elso2gCA6Qis4nvnQT8yJhb8aQPYMjBMG8Vi9nPpMQaNw0WwM9fyTy5yFyD/2dHY31tQUWE8dISip8eHemxQKxJUo5q8fFSk=\"}],\"role\":
+        \"EusICugIAWkUfRMN8v2b9z/EK87gZkLjdXnDaIkpt4oPglqEYPIFSPtI8djckqNd4ajhpiAZsouVJ0xWuGGKN6CWT3X93PTAiC1L1QKzQGWmdzEyKqgbztWqxUNYr6AoYKwiKqgkSPBu053AYHHHIDNOCPd/xt+jcg1wnHcrExKPuPC6z68zM2igSiqhbI6khFhulB5wlGlEe35Z+5fwcLblCQQ6IUSKerXI8ooXjxUmYrT80LqtqFn1xsbGLA4JxI1O/bFxmQzOZpyxxNri/QB5na7iH4e6F9I/UYcLYbRG0PH24NzvzWoz/AEcONpF0pZftIkmK2hSdQnEkLjNghsr6+FNpVF5jYvR/w/ZctKFT7YmDLVMVKrEX8PRy28qns7RwZ791V0YXgkc8qdHMGYrE9M+JisinEC/pl/buWxnvEAPDD6TwIJtW7uG/pwKMNLUDZwvbQd2HdDcJ9nPplUuC5lTVmuIpOe+3lUtw//VP9bun9yVHHPcLvZaam6Bze/0s2JkG0LljWkvF7YdGTxLah+m95jN+Hrwu1WJ31i6NdIhb9xy/1lSPyG98+x6QfzIk6pJDnTMujzcD3NwdN0fuSlxvFkhCwFL1z8MS+7TozoAE4cuCVrmt6QxheTdRw68R6xTvOHN562Qd0aq+XMSF9jDCAn2l53P9qOe65/zLcQQOk4jqTEVc/tReMsGYBKfLeUTpwKl9xEDHe/OG+aHq43g5qcaMF0ftsrwgIny6Ag4TUO79zfEfX45JQVRS9PFsf94o1pksY+5tVJPvKs/A9CpWJnv7yNhKejaD/YSl2pXv4uNg1aarYe8/2V5E5pgBzuzZ/RbxFkWVZAG/4MGX1E+JMvnuLJpYYpRs+sCCwe+l//V/9jOxAuu7oal8iYWjOCPODCIoER3i/Di39lQTlmn6d/nHKwEE3+/P5/cUeNP+Pnvij0pHiUseHouanb1zN0GLQeBOA6rvZqYE1VUgMQsyn5/ps9/sAqI69BzAkKW3Id4YUYVRQ1fuO29KH15P6Sep6Bwr92y0XqujT5Lna5oMIN6uKmxm2y+HtvAIWVWwuGwgOCLvwFXWHtRi2ruXwx3B/bxHLDNXfMZZN+UDJXzOM3gsl9IooRpBdNrLC56Yj859kxbipwn26Q+VjLUE2kW9rehz0uIGZ5jhQE+Tfa+daqzXSlsUu9CwotbD/Ogxcsjxteno7Y53FDw9eZ6RyBbdqh3J+AtACyUQXrSGPlkzC/mVRHRvLDHLZzPUaqKvAaYutAWG/mL2GY0vOesSveQUCkNFwgFyKwOdLdPtA830kKAZ+jsD/0sJk2jzyQth10ZhC0kVLlAplf/9p4WAZyi44rDXaZ4VJHV6u3PzIdh2XRgoZ1EJ8bjcXLPNBhE6/6gEaiSzYSBHVvZ+Z6I0jhAI66bHCg/xloYACDl2dgvwVOdIArxHYyUMes5JYhuSgQpfTpx8QW8ApRi9MebbbCu9w6xlQ6MobW1tR6A8eCx69Pvou9X2SOJ\"}],\"role\":
         \"model\"},\"finishReason\": \"STOP\",\"index\": 0}],\"usageMetadata\": {\"promptTokenCount\":
-        89,\"candidatesTokenCount\": 2,\"totalTokenCount\": 391,\"promptTokensDetails\":
-        [{\"modality\": \"TEXT\",\"tokenCount\": 89}],\"thoughtsTokenCount\": 300,\"serviceTier\":
-        \"standard\"},\"modelVersion\": \"gemini-3.5-flash\",\"responseId\": \"aIhqaoOrBpa6jrEPxYRG\"}\r\n\r\n"
+        89,\"candidatesTokenCount\": 2,\"totalTokenCount\": 425,\"promptTokensDetails\":
+        [{\"modality\": \"TEXT\",\"tokenCount\": 89}],\"thoughtsTokenCount\": 334,\"serviceTier\":
+        \"standard\"},\"modelVersion\": \"gemini-3.5-flash\",\"responseId\": \"iXDFas_oJIzwjrEPjtvekAE\"}\r\n\r\n"
     headers:
       alt-svc:
       - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
@@ -43,11 +43,11 @@ interactions:
       content-type:
       - text/event-stream
       date:
-      - Wed, 29 Jul 2026 23:10:33 GMT
+      - Tue, 06 Oct 2026 22:04:59 GMT
       server:
       - scaffolding on HTTPServer2
       server-timing:
-      - gfet4t7; dur=1543
+      - gfet4t7; dur=1686
       transfer-encoding:
       - chunked
       vary:

@@ -42,6 +42,9 @@ class SubmitInputArgs(TypedDict, total=False):
         str,
         Literal[
             "gpt-6-astra",
+            "gpt-6.1-sol",
+            "gpt-6-sol",
+            "gpt-6-luna",
             "gpt-5.6-sol",
             "gpt-5.6-terra",
             "gpt-5.6-luna",
@@ -61,6 +64,7 @@ class SubmitInputArgs(TypedDict, total=False):
             "gpt-5.1",
             "gpt-5.1-2025-11-13",
             "gpt-5.1-codex",
+            "gpt-5.1-mini",
             "gpt-5.1-chat-latest",
             "gpt-5",
             "gpt-5-mini",
@@ -126,7 +130,6 @@ class SubmitInputArgs(TypedDict, total=False):
             "gpt-3.5-turbo-1106",
             "gpt-3.5-turbo-0125",
             "gpt-3.5-turbo-16k-0613",
-            "gpt-5.1-mini",
         ],
     ]
     audio: Union[
@@ -183,7 +186,7 @@ class SubmitInputArgs(TypedDict, total=False):
         None,
         openai.Omit,
     ]
-    stop: Union[str, None, Sequence[str], openai.Omit]
+    stop: Union[str, Sequence[str], None, openai.Omit]
     store: Union[bool, None, openai.Omit]
     stream: Union[Literal[False], None, Literal[True], openai.Omit]
     stream_options: Union[
