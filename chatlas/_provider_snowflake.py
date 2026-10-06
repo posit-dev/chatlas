@@ -89,7 +89,7 @@ def ChatSnowflake(
     ::: {.callout-note}
     ## Python requirements
 
-    `ChatSnowflake`, requires the `snowflake-core` and
+    `ChatSnowflake` requires the `snowflake-core` and
     `snowflake-snowpark-python` packages:
     `pip install "chatlas[snowflake]"`.
     :::
