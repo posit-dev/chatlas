@@ -581,8 +581,17 @@ class OpenAIProvider(
                     x
                 ):
                     continue
-                res.append(as_input_param(x, turn.role))
+                res.append(self._as_input_param(x, turn.role))
         return res
+
+    @staticmethod
+    def _as_input_param(content: Content, role: Role) -> "ResponseInputItemParam":
+        """Serialize one piece of turn content.
+
+        A thin hook around `as_input_param()` so subclasses (e.g. Bedrock)
+        can adjust content per item instead of overriding `_turns_as_inputs`.
+        """
+        return as_input_param(content, role)
 
     def translate_model_params(self, params: StandardModelParams) -> "SubmitInputArgs":
         res: "SubmitInputArgs" = {}

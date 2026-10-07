@@ -42,7 +42,7 @@ from ._content import (
     WebSource,
     check_image_content_type_supported,
 )
-from ._content_file import ensure_bytes
+from ._content_file import ensure_bytes, materialize_url_content
 from ._files import FileMetadata, maybe_write, open_binary
 from ._logging import log_model_default
 from ._provider import (
@@ -1533,6 +1533,12 @@ class AnthropicBedrockProvider(AnthropicProvider):
         "Amazon Bedrock does not run Anthropic's server-side tools; "
         "`ChatAnthropic()` does."
     )
+
+    @staticmethod
+    def _as_content_block(content: Content) -> "ContentBlockParam":
+        # Bedrock's InvokeModel API can't fetch `url` sources:
+        # https://platform.claude.com/docs/en/build-with-claude/claude-in-amazon-bedrock
+        return AnthropicProvider._as_content_block(materialize_url_content(content))
 
     def __init__(
         self,

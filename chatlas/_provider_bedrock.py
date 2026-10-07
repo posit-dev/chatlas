@@ -9,6 +9,7 @@ from typing import TYPE_CHECKING, Any, Literal, Optional, cast
 import httpx
 
 from ._chat import Chat
+from ._content_file import materialize_url_content
 from ._logging import log_model_default
 from ._provider import ModelInfo, no_file_management
 from ._provider_anthropic import AnthropicProvider
@@ -20,6 +21,10 @@ if TYPE_CHECKING:
     from botocore.credentials import Credentials
     from botocore.session import Session
 
+    from ._content import Content
+    from ._provider_anthropic import ContentBlockParam
+    from ._provider_openai import ResponseInputItemParam
+    from ._turn import Role
     from .types.anthropic import ChatClientArgs as AnthropicClientArgs
     from .types.bedrock import ChatClientArgs as ConverseClientArgs
     from .types.openai import ChatClientArgs as OpenAIClientArgs
@@ -279,6 +284,11 @@ class BedrockResponsesProvider(OpenAIProvider):
         models_client = self._client.with_options(base_url=self._models_base_url)
         return openai_models_to_info(models_client.models.list(), self.name)
 
+    @staticmethod
+    def _as_input_param(content: "Content", role: "Role") -> "ResponseInputItemParam":
+        content = materialize_url_content(content)
+        return OpenAIProvider._as_input_param(content, role)
+
 
 @no_file_management
 class BedrockMessagesProvider(AnthropicProvider):
@@ -347,6 +357,10 @@ class BedrockMessagesProvider(AnthropicProvider):
 
     def list_models(self) -> list[ModelInfo]:
         return openai_models_to_info(self._models_client.models.list(), self.name)
+
+    @staticmethod
+    def _as_content_block(content: "Content") -> "ContentBlockParam":
+        return AnthropicProvider._as_content_block(materialize_url_content(content))
 
 
 def bedrock_client_kwargs(
