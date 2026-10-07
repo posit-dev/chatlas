@@ -1,13 +1,14 @@
 interactions:
 - request:
-    body: '{"input": [{"role": "user", "content": [{"type": "input_text", "text":
-      "What are Joe and Hadley''s favorite colors? "}]}, {"role": "user", "content":
-      [{"type": "input_text", "text": "Write ''Joe ____ Hadley ____''. Use ''unknown''
-      if you don''t know. "}]}, {"role": "user", "content": [{"type": "input_text",
-      "text": "Don''t ever include punctuation in your answers."}]}], "model": "gpt-4.1",
-      "store": false, "stream": true, "tools": [{"type": "function", "name": "test_tool",
-      "description": "Find out a user''s favorite color", "parameters": {"properties":
-      {"user": {"type": "string"}}, "required": ["user"], "type": "object", "additionalProperties":
+    body: '{"input": [{"type": "message", "role": "user", "content": [{"type": "input_text",
+      "text": "What are Joe and Hadley''s favorite colors? "}]}, {"type": "message",
+      "role": "user", "content": [{"type": "input_text", "text": "Write ''Joe ____
+      Hadley ____''. Use ''unknown'' if you don''t know. "}]}, {"type": "message",
+      "role": "user", "content": [{"type": "input_text", "text": "Don''t ever include
+      punctuation in your answers."}]}], "model": "gpt-4.1", "store": false, "stream":
+      true, "tools": [{"type": "function", "name": "test_tool", "description": "Find
+      out a user''s favorite color", "parameters": {"properties": {"user": {"type":
+      "string"}}, "required": ["user"], "type": "object", "additionalProperties":
       false}, "strict": true}]}'
     headers:
       Accept:
@@ -130,18 +131,18 @@ interactions:
       code: 200
       message: OK
 - request:
-    body: '{"input": [{"role": "user", "content": [{"type": "input_text", "text":
-      "What are Joe and Hadley''s favorite colors? "}]}, {"role": "user", "content":
-      [{"type": "input_text", "text": "Write ''Joe ____ Hadley ____''. Use ''unknown''
-      if you don''t know. "}]}, {"role": "user", "content": [{"type": "input_text",
-      "text": "Don''t ever include punctuation in your answers."}]}, {"type": "function_call",
-      "call_id": "fc_0f9e576c8c577a130169fb7cbaa9388196b62893b1f6224a76", "name":
-      "test_tool", "arguments": "{\"user\":\"Joe\"}"}, {"type": "function_call", "call_id":
-      "fc_0f9e576c8c577a130169fb7cbaa9488196a6a9fca21adca227", "name": "test_tool",
-      "arguments": "{\"user\":\"Hadley\"}"}, {"type": "function_call_output", "call_id":
-      "fc_0f9e576c8c577a130169fb7cbaa9388196b62893b1f6224a76", "output": "Tool call
-      failed with error: ''Tool call rejected. Joe denied the request.''"}, {"type":
-      "function_call_output", "call_id": "fc_0f9e576c8c577a130169fb7cbaa9488196a6a9fca21adca227",
+    body: '{"input": [{"type": "message", "role": "user", "content": [{"type": "input_text",
+      "text": "What are Joe and Hadley''s favorite colors? "}]}, {"type": "message",
+      "role": "user", "content": [{"type": "input_text", "text": "Write ''Joe ____
+      Hadley ____''. Use ''unknown'' if you don''t know. "}]}, {"type": "message",
+      "role": "user", "content": [{"type": "input_text", "text": "Don''t ever include
+      punctuation in your answers."}]}, {"type": "function_call", "call_id": "fc_0f9e576c8c577a130169fb7cbaa9388196b62893b1f6224a76",
+      "name": "test_tool", "arguments": "{\"user\":\"Joe\"}"}, {"type": "function_call",
+      "call_id": "fc_0f9e576c8c577a130169fb7cbaa9488196a6a9fca21adca227", "name":
+      "test_tool", "arguments": "{\"user\":\"Hadley\"}"}, {"type": "function_call_output",
+      "call_id": "fc_0f9e576c8c577a130169fb7cbaa9388196b62893b1f6224a76", "output":
+      "Tool call failed with error: ''Tool call rejected. Joe denied the request.''"},
+      {"type": "function_call_output", "call_id": "fc_0f9e576c8c577a130169fb7cbaa9488196a6a9fca21adca227",
       "output": "red"}], "model": "gpt-4.1", "store": false, "stream": true, "tools":
       [{"type": "function", "name": "test_tool", "description": "Find out a user''s
       favorite color", "parameters": {"properties": {"user": {"type": "string"}},

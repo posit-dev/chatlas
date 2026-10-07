@@ -1,8 +1,8 @@
 interactions:
 - request:
-    body: '{"include": ["reasoning.encrypted_content"], "input": [{"role": "user",
-      "content": [{"type": "input_text", "text": "Say ''World''"}]}], "model": "gpt-5.4",
-      "store": false, "stream": false}'
+    body: '{"include": ["reasoning.encrypted_content"], "input": [{"type": "message",
+      "role": "user", "content": [{"type": "input_text", "text": "Say ''World''"}]}],
+      "model": "gpt-5.4", "store": false, "stream": false}'
     headers:
       Accept:
       - application/json
@@ -24,30 +24,30 @@ interactions:
     uri: https://api.openai.com/v1/responses
   response:
     body:
-      string: "{\n  \"id\": \"resp_089da0a1a63534b80169fb7d1d16588192856345869e35ef4c\",\n
-        \ \"object\": \"response\",\n  \"created_at\": 1778089245,\n  \"status\":
-        \"completed\",\n  \"background\": false,\n  \"billing\": {\n    \"payer\":
-        \"developer\"\n  },\n  \"completed_at\": 1778089245,\n  \"error\": null,\n
-        \ \"frequency_penalty\": 0.0,\n  \"incomplete_details\": null,\n  \"instructions\":
-        null,\n  \"max_output_tokens\": null,\n  \"max_tool_calls\": null,\n  \"model\":
-        \"gpt-5.4-2026-03-05\",\n  \"moderation\": null,\n  \"output\": [\n    {\n
-        \     \"id\": \"msg_089da0a1a63534b80169fb7d1d812c8192828f288e15d992df\",\n
-        \     \"type\": \"message\",\n      \"status\": \"completed\",\n      \"content\":
-        [\n        {\n          \"type\": \"output_text\",\n          \"annotations\":
-        [],\n          \"logprobs\": [],\n          \"text\": \"World\"\n        }\n
-        \     ],\n      \"phase\": \"final_answer\",\n      \"role\": \"assistant\"\n
-        \   }\n  ],\n  \"parallel_tool_calls\": true,\n  \"presence_penalty\": 0.0,\n
-        \ \"previous_response_id\": null,\n  \"prompt_cache_key\": null,\n  \"prompt_cache_retention\":
-        \"in_memory\",\n  \"reasoning\": {\n    \"effort\": \"none\",\n    \"summary\":
-        null\n  },\n  \"safety_identifier\": null,\n  \"service_tier\": \"default\",\n
-        \ \"store\": false,\n  \"temperature\": 1.0,\n  \"text\": {\n    \"format\":
-        {\n      \"type\": \"text\"\n    },\n    \"verbosity\": \"medium\"\n  },\n
-        \ \"tool_choice\": \"auto\",\n  \"tools\": [],\n  \"top_logprobs\": 0,\n  \"top_p\":
-        0.98,\n  \"truncation\": \"disabled\",\n  \"usage\": {\n    \"input_tokens\":
-        10,\n    \"input_tokens_details\": {\n      \"cached_tokens\": 0\n    },\n
-        \   \"output_tokens\": 5,\n    \"output_tokens_details\": {\n      \"reasoning_tokens\":
-        0\n    },\n    \"total_tokens\": 15\n  },\n  \"user\": null,\n  \"metadata\":
-        {}\n}"
+      string: "{\n  \"id\": \"resp_089da0a1a63534b80169fb7d1d16588192856345869e35ef4c\"\
+        ,\n  \"object\": \"response\",\n  \"created_at\": 1778089245,\n  \"status\"\
+        : \"completed\",\n  \"background\": false,\n  \"billing\": {\n    \"payer\"\
+        : \"developer\"\n  },\n  \"completed_at\": 1778089245,\n  \"error\": null,\n\
+        \  \"frequency_penalty\": 0.0,\n  \"incomplete_details\": null,\n  \"instructions\"\
+        : null,\n  \"max_output_tokens\": null,\n  \"max_tool_calls\": null,\n  \"\
+        model\": \"gpt-5.4-2026-03-05\",\n  \"moderation\": null,\n  \"output\": [\n\
+        \    {\n      \"id\": \"msg_089da0a1a63534b80169fb7d1d812c8192828f288e15d992df\"\
+        ,\n      \"type\": \"message\",\n      \"status\": \"completed\",\n      \"\
+        content\": [\n        {\n          \"type\": \"output_text\",\n          \"\
+        annotations\": [],\n          \"logprobs\": [],\n          \"text\": \"World\"\
+        \n        }\n      ],\n      \"phase\": \"final_answer\",\n      \"role\"\
+        : \"assistant\"\n    }\n  ],\n  \"parallel_tool_calls\": true,\n  \"presence_penalty\"\
+        : 0.0,\n  \"previous_response_id\": null,\n  \"prompt_cache_key\": null,\n\
+        \  \"prompt_cache_retention\": \"in_memory\",\n  \"reasoning\": {\n    \"\
+        effort\": \"none\",\n    \"summary\": null\n  },\n  \"safety_identifier\"\
+        : null,\n  \"service_tier\": \"default\",\n  \"store\": false,\n  \"temperature\"\
+        : 1.0,\n  \"text\": {\n    \"format\": {\n      \"type\": \"text\"\n    },\n\
+        \    \"verbosity\": \"medium\"\n  },\n  \"tool_choice\": \"auto\",\n  \"tools\"\
+        : [],\n  \"top_logprobs\": 0,\n  \"top_p\": 0.98,\n  \"truncation\": \"disabled\"\
+        ,\n  \"usage\": {\n    \"input_tokens\": 10,\n    \"input_tokens_details\"\
+        : {\n      \"cached_tokens\": 0\n    },\n    \"output_tokens\": 5,\n    \"\
+        output_tokens_details\": {\n      \"reasoning_tokens\": 0\n    },\n    \"\
+        total_tokens\": 15\n  },\n  \"user\": null,\n  \"metadata\": {}\n}"
     headers:
       CF-Cache-Status:
       - DYNAMIC
@@ -91,9 +91,9 @@ interactions:
       code: 200
       message: OK
 - request:
-    body: '{"include": ["reasoning.encrypted_content"], "input": [{"role": "user",
-      "content": [{"type": "input_text", "text": "Say ''Hello''"}]}], "model": "gpt-5.4",
-      "store": false, "stream": false}'
+    body: '{"include": ["reasoning.encrypted_content"], "input": [{"type": "message",
+      "role": "user", "content": [{"type": "input_text", "text": "Say ''Hello''"}]}],
+      "model": "gpt-5.4", "store": false, "stream": false}'
     headers:
       Accept:
       - application/json
@@ -115,30 +115,30 @@ interactions:
     uri: https://api.openai.com/v1/responses
   response:
     body:
-      string: "{\n  \"id\": \"resp_016fbac531f8f86d0169fb7d1d07fc8193a98cdea99a2ed267\",\n
-        \ \"object\": \"response\",\n  \"created_at\": 1778089245,\n  \"status\":
-        \"completed\",\n  \"background\": false,\n  \"billing\": {\n    \"payer\":
-        \"developer\"\n  },\n  \"completed_at\": 1778089245,\n  \"error\": null,\n
-        \ \"frequency_penalty\": 0.0,\n  \"incomplete_details\": null,\n  \"instructions\":
-        null,\n  \"max_output_tokens\": null,\n  \"max_tool_calls\": null,\n  \"model\":
-        \"gpt-5.4-2026-03-05\",\n  \"moderation\": null,\n  \"output\": [\n    {\n
-        \     \"id\": \"msg_016fbac531f8f86d0169fb7d1d7e488193893b2e2f59a29338\",\n
-        \     \"type\": \"message\",\n      \"status\": \"completed\",\n      \"content\":
-        [\n        {\n          \"type\": \"output_text\",\n          \"annotations\":
-        [],\n          \"logprobs\": [],\n          \"text\": \"Hello\"\n        }\n
-        \     ],\n      \"phase\": \"final_answer\",\n      \"role\": \"assistant\"\n
-        \   }\n  ],\n  \"parallel_tool_calls\": true,\n  \"presence_penalty\": 0.0,\n
-        \ \"previous_response_id\": null,\n  \"prompt_cache_key\": null,\n  \"prompt_cache_retention\":
-        \"in_memory\",\n  \"reasoning\": {\n    \"effort\": \"none\",\n    \"summary\":
-        null\n  },\n  \"safety_identifier\": null,\n  \"service_tier\": \"default\",\n
-        \ \"store\": false,\n  \"temperature\": 1.0,\n  \"text\": {\n    \"format\":
-        {\n      \"type\": \"text\"\n    },\n    \"verbosity\": \"medium\"\n  },\n
-        \ \"tool_choice\": \"auto\",\n  \"tools\": [],\n  \"top_logprobs\": 0,\n  \"top_p\":
-        0.98,\n  \"truncation\": \"disabled\",\n  \"usage\": {\n    \"input_tokens\":
-        10,\n    \"input_tokens_details\": {\n      \"cached_tokens\": 0\n    },\n
-        \   \"output_tokens\": 5,\n    \"output_tokens_details\": {\n      \"reasoning_tokens\":
-        0\n    },\n    \"total_tokens\": 15\n  },\n  \"user\": null,\n  \"metadata\":
-        {}\n}"
+      string: "{\n  \"id\": \"resp_016fbac531f8f86d0169fb7d1d07fc8193a98cdea99a2ed267\"\
+        ,\n  \"object\": \"response\",\n  \"created_at\": 1778089245,\n  \"status\"\
+        : \"completed\",\n  \"background\": false,\n  \"billing\": {\n    \"payer\"\
+        : \"developer\"\n  },\n  \"completed_at\": 1778089245,\n  \"error\": null,\n\
+        \  \"frequency_penalty\": 0.0,\n  \"incomplete_details\": null,\n  \"instructions\"\
+        : null,\n  \"max_output_tokens\": null,\n  \"max_tool_calls\": null,\n  \"\
+        model\": \"gpt-5.4-2026-03-05\",\n  \"moderation\": null,\n  \"output\": [\n\
+        \    {\n      \"id\": \"msg_016fbac531f8f86d0169fb7d1d7e488193893b2e2f59a29338\"\
+        ,\n      \"type\": \"message\",\n      \"status\": \"completed\",\n      \"\
+        content\": [\n        {\n          \"type\": \"output_text\",\n          \"\
+        annotations\": [],\n          \"logprobs\": [],\n          \"text\": \"Hello\"\
+        \n        }\n      ],\n      \"phase\": \"final_answer\",\n      \"role\"\
+        : \"assistant\"\n    }\n  ],\n  \"parallel_tool_calls\": true,\n  \"presence_penalty\"\
+        : 0.0,\n  \"previous_response_id\": null,\n  \"prompt_cache_key\": null,\n\
+        \  \"prompt_cache_retention\": \"in_memory\",\n  \"reasoning\": {\n    \"\
+        effort\": \"none\",\n    \"summary\": null\n  },\n  \"safety_identifier\"\
+        : null,\n  \"service_tier\": \"default\",\n  \"store\": false,\n  \"temperature\"\
+        : 1.0,\n  \"text\": {\n    \"format\": {\n      \"type\": \"text\"\n    },\n\
+        \    \"verbosity\": \"medium\"\n  },\n  \"tool_choice\": \"auto\",\n  \"tools\"\
+        : [],\n  \"top_logprobs\": 0,\n  \"top_p\": 0.98,\n  \"truncation\": \"disabled\"\
+        ,\n  \"usage\": {\n    \"input_tokens\": 10,\n    \"input_tokens_details\"\
+        : {\n      \"cached_tokens\": 0\n    },\n    \"output_tokens\": 5,\n    \"\
+        output_tokens_details\": {\n      \"reasoning_tokens\": 0\n    },\n    \"\
+        total_tokens\": 15\n  },\n  \"user\": null,\n  \"metadata\": {}\n}"
     headers:
       CF-Cache-Status:
       - DYNAMIC
@@ -182,9 +182,9 @@ interactions:
       code: 200
       message: OK
 - request:
-    body: '{"include": ["reasoning.encrypted_content"], "input": [{"role": "user",
-      "content": [{"type": "input_text", "text": "Say ''Test''"}]}], "model": "gpt-5.4",
-      "store": false, "stream": false}'
+    body: '{"include": ["reasoning.encrypted_content"], "input": [{"type": "message",
+      "role": "user", "content": [{"type": "input_text", "text": "Say ''Test''"}]}],
+      "model": "gpt-5.4", "store": false, "stream": false}'
     headers:
       Accept:
       - application/json
@@ -206,30 +206,30 @@ interactions:
     uri: https://api.openai.com/v1/responses
   response:
     body:
-      string: "{\n  \"id\": \"resp_061ec408c442ba300169fb7d1d1d088193a813c7d5b6106883\",\n
-        \ \"object\": \"response\",\n  \"created_at\": 1778089245,\n  \"status\":
-        \"completed\",\n  \"background\": false,\n  \"billing\": {\n    \"payer\":
-        \"developer\"\n  },\n  \"completed_at\": 1778089245,\n  \"error\": null,\n
-        \ \"frequency_penalty\": 0.0,\n  \"incomplete_details\": null,\n  \"instructions\":
-        null,\n  \"max_output_tokens\": null,\n  \"max_tool_calls\": null,\n  \"model\":
-        \"gpt-5.4-2026-03-05\",\n  \"moderation\": null,\n  \"output\": [\n    {\n
-        \     \"id\": \"msg_061ec408c442ba300169fb7d1db0dc81939310261259b4b5d0\",\n
-        \     \"type\": \"message\",\n      \"status\": \"completed\",\n      \"content\":
-        [\n        {\n          \"type\": \"output_text\",\n          \"annotations\":
-        [],\n          \"logprobs\": [],\n          \"text\": \"Test\"\n        }\n
-        \     ],\n      \"phase\": \"final_answer\",\n      \"role\": \"assistant\"\n
-        \   }\n  ],\n  \"parallel_tool_calls\": true,\n  \"presence_penalty\": 0.0,\n
-        \ \"previous_response_id\": null,\n  \"prompt_cache_key\": null,\n  \"prompt_cache_retention\":
-        \"in_memory\",\n  \"reasoning\": {\n    \"effort\": \"none\",\n    \"summary\":
-        null\n  },\n  \"safety_identifier\": null,\n  \"service_tier\": \"default\",\n
-        \ \"store\": false,\n  \"temperature\": 1.0,\n  \"text\": {\n    \"format\":
-        {\n      \"type\": \"text\"\n    },\n    \"verbosity\": \"medium\"\n  },\n
-        \ \"tool_choice\": \"auto\",\n  \"tools\": [],\n  \"top_logprobs\": 0,\n  \"top_p\":
-        0.98,\n  \"truncation\": \"disabled\",\n  \"usage\": {\n    \"input_tokens\":
-        10,\n    \"input_tokens_details\": {\n      \"cached_tokens\": 0\n    },\n
-        \   \"output_tokens\": 5,\n    \"output_tokens_details\": {\n      \"reasoning_tokens\":
-        0\n    },\n    \"total_tokens\": 15\n  },\n  \"user\": null,\n  \"metadata\":
-        {}\n}"
+      string: "{\n  \"id\": \"resp_061ec408c442ba300169fb7d1d1d088193a813c7d5b6106883\"\
+        ,\n  \"object\": \"response\",\n  \"created_at\": 1778089245,\n  \"status\"\
+        : \"completed\",\n  \"background\": false,\n  \"billing\": {\n    \"payer\"\
+        : \"developer\"\n  },\n  \"completed_at\": 1778089245,\n  \"error\": null,\n\
+        \  \"frequency_penalty\": 0.0,\n  \"incomplete_details\": null,\n  \"instructions\"\
+        : null,\n  \"max_output_tokens\": null,\n  \"max_tool_calls\": null,\n  \"\
+        model\": \"gpt-5.4-2026-03-05\",\n  \"moderation\": null,\n  \"output\": [\n\
+        \    {\n      \"id\": \"msg_061ec408c442ba300169fb7d1db0dc81939310261259b4b5d0\"\
+        ,\n      \"type\": \"message\",\n      \"status\": \"completed\",\n      \"\
+        content\": [\n        {\n          \"type\": \"output_text\",\n          \"\
+        annotations\": [],\n          \"logprobs\": [],\n          \"text\": \"Test\"\
+        \n        }\n      ],\n      \"phase\": \"final_answer\",\n      \"role\"\
+        : \"assistant\"\n    }\n  ],\n  \"parallel_tool_calls\": true,\n  \"presence_penalty\"\
+        : 0.0,\n  \"previous_response_id\": null,\n  \"prompt_cache_key\": null,\n\
+        \  \"prompt_cache_retention\": \"in_memory\",\n  \"reasoning\": {\n    \"\
+        effort\": \"none\",\n    \"summary\": null\n  },\n  \"safety_identifier\"\
+        : null,\n  \"service_tier\": \"default\",\n  \"store\": false,\n  \"temperature\"\
+        : 1.0,\n  \"text\": {\n    \"format\": {\n      \"type\": \"text\"\n    },\n\
+        \    \"verbosity\": \"medium\"\n  },\n  \"tool_choice\": \"auto\",\n  \"tools\"\
+        : [],\n  \"top_logprobs\": 0,\n  \"top_p\": 0.98,\n  \"truncation\": \"disabled\"\
+        ,\n  \"usage\": {\n    \"input_tokens\": 10,\n    \"input_tokens_details\"\
+        : {\n      \"cached_tokens\": 0\n    },\n    \"output_tokens\": 5,\n    \"\
+        output_tokens_details\": {\n      \"reasoning_tokens\": 0\n    },\n    \"\
+        total_tokens\": 15\n  },\n  \"user\": null,\n  \"metadata\": {}\n}"
     headers:
       CF-Cache-Status:
       - DYNAMIC

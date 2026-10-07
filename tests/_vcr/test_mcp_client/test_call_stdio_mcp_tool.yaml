@@ -1,12 +1,13 @@
 interactions:
 - request:
-    body: '{"include": ["reasoning.encrypted_content"], "input": [{"role": "system",
-      "content": [{"type": "input_text", "text": "Be very terse, not even punctuation."}]},
-      {"role": "user", "content": [{"type": "input_text", "text": "What''s the current
-      date in YYYY-MM-DD format?"}]}], "model": "gpt-5.4", "store": false, "stream":
-      true, "tools": [{"type": "function", "name": "get_current_date", "description":
-      "Gets the current date", "parameters": {"properties": {}, "type": "object",
-      "additionalProperties": false}, "strict": false}]}'
+    body: '{"include": ["reasoning.encrypted_content"], "input": [{"type": "message",
+      "role": "system", "content": [{"type": "input_text", "text": "Be very terse,
+      not even punctuation."}]}, {"type": "message", "role": "user", "content": [{"type":
+      "input_text", "text": "What''s the current date in YYYY-MM-DD format?"}]}],
+      "model": "gpt-5.4", "store": false, "stream": true, "tools": [{"type": "function",
+      "name": "get_current_date", "description": "Gets the current date", "parameters":
+      {"properties": {}, "type": "object", "additionalProperties": false}, "strict":
+      false}]}'
     headers:
       Accept:
       - application/json
@@ -108,10 +109,11 @@ interactions:
       code: 200
       message: OK
 - request:
-    body: '{"include": ["reasoning.encrypted_content"], "input": [{"role": "system",
-      "content": [{"type": "input_text", "text": "Be very terse, not even punctuation."}]},
-      {"role": "user", "content": [{"type": "input_text", "text": "What''s the current
-      date in YYYY-MM-DD format?"}]}, {"type": "function_call", "call_id": "fc_0f00b526c9e27f220169fb7ce3b61481a2aece3038e0e72881",
+    body: '{"include": ["reasoning.encrypted_content"], "input": [{"type": "message",
+      "role": "system", "content": [{"type": "input_text", "text": "Be very terse,
+      not even punctuation."}]}, {"type": "message", "role": "user", "content": [{"type":
+      "input_text", "text": "What''s the current date in YYYY-MM-DD format?"}]}, {"type":
+      "function_call", "call_id": "fc_0f00b526c9e27f220169fb7ce3b61481a2aece3038e0e72881",
       "name": "get_current_date", "arguments": "{}"}, {"type": "function_call_output",
       "call_id": "fc_0f00b526c9e27f220169fb7ce3b61481a2aece3038e0e72881", "output":
       "2024-01-01"}], "model": "gpt-5.4", "store": false, "stream": true, "tools":

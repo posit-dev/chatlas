@@ -1,9 +1,9 @@
 interactions:
 - request:
-    body: '{"include": ["reasoning.encrypted_content"], "input": [{"role": "system",
-      "content": [{"type": "input_text", "text": "Be terse."}]}, {"role": "user",
-      "content": [{"type": "input_text", "text": "Say ''Alpha''"}]}], "model": "gpt-5.4",
-      "store": false, "stream": false}'
+    body: '{"include": ["reasoning.encrypted_content"], "input": [{"type": "message",
+      "role": "system", "content": [{"type": "input_text", "text": "Be terse."}]},
+      {"type": "message", "role": "user", "content": [{"type": "input_text", "text":
+      "Say ''Alpha''"}]}], "model": "gpt-5.4", "store": false, "stream": false}'
     headers:
       Accept:
       - application/json
@@ -25,30 +25,30 @@ interactions:
     uri: https://api.openai.com/v1/responses
   response:
     body:
-      string: "{\n  \"id\": \"resp_01aaf3e142f2d4b20169fb7d018c5c8191968d4c3db992497e\",\n
-        \ \"object\": \"response\",\n  \"created_at\": 1778089217,\n  \"status\":
-        \"completed\",\n  \"background\": false,\n  \"billing\": {\n    \"payer\":
-        \"developer\"\n  },\n  \"completed_at\": 1778089218,\n  \"error\": null,\n
-        \ \"frequency_penalty\": 0.0,\n  \"incomplete_details\": null,\n  \"instructions\":
-        null,\n  \"max_output_tokens\": null,\n  \"max_tool_calls\": null,\n  \"model\":
-        \"gpt-5.4-2026-03-05\",\n  \"moderation\": null,\n  \"output\": [\n    {\n
-        \     \"id\": \"msg_01aaf3e142f2d4b20169fb7d01eff881919e2295661e3ae6fd\",\n
-        \     \"type\": \"message\",\n      \"status\": \"completed\",\n      \"content\":
-        [\n        {\n          \"type\": \"output_text\",\n          \"annotations\":
-        [],\n          \"logprobs\": [],\n          \"text\": \"Alpha\"\n        }\n
-        \     ],\n      \"phase\": \"final_answer\",\n      \"role\": \"assistant\"\n
-        \   }\n  ],\n  \"parallel_tool_calls\": true,\n  \"presence_penalty\": 0.0,\n
-        \ \"previous_response_id\": null,\n  \"prompt_cache_key\": null,\n  \"prompt_cache_retention\":
-        \"in_memory\",\n  \"reasoning\": {\n    \"effort\": \"none\",\n    \"summary\":
-        null\n  },\n  \"safety_identifier\": null,\n  \"service_tier\": \"default\",\n
-        \ \"store\": false,\n  \"temperature\": 1.0,\n  \"text\": {\n    \"format\":
-        {\n      \"type\": \"text\"\n    },\n    \"verbosity\": \"medium\"\n  },\n
-        \ \"tool_choice\": \"auto\",\n  \"tools\": [],\n  \"top_logprobs\": 0,\n  \"top_p\":
-        0.98,\n  \"truncation\": \"disabled\",\n  \"usage\": {\n    \"input_tokens\":
-        17,\n    \"input_tokens_details\": {\n      \"cached_tokens\": 0\n    },\n
-        \   \"output_tokens\": 5,\n    \"output_tokens_details\": {\n      \"reasoning_tokens\":
-        0\n    },\n    \"total_tokens\": 22\n  },\n  \"user\": null,\n  \"metadata\":
-        {}\n}"
+      string: "{\n  \"id\": \"resp_01aaf3e142f2d4b20169fb7d018c5c8191968d4c3db992497e\"\
+        ,\n  \"object\": \"response\",\n  \"created_at\": 1778089217,\n  \"status\"\
+        : \"completed\",\n  \"background\": false,\n  \"billing\": {\n    \"payer\"\
+        : \"developer\"\n  },\n  \"completed_at\": 1778089218,\n  \"error\": null,\n\
+        \  \"frequency_penalty\": 0.0,\n  \"incomplete_details\": null,\n  \"instructions\"\
+        : null,\n  \"max_output_tokens\": null,\n  \"max_tool_calls\": null,\n  \"\
+        model\": \"gpt-5.4-2026-03-05\",\n  \"moderation\": null,\n  \"output\": [\n\
+        \    {\n      \"id\": \"msg_01aaf3e142f2d4b20169fb7d01eff881919e2295661e3ae6fd\"\
+        ,\n      \"type\": \"message\",\n      \"status\": \"completed\",\n      \"\
+        content\": [\n        {\n          \"type\": \"output_text\",\n          \"\
+        annotations\": [],\n          \"logprobs\": [],\n          \"text\": \"Alpha\"\
+        \n        }\n      ],\n      \"phase\": \"final_answer\",\n      \"role\"\
+        : \"assistant\"\n    }\n  ],\n  \"parallel_tool_calls\": true,\n  \"presence_penalty\"\
+        : 0.0,\n  \"previous_response_id\": null,\n  \"prompt_cache_key\": null,\n\
+        \  \"prompt_cache_retention\": \"in_memory\",\n  \"reasoning\": {\n    \"\
+        effort\": \"none\",\n    \"summary\": null\n  },\n  \"safety_identifier\"\
+        : null,\n  \"service_tier\": \"default\",\n  \"store\": false,\n  \"temperature\"\
+        : 1.0,\n  \"text\": {\n    \"format\": {\n      \"type\": \"text\"\n    },\n\
+        \    \"verbosity\": \"medium\"\n  },\n  \"tool_choice\": \"auto\",\n  \"tools\"\
+        : [],\n  \"top_logprobs\": 0,\n  \"top_p\": 0.98,\n  \"truncation\": \"disabled\"\
+        ,\n  \"usage\": {\n    \"input_tokens\": 17,\n    \"input_tokens_details\"\
+        : {\n      \"cached_tokens\": 0\n    },\n    \"output_tokens\": 5,\n    \"\
+        output_tokens_details\": {\n      \"reasoning_tokens\": 0\n    },\n    \"\
+        total_tokens\": 22\n  },\n  \"user\": null,\n  \"metadata\": {}\n}"
     headers:
       CF-Cache-Status:
       - DYNAMIC
@@ -92,10 +92,10 @@ interactions:
       code: 200
       message: OK
 - request:
-    body: '{"include": ["reasoning.encrypted_content"], "input": [{"role": "system",
-      "content": [{"type": "input_text", "text": "Be terse."}]}, {"role": "user",
-      "content": [{"type": "input_text", "text": "Say ''Gamma''"}]}], "model": "gpt-5.4",
-      "store": false, "stream": false}'
+    body: '{"include": ["reasoning.encrypted_content"], "input": [{"type": "message",
+      "role": "system", "content": [{"type": "input_text", "text": "Be terse."}]},
+      {"type": "message", "role": "user", "content": [{"type": "input_text", "text":
+      "Say ''Gamma''"}]}], "model": "gpt-5.4", "store": false, "stream": false}'
     headers:
       Accept:
       - application/json
@@ -117,30 +117,30 @@ interactions:
     uri: https://api.openai.com/v1/responses
   response:
     body:
-      string: "{\n  \"id\": \"resp_0d6b6c73a97b23880169fb7d0191048193aed3ee3e01813089\",\n
-        \ \"object\": \"response\",\n  \"created_at\": 1778089217,\n  \"status\":
-        \"completed\",\n  \"background\": false,\n  \"billing\": {\n    \"payer\":
-        \"developer\"\n  },\n  \"completed_at\": 1778089218,\n  \"error\": null,\n
-        \ \"frequency_penalty\": 0.0,\n  \"incomplete_details\": null,\n  \"instructions\":
-        null,\n  \"max_output_tokens\": null,\n  \"max_tool_calls\": null,\n  \"model\":
-        \"gpt-5.4-2026-03-05\",\n  \"moderation\": null,\n  \"output\": [\n    {\n
-        \     \"id\": \"msg_0d6b6c73a97b23880169fb7d01e4408193bd3a6f809a5ed018\",\n
-        \     \"type\": \"message\",\n      \"status\": \"completed\",\n      \"content\":
-        [\n        {\n          \"type\": \"output_text\",\n          \"annotations\":
-        [],\n          \"logprobs\": [],\n          \"text\": \"Gamma\"\n        }\n
-        \     ],\n      \"phase\": \"final_answer\",\n      \"role\": \"assistant\"\n
-        \   }\n  ],\n  \"parallel_tool_calls\": true,\n  \"presence_penalty\": 0.0,\n
-        \ \"previous_response_id\": null,\n  \"prompt_cache_key\": null,\n  \"prompt_cache_retention\":
-        \"in_memory\",\n  \"reasoning\": {\n    \"effort\": \"none\",\n    \"summary\":
-        null\n  },\n  \"safety_identifier\": null,\n  \"service_tier\": \"default\",\n
-        \ \"store\": false,\n  \"temperature\": 1.0,\n  \"text\": {\n    \"format\":
-        {\n      \"type\": \"text\"\n    },\n    \"verbosity\": \"medium\"\n  },\n
-        \ \"tool_choice\": \"auto\",\n  \"tools\": [],\n  \"top_logprobs\": 0,\n  \"top_p\":
-        0.98,\n  \"truncation\": \"disabled\",\n  \"usage\": {\n    \"input_tokens\":
-        17,\n    \"input_tokens_details\": {\n      \"cached_tokens\": 0\n    },\n
-        \   \"output_tokens\": 5,\n    \"output_tokens_details\": {\n      \"reasoning_tokens\":
-        0\n    },\n    \"total_tokens\": 22\n  },\n  \"user\": null,\n  \"metadata\":
-        {}\n}"
+      string: "{\n  \"id\": \"resp_0d6b6c73a97b23880169fb7d0191048193aed3ee3e01813089\"\
+        ,\n  \"object\": \"response\",\n  \"created_at\": 1778089217,\n  \"status\"\
+        : \"completed\",\n  \"background\": false,\n  \"billing\": {\n    \"payer\"\
+        : \"developer\"\n  },\n  \"completed_at\": 1778089218,\n  \"error\": null,\n\
+        \  \"frequency_penalty\": 0.0,\n  \"incomplete_details\": null,\n  \"instructions\"\
+        : null,\n  \"max_output_tokens\": null,\n  \"max_tool_calls\": null,\n  \"\
+        model\": \"gpt-5.4-2026-03-05\",\n  \"moderation\": null,\n  \"output\": [\n\
+        \    {\n      \"id\": \"msg_0d6b6c73a97b23880169fb7d01e4408193bd3a6f809a5ed018\"\
+        ,\n      \"type\": \"message\",\n      \"status\": \"completed\",\n      \"\
+        content\": [\n        {\n          \"type\": \"output_text\",\n          \"\
+        annotations\": [],\n          \"logprobs\": [],\n          \"text\": \"Gamma\"\
+        \n        }\n      ],\n      \"phase\": \"final_answer\",\n      \"role\"\
+        : \"assistant\"\n    }\n  ],\n  \"parallel_tool_calls\": true,\n  \"presence_penalty\"\
+        : 0.0,\n  \"previous_response_id\": null,\n  \"prompt_cache_key\": null,\n\
+        \  \"prompt_cache_retention\": \"in_memory\",\n  \"reasoning\": {\n    \"\
+        effort\": \"none\",\n    \"summary\": null\n  },\n  \"safety_identifier\"\
+        : null,\n  \"service_tier\": \"default\",\n  \"store\": false,\n  \"temperature\"\
+        : 1.0,\n  \"text\": {\n    \"format\": {\n      \"type\": \"text\"\n    },\n\
+        \    \"verbosity\": \"medium\"\n  },\n  \"tool_choice\": \"auto\",\n  \"tools\"\
+        : [],\n  \"top_logprobs\": 0,\n  \"top_p\": 0.98,\n  \"truncation\": \"disabled\"\
+        ,\n  \"usage\": {\n    \"input_tokens\": 17,\n    \"input_tokens_details\"\
+        : {\n      \"cached_tokens\": 0\n    },\n    \"output_tokens\": 5,\n    \"\
+        output_tokens_details\": {\n      \"reasoning_tokens\": 0\n    },\n    \"\
+        total_tokens\": 22\n  },\n  \"user\": null,\n  \"metadata\": {}\n}"
     headers:
       CF-Cache-Status:
       - DYNAMIC
@@ -184,10 +184,10 @@ interactions:
       code: 200
       message: OK
 - request:
-    body: '{"include": ["reasoning.encrypted_content"], "input": [{"role": "system",
-      "content": [{"type": "input_text", "text": "Be terse."}]}, {"role": "user",
-      "content": [{"type": "input_text", "text": "Say ''Beta''"}]}], "model": "gpt-5.4",
-      "store": false, "stream": false}'
+    body: '{"include": ["reasoning.encrypted_content"], "input": [{"type": "message",
+      "role": "system", "content": [{"type": "input_text", "text": "Be terse."}]},
+      {"type": "message", "role": "user", "content": [{"type": "input_text", "text":
+      "Say ''Beta''"}]}], "model": "gpt-5.4", "store": false, "stream": false}'
     headers:
       Accept:
       - application/json
@@ -209,30 +209,30 @@ interactions:
     uri: https://api.openai.com/v1/responses
   response:
     body:
-      string: "{\n  \"id\": \"resp_084434674eb434bf0169fb7d01a17081979002f6bbfa9be93a\",\n
-        \ \"object\": \"response\",\n  \"created_at\": 1778089217,\n  \"status\":
-        \"completed\",\n  \"background\": false,\n  \"billing\": {\n    \"payer\":
-        \"developer\"\n  },\n  \"completed_at\": 1778089218,\n  \"error\": null,\n
-        \ \"frequency_penalty\": 0.0,\n  \"incomplete_details\": null,\n  \"instructions\":
-        null,\n  \"max_output_tokens\": null,\n  \"max_tool_calls\": null,\n  \"model\":
-        \"gpt-5.4-2026-03-05\",\n  \"moderation\": null,\n  \"output\": [\n    {\n
-        \     \"id\": \"msg_084434674eb434bf0169fb7d0204a081979e4be3fb9cd53b0a\",\n
-        \     \"type\": \"message\",\n      \"status\": \"completed\",\n      \"content\":
-        [\n        {\n          \"type\": \"output_text\",\n          \"annotations\":
-        [],\n          \"logprobs\": [],\n          \"text\": \"Beta\"\n        }\n
-        \     ],\n      \"phase\": \"final_answer\",\n      \"role\": \"assistant\"\n
-        \   }\n  ],\n  \"parallel_tool_calls\": true,\n  \"presence_penalty\": 0.0,\n
-        \ \"previous_response_id\": null,\n  \"prompt_cache_key\": null,\n  \"prompt_cache_retention\":
-        \"in_memory\",\n  \"reasoning\": {\n    \"effort\": \"none\",\n    \"summary\":
-        null\n  },\n  \"safety_identifier\": null,\n  \"service_tier\": \"default\",\n
-        \ \"store\": false,\n  \"temperature\": 1.0,\n  \"text\": {\n    \"format\":
-        {\n      \"type\": \"text\"\n    },\n    \"verbosity\": \"medium\"\n  },\n
-        \ \"tool_choice\": \"auto\",\n  \"tools\": [],\n  \"top_logprobs\": 0,\n  \"top_p\":
-        0.98,\n  \"truncation\": \"disabled\",\n  \"usage\": {\n    \"input_tokens\":
-        17,\n    \"input_tokens_details\": {\n      \"cached_tokens\": 0\n    },\n
-        \   \"output_tokens\": 5,\n    \"output_tokens_details\": {\n      \"reasoning_tokens\":
-        0\n    },\n    \"total_tokens\": 22\n  },\n  \"user\": null,\n  \"metadata\":
-        {}\n}"
+      string: "{\n  \"id\": \"resp_084434674eb434bf0169fb7d01a17081979002f6bbfa9be93a\"\
+        ,\n  \"object\": \"response\",\n  \"created_at\": 1778089217,\n  \"status\"\
+        : \"completed\",\n  \"background\": false,\n  \"billing\": {\n    \"payer\"\
+        : \"developer\"\n  },\n  \"completed_at\": 1778089218,\n  \"error\": null,\n\
+        \  \"frequency_penalty\": 0.0,\n  \"incomplete_details\": null,\n  \"instructions\"\
+        : null,\n  \"max_output_tokens\": null,\n  \"max_tool_calls\": null,\n  \"\
+        model\": \"gpt-5.4-2026-03-05\",\n  \"moderation\": null,\n  \"output\": [\n\
+        \    {\n      \"id\": \"msg_084434674eb434bf0169fb7d0204a081979e4be3fb9cd53b0a\"\
+        ,\n      \"type\": \"message\",\n      \"status\": \"completed\",\n      \"\
+        content\": [\n        {\n          \"type\": \"output_text\",\n          \"\
+        annotations\": [],\n          \"logprobs\": [],\n          \"text\": \"Beta\"\
+        \n        }\n      ],\n      \"phase\": \"final_answer\",\n      \"role\"\
+        : \"assistant\"\n    }\n  ],\n  \"parallel_tool_calls\": true,\n  \"presence_penalty\"\
+        : 0.0,\n  \"previous_response_id\": null,\n  \"prompt_cache_key\": null,\n\
+        \  \"prompt_cache_retention\": \"in_memory\",\n  \"reasoning\": {\n    \"\
+        effort\": \"none\",\n    \"summary\": null\n  },\n  \"safety_identifier\"\
+        : null,\n  \"service_tier\": \"default\",\n  \"store\": false,\n  \"temperature\"\
+        : 1.0,\n  \"text\": {\n    \"format\": {\n      \"type\": \"text\"\n    },\n\
+        \    \"verbosity\": \"medium\"\n  },\n  \"tool_choice\": \"auto\",\n  \"tools\"\
+        : [],\n  \"top_logprobs\": 0,\n  \"top_p\": 0.98,\n  \"truncation\": \"disabled\"\
+        ,\n  \"usage\": {\n    \"input_tokens\": 17,\n    \"input_tokens_details\"\
+        : {\n      \"cached_tokens\": 0\n    },\n    \"output_tokens\": 5,\n    \"\
+        output_tokens_details\": {\n      \"reasoning_tokens\": 0\n    },\n    \"\
+        total_tokens\": 22\n  },\n  \"user\": null,\n  \"metadata\": {}\n}"
     headers:
       CF-Cache-Status:
       - DYNAMIC

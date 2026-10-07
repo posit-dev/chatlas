@@ -1,8 +1,8 @@
 interactions:
 - request:
-    body: '{"include": ["reasoning.encrypted_content"], "input": [{"role": "user",
-      "content": [{"type": "input_text", "text": "Hi"}]}], "model": "gpt-5.4", "store":
-      false, "stream": true}'
+    body: '{"include": ["reasoning.encrypted_content"], "input": [{"type": "message",
+      "role": "user", "content": [{"type": "input_text", "text": "Hi"}]}], "model":
+      "gpt-5.4", "store": false, "stream": true}'
     headers:
       accept:
       - application/json
@@ -147,12 +147,12 @@ interactions:
       code: 200
       message: OK
 - request:
-    body: '{"include": ["reasoning.encrypted_content"], "input": [{"role": "user",
-      "content": [{"type": "input_text", "text": "Hi"}]}, {"role": "assistant", "content":
-      [{"type": "output_text", "text": "Hi! How can I help?", "annotations": []}],
-      "status": "completed", "type": "message"}, {"role": "user", "content": [{"type":
-      "input_text", "text": "Bye"}]}], "model": "gpt-5.4", "store": false, "stream":
-      true}'
+    body: '{"include": ["reasoning.encrypted_content"], "input": [{"type": "message",
+      "role": "user", "content": [{"type": "input_text", "text": "Hi"}]}, {"role":
+      "assistant", "content": [{"type": "output_text", "text": "Hi! How can I help?",
+      "annotations": []}], "status": "completed", "type": "message"}, {"type": "message",
+      "role": "user", "content": [{"type": "input_text", "text": "Bye"}]}], "model":
+      "gpt-5.4", "store": false, "stream": true}'
     headers:
       accept:
       - application/json

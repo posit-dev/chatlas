@@ -1,9 +1,10 @@
 interactions:
 - request:
-    body: '{"include": ["reasoning.encrypted_content"], "input": [{"role": "system",
-      "content": [{"type": "input_text", "text": "Be as terse as possible; no punctuation"}]},
-      {"role": "user", "content": [{"type": "input_text", "text": "What is 1 + 1?"}]}],
-      "model": "gpt-5.4", "store": false, "stream": true}'
+    body: '{"include": ["reasoning.encrypted_content"], "input": [{"type": "message",
+      "role": "system", "content": [{"type": "input_text", "text": "Be as terse as
+      possible; no punctuation"}]}, {"type": "message", "role": "user", "content":
+      [{"type": "input_text", "text": "What is 1 + 1?"}]}], "model": "gpt-5.4", "store":
+      false, "stream": true}'
     headers:
       Accept:
       - application/json

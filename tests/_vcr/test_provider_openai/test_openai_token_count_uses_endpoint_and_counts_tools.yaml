@@ -1,7 +1,7 @@
 interactions:
 - request:
-    body: '{"input": [{"role": "user", "content": [{"type": "input_text", "text":
-      "What is the weather?"}]}], "model": "gpt-5.4"}'
+    body: '{"input": [{"type": "message", "role": "user", "content": [{"type": "input_text",
+      "text": "What is the weather?"}]}], "model": "gpt-5.4"}'
     headers:
       accept:
       - application/json
@@ -23,7 +23,8 @@ interactions:
     uri: https://api.openai.com/v1/responses/input_tokens
   response:
     body:
-      string: "{\n  \"object\": \"response.input_tokens\",\n  \"input_tokens\": 11\n}"
+      string: "{\n  \"object\": \"response.input_tokens\",\n  \"input_tokens\": 11\n\
+        }"
     headers:
       access-control-expose-headers:
       - X-Request-ID
@@ -57,8 +58,8 @@ interactions:
       code: 200
       message: OK
 - request:
-    body: '{"input": [{"role": "user", "content": [{"type": "input_text", "text":
-      "What is the weather?"}]}], "model": "gpt-5.4", "tools": [{"type": "function",
+    body: '{"input": [{"type": "message", "role": "user", "content": [{"type": "input_text",
+      "text": "What is the weather?"}]}], "model": "gpt-5.4", "tools": [{"type": "function",
       "name": "get_weather", "description": "Get weather for a city.", "parameters":
       {"properties": {"city": {"type": "string"}}, "required": ["city"], "type": "object",
       "additionalProperties": false}, "strict": true}]}'
@@ -83,7 +84,8 @@ interactions:
     uri: https://api.openai.com/v1/responses/input_tokens
   response:
     body:
-      string: "{\n  \"object\": \"response.input_tokens\",\n  \"input_tokens\": 47\n}"
+      string: "{\n  \"object\": \"response.input_tokens\",\n  \"input_tokens\": 47\n\
+        }"
     headers:
       access-control-expose-headers:
       - X-Request-ID
