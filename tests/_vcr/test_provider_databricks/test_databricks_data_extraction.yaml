@@ -1,9 +1,13 @@
 interactions:
 - request:
-    body: '{"messages":[{"content":[{"type":"text","text":"\n# Apples are tasty\n\nBy
+    body: '{"messages": [{"content": [{"type": "text", "text": "\n# Apples are tasty\n\nBy
       Hadley Wickham\nApples are delicious and tasty and I like to eat them.\nExcept
-      for red delicious, that is. They are NOT delicious.\n"}],"role":"user"}],"model":"databricks-claude-3-7-sonnet","response_format":{"type":"json_schema","json_schema":{"name":"structured_data","description":"Summary
-      of the article","schema":{"description":"Summary of the article","properties":{"title":{"type":"string"},"author":{"type":"string"}},"required":["title","author"],"type":"object","additionalProperties":false},"strict":true}},"stream":false}'
+      for red delicious, that is. They are NOT delicious.\n"}], "role": "user"}],
+      "model": "databricks-claude-3-7-sonnet", "response_format": {"type": "json_schema",
+      "json_schema": {"name": "structured_data", "description": "Summary of the article",
+      "schema": {"description": "Summary of the article", "properties": {"title":
+      {"type": "string"}, "author": {"type": "string"}}, "required": ["title", "author"],
+      "type": "object", "additionalProperties": false}}}, "stream": false}'
     headers:
       Accept:
       - application/json
@@ -85,13 +89,18 @@ interactions:
       code: 200
       message: OK
 - request:
-    body: '{"messages":[{"content":[{"type":"text","text":"\n# Apples are tasty\n\nBy
+    body: '{"messages": [{"content": [{"type": "text", "text": "\n# Apples are tasty\n\nBy
       Hadley Wickham\nApples are delicious and tasty and I like to eat them.\nExcept
-      for red delicious, that is. They are NOT delicious.\n"}],"role":"user"},{"role":"assistant","content":[{"type":"text","text":"{\"title\":\"Apples
-      are tasty\",\"author\":\"Hadley Wickham\"}"}]},{"content":[{"type":"text","text":"\n#
-      Apples are tasty\n\nBy Hadley Wickham\nApples are delicious and tasty and I
-      like to eat them.\nExcept for red delicious, that is. They are NOT delicious.\n"}],"role":"user"}],"model":"databricks-claude-3-7-sonnet","response_format":{"type":"json_schema","json_schema":{"name":"structured_data","description":"Summary
-      of the article","schema":{"description":"Summary of the article","properties":{"title":{"type":"string"},"author":{"type":"string"}},"required":["title","author"],"type":"object","additionalProperties":false},"strict":true}},"stream":false}'
+      for red delicious, that is. They are NOT delicious.\n"}], "role": "user"}, {"role":
+      "assistant", "content": [{"type": "text", "text": "{\"title\":\"Apples are tasty\",\"author\":\"Hadley
+      Wickham\"}"}]}, {"content": [{"type": "text", "text": "\n# Apples are tasty\n\nBy
+      Hadley Wickham\nApples are delicious and tasty and I like to eat them.\nExcept
+      for red delicious, that is. They are NOT delicious.\n"}], "role": "user"}],
+      "model": "databricks-claude-3-7-sonnet", "response_format": {"type": "json_schema",
+      "json_schema": {"name": "structured_data", "description": "Summary of the article",
+      "schema": {"description": "Summary of the article", "properties": {"title":
+      {"type": "string"}, "author": {"type": "string"}}, "required": ["title", "author"],
+      "type": "object", "additionalProperties": false}}}, "stream": false}'
     headers:
       Accept:
       - application/json
@@ -173,14 +182,20 @@ interactions:
       code: 200
       message: OK
 - request:
-    body: '{"messages":[{"content":[{"type":"text","text":"\n# Apples are tasty\n\nBy
+    body: '{"messages": [{"content": [{"type": "text", "text": "\n# Apples are tasty\n\nBy
       Hadley Wickham\nApples are delicious and tasty and I like to eat them.\nExcept
-      for red delicious, that is. They are NOT delicious.\n"}],"role":"user"},{"role":"assistant","content":[{"type":"text","text":"{\"title\":\"Apples
-      are tasty\",\"author\":\"Hadley Wickham\"}"}]},{"content":[{"type":"text","text":"\n#
-      Apples are tasty\n\nBy Hadley Wickham\nApples are delicious and tasty and I
-      like to eat them.\nExcept for red delicious, that is. They are NOT delicious.\n"}],"role":"user"},{"role":"assistant","content":[{"type":"text","text":"{\"title\":\"Apples
-      are tasty\",\"author\":\"Hadley Wickham\"}"}]},{"content":[{"type":"text","text":"Generate
-      the name and age of a random person."}],"role":"user"}],"model":"databricks-claude-3-7-sonnet","response_format":{"type":"json_schema","json_schema":{"name":"structured_data","description":"","schema":{"properties":{"name":{"type":"string"},"age":{"type":"integer"}},"required":["name","age"],"type":"object","additionalProperties":false},"strict":true}},"stream":false}'
+      for red delicious, that is. They are NOT delicious.\n"}], "role": "user"}, {"role":
+      "assistant", "content": [{"type": "text", "text": "{\"title\":\"Apples are tasty\",\"author\":\"Hadley
+      Wickham\"}"}]}, {"content": [{"type": "text", "text": "\n# Apples are tasty\n\nBy
+      Hadley Wickham\nApples are delicious and tasty and I like to eat them.\nExcept
+      for red delicious, that is. They are NOT delicious.\n"}], "role": "user"}, {"role":
+      "assistant", "content": [{"type": "text", "text": "{\"title\":\"Apples are tasty\",\"author\":\"Hadley
+      Wickham\"}"}]}, {"content": [{"type": "text", "text": "Generate the name and
+      age of a random person."}], "role": "user"}], "model": "databricks-claude-3-7-sonnet",
+      "response_format": {"type": "json_schema", "json_schema": {"name": "structured_data",
+      "description": "", "schema": {"properties": {"name": {"type": "string"}, "age":
+      {"type": "integer"}}, "required": ["name", "age"], "type": "object", "additionalProperties":
+      false}}}, "stream": false}'
     headers:
       Accept:
       - application/json

@@ -7,8 +7,8 @@ interactions:
       "json_schema": {"name": "structured_data", "description": "Summary of the article",
       "schema": {"description": "Summary of the article", "properties": {"title":
       {"type": "string"}, "author": {"type": "string"}}, "required": ["title", "author"],
-      "type": "object", "additionalProperties": false}, "strict": true}}, "stream":
-      false, "random_seed": 1014}'
+      "type": "object", "additionalProperties": false}}}, "stream": false, "random_seed":
+      1014}'
     headers:
       Accept:
       - application/json
@@ -96,8 +96,8 @@ interactions:
       "json_schema": {"name": "structured_data", "description": "Summary of the article",
       "schema": {"description": "Summary of the article", "properties": {"title":
       {"type": "string"}, "author": {"type": "string"}}, "required": ["title", "author"],
-      "type": "object", "additionalProperties": false}, "strict": true}}, "stream":
-      false, "random_seed": 1014}'
+      "type": "object", "additionalProperties": false}}}, "stream": false, "random_seed":
+      1014}'
     headers:
       Accept:
       - application/json
@@ -190,7 +190,7 @@ interactions:
       "response_format": {"type": "json_schema", "json_schema": {"name": "structured_data",
       "description": "", "schema": {"properties": {"name": {"type": "string"}, "age":
       {"type": "integer"}}, "required": ["name", "age"], "type": "object", "additionalProperties":
-      false}, "strict": true}}, "stream": false, "random_seed": 1014}'
+      false}}}, "stream": false, "random_seed": 1014}'
     headers:
       Accept:
       - application/json
