@@ -65,6 +65,7 @@ from ._otel import (
     activate_span,
     end_span,
     record_chat_result,
+    record_chat_ttft_attr,
     record_error,
     start_agent_span,
     start_chat_span,
@@ -3007,6 +3008,9 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                 # provider's HTTP instrumentor spans nest under it -- never
                 # across a `yield`, which would leak the context into the
                 # consumer's scope.
+                # Measured from request issuance; chat_perform() blocks until
+                # headers arrive.
+                stream_start = time.monotonic()
                 with activate_span(chat_span):
                     response = self.provider.chat_perform(
                         stream=True,
@@ -3034,8 +3038,12 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                         for content in self.provider.stream_content(
                             chunk, result, turns=provider_turns
                         ):
+                            text = display_text(content)
+                            if stream_start is not None and text:
+                                record_chat_ttft_attr(chat_span, stream_start)
+                                stream_start = None
                             yield from acc.process_content(
-                                content, display_text(content), content_mode, emit
+                                content, text, content_mode, emit
                             )
 
                     yield from acc.flush_thinking(content_mode, emit)
@@ -3167,6 +3175,9 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                 # provider's HTTP instrumentor spans nest under it -- never
                 # across a `yield`, which would leak the context into the
                 # consumer's scope.
+                # Measured from request issuance; chat_perform_async() blocks
+                # until headers arrive.
+                stream_start = time.monotonic()
                 with activate_span(chat_span):
                     response = await self.provider.chat_perform_async(
                         stream=True,
@@ -3194,8 +3205,12 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                         for content in self.provider.stream_content(
                             chunk, result, turns=provider_turns
                         ):
+                            text = display_text(content)
+                            if stream_start is not None and text:
+                                record_chat_ttft_attr(chat_span, stream_start)
+                                stream_start = None
                             for item in acc.process_content(
-                                content, display_text(content), content_mode, emit
+                                content, text, content_mode, emit
                             ):
                                 yield item
 
