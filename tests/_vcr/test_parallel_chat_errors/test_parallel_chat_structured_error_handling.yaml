@@ -1,8 +1,8 @@
 interactions:
 - request:
-    body: '{"input": [{"role": "user", "content": [{"type": "input_text", "text":
-      "John, age 25"}]}], "model": "invalid-model-12345", "store": false, "stream":
-      false, "text": {"format": {"type": "json_schema", "name": "structured_data",
+    body: '{"input": [{"type": "message", "role": "user", "content": [{"type": "input_text",
+      "text": "John, age 25"}]}], "model": "invalid-model-12345", "store": false,
+      "stream": false, "text": {"format": {"type": "json_schema", "name": "structured_data",
       "schema": {"properties": {"name": {"type": "string"}, "age": {"type": "integer"}},
       "required": ["name", "age"], "type": "object", "additionalProperties": false},
       "strict": true}}}'
@@ -27,10 +27,10 @@ interactions:
     uri: https://api.openai.com/v1/responses
   response:
     body:
-      string: "{\n  \"error\": {\n    \"message\": \"Incorrect API key provided: test.
-        You can find your API key at https://platform.openai.com/account/api-keys.\",\n
-        \   \"type\": \"invalid_request_error\",\n    \"param\": null,\n    \"code\":
-        \"invalid_api_key\"\n  }\n}"
+      string: "{\n  \"error\": {\n    \"message\": \"Incorrect API key provided: test.\
+        \ You can find your API key at https://platform.openai.com/account/api-keys.\"\
+        ,\n    \"type\": \"invalid_request_error\",\n    \"param\": null,\n    \"\
+        code\": \"invalid_api_key\"\n  }\n}"
     headers:
       CF-RAY:
       - 9b6c8eedab7eae13-ORD

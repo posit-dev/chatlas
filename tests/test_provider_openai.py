@@ -192,6 +192,30 @@ def test_openai_rejects_heif_images():
         as_input_param(c, role="user")
 
 
+def test_all_message_input_items_carry_type_message():
+    # `type` is optional in the Responses schema and OpenAI infers it, but
+    # some OpenAI-compatible servers (e.g. llama.cpp) only infer it for
+    # system/developer/user items and reject assistant items without it,
+    # which is terminal for any multi-turn conversation. Setting it
+    # explicitly is a no-op against OpenAI (ellmer#1153).
+    chat = ChatOpenAI()
+    turns = [
+        UserTurn(
+            [
+                ContentText(text="hi"),
+                ContentPDF(filename="a.pdf", url="https://example.com/a.pdf"),
+            ]
+        ),
+        AssistantTurn("hello"),
+        UserTurn("again"),
+    ]
+    inputs = chat.provider._turns_as_inputs(turns)
+
+    messages = [item for item in inputs if item.get("role") is not None]
+    assert len(messages) == 4
+    assert all(item["type"] == "message" for item in messages)
+
+
 def test_replayed_assistant_messages_carry_no_id():
     # chatlas used to synthesize a placeholder id for every replayed assistant
     # message purely to satisfy ResponseOutputMessageParam's Required fields.
