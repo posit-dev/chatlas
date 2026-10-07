@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+import time
 from contextlib import AbstractContextManager, nullcontext
 from typing import TYPE_CHECKING, Any, Optional
 
@@ -98,6 +99,17 @@ def start_tool_span(
         f"execute_tool {request.name}",
         attributes=attrs,
         context=ctx,
+    )
+
+
+def record_chat_ttft_attr(span: Span, start: float) -> None:
+    """Record the time to first token (in seconds) on the chat span as the
+    `gen_ai.response.time_to_first_chunk` semconv attribute."""
+    if not span.is_recording():
+        return
+    span.set_attribute(
+        "gen_ai.response.time_to_first_chunk",
+        time.monotonic() - start,
     )
 
 

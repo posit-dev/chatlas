@@ -14,6 +14,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * The `snowflake` extra (i.e., `pip install "chatlas[snowflake]"`) no longer installs `snowflake-ml-python`, which pulled in the heavy torch ecosystem and blocked installation on Python 3.13+. `ChatSnowflake()` has used the Cortex REST API (`snowflake.core`) since v0.11.0, so it only needs `snowflake-core` and `snowflake-snowpark-python`.
 
+### New features
+
+* Streamed responses now record the time to first token (in seconds) as the `gen_ai.response.time_to_first_chunk` attribute on the OpenTelemetry `chat` span.
+
 ### Bug fixes
 
 * `ChatBedrock()` (with `api="messages"` or `api="responses"`) no longer sends a URL for `content_pdf_url()`/`content_document_url()` content, which `bedrock-mantle` rejects since it can't fetch URLs itself. The bytes are downloaded and sent instead, as they already were before URL passthrough was added. `ChatBedrockAnthropic()` gets the same fix, since Bedrock's InvokeModel API can't fetch `url` sources either. (#410)
