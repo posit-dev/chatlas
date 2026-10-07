@@ -212,6 +212,8 @@ class OpenAIAzureCompletionsProvider(OpenAICompletionsProvider):
             name=name,
             model=deployment_id,
             seed=seed,
+            # Azure OpenAI supports OpenAI's strict mode for structured outputs
+            strict=True,
             # The OpenAI() constructor will fail if no API key is present.
             # However, a dummy value is fine -- AzureOpenAI() handles the auth.
             api_key=api_key or "not-used",

@@ -20,6 +20,7 @@ def ChatPortkey(
     api_key: Optional[str] = None,
     virtual_key: Optional[str] = None,
     base_url: str = "https://api.portkey.ai/v1",
+    strict: bool = False,
     kwargs: Optional["ChatClientArgs"] = None,
 ) -> Chat["SubmitInputArgs", ChatCompletion]:
     """
@@ -69,6 +70,10 @@ def ChatPortkey(
         `PORTKEY_VIRTUAL_KEY` environment variable.
     base_url
         The base URL for the Portkey API. The default is suitable for most users.
+    strict
+        Whether to use OpenAI's strict mode for structured outputs
+        (`response_format`). Only enable this if the underlying provider
+        supports it.
     kwargs
         Additional arguments to pass to the OpenAIProvider, such as headers or
         other client configuration options.
@@ -101,6 +106,7 @@ def ChatPortkey(
             model=model,
             base_url=base_url,
             name="Portkey",
+            strict=strict,
             kwargs=kwargs2,
         ),
         system_prompt=system_prompt,
