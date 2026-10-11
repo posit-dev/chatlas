@@ -45,3 +45,26 @@ class TestUrlContentFallsBackToBytes:
             AnthropicBedrockProvider._as_content_block(
                 ContentImageRemote(url="https://example.com/i.png")
             )
+
+
+class TestReasoning:
+    """`ChatBedrockAnthropic(reasoning=)` accepts the same forms as `ChatAnthropic`."""
+
+    def test_effort_string_enables_adaptive_thinking(self):
+        from chatlas import ChatBedrockAnthropic
+
+        chat = ChatBedrockAnthropic(reasoning="high", aws_region="us-east-1")
+
+        assert chat.kwargs_chat == {
+            "thinking": {"type": "adaptive"},
+            "output_config": {"effort": "high"},
+        }
+
+    def test_int_is_still_a_fixed_budget(self):
+        from chatlas import ChatBedrockAnthropic
+
+        chat = ChatBedrockAnthropic(reasoning=2048, aws_region="us-east-1")
+
+        assert chat.kwargs_chat == {
+            "thinking": {"type": "enabled", "budget_tokens": 2048}
+        }
