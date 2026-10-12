@@ -15,7 +15,11 @@ if TYPE_CHECKING:
 
 
 class FileMetadata(BaseModel):
-    """Normalized metadata for a provider-hosted file."""
+    """Normalized metadata for a provider-hosted file.
+
+    Can be passed straight to `.chat()` (and other chat methods) to reference
+    the file in a turn, just like the result of `chat.files.upload()`.
+    """
 
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
@@ -38,17 +42,10 @@ class FileMetadata(BaseModel):
     def to_content(self) -> ContentUploaded:
         """Build a `ContentUploaded` reference to this file.
 
-        The result can be passed straight to `.chat()` (and other chat
-        methods), so a file uploaded in an earlier session can be reused from
-        its id alone. In fact, `.chat()` and friends accept `FileMetadata`
-        directly, coercing via this method -- so the conversion below is only
-        needed when you want the `ContentUploaded` itself (e.g. to stash it
-        for reuse):
-
-        ```python
-        report = chat.files.get("file_011CRabc...")
-        chat.chat("Summarize the key findings.", report)
-        ```
+        You rarely need to call this yourself: `.chat()` (and other chat
+        methods) accept `FileMetadata` directly and do this conversion for
+        you. It's here for when you want the `ContentUploaded` itself --
+        e.g. to build a `UserTurn` by hand or stash the reference for later.
 
         When the provider doesn't report a MIME type (OpenAI's Files API
         never does), it's guessed from `filename`, falling back to
@@ -78,9 +75,10 @@ class FileMetadata(BaseModel):
 class FileManager:
     """Manage files hosted by a chat's provider. Accessed via `chat.files`.
 
-    Upload a file once with `.upload()`, then pass the returned
-    `ContentUploaded` to `.chat()` (and other chat methods) like any other
-    content, instead of re-sending the file's bytes on every turn.
+    Upload a file once with `.upload()`, then pass the returned reference to
+    `.chat()` (and other chat methods) like any other content, instead of
+    re-sending the file's bytes on every turn. To reuse a file uploaded in an
+    earlier session, pass the result of `.get()` to `.chat()` the same way.
 
     Supported for `ChatOpenAI()` (the Responses API), `ChatAnthropic()`, and
     `ChatGoogle()` (the Gemini Developer API). Every other provider --
@@ -188,9 +186,14 @@ class FileManager:
         Returns
         -------
         FileMetadata
-            Metadata for the file. Call its `.to_content()` method to get a
-            `ContentUploaded` that can be passed straight to `.chat()`, e.g.
-            to reuse a file uploaded in an earlier session.
+            Metadata for the file, which can be passed straight to `.chat()`
+            (and other chat methods) to reference the file in a turn -- e.g.
+            to reuse a file uploaded in an earlier session:
+
+            ```python
+            report = chat.files.get("file_011CRabc...")
+            chat.chat("Summarize the key findings.", report)
+            ```
         """
         return self._provider.file_get(id)
 

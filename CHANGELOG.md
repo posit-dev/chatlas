@@ -12,7 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### New features
 
-* `FileMetadata` (returned by `chat.files.get()` and `chat.files.list()`) gains a `.to_content()` method that builds a `ContentUploaded` reference you can pass straight to `.chat()`, so a file uploaded in an earlier session can be reused from its id alone. `FileMetadata` is also accepted directly anywhere content is passed (`.chat()`, `.stream()`, `.extract_data()`, etc.), coercing via `.to_content()`. When the provider doesn't report a MIME type (OpenAI's Files API never does), it's guessed from the filename. (#417)
+* The result of `chat.files.get()` (and elements of `chat.files.list()`) can now be passed straight to `.chat()` (and anywhere else content is accepted), so a file uploaded in an earlier session can be reused from its id alone: `chat.chat("Summarize this.", chat.files.get("file_011CRabc..."))`. When the provider doesn't report a MIME type (OpenAI's Files API never does), it's guessed from the filename. For when you want the underlying `ContentUploaded` reference itself (e.g. to build a `UserTurn` by hand), `FileMetadata` gains a `.to_content()` method. (#417)
 
 ### Changes
 
