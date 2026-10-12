@@ -11,6 +11,7 @@ from chatlas._tokens import (
     tokens_log,
     tokens_reset,
 )
+from chatlas.types import ContentToolRequest, ContentToolResult
 from pydantic import BaseModel
 
 from .conftest import make_vcr_config
@@ -73,6 +74,74 @@ def test_tokens_method():
         {"role": "user", "tokens": 2, "tokens_cached": 2, "tokens_total": 14},
         {"role": "assistant", "tokens": 10, "tokens_cached": 0, "tokens_total": 10},
     ]
+
+
+def test_get_tokens_tolerates_trailing_user_turn():
+    # A conversation can end with a user turn that has no completed
+    # assistant response yet (e.g. after a failed request or add_turn())
+    chat = ChatOpenAI()
+    chat.set_turns(
+        [
+            UserTurn("Hi"),
+            AssistantTurn("Hello", tokens=(2, 10, 0)),
+            UserTurn("Are you there?"),
+        ]
+    )
+    assert chat.get_tokens() == [
+        {"role": "user", "tokens": 2, "tokens_cached": 0, "tokens_total": 2},
+        {"role": "assistant", "tokens": 10, "tokens_cached": 0, "tokens_total": 10},
+    ]
+
+
+def test_get_tokens_with_only_a_user_turn():
+    chat = ChatOpenAI()
+    chat.set_turns([UserTurn("Hi")])
+    assert chat.get_tokens() == []
+
+
+def test_get_tokens_tolerates_consecutive_assistant_turns():
+    chat = ChatOpenAI()
+    chat.set_turns(
+        [
+            UserTurn("Hi"),
+            AssistantTurn("Hello", tokens=(2, 10, 0)),
+            AssistantTurn("Hello again", tokens=(20, 5, 0)),
+        ]
+    )
+    assert chat.get_tokens() == [
+        {"role": "user", "tokens": 2, "tokens_cached": 0, "tokens_total": 2},
+        {"role": "assistant", "tokens": 10, "tokens_cached": 0, "tokens_total": 10},
+        {"role": "user", "tokens": 8, "tokens_cached": 0, "tokens_total": 20},
+        {"role": "assistant", "tokens": 5, "tokens_cached": 0, "tokens_total": 5},
+    ]
+
+
+def test_get_tokens_with_tool_loop():
+    # Tool calls produce user turns holding tool results; token accounting
+    # should treat them like any other user turn
+    request = ContentToolRequest(id="x1", name="my_tool", arguments={})
+    chat = ChatOpenAI()
+    chat.set_turns(
+        [
+            UserTurn("Hi"),
+            AssistantTurn([request], tokens=(10, 5, 0)),
+            UserTurn([ContentToolResult(value=1, request=request)]),
+            AssistantTurn("The answer is 1", tokens=(30, 10, 0)),
+        ]
+    )
+    assert chat.get_tokens() == [
+        {"role": "user", "tokens": 10, "tokens_cached": 0, "tokens_total": 10},
+        {"role": "assistant", "tokens": 5, "tokens_cached": 0, "tokens_total": 5},
+        {"role": "user", "tokens": 15, "tokens_cached": 0, "tokens_total": 30},
+        {"role": "assistant", "tokens": 10, "tokens_cached": 0, "tokens_total": 10},
+    ]
+
+
+def test_get_tokens_raises_without_token_counts():
+    chat = ChatOpenAI()
+    chat.set_turns([UserTurn("Hi"), AssistantTurn("Hello")])
+    with pytest.raises(ValueError, match="token counts"):
+        chat.get_tokens()
 
 
 @pytest.mark.vcr
