@@ -4,29 +4,23 @@ import inspect
 import json
 import os
 import warnings
-from typing import Any, Generic, Literal, Optional, Sequence, TypeVar, Union, cast
+from typing import Any, Generic, Literal, Optional, Sequence, TypeVar, cast
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from ._content import (
     Content,
+    ContentInput,
     ContentText,
     ContentToolRequest,
     ContentToolResult,
     ContentUnion,
+    SupportsContent,
     create_content,
 )
 from ._content_expand import expand_tool_result, merge_tool_results, tool_results_first
-from ._files import FileMetadata
 
 __all__ = ("Turn", "UserTurn", "SystemTurn", "AssistantTurn")
-
-
-# Input types accepted anywhere user-facing APIs take content (`.chat()` and
-# friends): a `Content` object, a plain string (wrapped in `ContentText`), or
-# `FileMetadata` from `chat.files.get()`/`.list()` (coerced to a
-# `ContentUploaded` reference via its `.to_content()`).
-ContentInput = Union[Content, str, FileMetadata]
 
 
 CompletionT = TypeVar("CompletionT")
@@ -107,15 +101,22 @@ class Turn(BaseModel):
         for x in contents:
             if isinstance(x, Content):
                 contents2.append(x)
-            elif isinstance(x, FileMetadata):
-                contents2.append(x.to_content())
             elif isinstance(x, str):
                 contents2.append(ContentText(text=x))
             elif isinstance(x, dict):
                 contents2.append(create_content(x))
+            elif isinstance(x, SupportsContent):
+                content = x.to_content()
+                if not isinstance(content, Content):
+                    raise TypeError(
+                        f"{type(x).__name__}.to_content() must return a Content "
+                        f"object, not {type(content).__name__}."
+                    )
+                contents2.append(content)
             else:
                 raise ValueError(
-                    "All contents must be Content objects, FileMetadata, or str."
+                    "All contents must be Content objects, str, or objects "
+                    "implementing .to_content()."
                 )
 
         super().__init__(

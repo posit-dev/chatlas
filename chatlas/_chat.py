@@ -35,6 +35,7 @@ from ._content import (
     Content,
     ContentCitation,
     ContentImageInline,
+    ContentInput,
     ContentJson,
     ContentText,
     ContentThinking,
@@ -76,7 +77,6 @@ from ._tokens import tokens_log
 from ._tools import Tool, ToolBuiltIn, ToolRejectError
 from ._turn import (
     AssistantTurn,
-    ContentInput,
     SystemTurn,
     Turn,
     UserTurn,
@@ -1283,7 +1283,9 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         Parameters
         ----------
         args
-            The user input(s) to generate a response from.
+            The user input(s) to generate a response from. Each may be a
+            string, a `Content` object, or any object implementing
+            `.to_content()` (e.g. `FileMetadata` from `chat.files.get()`).
         echo
             One of the following (default is "output"):
               - `"text"`: Echo just the text content of the response.
@@ -1338,7 +1340,9 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         Parameters
         ----------
         args
-            The user input(s) to generate a response from.
+            The user input(s) to generate a response from. Each may be a
+            string, a `Content` object, or any object implementing
+            `.to_content()` (e.g. `FileMetadata` from `chat.files.get()`).
         echo
             One of the following (default is "output"):
               - `"text"`: Echo just the text content of the response.
@@ -1417,7 +1421,9 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         Parameters
         ----------
         args
-            The user input(s) to generate a response from.
+            The user input(s) to generate a response from. Each may be a
+            string, a `Content` object, or any object implementing
+            `.to_content()` (e.g. `FileMetadata` from `chat.files.get()`).
         content
             Whether to yield just text content or include rich content objects
             (e.g., tool calls) when relevant.
@@ -1528,7 +1534,9 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         Parameters
         ----------
         args
-            The user input(s) to generate a response from.
+            The user input(s) to generate a response from. Each may be a
+            string, a `Content` object, or any object implementing
+            `.to_content()` (e.g. `FileMetadata` from `chat.files.get()`).
         content
             Whether to yield just text content or include rich content objects
             (e.g., tool calls) when relevant.
