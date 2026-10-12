@@ -253,6 +253,7 @@ quartodoc:
         - types.MISSING
         - types.Source
         - types.SubmitInputArgsT
+        - types.SupportsContent
         - types.TokenUsage
         - types.ToolAnnotations
         - types.ToolInfo

@@ -1,7 +1,7 @@
 interactions:
 - request:
-    body: '{"input": [{"role": "user", "content": [{"type": "input_text", "text":
-      "What is 1 + 1?"}]}], "model": "gpt-4o-mini"}'
+    body: '{"input": [{"type": "message", "role": "user", "content": [{"type": "input_text",
+      "text": "What is 1 + 1?"}]}], "model": "gpt-4o-mini"}'
     headers:
       accept:
       - application/json
@@ -23,7 +23,8 @@ interactions:
     uri: https://api.openai.com/v1/responses/input_tokens
   response:
     body:
-      string: "{\n  \"object\": \"response.input_tokens\",\n  \"input_tokens\": 15\n}"
+      string: "{\n  \"object\": \"response.input_tokens\",\n  \"input_tokens\": 15\n\
+        }"
     headers:
       access-control-expose-headers:
       - X-Request-ID
@@ -133,8 +134,8 @@ interactions:
     uri: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:countTokens
   response:
     body:
-      string: "{\n  \"totalTokens\": 9,\n  \"promptTokensDetails\": [\n    {\n      \"modality\":
-        \"TEXT\",\n      \"tokenCount\": 9\n    }\n  ]\n}\n"
+      string: "{\n  \"totalTokens\": 9,\n  \"promptTokensDetails\": [\n    {\n   \
+        \   \"modality\": \"TEXT\",\n      \"tokenCount\": 9\n    }\n  ]\n}\n"
     headers:
       alt-svc:
       - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000

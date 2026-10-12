@@ -128,6 +128,20 @@ StructuredOutputMode = Literal["auto", "native", "tool"]
 ReasoningEffort = Literal["low", "medium", "high", "xhigh", "max"]
 
 
+def reasoning_kwargs(
+    reasoning: "int | ReasoningEffort | ThinkingConfigEnabledParam | None",
+) -> "SubmitInputArgs":
+    """Translate a `reasoning` argument into the `thinking` request arguments."""
+    if isinstance(reasoning, str):
+        output_config: "OutputConfigParam" = {"effort": reasoning}
+        return {"thinking": {"type": "adaptive"}, "output_config": output_config}
+    if isinstance(reasoning, int):
+        return {"thinking": {"type": "enabled", "budget_tokens": reasoning}}
+    if reasoning is not None:
+        return {"thinking": reasoning}
+    return {}
+
+
 def ChatAnthropic(
     *,
     system_prompt: Optional[str] = None,
@@ -186,12 +200,14 @@ def ChatAnthropic(
     max_tokens
         Maximum number of tokens to generate before stopping.
     reasoning
-        Controls Claude's extended thinking. Pass an integer to set a fixed
-        thinking budget (the number of tokens allocated to reasoning; must be
-        ≥1024 and less than `max_tokens`). Alternatively, pass a string effort
-        level (`"low"`, `"medium"`, `"high"`, `"xhigh"`, or `"max"`) to enable
+        Controls Claude's extended thinking. Pass a string effort level
+        (`"low"`, `"medium"`, `"high"`, `"xhigh"`, or `"max"`) to enable
         adaptive thinking, where Claude decides how much to think based on the
-        requested effort. See [extended
+        requested effort. Alternatively, pass an integer to set a fixed
+        thinking budget (the number of tokens allocated to reasoning; must be
+        ≥1024 and less than `max_tokens`). Fixed budgets are deprecated on
+        Claude Opus 4.6 / Sonnet 4.6 and rejected by later models (including
+        the default, Claude Sonnet 5), so use an effort level there. See [extended
         thinking](https://docs.claude.com/en/docs/build-with-claude/extended-thinking)
         for details.
     cache
@@ -301,17 +317,7 @@ def ChatAnthropic(
     if model is None:
         model = log_model_default("claude-sonnet-5")
 
-    kwargs_chat: "SubmitInputArgs" = {}
-    if isinstance(reasoning, str):
-        output_config: "OutputConfigParam" = {"effort": reasoning}
-        kwargs_chat = {
-            "thinking": {"type": "adaptive"},
-            "output_config": output_config,
-        }
-    elif isinstance(reasoning, int):
-        kwargs_chat = {"thinking": {"type": "enabled", "budget_tokens": reasoning}}
-    elif reasoning is not None:
-        kwargs_chat = {"thinking": reasoning}
+    kwargs_chat = reasoning_kwargs(reasoning)
 
     return Chat(
         provider=AnthropicProvider(
@@ -1318,7 +1324,7 @@ def ChatBedrockAnthropic(
     *,
     model: Optional[str] = None,
     max_tokens: int = 4096,
-    reasoning: Optional["int | ThinkingConfigEnabledParam"] = None,
+    reasoning: Optional["int | ReasoningEffort | ThinkingConfigEnabledParam"] = None,
     cache: Literal["5m", "none"] = "5m",
     structured_output_mode: StructuredOutputMode = "auto",
     aws_secret_key: Optional[str] = None,
@@ -1401,9 +1407,12 @@ def ChatBedrockAnthropic(
     max_tokens
         Maximum number of tokens to generate before stopping.
     reasoning
-        Determines how many tokens Claude can be allocated to reasoning. Must be
-        ≥1024 and less than `max_tokens`. Larger budgets can enable more
-        thorough analysis for complex problems, improving response quality. See
+        Controls Claude's extended thinking, as in `ChatAnthropic`. Pass a
+        string effort level (`"low"`, `"medium"`, `"high"`, `"xhigh"`, or
+        `"max"`) to enable adaptive thinking. Alternatively, pass an integer to
+        set a fixed thinking budget (must be ≥1024 and less than `max_tokens`).
+        Fixed budgets are deprecated on Claude Opus 4.6 / Sonnet 4.6 and
+        rejected by later models (including the default, Claude Sonnet 5). See
         [extended
         thinking](https://docs.claude.com/en/docs/build-with-claude/extended-thinking)
         for details.
@@ -1497,11 +1506,7 @@ def ChatBedrockAnthropic(
     if model is None:
         model = log_model_default("us.anthropic.claude-sonnet-5")
 
-    kwargs_chat: "SubmitInputArgs" = {}
-    if reasoning is not None:
-        if isinstance(reasoning, int):
-            reasoning = {"type": "enabled", "budget_tokens": reasoning}
-        kwargs_chat = {"thinking": reasoning}
+    kwargs_chat = reasoning_kwargs(reasoning)
 
     return Chat(
         provider=AnthropicBedrockProvider(

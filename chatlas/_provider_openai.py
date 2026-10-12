@@ -806,7 +806,11 @@ def as_input_param(content: Content, role: Role) -> "ResponseInputItemParam":
 
 
 def as_message(x: "ResponseInputContentParam", role: Role) -> "EasyInputMessageParam":
-    return {"role": role, "content": [x]}
+    # `type` is optional in the published schema and OpenAI infers it, but
+    # some OpenAI-compatible servers (e.g. llama.cpp) only infer it for
+    # system/developer/user items and reject assistant items without it.
+    # Setting it explicitly is a no-op against OpenAI itself.
+    return {"type": "message", "role": role, "content": [x]}
 
 
 def as_input_file_param(

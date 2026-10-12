@@ -114,6 +114,41 @@ def test_google_meta_falls_back_to_name_without_uri():
     assert meta.id == "files/abc"
 
 
+# ...but to_content() must reject such metadata, since Gemini refuses a
+# `files/...` id or non-ACTIVE file as model input.
+def test_google_meta_to_content_rejects_failed_file():
+    from chatlas._provider_google import google_meta
+
+    meta = google_meta(google_file("FAILED", uri=None, error=True))
+    with pytest.raises(ValueError, match="failed to process"):
+        meta.to_content()
+
+
+def test_google_meta_to_content_rejects_processing_file():
+    from chatlas._provider_google import google_meta
+
+    meta = google_meta(google_file("PROCESSING"))
+    with pytest.raises(ValueError, match="still PROCESSING"):
+        meta.to_content()
+
+
+def test_google_meta_to_content_rejects_resource_name_id():
+    from chatlas._files import FileMetadata
+
+    meta = FileMetadata(id="files/abc", provider="google")
+    with pytest.raises(ValueError, match="not a file URI"):
+        meta.to_content()
+
+
+def test_google_meta_to_content_accepts_active_file():
+    from chatlas._provider_google import google_meta
+
+    content = google_meta(google_file("ACTIVE")).to_content()
+    assert content.id == FILE_URI
+    assert content.provider == "google"
+    assert content.mime_type == "application/pdf"
+
+
 def test_google_files_api_raises_on_vertex():
     prov = GoogleProvider(
         model="gemini-2.0-flash",

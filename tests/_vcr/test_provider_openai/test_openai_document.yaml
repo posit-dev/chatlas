@@ -1,10 +1,11 @@
 interactions:
 - request:
-    body: '{"include": ["reasoning.encrypted_content"], "input": [{"role": "user",
-      "content": [{"type": "input_text", "text": "Which region in the attached CSV
-      had the highest q3 value?"}]}, {"role": "user", "content": [{"type": "input_text",
-      "text": "Reply with the region name only."}]}, {"role": "user", "content": [{"type":
-      "input_file", "filename": "quarterly_sales.csv", "file_data": "data:text/csv;base64,cmVnaW9uLHExLHEyLHEzCk5vcnRoZWFzdCwxMjAsMTM1LDE1MApTb3V0aHdlc3QsOTgsMTAyLDg4Ck1pZHdlc3QsMjEwLDIwNSwyNjQKUGFjaWZpYywxNzUsMTgwLDE5Mwo="}]}],
+    body: '{"include": ["reasoning.encrypted_content"], "input": [{"type": "message",
+      "role": "user", "content": [{"type": "input_text", "text": "Which region in
+      the attached CSV had the highest q3 value?"}]}, {"type": "message", "role":
+      "user", "content": [{"type": "input_text", "text": "Reply with the region name
+      only."}]}, {"type": "message", "role": "user", "content": [{"type": "input_file",
+      "filename": "quarterly_sales.csv", "file_data": "data:text/csv;base64,cmVnaW9uLHExLHEyLHEzCk5vcnRoZWFzdCwxMjAsMTM1LDE1MApTb3V0aHdlc3QsOTgsMTAyLDg4Ck1pZHdlc3QsMjEwLDIwNSwyNjQKUGFjaWZpYywxNzUsMTgwLDE5Mwo="}]}],
       "model": "gpt-5.4", "store": false, "stream": true}'
     headers:
       accept:
