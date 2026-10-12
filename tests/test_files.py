@@ -101,6 +101,25 @@ def test_openai_meta_to_content_roundtrip():
     assert content.provider == "openai"
 
 
+def test_chat_inputs_accept_file_metadata_directly():
+    # FileMetadata is coerced to ContentUploaded at the turn boundary, so
+    # chat.files.get() output can be passed straight to .chat() and friends.
+    from chatlas._turn import UserTurn, user_turn
+
+    meta = FileMetadata(
+        id="file-abc",
+        filename="report.pdf",
+        mime_type="application/pdf",
+        provider="anthropic",
+    )
+    turn = user_turn("Summarize this.", meta)
+    assert turn.contents[1] == meta.to_content()
+
+    # Same coercion when constructing a UserTurn directly (a bare FileMetadata
+    # isn't accepted, matching how a bare Content object isn't)
+    assert UserTurn([meta]).contents[0] == meta.to_content()
+
+
 def test_files_accessor_type(monkeypatch):
     monkeypatch.setattr("chatlas._provider_ollama.has_ollama", lambda base_url: True)
     monkeypatch.setattr(

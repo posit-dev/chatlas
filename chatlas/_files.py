@@ -40,10 +40,13 @@ class FileMetadata(BaseModel):
 
         The result can be passed straight to `.chat()` (and other chat
         methods), so a file uploaded in an earlier session can be reused from
-        its id alone:
+        its id alone. In fact, `.chat()` and friends accept `FileMetadata`
+        directly, coercing via this method -- so the conversion below is only
+        needed when you want the `ContentUploaded` itself (e.g. to stash it
+        for reuse):
 
         ```python
-        report = chat.files.get("file_011CRabc...").to_content()
+        report = chat.files.get("file_011CRabc...")
         chat.chat("Summarize the key findings.", report)
         ```
 
