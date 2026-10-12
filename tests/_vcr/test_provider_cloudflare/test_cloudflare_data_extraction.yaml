@@ -7,8 +7,8 @@ interactions:
       "json_schema", "json_schema": {"name": "structured_data", "description": "Summary
       of the article", "schema": {"description": "Summary of the article", "properties":
       {"title": {"type": "string"}, "author": {"type": "string"}}, "required": ["title",
-      "author"], "type": "object", "additionalProperties": false}, "strict": true}},
-      "seed": 1014, "stream": false}'
+      "author"], "type": "object", "additionalProperties": false}}}, "seed": 1014,
+      "stream": false}'
     headers:
       Accept:
       - application/json
@@ -68,8 +68,8 @@ interactions:
       "json_schema", "json_schema": {"name": "structured_data", "description": "Summary
       of the article", "schema": {"description": "Summary of the article", "properties":
       {"title": {"type": "string"}, "author": {"type": "string"}}, "required": ["title",
-      "author"], "type": "object", "additionalProperties": false}, "strict": true}},
-      "seed": 1014, "stream": false}'
+      "author"], "type": "object", "additionalProperties": false}}}, "seed": 1014,
+      "stream": false}'
     headers:
       Accept:
       - application/json
@@ -134,7 +134,7 @@ interactions:
       "response_format": {"type": "json_schema", "json_schema": {"name": "structured_data",
       "description": "", "schema": {"properties": {"name": {"type": "string"}, "age":
       {"type": "integer"}}, "required": ["name", "age"], "type": "object", "additionalProperties":
-      false}, "strict": true}}, "seed": 1014, "stream": false}'
+      false}}}, "seed": 1014, "stream": false}'
     headers:
       Accept:
       - application/json

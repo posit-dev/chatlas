@@ -335,7 +335,16 @@ class PositOpenAIProvider(OpenAICompletionsProvider):
         cache: Literal["5m", "1h", "none"] = "5m",
         name: str = "Posit",
     ):
-        super().__init__(model=model, api_key="not-used", name=name)
+        # The gateway serves models from several providers behind an
+        # OpenAI-compatible API; only OpenAI's own models can be counted on
+        # to enforce strict mode for structured outputs. (The gateway catalog
+        # doesn't guarantee the `openai/` naming yet, hence a heuristic.)
+        super().__init__(
+            model=model,
+            api_key="not-used",
+            name=name,
+            strict=model.startswith("openai/"),
+        )
 
         self._gateway_base_url = base_url.rstrip("/")
         self._credentials = credentials
@@ -375,6 +384,7 @@ class PositOpenAIProvider(OpenAICompletionsProvider):
                 name=self.name,
             )
         self._model = value
+        self._strict = value.startswith("openai/")
         return self
 
     def list_models(self) -> list[ModelInfo]:

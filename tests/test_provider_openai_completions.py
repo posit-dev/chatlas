@@ -1,4 +1,5 @@
 import base64
+from typing import Optional
 
 import httpx
 import pytest
@@ -19,6 +20,7 @@ from chatlas._provider_openai_completions import (
 )
 from chatlas._turn import AssistantTurn, UserTurn
 from openai.types.chat import ChatCompletion
+from pydantic import BaseModel
 
 from .conftest import (
     assert_data_extraction,
@@ -463,3 +465,77 @@ def test_openai_completions_truncated_plain_text_still_returns_a_turn():
 
     assert turn.text == '{"comments": [{"body": "trunc'
     assert turn.finish_reason == "max_tokens"
+
+
+class _Person(BaseModel):
+    name: str
+    age: Optional[int] = None
+
+
+def _structured_request_args(provider: OpenAICompletionsProvider):
+    return provider._chat_perform_args(
+        stream=False, turns=[], tools={}, data_model=_Person
+    )
+
+
+def test_strict_mode_is_off_by_default():
+    # Strict mode (constrained decoding) is an OpenAI implementation detail,
+    # so the generic provider must not send it: backends that do prompt-based
+    # structured output would read the schema the standard way, and unknown
+    # `strict` flags can break them outright (ellmer#1135).
+    provider = OpenAICompletionsProvider(api_key="fake", model="test")
+    args = _structured_request_args(provider)
+    json_schema = args["response_format"]["json_schema"]  # type: ignore
+    assert "strict" not in json_schema
+
+
+def test_strict_mode_opt_in():
+    provider = OpenAICompletionsProvider(api_key="fake", model="test", strict=True)
+    args = _structured_request_args(provider)
+    json_schema = args["response_format"]["json_schema"]  # type: ignore
+    assert json_schema["strict"] is True
+
+
+def test_chat_openai_completions_strict_auto_detects_from_base_url():
+    assert ChatOpenAICompletions(api_key="fake").provider._strict is True
+    assert (
+        ChatOpenAICompletions(
+            api_key="fake", base_url="http://localhost:8000/v1"
+        ).provider._strict
+        is False
+    )
+    # An explicit value always wins over auto-detection
+    assert (
+        ChatOpenAICompletions(
+            api_key="fake", base_url="http://localhost:8000/v1", strict=True
+        ).provider._strict
+        is True
+    )
+    assert ChatOpenAICompletions(api_key="fake", strict=False).provider._strict is False
+
+
+def test_strict_defaults_are_set_per_provider():
+    from chatlas import ChatGroq, ChatHuggingFace, ChatOpenRouter, ChatPortkey
+
+    # Providers known to support OpenAI's strict mode opt in
+    assert ChatGroq(api_key="fake").provider._strict is True
+    # Other OpenAI-compatible providers default to standard JSON Schema
+    assert ChatOpenRouter(api_key="fake").provider._strict is False
+    assert ChatPortkey(api_key="fake").provider._strict is False
+    assert ChatHuggingFace(api_key="fake").provider._strict is False
+    # ... but can opt in
+    assert ChatOpenRouter(api_key="fake", strict=True).provider._strict is True
+    assert ChatPortkey(api_key="fake", strict=True).provider._strict is True
+    assert ChatHuggingFace(api_key="fake", strict=True).provider._strict is True
+
+
+def test_azure_completions_opts_into_strict():
+    from chatlas._provider_openai_azure import OpenAIAzureCompletionsProvider
+
+    provider = OpenAIAzureCompletionsProvider(
+        api_key="fake",
+        endpoint="https://example.openai.azure.com",
+        deployment_id="test",
+        api_version="2024-10-21",
+    )
+    assert provider._strict is True

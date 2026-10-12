@@ -3,6 +3,7 @@ from __future__ import annotations
 import base64
 import warnings
 from typing import TYPE_CHECKING, Any, Optional, cast
+from urllib.parse import urlparse
 
 import orjson
 from openai.types.chat import (
@@ -58,6 +59,7 @@ if TYPE_CHECKING:
         ChatCompletionContentPartParam,
     )
     from openai.types.chat_model import ChatModel
+    from openai.types.shared_params.response_format_json_schema import JSONSchema
 
     from .types.openai import ChatClientArgs, SubmitInputArgs
 
@@ -74,6 +76,7 @@ def ChatOpenAICompletions(
     api_key: Optional[str] = None,
     seed: int | None | MISSING_TYPE = MISSING,
     preserve_thinking: bool = False,
+    strict: Optional[bool] = None,
     kwargs: Optional["ChatClientArgs"] = None,
 ) -> Chat["SubmitInputArgs", ChatCompletion]:
     """
@@ -109,12 +112,22 @@ def ChatOpenAICompletions(
         reasoning content is still captured in the turn but dropped from
         subsequent requests. Set to True if your provider requires or benefits
         from seeing prior reasoning in multi-turn conversations.
+    strict
+        Whether to use OpenAI's strict mode for structured outputs
+        (`response_format`). Strict mode guarantees the response adheres to
+        the supplied JSON schema, but it's an OpenAI implementation detail
+        that many OpenAI-compatible backends don't support. If `None` (the
+        default), strict mode is enabled when `base_url` points at OpenAI's
+        API and disabled otherwise.
     """
     if isinstance(seed, MISSING_TYPE):
         seed = 1014 if is_testing() else None
 
     if model is None:
         model = log_model_default("gpt-5.6-terra")
+
+    if strict is None:
+        strict = urlparse(base_url).hostname == "api.openai.com"
 
     return Chat(
         provider=OpenAICompletionsProvider(
@@ -123,6 +136,7 @@ def ChatOpenAICompletions(
             base_url=base_url,
             seed=seed,
             preserve_thinking=preserve_thinking,
+            strict=strict,
             kwargs=kwargs,
         ),
         system_prompt=system_prompt,
@@ -191,6 +205,7 @@ class OpenAICompletionsProvider(
         name: str = "OpenAI",
         seed: int | None = None,
         preserve_thinking: bool = False,
+        strict: bool = False,
         kwargs: Optional["ChatClientArgs"] = None,
     ):
         super().__init__(
@@ -202,6 +217,7 @@ class OpenAICompletionsProvider(
         )
         self._seed = seed
         self._preserve_thinking = preserve_thinking
+        self._strict = strict
 
     def chat_perform(
         self,
@@ -260,14 +276,22 @@ class OpenAICompletionsProvider(
             params = basemodel_to_param_schema(data_model)
             params = cast(dict, params)
             params["additionalProperties"] = False
-            kwargs_full["response_format"] = {
-                "type": "json_schema",
-                "json_schema": {
+            json_schema = cast(
+                "JSONSchema",
+                {
                     "name": "structured_data",
                     "description": params.get("description", ""),
                     "schema": params,
-                    "strict": True,
                 },
+            )
+            # Strict mode (constrained decoding) is an OpenAI implementation
+            # detail, not part of JSON Schema; only opt in for backends that
+            # actually enforce it.
+            if self._strict:
+                json_schema["strict"] = True
+            kwargs_full["response_format"] = {
+                "type": "json_schema",
+                "json_schema": json_schema,
             }
             # Apparently OpenAI gets confused if you include
             # both response_format and tools
