@@ -1781,6 +1781,116 @@ class TestStructuredOutputAndCaching:
         assert (cache_point in system) is expected
 
 
+def _fake_data_model_converse_response():
+    return cast(
+        "ConverseResponseTypeDef",
+        {
+            "output": {
+                "message": {
+                    "role": "assistant",
+                    "content": [
+                        {
+                            "toolUse": {
+                                "toolUseId": "toolu_x",
+                                "name": "_structured_tool_call",
+                                "input": {"data": {"name": "John", "age": 15}},
+                            }
+                        }
+                    ],
+                }
+            },
+            "stopReason": "tool_use",
+            "usage": {
+                "inputTokens": 1,
+                "outputTokens": 1,
+                "totalTokens": 2,
+            },
+        },
+    )
+
+
+class TestStreamWithDataModel:
+    """
+    Converse structured output is tool-based, so it can't stream incrementally;
+    `Chat` should downgrade to a non-streaming request that yields the full
+    JSON as a single chunk (see `Provider.can_stream`).
+    """
+
+    def provider(self) -> BedrockConverseProvider:
+        return BedrockConverseProvider(
+            model="us.anthropic.claude-sonnet-4-6",
+            aws_profile=None,
+            aws_region="us-east-1",
+            base_url=None,
+        )
+
+    def test_stream_with_data_model_downgrades_gracefully(self):
+        from unittest.mock import patch
+
+        from chatlas import Chat
+        from chatlas._content import ContentJson
+        from pydantic import BaseModel
+
+        class Person(BaseModel):
+            name: str
+            age: int
+
+        provider = self.provider()
+        chat = Chat(provider=provider)
+
+        with patch.object(
+            provider, "_converse", return_value=_fake_data_model_converse_response()
+        ):
+            with pytest.warns(UserWarning, match="streaming"):
+                chunks = list(chat.stream("John, age 15", data_model=Person))
+
+        person = Person.model_validate_json("".join(chunks))
+        assert person == Person(name="John", age=15)
+
+        turn = chat.get_last_turn()
+        assert turn is not None
+        assert len(turn.contents) == 1
+        assert isinstance(turn.contents[0], ContentJson)
+        assert turn.contents[0].value == {"name": "John", "age": 15}
+
+    @pytest.mark.asyncio
+    async def test_stream_async_with_data_model_downgrades_gracefully(self):
+        from unittest.mock import AsyncMock, patch
+
+        from chatlas import Chat
+        from chatlas._content import ContentJson
+        from pydantic import BaseModel
+
+        class Person(BaseModel):
+            name: str
+            age: int
+
+        provider = self.provider()
+        chat = Chat(provider=provider)
+
+        with patch.object(
+            provider,
+            "_converse_async",
+            new=AsyncMock(return_value=_fake_data_model_converse_response()),
+        ):
+            with pytest.warns(UserWarning, match="streaming"):
+                chunks = [
+                    chunk
+                    async for chunk in await chat.stream_async(
+                        "John, age 15", data_model=Person
+                    )
+                ]
+
+        person = Person.model_validate_json("".join(chunks))
+        assert person == Person(name="John", age=15)
+
+        turn = chat.get_last_turn()
+        assert turn is not None
+        assert len(turn.contents) == 1
+        assert isinstance(turn.contents[0], ContentJson)
+        assert turn.contents[0].value == {"name": "John", "age": 15}
+
+
 def test_blocked_network_skips_live_converse_before_credential_probe(monkeypatch):
     class BlockedConfig:
         def getoption(self, option: str) -> bool:

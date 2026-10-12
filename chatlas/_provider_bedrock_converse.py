@@ -561,6 +561,14 @@ class BedrockConverseProvider(
             return self._converse_stream_async(args)
         return await self._converse_async(args)
 
+    def can_stream(self, data_model: Optional[type[BaseModel]]) -> bool:
+        # Structured data extraction is tool-based (a forced `toolChoice` on a
+        # tool whose input is `{"data": ...}`-wrapped), and Converse streams
+        # tool input in its own event type rather than as text, so a streamed
+        # response can't honor the extracted-JSON contract (`"".join(chunks)`
+        # would be empty). Fall back to a single non-streaming request.
+        return data_model is None
+
     def stream_content(
         self,
         chunk: dict,
