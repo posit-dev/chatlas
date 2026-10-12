@@ -10,6 +10,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### New features
+
+* The result of `chat.files.get()` (and elements of `chat.files.list()`) can now be passed straight to `.chat()` (and anywhere else content is accepted), so a file uploaded in an earlier session can be reused from its id alone: `chat.chat("Summarize this.", chat.files.get("file_011CRabc..."))`. When the provider doesn't report a MIME type (OpenAI's Files API never does), it's guessed from the filename. For when you want the underlying `ContentUploaded` reference itself (e.g. to build a `UserTurn` by hand), `FileMetadata` gains a `.to_content()` method. This works via a new general convention: any object implementing `to_content() -> Content` (see `chatlas.types.SupportsContent`) is accepted anywhere content is passed, so third-party packages can make their own objects usable as chat inputs. (#417)
+
 ### Changes
 
 * The `snowflake` extra (i.e., `pip install "chatlas[snowflake]"`) no longer installs `snowflake-ml-python`, which pulled in the heavy torch ecosystem and blocked installation on Python 3.13+. `ChatSnowflake()` has used the Cortex REST API (`snowflake.core`) since v0.11.0, so it only needs `snowflake-core` and `snowflake-snowpark-python`.

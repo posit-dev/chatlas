@@ -35,6 +35,7 @@ from ._content import (
     Content,
     ContentCitation,
     ContentImageInline,
+    ContentInput,
     ContentJson,
     ContentText,
     ContentThinking,
@@ -785,7 +786,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
     def token_count(
         self,
-        *args: Content | str,
+        *args: ContentInput,
         include: Literal["new", "complete"] = "new",
         data_model: Optional[type[BaseModel]] = None,
     ) -> int:
@@ -856,7 +857,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
     async def token_count_async(
         self,
-        *args: Content | str,
+        *args: ContentInput,
         include: Literal["new", "complete"] = "new",
         data_model: Optional[type[BaseModel]] = None,
     ) -> int:
@@ -911,7 +912,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         )
 
     def _token_count_turns(
-        self, include: Literal["new", "complete"], *args: Content | str
+        self, include: Literal["new", "complete"], *args: ContentInput
     ) -> list[Turn]:
         if include not in ("new", "complete"):
             raise ValueError(
@@ -1271,7 +1272,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
     def chat(
         self,
-        *args: Content | str,
+        *args: ContentInput,
         echo: EchoOptions = "output",
         stream: bool = True,
         kwargs: Optional[SubmitInputArgsT] = None,
@@ -1282,7 +1283,9 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         Parameters
         ----------
         args
-            The user input(s) to generate a response from.
+            The user input(s) to generate a response from. Each may be a
+            string, a `Content` object, or any object implementing
+            `.to_content()` (e.g. `FileMetadata` from `chat.files.get()`).
         echo
             One of the following (default is "output"):
               - `"text"`: Echo just the text content of the response.
@@ -1326,7 +1329,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
     async def chat_async(
         self,
-        *args: Content | str,
+        *args: ContentInput,
         echo: EchoOptions = "output",
         stream: bool = True,
         kwargs: Optional[SubmitInputArgsT] = None,
@@ -1337,7 +1340,9 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         Parameters
         ----------
         args
-            The user input(s) to generate a response from.
+            The user input(s) to generate a response from. Each may be a
+            string, a `Content` object, or any object implementing
+            `.to_content()` (e.g. `FileMetadata` from `chat.files.get()`).
         echo
             One of the following (default is "output"):
               - `"text"`: Echo just the text content of the response.
@@ -1382,7 +1387,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
     @overload
     def stream(
         self,
-        *args: Content | str,
+        *args: ContentInput,
         content: Literal["text"] = "text",
         echo: EchoOptions = "none",
         data_model: Optional[type[BaseModel]] = None,
@@ -1393,7 +1398,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
     @overload
     def stream(
         self,
-        *args: Content | str,
+        *args: ContentInput,
         content: Literal["all"],
         echo: EchoOptions = "none",
         data_model: Optional[type[BaseModel]] = None,
@@ -1403,7 +1408,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
     def stream(
         self,
-        *args: Content | str,
+        *args: ContentInput,
         content: Literal["text", "all"] = "text",
         echo: EchoOptions = "none",
         data_model: Optional[type[BaseModel]] = None,
@@ -1416,7 +1421,9 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         Parameters
         ----------
         args
-            The user input(s) to generate a response from.
+            The user input(s) to generate a response from. Each may be a
+            string, a `Content` object, or any object implementing
+            `.to_content()` (e.g. `FileMetadata` from `chat.files.get()`).
         content
             Whether to yield just text content or include rich content objects
             (e.g., tool calls) when relevant.
@@ -1493,7 +1500,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
     @overload
     async def stream_async(
         self,
-        *args: Content | str,
+        *args: ContentInput,
         content: Literal["text"] = "text",
         echo: EchoOptions = "none",
         data_model: Optional[type[BaseModel]] = None,
@@ -1504,7 +1511,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
     @overload
     async def stream_async(
         self,
-        *args: Content | str,
+        *args: ContentInput,
         content: Literal["all"],
         echo: EchoOptions = "none",
         data_model: Optional[type[BaseModel]] = None,
@@ -1514,7 +1521,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
     async def stream_async(
         self,
-        *args: Content | str,
+        *args: ContentInput,
         content: Literal["text", "all"] = "text",
         echo: EchoOptions = "none",
         data_model: Optional[type[BaseModel]] = None,
@@ -1527,7 +1534,9 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         Parameters
         ----------
         args
-            The user input(s) to generate a response from.
+            The user input(s) to generate a response from. Each may be a
+            string, a `Content` object, or any object implementing
+            `.to_content()` (e.g. `FileMetadata` from `chat.files.get()`).
         content
             Whether to yield just text content or include rich content objects
             (e.g., tool calls) when relevant.
@@ -1611,7 +1620,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
     def chat_structured(
         self,
-        *args: Content | str,
+        *args: ContentInput,
         data_model: type[BaseModelT],
         echo: EchoOptions = "none",
         stream: bool = False,
@@ -1656,7 +1665,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
     def extract_data(
         self,
-        *args: Content | str,
+        *args: ContentInput,
         data_model: type[BaseModel],
         echo: EchoOptions = "none",
         stream: bool = False,
@@ -1679,7 +1688,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
     def _submit_and_extract_data(
         self,
-        *args: Content | str,
+        *args: ContentInput,
         data_model: type[BaseModel],
         echo: EchoOptions = "none",
         stream: bool = False,
@@ -1709,7 +1718,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
     async def chat_structured_async(
         self,
-        *args: Content | str,
+        *args: ContentInput,
         data_model: type[BaseModelT],
         echo: EchoOptions = "none",
         stream: bool = False,
@@ -1755,7 +1764,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
     async def extract_data_async(
         self,
-        *args: Content | str,
+        *args: ContentInput,
         data_model: type[BaseModel],
         echo: EchoOptions = "none",
         stream: bool = False,
@@ -1780,7 +1789,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
     async def _submit_and_extract_data_async(
         self,
-        *args: Content | str,
+        *args: ContentInput,
         data_model: type[BaseModel],
         echo: EchoOptions = "none",
         stream: bool = False,
