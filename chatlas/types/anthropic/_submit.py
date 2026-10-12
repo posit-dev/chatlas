@@ -48,6 +48,7 @@ class SubmitInputArgs(TypedDict, total=False):
     messages: Iterable[anthropic.types.message_param.MessageParam]
     model: Union[
         Literal[
+            "claude-haiku-5-5",
             "claude-sonnet-5-5",
             "claude-fable-5-1",
             "claude-opus-5-5",
