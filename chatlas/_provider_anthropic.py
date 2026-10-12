@@ -205,9 +205,9 @@ def ChatAnthropic(
         adaptive thinking, where Claude decides how much to think based on the
         requested effort. Alternatively, pass an integer to set a fixed
         thinking budget (the number of tokens allocated to reasoning; must be
-        ≥1024 and less than `max_tokens`). Fixed budgets are only accepted by
-        models before Claude Opus 4.6 and Sonnet 4.6; later models, including
-        the default, reject them, so use an effort level there. See [extended
+        ≥1024 and less than `max_tokens`). Fixed budgets are deprecated on
+        Claude Opus 4.6 / Sonnet 4.6 and rejected by later models (including
+        the default, Claude Sonnet 5), so use an effort level there. See [extended
         thinking](https://docs.claude.com/en/docs/build-with-claude/extended-thinking)
         for details.
     cache
@@ -1411,8 +1411,8 @@ def ChatBedrockAnthropic(
         string effort level (`"low"`, `"medium"`, `"high"`, `"xhigh"`, or
         `"max"`) to enable adaptive thinking. Alternatively, pass an integer to
         set a fixed thinking budget (must be ≥1024 and less than `max_tokens`).
-        Fixed budgets are only accepted by models before Claude Opus 4.6 and
-        Sonnet 4.6; later models, including the default, reject them. See
+        Fixed budgets are deprecated on Claude Opus 4.6 / Sonnet 4.6 and
+        rejected by later models (including the default, Claude Sonnet 5). See
         [extended
         thinking](https://docs.claude.com/en/docs/build-with-claude/extended-thinking)
         for details.
