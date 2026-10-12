@@ -223,6 +223,8 @@ async def test_chat_structured_async():
 
 @pytest.mark.vcr
 def test_stream_with_data_model():
+    from unittest.mock import patch
+
     from chatlas._content import ContentJson
 
     chat = ChatOpenAI(model="gpt-5.4")
@@ -231,16 +233,18 @@ def test_stream_with_data_model():
         name: str
         age: int
 
-    chunks = list(chat.stream("John, age 15, won first prize", data_model=Person))
+    # Spy on the provider call to prove a genuinely streaming request is made.
+    # (Asserting on chunk boundaries would rely on where the API happens to
+    # split deltas, which isn't guaranteed.)
+    with patch.object(
+        chat.provider, "chat_perform", wraps=chat.provider.chat_perform
+    ) as perform:
+        chunks = list(chat.stream("John, age 15, won first prize", data_model=Person))
+    assert perform.call_args.kwargs["stream"] is True
+
     result = "".join(chunks)
     person = Person.model_validate_json(result)
     assert person == Person(name="John", age=15)
-
-    # The JSON arrives incrementally: chunks are fragments that are only valid
-    # JSON once fully concatenated (the "partial JSON" contract).
-    assert len(chunks) > 1
-    with pytest.raises(ValueError):
-        Person.model_validate_json("".join(chunks[:-1]))
 
     # Verify the last turn contains ContentJson with the structured data
     turn = chat.get_last_turn()

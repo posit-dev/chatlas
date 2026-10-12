@@ -1648,7 +1648,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         stream: bool = False,
         kwargs: Optional[SubmitInputArgsT] = None,
     ) -> dict[str, Any]:
-        stream = self._resolve_stream(stream, data_model)
+        stream = self._resolve_stream(stream, data_model, yields_chunks=False)
 
         display = self._markdown_display(echo=echo)
 
@@ -1751,7 +1751,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         stream: bool = False,
         kwargs: Optional[SubmitInputArgsT] = None,
     ) -> dict[str, Any]:
-        stream = self._resolve_stream(stream, data_model)
+        stream = self._resolve_stream(stream, data_model, yields_chunks=False)
 
         display = self._markdown_display(echo=echo)
 
@@ -3230,15 +3230,22 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         self,
         stream: bool,
         data_model: type[BaseModel] | None,
+        *,
+        yields_chunks: bool = True,
     ) -> bool:
         """Downgrade a streaming request when the provider can't stream it."""
         if not stream or self.provider.can_stream(data_model):
             return stream
+        outcome = (
+            "yielded (as a single chunk)"
+            if yields_chunks
+            # `chat_structured()` returns a validated model; nothing is yielded
+            else "produced"
+        )
         warnings.warn(
             "This provider does not support streaming structured data "
             "extraction; falling back to a non-streaming request. The full "
-            "result is still yielded (as a single chunk) and recorded in the "
-            "conversation.",
+            f"result is still {outcome} and recorded in the conversation.",
             stacklevel=caller_stacklevel(),
         )
         return False
