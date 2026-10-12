@@ -54,10 +54,8 @@ class FileMetadata(BaseModel):
         dict of the normalized fields, not the provider's own file object
         held on `FileMetadata.extra`.
 
-        On Google, this raises for metadata describing a file that can't be
-        referenced in a turn: `.files.get()`/`.list()` also describe files
-        that are still processing or failed to upload (so you can manage
-        them), but Gemini only accepts an `ACTIVE` file's full URI as input.
+        On Google, this raises if the file failed to upload or is still
+        processing, since Gemini can't reference such a file in a turn.
 
         Returns
         -------

@@ -114,10 +114,8 @@ def test_google_meta_falls_back_to_name_without_uri():
     assert meta.id == "files/abc"
 
 
-# ...but such metadata must not convert to chat content: Gemini rejects both
-# the management-only `files/...` id and any file that isn't ACTIVE yet, so
-# to_content() fails fast instead of handing back a reference that's
-# guaranteed to error server-side.
+# ...but to_content() must reject such metadata, since Gemini refuses a
+# `files/...` id or non-ACTIVE file as model input.
 def test_google_meta_to_content_rejects_failed_file():
     from chatlas._provider_google import google_meta
 

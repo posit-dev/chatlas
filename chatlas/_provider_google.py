@@ -1333,11 +1333,9 @@ def google_meta(obj: "GoogleFile") -> FileMetadata:
 
 
 def google_check_meta(meta: FileMetadata) -> None:
-    # `google_meta()` still describes PROCESSING/FAILED files so they can be
-    # managed (get/delete), but neither can be referenced in a turn: Gemini
-    # rejects any file that isn't ACTIVE, and it also rejects the management
-    # `files/...` resource name that stands in for the URI on a file that
-    # never got one. Called by `FileMetadata.to_content()`.
+    # Raise if the file can't be referenced in a turn: Gemini only accepts an
+    # ACTIVE file's full URI, not a PROCESSING/FAILED file or a `files/...`
+    # resource name. Called by `FileMetadata.to_content()`.
     obj = meta.extra
     if obj is not None:
         from google.genai.types import File as GoogleFile
@@ -1354,9 +1352,8 @@ def google_check_meta(meta: FileMetadata) -> None:
                 )
     if not meta.id.startswith(("https://", "http://", "gs://")):
         raise ValueError(
-            f"{meta.id!r} is a Files API resource name, not a file URI -- it "
-            "works with `.files.get()`/`.delete()`, but Gemini can't reference "
-            "it in a turn."
+            f"{meta.id!r} is a Files API resource name, not a file URI -- "
+            "Gemini can't reference it in a turn."
         )
 
 
