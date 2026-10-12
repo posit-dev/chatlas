@@ -1332,6 +1332,31 @@ def google_meta(obj: "GoogleFile") -> FileMetadata:
     )
 
 
+def google_check_meta(meta: FileMetadata) -> None:
+    # Raise if the file can't be referenced in a turn: Gemini only accepts an
+    # ACTIVE file's full URI, not a PROCESSING/FAILED file or a `files/...`
+    # resource name. Called by `FileMetadata.to_content()`.
+    obj = meta.extra
+    if obj is not None:
+        from google.genai.types import File as GoogleFile
+
+        if isinstance(obj, GoogleFile):
+            if obj.state is not None and obj.state.value == "FAILED":
+                detail = obj.error.message if obj.error else "no error detail given"
+                raise ValueError(f"File {obj.name!r} failed to process: {detail}")
+            if google_file_processing(obj):
+                raise ValueError(
+                    f"File {obj.name!r} is still PROCESSING -- Gemini only "
+                    "accepts an ACTIVE file as input. Wait for processing to "
+                    "finish, then re-fetch with `.files.get()`."
+                )
+    if not meta.id.startswith(("https://", "http://", "gs://")):
+        raise ValueError(
+            f"{meta.id!r} is a Files API resource name, not a file URI -- "
+            "Gemini can't reference it in a turn."
+        )
+
+
 def google_supports_mixed_tools(model: str) -> bool:
     """
     Whether `model` supports combining custom (function-calling) tools with

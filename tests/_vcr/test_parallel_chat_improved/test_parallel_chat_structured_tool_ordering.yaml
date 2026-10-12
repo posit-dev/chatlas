@@ -1,16 +1,17 @@
 interactions:
 - request:
-    body: '{"include": ["reasoning.encrypted_content"], "input": [{"role": "system",
-      "content": [{"type": "input_text", "text": "Be terse. Use the fetch_data tool
-      as requested."}]}, {"role": "user", "content": [{"type": "input_text", "text":
-      "Fetch data for ID ''A'' and structure the result"}]}], "model": "gpt-5.4",
-      "store": false, "stream": false, "text": {"format": {"type": "json_schema",
-      "name": "structured_data", "schema": {"description": "A data result.", "properties":
-      {"id": {"type": "string"}, "data": {"type": "string"}}, "required": ["id", "data"],
-      "type": "object", "additionalProperties": false}, "strict": true}}, "tools":
-      [{"type": "function", "name": "fetch_data", "description": "Fetch data by ID.",
-      "parameters": {"properties": {"id": {"type": "string"}}, "required": ["id"],
-      "type": "object", "additionalProperties": false}, "strict": true}]}'
+    body: '{"include": ["reasoning.encrypted_content"], "input": [{"type": "message",
+      "role": "system", "content": [{"type": "input_text", "text": "Be terse. Use
+      the fetch_data tool as requested."}]}, {"type": "message", "role": "user", "content":
+      [{"type": "input_text", "text": "Fetch data for ID ''A'' and structure the result"}]}],
+      "model": "gpt-5.4", "store": false, "stream": false, "text": {"format": {"type":
+      "json_schema", "name": "structured_data", "schema": {"description": "A data
+      result.", "properties": {"id": {"type": "string"}, "data": {"type": "string"}},
+      "required": ["id", "data"], "type": "object", "additionalProperties": false},
+      "strict": true}}, "tools": [{"type": "function", "name": "fetch_data", "description":
+      "Fetch data by ID.", "parameters": {"properties": {"id": {"type": "string"}},
+      "required": ["id"], "type": "object", "additionalProperties": false}, "strict":
+      true}]}'
     headers:
       Accept:
       - application/json
@@ -32,40 +33,41 @@ interactions:
     uri: https://api.openai.com/v1/responses
   response:
     body:
-      string: "{\n  \"id\": \"resp_03290a0b1de430de0169fb7d11379081a199de186d77d2e7f1\",\n
-        \ \"object\": \"response\",\n  \"created_at\": 1778089233,\n  \"status\":
-        \"completed\",\n  \"background\": false,\n  \"billing\": {\n    \"payer\":
-        \"developer\"\n  },\n  \"completed_at\": 1778089233,\n  \"error\": null,\n
-        \ \"frequency_penalty\": 0.0,\n  \"incomplete_details\": null,\n  \"instructions\":
-        null,\n  \"max_output_tokens\": null,\n  \"max_tool_calls\": null,\n  \"model\":
-        \"gpt-5.4-2026-03-05\",\n  \"moderation\": null,\n  \"output\": [\n    {\n
-        \     \"id\": \"fc_03290a0b1de430de0169fb7d11c31481a1b1ef75a384e528ef\",\n
-        \     \"type\": \"function_call\",\n      \"status\": \"completed\",\n      \"arguments\":
-        \"{\\\"id\\\":\\\"A\\\"}\",\n      \"call_id\": \"call_rnWnQQpECRC6YQMcfcHxNpvM\",\n
-        \     \"name\": \"fetch_data\"\n    }\n  ],\n  \"parallel_tool_calls\": true,\n
-        \ \"presence_penalty\": 0.0,\n  \"previous_response_id\": null,\n  \"prompt_cache_key\":
-        null,\n  \"prompt_cache_retention\": \"in_memory\",\n  \"reasoning\": {\n
-        \   \"effort\": \"none\",\n    \"summary\": null\n  },\n  \"safety_identifier\":
-        null,\n  \"service_tier\": \"default\",\n  \"store\": false,\n  \"temperature\":
-        1.0,\n  \"text\": {\n    \"format\": {\n      \"type\": \"json_schema\",\n
-        \     \"description\": null,\n      \"name\": \"structured_data\",\n      \"schema\":
-        {\n        \"description\": \"A data result.\",\n        \"properties\": {\n
-        \         \"id\": {\n            \"type\": \"string\"\n          },\n          \"data\":
-        {\n            \"type\": \"string\"\n          }\n        },\n        \"required\":
-        [\n          \"id\",\n          \"data\"\n        ],\n        \"type\": \"object\",\n
-        \       \"additionalProperties\": false\n      },\n      \"strict\": true\n
-        \   },\n    \"verbosity\": \"medium\"\n  },\n  \"tool_choice\": \"auto\",\n
-        \ \"tools\": [\n    {\n      \"type\": \"function\",\n      \"description\":
-        \"Fetch data by ID.\",\n      \"name\": \"fetch_data\",\n      \"parameters\":
-        {\n        \"properties\": {\n          \"id\": {\n            \"type\": \"string\"\n
-        \         }\n        },\n        \"required\": [\n          \"id\"\n        ],\n
-        \       \"type\": \"object\",\n        \"additionalProperties\": false\n      },\n
-        \     \"strict\": true\n    }\n  ],\n  \"top_logprobs\": 0,\n  \"top_p\":
-        0.98,\n  \"truncation\": \"disabled\",\n  \"usage\": {\n    \"input_tokens\":
-        102,\n    \"input_tokens_details\": {\n      \"cached_tokens\": 0\n    },\n
-        \   \"output_tokens\": 18,\n    \"output_tokens_details\": {\n      \"reasoning_tokens\":
-        0\n    },\n    \"total_tokens\": 120\n  },\n  \"user\": null,\n  \"metadata\":
-        {}\n}"
+      string: "{\n  \"id\": \"resp_03290a0b1de430de0169fb7d11379081a199de186d77d2e7f1\"\
+        ,\n  \"object\": \"response\",\n  \"created_at\": 1778089233,\n  \"status\"\
+        : \"completed\",\n  \"background\": false,\n  \"billing\": {\n    \"payer\"\
+        : \"developer\"\n  },\n  \"completed_at\": 1778089233,\n  \"error\": null,\n\
+        \  \"frequency_penalty\": 0.0,\n  \"incomplete_details\": null,\n  \"instructions\"\
+        : null,\n  \"max_output_tokens\": null,\n  \"max_tool_calls\": null,\n  \"\
+        model\": \"gpt-5.4-2026-03-05\",\n  \"moderation\": null,\n  \"output\": [\n\
+        \    {\n      \"id\": \"fc_03290a0b1de430de0169fb7d11c31481a1b1ef75a384e528ef\"\
+        ,\n      \"type\": \"function_call\",\n      \"status\": \"completed\",\n\
+        \      \"arguments\": \"{\\\"id\\\":\\\"A\\\"}\",\n      \"call_id\": \"call_rnWnQQpECRC6YQMcfcHxNpvM\"\
+        ,\n      \"name\": \"fetch_data\"\n    }\n  ],\n  \"parallel_tool_calls\"\
+        : true,\n  \"presence_penalty\": 0.0,\n  \"previous_response_id\": null,\n\
+        \  \"prompt_cache_key\": null,\n  \"prompt_cache_retention\": \"in_memory\"\
+        ,\n  \"reasoning\": {\n    \"effort\": \"none\",\n    \"summary\": null\n\
+        \  },\n  \"safety_identifier\": null,\n  \"service_tier\": \"default\",\n\
+        \  \"store\": false,\n  \"temperature\": 1.0,\n  \"text\": {\n    \"format\"\
+        : {\n      \"type\": \"json_schema\",\n      \"description\": null,\n    \
+        \  \"name\": \"structured_data\",\n      \"schema\": {\n        \"description\"\
+        : \"A data result.\",\n        \"properties\": {\n          \"id\": {\n  \
+        \          \"type\": \"string\"\n          },\n          \"data\": {\n   \
+        \         \"type\": \"string\"\n          }\n        },\n        \"required\"\
+        : [\n          \"id\",\n          \"data\"\n        ],\n        \"type\":\
+        \ \"object\",\n        \"additionalProperties\": false\n      },\n      \"\
+        strict\": true\n    },\n    \"verbosity\": \"medium\"\n  },\n  \"tool_choice\"\
+        : \"auto\",\n  \"tools\": [\n    {\n      \"type\": \"function\",\n      \"\
+        description\": \"Fetch data by ID.\",\n      \"name\": \"fetch_data\",\n \
+        \     \"parameters\": {\n        \"properties\": {\n          \"id\": {\n\
+        \            \"type\": \"string\"\n          }\n        },\n        \"required\"\
+        : [\n          \"id\"\n        ],\n        \"type\": \"object\",\n       \
+        \ \"additionalProperties\": false\n      },\n      \"strict\": true\n    }\n\
+        \  ],\n  \"top_logprobs\": 0,\n  \"top_p\": 0.98,\n  \"truncation\": \"disabled\"\
+        ,\n  \"usage\": {\n    \"input_tokens\": 102,\n    \"input_tokens_details\"\
+        : {\n      \"cached_tokens\": 0\n    },\n    \"output_tokens\": 18,\n    \"\
+        output_tokens_details\": {\n      \"reasoning_tokens\": 0\n    },\n    \"\
+        total_tokens\": 120\n  },\n  \"user\": null,\n  \"metadata\": {}\n}"
     headers:
       CF-Cache-Status:
       - DYNAMIC
@@ -109,17 +111,18 @@ interactions:
       code: 200
       message: OK
 - request:
-    body: '{"include": ["reasoning.encrypted_content"], "input": [{"role": "system",
-      "content": [{"type": "input_text", "text": "Be terse. Use the fetch_data tool
-      as requested."}]}, {"role": "user", "content": [{"type": "input_text", "text":
-      "Fetch data for ID ''B'' and structure the result"}]}], "model": "gpt-5.4",
-      "store": false, "stream": false, "text": {"format": {"type": "json_schema",
-      "name": "structured_data", "schema": {"description": "A data result.", "properties":
-      {"id": {"type": "string"}, "data": {"type": "string"}}, "required": ["id", "data"],
-      "type": "object", "additionalProperties": false}, "strict": true}}, "tools":
-      [{"type": "function", "name": "fetch_data", "description": "Fetch data by ID.",
-      "parameters": {"properties": {"id": {"type": "string"}}, "required": ["id"],
-      "type": "object", "additionalProperties": false}, "strict": true}]}'
+    body: '{"include": ["reasoning.encrypted_content"], "input": [{"type": "message",
+      "role": "system", "content": [{"type": "input_text", "text": "Be terse. Use
+      the fetch_data tool as requested."}]}, {"type": "message", "role": "user", "content":
+      [{"type": "input_text", "text": "Fetch data for ID ''B'' and structure the result"}]}],
+      "model": "gpt-5.4", "store": false, "stream": false, "text": {"format": {"type":
+      "json_schema", "name": "structured_data", "schema": {"description": "A data
+      result.", "properties": {"id": {"type": "string"}, "data": {"type": "string"}},
+      "required": ["id", "data"], "type": "object", "additionalProperties": false},
+      "strict": true}}, "tools": [{"type": "function", "name": "fetch_data", "description":
+      "Fetch data by ID.", "parameters": {"properties": {"id": {"type": "string"}},
+      "required": ["id"], "type": "object", "additionalProperties": false}, "strict":
+      true}]}'
     headers:
       Accept:
       - application/json
@@ -141,40 +144,41 @@ interactions:
     uri: https://api.openai.com/v1/responses
   response:
     body:
-      string: "{\n  \"id\": \"resp_06fe4651cf2673880169fb7d1149c4819088a6e713885d652b\",\n
-        \ \"object\": \"response\",\n  \"created_at\": 1778089233,\n  \"status\":
-        \"completed\",\n  \"background\": false,\n  \"billing\": {\n    \"payer\":
-        \"developer\"\n  },\n  \"completed_at\": 1778089234,\n  \"error\": null,\n
-        \ \"frequency_penalty\": 0.0,\n  \"incomplete_details\": null,\n  \"instructions\":
-        null,\n  \"max_output_tokens\": null,\n  \"max_tool_calls\": null,\n  \"model\":
-        \"gpt-5.4-2026-03-05\",\n  \"moderation\": null,\n  \"output\": [\n    {\n
-        \     \"id\": \"fc_06fe4651cf2673880169fb7d11f2748190b904f9e2d80053ea\",\n
-        \     \"type\": \"function_call\",\n      \"status\": \"completed\",\n      \"arguments\":
-        \"{\\\"id\\\":\\\"B\\\"}\",\n      \"call_id\": \"call_IQeGBoeTDTWkbmpqU6C3twxG\",\n
-        \     \"name\": \"fetch_data\"\n    }\n  ],\n  \"parallel_tool_calls\": true,\n
-        \ \"presence_penalty\": 0.0,\n  \"previous_response_id\": null,\n  \"prompt_cache_key\":
-        null,\n  \"prompt_cache_retention\": \"in_memory\",\n  \"reasoning\": {\n
-        \   \"effort\": \"none\",\n    \"summary\": null\n  },\n  \"safety_identifier\":
-        null,\n  \"service_tier\": \"default\",\n  \"store\": false,\n  \"temperature\":
-        1.0,\n  \"text\": {\n    \"format\": {\n      \"type\": \"json_schema\",\n
-        \     \"description\": null,\n      \"name\": \"structured_data\",\n      \"schema\":
-        {\n        \"description\": \"A data result.\",\n        \"properties\": {\n
-        \         \"id\": {\n            \"type\": \"string\"\n          },\n          \"data\":
-        {\n            \"type\": \"string\"\n          }\n        },\n        \"required\":
-        [\n          \"id\",\n          \"data\"\n        ],\n        \"type\": \"object\",\n
-        \       \"additionalProperties\": false\n      },\n      \"strict\": true\n
-        \   },\n    \"verbosity\": \"medium\"\n  },\n  \"tool_choice\": \"auto\",\n
-        \ \"tools\": [\n    {\n      \"type\": \"function\",\n      \"description\":
-        \"Fetch data by ID.\",\n      \"name\": \"fetch_data\",\n      \"parameters\":
-        {\n        \"properties\": {\n          \"id\": {\n            \"type\": \"string\"\n
-        \         }\n        },\n        \"required\": [\n          \"id\"\n        ],\n
-        \       \"type\": \"object\",\n        \"additionalProperties\": false\n      },\n
-        \     \"strict\": true\n    }\n  ],\n  \"top_logprobs\": 0,\n  \"top_p\":
-        0.98,\n  \"truncation\": \"disabled\",\n  \"usage\": {\n    \"input_tokens\":
-        102,\n    \"input_tokens_details\": {\n      \"cached_tokens\": 0\n    },\n
-        \   \"output_tokens\": 18,\n    \"output_tokens_details\": {\n      \"reasoning_tokens\":
-        0\n    },\n    \"total_tokens\": 120\n  },\n  \"user\": null,\n  \"metadata\":
-        {}\n}"
+      string: "{\n  \"id\": \"resp_06fe4651cf2673880169fb7d1149c4819088a6e713885d652b\"\
+        ,\n  \"object\": \"response\",\n  \"created_at\": 1778089233,\n  \"status\"\
+        : \"completed\",\n  \"background\": false,\n  \"billing\": {\n    \"payer\"\
+        : \"developer\"\n  },\n  \"completed_at\": 1778089234,\n  \"error\": null,\n\
+        \  \"frequency_penalty\": 0.0,\n  \"incomplete_details\": null,\n  \"instructions\"\
+        : null,\n  \"max_output_tokens\": null,\n  \"max_tool_calls\": null,\n  \"\
+        model\": \"gpt-5.4-2026-03-05\",\n  \"moderation\": null,\n  \"output\": [\n\
+        \    {\n      \"id\": \"fc_06fe4651cf2673880169fb7d11f2748190b904f9e2d80053ea\"\
+        ,\n      \"type\": \"function_call\",\n      \"status\": \"completed\",\n\
+        \      \"arguments\": \"{\\\"id\\\":\\\"B\\\"}\",\n      \"call_id\": \"call_IQeGBoeTDTWkbmpqU6C3twxG\"\
+        ,\n      \"name\": \"fetch_data\"\n    }\n  ],\n  \"parallel_tool_calls\"\
+        : true,\n  \"presence_penalty\": 0.0,\n  \"previous_response_id\": null,\n\
+        \  \"prompt_cache_key\": null,\n  \"prompt_cache_retention\": \"in_memory\"\
+        ,\n  \"reasoning\": {\n    \"effort\": \"none\",\n    \"summary\": null\n\
+        \  },\n  \"safety_identifier\": null,\n  \"service_tier\": \"default\",\n\
+        \  \"store\": false,\n  \"temperature\": 1.0,\n  \"text\": {\n    \"format\"\
+        : {\n      \"type\": \"json_schema\",\n      \"description\": null,\n    \
+        \  \"name\": \"structured_data\",\n      \"schema\": {\n        \"description\"\
+        : \"A data result.\",\n        \"properties\": {\n          \"id\": {\n  \
+        \          \"type\": \"string\"\n          },\n          \"data\": {\n   \
+        \         \"type\": \"string\"\n          }\n        },\n        \"required\"\
+        : [\n          \"id\",\n          \"data\"\n        ],\n        \"type\":\
+        \ \"object\",\n        \"additionalProperties\": false\n      },\n      \"\
+        strict\": true\n    },\n    \"verbosity\": \"medium\"\n  },\n  \"tool_choice\"\
+        : \"auto\",\n  \"tools\": [\n    {\n      \"type\": \"function\",\n      \"\
+        description\": \"Fetch data by ID.\",\n      \"name\": \"fetch_data\",\n \
+        \     \"parameters\": {\n        \"properties\": {\n          \"id\": {\n\
+        \            \"type\": \"string\"\n          }\n        },\n        \"required\"\
+        : [\n          \"id\"\n        ],\n        \"type\": \"object\",\n       \
+        \ \"additionalProperties\": false\n      },\n      \"strict\": true\n    }\n\
+        \  ],\n  \"top_logprobs\": 0,\n  \"top_p\": 0.98,\n  \"truncation\": \"disabled\"\
+        ,\n  \"usage\": {\n    \"input_tokens\": 102,\n    \"input_tokens_details\"\
+        : {\n      \"cached_tokens\": 0\n    },\n    \"output_tokens\": 18,\n    \"\
+        output_tokens_details\": {\n      \"reasoning_tokens\": 0\n    },\n    \"\
+        total_tokens\": 120\n  },\n  \"user\": null,\n  \"metadata\": {}\n}"
     headers:
       CF-Cache-Status:
       - DYNAMIC
@@ -218,17 +222,18 @@ interactions:
       code: 200
       message: OK
 - request:
-    body: '{"include": ["reasoning.encrypted_content"], "input": [{"role": "system",
-      "content": [{"type": "input_text", "text": "Be terse. Use the fetch_data tool
-      as requested."}]}, {"role": "user", "content": [{"type": "input_text", "text":
-      "Fetch data for ID ''C'' and structure the result"}]}], "model": "gpt-5.4",
-      "store": false, "stream": false, "text": {"format": {"type": "json_schema",
-      "name": "structured_data", "schema": {"description": "A data result.", "properties":
-      {"id": {"type": "string"}, "data": {"type": "string"}}, "required": ["id", "data"],
-      "type": "object", "additionalProperties": false}, "strict": true}}, "tools":
-      [{"type": "function", "name": "fetch_data", "description": "Fetch data by ID.",
-      "parameters": {"properties": {"id": {"type": "string"}}, "required": ["id"],
-      "type": "object", "additionalProperties": false}, "strict": true}]}'
+    body: '{"include": ["reasoning.encrypted_content"], "input": [{"type": "message",
+      "role": "system", "content": [{"type": "input_text", "text": "Be terse. Use
+      the fetch_data tool as requested."}]}, {"type": "message", "role": "user", "content":
+      [{"type": "input_text", "text": "Fetch data for ID ''C'' and structure the result"}]}],
+      "model": "gpt-5.4", "store": false, "stream": false, "text": {"format": {"type":
+      "json_schema", "name": "structured_data", "schema": {"description": "A data
+      result.", "properties": {"id": {"type": "string"}, "data": {"type": "string"}},
+      "required": ["id", "data"], "type": "object", "additionalProperties": false},
+      "strict": true}}, "tools": [{"type": "function", "name": "fetch_data", "description":
+      "Fetch data by ID.", "parameters": {"properties": {"id": {"type": "string"}},
+      "required": ["id"], "type": "object", "additionalProperties": false}, "strict":
+      true}]}'
     headers:
       Accept:
       - application/json
@@ -250,40 +255,41 @@ interactions:
     uri: https://api.openai.com/v1/responses
   response:
     body:
-      string: "{\n  \"id\": \"resp_063cd7e499bafed30169fb7d1153c08190a371856b704c0397\",\n
-        \ \"object\": \"response\",\n  \"created_at\": 1778089233,\n  \"status\":
-        \"completed\",\n  \"background\": false,\n  \"billing\": {\n    \"payer\":
-        \"developer\"\n  },\n  \"completed_at\": 1778089234,\n  \"error\": null,\n
-        \ \"frequency_penalty\": 0.0,\n  \"incomplete_details\": null,\n  \"instructions\":
-        null,\n  \"max_output_tokens\": null,\n  \"max_tool_calls\": null,\n  \"model\":
-        \"gpt-5.4-2026-03-05\",\n  \"moderation\": null,\n  \"output\": [\n    {\n
-        \     \"id\": \"fc_063cd7e499bafed30169fb7d11e8548190a8a712039bce205e\",\n
-        \     \"type\": \"function_call\",\n      \"status\": \"completed\",\n      \"arguments\":
-        \"{\\\"id\\\":\\\"C\\\"}\",\n      \"call_id\": \"call_CXLUgq2OjUvIU4kPHzazXjdl\",\n
-        \     \"name\": \"fetch_data\"\n    }\n  ],\n  \"parallel_tool_calls\": true,\n
-        \ \"presence_penalty\": 0.0,\n  \"previous_response_id\": null,\n  \"prompt_cache_key\":
-        null,\n  \"prompt_cache_retention\": \"in_memory\",\n  \"reasoning\": {\n
-        \   \"effort\": \"none\",\n    \"summary\": null\n  },\n  \"safety_identifier\":
-        null,\n  \"service_tier\": \"default\",\n  \"store\": false,\n  \"temperature\":
-        1.0,\n  \"text\": {\n    \"format\": {\n      \"type\": \"json_schema\",\n
-        \     \"description\": null,\n      \"name\": \"structured_data\",\n      \"schema\":
-        {\n        \"description\": \"A data result.\",\n        \"properties\": {\n
-        \         \"id\": {\n            \"type\": \"string\"\n          },\n          \"data\":
-        {\n            \"type\": \"string\"\n          }\n        },\n        \"required\":
-        [\n          \"id\",\n          \"data\"\n        ],\n        \"type\": \"object\",\n
-        \       \"additionalProperties\": false\n      },\n      \"strict\": true\n
-        \   },\n    \"verbosity\": \"medium\"\n  },\n  \"tool_choice\": \"auto\",\n
-        \ \"tools\": [\n    {\n      \"type\": \"function\",\n      \"description\":
-        \"Fetch data by ID.\",\n      \"name\": \"fetch_data\",\n      \"parameters\":
-        {\n        \"properties\": {\n          \"id\": {\n            \"type\": \"string\"\n
-        \         }\n        },\n        \"required\": [\n          \"id\"\n        ],\n
-        \       \"type\": \"object\",\n        \"additionalProperties\": false\n      },\n
-        \     \"strict\": true\n    }\n  ],\n  \"top_logprobs\": 0,\n  \"top_p\":
-        0.98,\n  \"truncation\": \"disabled\",\n  \"usage\": {\n    \"input_tokens\":
-        102,\n    \"input_tokens_details\": {\n      \"cached_tokens\": 0\n    },\n
-        \   \"output_tokens\": 18,\n    \"output_tokens_details\": {\n      \"reasoning_tokens\":
-        0\n    },\n    \"total_tokens\": 120\n  },\n  \"user\": null,\n  \"metadata\":
-        {}\n}"
+      string: "{\n  \"id\": \"resp_063cd7e499bafed30169fb7d1153c08190a371856b704c0397\"\
+        ,\n  \"object\": \"response\",\n  \"created_at\": 1778089233,\n  \"status\"\
+        : \"completed\",\n  \"background\": false,\n  \"billing\": {\n    \"payer\"\
+        : \"developer\"\n  },\n  \"completed_at\": 1778089234,\n  \"error\": null,\n\
+        \  \"frequency_penalty\": 0.0,\n  \"incomplete_details\": null,\n  \"instructions\"\
+        : null,\n  \"max_output_tokens\": null,\n  \"max_tool_calls\": null,\n  \"\
+        model\": \"gpt-5.4-2026-03-05\",\n  \"moderation\": null,\n  \"output\": [\n\
+        \    {\n      \"id\": \"fc_063cd7e499bafed30169fb7d11e8548190a8a712039bce205e\"\
+        ,\n      \"type\": \"function_call\",\n      \"status\": \"completed\",\n\
+        \      \"arguments\": \"{\\\"id\\\":\\\"C\\\"}\",\n      \"call_id\": \"call_CXLUgq2OjUvIU4kPHzazXjdl\"\
+        ,\n      \"name\": \"fetch_data\"\n    }\n  ],\n  \"parallel_tool_calls\"\
+        : true,\n  \"presence_penalty\": 0.0,\n  \"previous_response_id\": null,\n\
+        \  \"prompt_cache_key\": null,\n  \"prompt_cache_retention\": \"in_memory\"\
+        ,\n  \"reasoning\": {\n    \"effort\": \"none\",\n    \"summary\": null\n\
+        \  },\n  \"safety_identifier\": null,\n  \"service_tier\": \"default\",\n\
+        \  \"store\": false,\n  \"temperature\": 1.0,\n  \"text\": {\n    \"format\"\
+        : {\n      \"type\": \"json_schema\",\n      \"description\": null,\n    \
+        \  \"name\": \"structured_data\",\n      \"schema\": {\n        \"description\"\
+        : \"A data result.\",\n        \"properties\": {\n          \"id\": {\n  \
+        \          \"type\": \"string\"\n          },\n          \"data\": {\n   \
+        \         \"type\": \"string\"\n          }\n        },\n        \"required\"\
+        : [\n          \"id\",\n          \"data\"\n        ],\n        \"type\":\
+        \ \"object\",\n        \"additionalProperties\": false\n      },\n      \"\
+        strict\": true\n    },\n    \"verbosity\": \"medium\"\n  },\n  \"tool_choice\"\
+        : \"auto\",\n  \"tools\": [\n    {\n      \"type\": \"function\",\n      \"\
+        description\": \"Fetch data by ID.\",\n      \"name\": \"fetch_data\",\n \
+        \     \"parameters\": {\n        \"properties\": {\n          \"id\": {\n\
+        \            \"type\": \"string\"\n          }\n        },\n        \"required\"\
+        : [\n          \"id\"\n        ],\n        \"type\": \"object\",\n       \
+        \ \"additionalProperties\": false\n      },\n      \"strict\": true\n    }\n\
+        \  ],\n  \"top_logprobs\": 0,\n  \"top_p\": 0.98,\n  \"truncation\": \"disabled\"\
+        ,\n  \"usage\": {\n    \"input_tokens\": 102,\n    \"input_tokens_details\"\
+        : {\n      \"cached_tokens\": 0\n    },\n    \"output_tokens\": 18,\n    \"\
+        output_tokens_details\": {\n      \"reasoning_tokens\": 0\n    },\n    \"\
+        total_tokens\": 120\n  },\n  \"user\": null,\n  \"metadata\": {}\n}"
     headers:
       CF-Cache-Status:
       - DYNAMIC
@@ -327,12 +333,12 @@ interactions:
       code: 200
       message: OK
 - request:
-    body: '{"include": ["reasoning.encrypted_content"], "input": [{"role": "system",
-      "content": [{"type": "input_text", "text": "Be terse. Use the fetch_data tool
-      as requested."}]}, {"role": "user", "content": [{"type": "input_text", "text":
-      "Fetch data for ID ''B'' and structure the result"}]}, {"type": "function_call",
-      "call_id": "fc_06fe4651cf2673880169fb7d11f2748190b904f9e2d80053ea", "name":
-      "fetch_data", "arguments": "{\"id\":\"B\"}"}, {"type": "function_call_output",
+    body: '{"include": ["reasoning.encrypted_content"], "input": [{"type": "message",
+      "role": "system", "content": [{"type": "input_text", "text": "Be terse. Use
+      the fetch_data tool as requested."}]}, {"type": "message", "role": "user", "content":
+      [{"type": "input_text", "text": "Fetch data for ID ''B'' and structure the result"}]},
+      {"type": "function_call", "call_id": "fc_06fe4651cf2673880169fb7d11f2748190b904f9e2d80053ea",
+      "name": "fetch_data", "arguments": "{\"id\":\"B\"}"}, {"type": "function_call_output",
       "call_id": "fc_06fe4651cf2673880169fb7d11f2748190b904f9e2d80053ea", "output":
       "Data for B"}], "model": "gpt-5.4", "store": false, "stream": false, "text":
       {"format": {"type": "json_schema", "name": "structured_data", "schema": {"description":
@@ -365,41 +371,43 @@ interactions:
     uri: https://api.openai.com/v1/responses
   response:
     body:
-      string: "{\n  \"id\": \"resp_07b4f6ec7756eb0f0169fb7d1405d88192bb8c9906f2c7c0cf\",\n
-        \ \"object\": \"response\",\n  \"created_at\": 1778089236,\n  \"status\":
-        \"completed\",\n  \"background\": false,\n  \"billing\": {\n    \"payer\":
-        \"developer\"\n  },\n  \"completed_at\": 1778089236,\n  \"error\": null,\n
-        \ \"frequency_penalty\": 0.0,\n  \"incomplete_details\": null,\n  \"instructions\":
-        null,\n  \"max_output_tokens\": null,\n  \"max_tool_calls\": null,\n  \"model\":
-        \"gpt-5.4-2026-03-05\",\n  \"moderation\": null,\n  \"output\": [\n    {\n
-        \     \"id\": \"msg_07b4f6ec7756eb0f0169fb7d14827c8192850764759c13faf3\",\n
-        \     \"type\": \"message\",\n      \"status\": \"completed\",\n      \"content\":
-        [\n        {\n          \"type\": \"output_text\",\n          \"annotations\":
-        [],\n          \"logprobs\": [],\n          \"text\": \"{\\\"id\\\":\\\"B\\\",\\\"data\\\":\\\"Data
-        for B\\\"}\"\n        }\n      ],\n      \"phase\": \"final_answer\",\n      \"role\":
-        \"assistant\"\n    }\n  ],\n  \"parallel_tool_calls\": true,\n  \"presence_penalty\":
-        0.0,\n  \"previous_response_id\": null,\n  \"prompt_cache_key\": null,\n  \"prompt_cache_retention\":
-        \"in_memory\",\n  \"reasoning\": {\n    \"effort\": \"none\",\n    \"summary\":
-        null\n  },\n  \"safety_identifier\": null,\n  \"service_tier\": \"default\",\n
-        \ \"store\": false,\n  \"temperature\": 1.0,\n  \"text\": {\n    \"format\":
-        {\n      \"type\": \"json_schema\",\n      \"description\": null,\n      \"name\":
-        \"structured_data\",\n      \"schema\": {\n        \"description\": \"A data
-        result.\",\n        \"properties\": {\n          \"id\": {\n            \"type\":
-        \"string\"\n          },\n          \"data\": {\n            \"type\": \"string\"\n
-        \         }\n        },\n        \"required\": [\n          \"id\",\n          \"data\"\n
-        \       ],\n        \"type\": \"object\",\n        \"additionalProperties\":
-        false\n      },\n      \"strict\": true\n    },\n    \"verbosity\": \"medium\"\n
-        \ },\n  \"tool_choice\": \"auto\",\n  \"tools\": [\n    {\n      \"type\":
-        \"function\",\n      \"description\": \"Fetch data by ID.\",\n      \"name\":
-        \"fetch_data\",\n      \"parameters\": {\n        \"properties\": {\n          \"id\":
-        {\n            \"type\": \"string\"\n          }\n        },\n        \"required\":
-        [\n          \"id\"\n        ],\n        \"type\": \"object\",\n        \"additionalProperties\":
-        false\n      },\n      \"strict\": true\n    }\n  ],\n  \"top_logprobs\":
-        0,\n  \"top_p\": 0.98,\n  \"truncation\": \"disabled\",\n  \"usage\": {\n
-        \   \"input_tokens\": 134,\n    \"input_tokens_details\": {\n      \"cached_tokens\":
-        0\n    },\n    \"output_tokens\": 19,\n    \"output_tokens_details\": {\n
-        \     \"reasoning_tokens\": 0\n    },\n    \"total_tokens\": 153\n  },\n  \"user\":
-        null,\n  \"metadata\": {}\n}"
+      string: "{\n  \"id\": \"resp_07b4f6ec7756eb0f0169fb7d1405d88192bb8c9906f2c7c0cf\"\
+        ,\n  \"object\": \"response\",\n  \"created_at\": 1778089236,\n  \"status\"\
+        : \"completed\",\n  \"background\": false,\n  \"billing\": {\n    \"payer\"\
+        : \"developer\"\n  },\n  \"completed_at\": 1778089236,\n  \"error\": null,\n\
+        \  \"frequency_penalty\": 0.0,\n  \"incomplete_details\": null,\n  \"instructions\"\
+        : null,\n  \"max_output_tokens\": null,\n  \"max_tool_calls\": null,\n  \"\
+        model\": \"gpt-5.4-2026-03-05\",\n  \"moderation\": null,\n  \"output\": [\n\
+        \    {\n      \"id\": \"msg_07b4f6ec7756eb0f0169fb7d14827c8192850764759c13faf3\"\
+        ,\n      \"type\": \"message\",\n      \"status\": \"completed\",\n      \"\
+        content\": [\n        {\n          \"type\": \"output_text\",\n          \"\
+        annotations\": [],\n          \"logprobs\": [],\n          \"text\": \"{\\\
+        \"id\\\":\\\"B\\\",\\\"data\\\":\\\"Data for B\\\"}\"\n        }\n      ],\n\
+        \      \"phase\": \"final_answer\",\n      \"role\": \"assistant\"\n    }\n\
+        \  ],\n  \"parallel_tool_calls\": true,\n  \"presence_penalty\": 0.0,\n  \"\
+        previous_response_id\": null,\n  \"prompt_cache_key\": null,\n  \"prompt_cache_retention\"\
+        : \"in_memory\",\n  \"reasoning\": {\n    \"effort\": \"none\",\n    \"summary\"\
+        : null\n  },\n  \"safety_identifier\": null,\n  \"service_tier\": \"default\"\
+        ,\n  \"store\": false,\n  \"temperature\": 1.0,\n  \"text\": {\n    \"format\"\
+        : {\n      \"type\": \"json_schema\",\n      \"description\": null,\n    \
+        \  \"name\": \"structured_data\",\n      \"schema\": {\n        \"description\"\
+        : \"A data result.\",\n        \"properties\": {\n          \"id\": {\n  \
+        \          \"type\": \"string\"\n          },\n          \"data\": {\n   \
+        \         \"type\": \"string\"\n          }\n        },\n        \"required\"\
+        : [\n          \"id\",\n          \"data\"\n        ],\n        \"type\":\
+        \ \"object\",\n        \"additionalProperties\": false\n      },\n      \"\
+        strict\": true\n    },\n    \"verbosity\": \"medium\"\n  },\n  \"tool_choice\"\
+        : \"auto\",\n  \"tools\": [\n    {\n      \"type\": \"function\",\n      \"\
+        description\": \"Fetch data by ID.\",\n      \"name\": \"fetch_data\",\n \
+        \     \"parameters\": {\n        \"properties\": {\n          \"id\": {\n\
+        \            \"type\": \"string\"\n          }\n        },\n        \"required\"\
+        : [\n          \"id\"\n        ],\n        \"type\": \"object\",\n       \
+        \ \"additionalProperties\": false\n      },\n      \"strict\": true\n    }\n\
+        \  ],\n  \"top_logprobs\": 0,\n  \"top_p\": 0.98,\n  \"truncation\": \"disabled\"\
+        ,\n  \"usage\": {\n    \"input_tokens\": 134,\n    \"input_tokens_details\"\
+        : {\n      \"cached_tokens\": 0\n    },\n    \"output_tokens\": 19,\n    \"\
+        output_tokens_details\": {\n      \"reasoning_tokens\": 0\n    },\n    \"\
+        total_tokens\": 153\n  },\n  \"user\": null,\n  \"metadata\": {}\n}"
     headers:
       CF-Cache-Status:
       - DYNAMIC
@@ -443,12 +451,12 @@ interactions:
       code: 200
       message: OK
 - request:
-    body: '{"include": ["reasoning.encrypted_content"], "input": [{"role": "system",
-      "content": [{"type": "input_text", "text": "Be terse. Use the fetch_data tool
-      as requested."}]}, {"role": "user", "content": [{"type": "input_text", "text":
-      "Fetch data for ID ''A'' and structure the result"}]}, {"type": "function_call",
-      "call_id": "fc_03290a0b1de430de0169fb7d11c31481a1b1ef75a384e528ef", "name":
-      "fetch_data", "arguments": "{\"id\":\"A\"}"}, {"type": "function_call_output",
+    body: '{"include": ["reasoning.encrypted_content"], "input": [{"type": "message",
+      "role": "system", "content": [{"type": "input_text", "text": "Be terse. Use
+      the fetch_data tool as requested."}]}, {"type": "message", "role": "user", "content":
+      [{"type": "input_text", "text": "Fetch data for ID ''A'' and structure the result"}]},
+      {"type": "function_call", "call_id": "fc_03290a0b1de430de0169fb7d11c31481a1b1ef75a384e528ef",
+      "name": "fetch_data", "arguments": "{\"id\":\"A\"}"}, {"type": "function_call_output",
       "call_id": "fc_03290a0b1de430de0169fb7d11c31481a1b1ef75a384e528ef", "output":
       "Data for A"}], "model": "gpt-5.4", "store": false, "stream": false, "text":
       {"format": {"type": "json_schema", "name": "structured_data", "schema": {"description":
@@ -481,41 +489,43 @@ interactions:
     uri: https://api.openai.com/v1/responses
   response:
     body:
-      string: "{\n  \"id\": \"resp_05c657c3c914666e0169fb7d13dfc48194bde91c641d73c458\",\n
-        \ \"object\": \"response\",\n  \"created_at\": 1778089235,\n  \"status\":
-        \"completed\",\n  \"background\": false,\n  \"billing\": {\n    \"payer\":
-        \"developer\"\n  },\n  \"completed_at\": 1778089236,\n  \"error\": null,\n
-        \ \"frequency_penalty\": 0.0,\n  \"incomplete_details\": null,\n  \"instructions\":
-        null,\n  \"max_output_tokens\": null,\n  \"max_tool_calls\": null,\n  \"model\":
-        \"gpt-5.4-2026-03-05\",\n  \"moderation\": null,\n  \"output\": [\n    {\n
-        \     \"id\": \"msg_05c657c3c914666e0169fb7d145c1c8194bface14e50efbaaa\",\n
-        \     \"type\": \"message\",\n      \"status\": \"completed\",\n      \"content\":
-        [\n        {\n          \"type\": \"output_text\",\n          \"annotations\":
-        [],\n          \"logprobs\": [],\n          \"text\": \"{\\\"id\\\":\\\"A\\\",\\\"data\\\":\\\"Data
-        for A\\\"}\"\n        }\n      ],\n      \"phase\": \"final_answer\",\n      \"role\":
-        \"assistant\"\n    }\n  ],\n  \"parallel_tool_calls\": true,\n  \"presence_penalty\":
-        0.0,\n  \"previous_response_id\": null,\n  \"prompt_cache_key\": null,\n  \"prompt_cache_retention\":
-        \"in_memory\",\n  \"reasoning\": {\n    \"effort\": \"none\",\n    \"summary\":
-        null\n  },\n  \"safety_identifier\": null,\n  \"service_tier\": \"default\",\n
-        \ \"store\": false,\n  \"temperature\": 1.0,\n  \"text\": {\n    \"format\":
-        {\n      \"type\": \"json_schema\",\n      \"description\": null,\n      \"name\":
-        \"structured_data\",\n      \"schema\": {\n        \"description\": \"A data
-        result.\",\n        \"properties\": {\n          \"id\": {\n            \"type\":
-        \"string\"\n          },\n          \"data\": {\n            \"type\": \"string\"\n
-        \         }\n        },\n        \"required\": [\n          \"id\",\n          \"data\"\n
-        \       ],\n        \"type\": \"object\",\n        \"additionalProperties\":
-        false\n      },\n      \"strict\": true\n    },\n    \"verbosity\": \"medium\"\n
-        \ },\n  \"tool_choice\": \"auto\",\n  \"tools\": [\n    {\n      \"type\":
-        \"function\",\n      \"description\": \"Fetch data by ID.\",\n      \"name\":
-        \"fetch_data\",\n      \"parameters\": {\n        \"properties\": {\n          \"id\":
-        {\n            \"type\": \"string\"\n          }\n        },\n        \"required\":
-        [\n          \"id\"\n        ],\n        \"type\": \"object\",\n        \"additionalProperties\":
-        false\n      },\n      \"strict\": true\n    }\n  ],\n  \"top_logprobs\":
-        0,\n  \"top_p\": 0.98,\n  \"truncation\": \"disabled\",\n  \"usage\": {\n
-        \   \"input_tokens\": 134,\n    \"input_tokens_details\": {\n      \"cached_tokens\":
-        0\n    },\n    \"output_tokens\": 19,\n    \"output_tokens_details\": {\n
-        \     \"reasoning_tokens\": 0\n    },\n    \"total_tokens\": 153\n  },\n  \"user\":
-        null,\n  \"metadata\": {}\n}"
+      string: "{\n  \"id\": \"resp_05c657c3c914666e0169fb7d13dfc48194bde91c641d73c458\"\
+        ,\n  \"object\": \"response\",\n  \"created_at\": 1778089235,\n  \"status\"\
+        : \"completed\",\n  \"background\": false,\n  \"billing\": {\n    \"payer\"\
+        : \"developer\"\n  },\n  \"completed_at\": 1778089236,\n  \"error\": null,\n\
+        \  \"frequency_penalty\": 0.0,\n  \"incomplete_details\": null,\n  \"instructions\"\
+        : null,\n  \"max_output_tokens\": null,\n  \"max_tool_calls\": null,\n  \"\
+        model\": \"gpt-5.4-2026-03-05\",\n  \"moderation\": null,\n  \"output\": [\n\
+        \    {\n      \"id\": \"msg_05c657c3c914666e0169fb7d145c1c8194bface14e50efbaaa\"\
+        ,\n      \"type\": \"message\",\n      \"status\": \"completed\",\n      \"\
+        content\": [\n        {\n          \"type\": \"output_text\",\n          \"\
+        annotations\": [],\n          \"logprobs\": [],\n          \"text\": \"{\\\
+        \"id\\\":\\\"A\\\",\\\"data\\\":\\\"Data for A\\\"}\"\n        }\n      ],\n\
+        \      \"phase\": \"final_answer\",\n      \"role\": \"assistant\"\n    }\n\
+        \  ],\n  \"parallel_tool_calls\": true,\n  \"presence_penalty\": 0.0,\n  \"\
+        previous_response_id\": null,\n  \"prompt_cache_key\": null,\n  \"prompt_cache_retention\"\
+        : \"in_memory\",\n  \"reasoning\": {\n    \"effort\": \"none\",\n    \"summary\"\
+        : null\n  },\n  \"safety_identifier\": null,\n  \"service_tier\": \"default\"\
+        ,\n  \"store\": false,\n  \"temperature\": 1.0,\n  \"text\": {\n    \"format\"\
+        : {\n      \"type\": \"json_schema\",\n      \"description\": null,\n    \
+        \  \"name\": \"structured_data\",\n      \"schema\": {\n        \"description\"\
+        : \"A data result.\",\n        \"properties\": {\n          \"id\": {\n  \
+        \          \"type\": \"string\"\n          },\n          \"data\": {\n   \
+        \         \"type\": \"string\"\n          }\n        },\n        \"required\"\
+        : [\n          \"id\",\n          \"data\"\n        ],\n        \"type\":\
+        \ \"object\",\n        \"additionalProperties\": false\n      },\n      \"\
+        strict\": true\n    },\n    \"verbosity\": \"medium\"\n  },\n  \"tool_choice\"\
+        : \"auto\",\n  \"tools\": [\n    {\n      \"type\": \"function\",\n      \"\
+        description\": \"Fetch data by ID.\",\n      \"name\": \"fetch_data\",\n \
+        \     \"parameters\": {\n        \"properties\": {\n          \"id\": {\n\
+        \            \"type\": \"string\"\n          }\n        },\n        \"required\"\
+        : [\n          \"id\"\n        ],\n        \"type\": \"object\",\n       \
+        \ \"additionalProperties\": false\n      },\n      \"strict\": true\n    }\n\
+        \  ],\n  \"top_logprobs\": 0,\n  \"top_p\": 0.98,\n  \"truncation\": \"disabled\"\
+        ,\n  \"usage\": {\n    \"input_tokens\": 134,\n    \"input_tokens_details\"\
+        : {\n      \"cached_tokens\": 0\n    },\n    \"output_tokens\": 19,\n    \"\
+        output_tokens_details\": {\n      \"reasoning_tokens\": 0\n    },\n    \"\
+        total_tokens\": 153\n  },\n  \"user\": null,\n  \"metadata\": {}\n}"
     headers:
       CF-Cache-Status:
       - DYNAMIC
@@ -559,12 +569,12 @@ interactions:
       code: 200
       message: OK
 - request:
-    body: '{"include": ["reasoning.encrypted_content"], "input": [{"role": "system",
-      "content": [{"type": "input_text", "text": "Be terse. Use the fetch_data tool
-      as requested."}]}, {"role": "user", "content": [{"type": "input_text", "text":
-      "Fetch data for ID ''C'' and structure the result"}]}, {"type": "function_call",
-      "call_id": "fc_063cd7e499bafed30169fb7d11e8548190a8a712039bce205e", "name":
-      "fetch_data", "arguments": "{\"id\":\"C\"}"}, {"type": "function_call_output",
+    body: '{"include": ["reasoning.encrypted_content"], "input": [{"type": "message",
+      "role": "system", "content": [{"type": "input_text", "text": "Be terse. Use
+      the fetch_data tool as requested."}]}, {"type": "message", "role": "user", "content":
+      [{"type": "input_text", "text": "Fetch data for ID ''C'' and structure the result"}]},
+      {"type": "function_call", "call_id": "fc_063cd7e499bafed30169fb7d11e8548190a8a712039bce205e",
+      "name": "fetch_data", "arguments": "{\"id\":\"C\"}"}, {"type": "function_call_output",
       "call_id": "fc_063cd7e499bafed30169fb7d11e8548190a8a712039bce205e", "output":
       "Data for C"}], "model": "gpt-5.4", "store": false, "stream": false, "text":
       {"format": {"type": "json_schema", "name": "structured_data", "schema": {"description":
@@ -597,41 +607,43 @@ interactions:
     uri: https://api.openai.com/v1/responses
   response:
     body:
-      string: "{\n  \"id\": \"resp_0bfa0f6350140b5f0169fb7d14281481958cb04d22bd8eb5c0\",\n
-        \ \"object\": \"response\",\n  \"created_at\": 1778089236,\n  \"status\":
-        \"completed\",\n  \"background\": false,\n  \"billing\": {\n    \"payer\":
-        \"developer\"\n  },\n  \"completed_at\": 1778089237,\n  \"error\": null,\n
-        \ \"frequency_penalty\": 0.0,\n  \"incomplete_details\": null,\n  \"instructions\":
-        null,\n  \"max_output_tokens\": null,\n  \"max_tool_calls\": null,\n  \"model\":
-        \"gpt-5.4-2026-03-05\",\n  \"moderation\": null,\n  \"output\": [\n    {\n
-        \     \"id\": \"msg_0bfa0f6350140b5f0169fb7d149b4881959373bb26506465ac\",\n
-        \     \"type\": \"message\",\n      \"status\": \"completed\",\n      \"content\":
-        [\n        {\n          \"type\": \"output_text\",\n          \"annotations\":
-        [],\n          \"logprobs\": [],\n          \"text\": \"{\\\"id\\\":\\\"C\\\",\\\"data\\\":\\\"Data
-        for C\\\"}\"\n        }\n      ],\n      \"phase\": \"final_answer\",\n      \"role\":
-        \"assistant\"\n    }\n  ],\n  \"parallel_tool_calls\": true,\n  \"presence_penalty\":
-        0.0,\n  \"previous_response_id\": null,\n  \"prompt_cache_key\": null,\n  \"prompt_cache_retention\":
-        \"in_memory\",\n  \"reasoning\": {\n    \"effort\": \"none\",\n    \"summary\":
-        null\n  },\n  \"safety_identifier\": null,\n  \"service_tier\": \"default\",\n
-        \ \"store\": false,\n  \"temperature\": 1.0,\n  \"text\": {\n    \"format\":
-        {\n      \"type\": \"json_schema\",\n      \"description\": null,\n      \"name\":
-        \"structured_data\",\n      \"schema\": {\n        \"description\": \"A data
-        result.\",\n        \"properties\": {\n          \"id\": {\n            \"type\":
-        \"string\"\n          },\n          \"data\": {\n            \"type\": \"string\"\n
-        \         }\n        },\n        \"required\": [\n          \"id\",\n          \"data\"\n
-        \       ],\n        \"type\": \"object\",\n        \"additionalProperties\":
-        false\n      },\n      \"strict\": true\n    },\n    \"verbosity\": \"medium\"\n
-        \ },\n  \"tool_choice\": \"auto\",\n  \"tools\": [\n    {\n      \"type\":
-        \"function\",\n      \"description\": \"Fetch data by ID.\",\n      \"name\":
-        \"fetch_data\",\n      \"parameters\": {\n        \"properties\": {\n          \"id\":
-        {\n            \"type\": \"string\"\n          }\n        },\n        \"required\":
-        [\n          \"id\"\n        ],\n        \"type\": \"object\",\n        \"additionalProperties\":
-        false\n      },\n      \"strict\": true\n    }\n  ],\n  \"top_logprobs\":
-        0,\n  \"top_p\": 0.98,\n  \"truncation\": \"disabled\",\n  \"usage\": {\n
-        \   \"input_tokens\": 134,\n    \"input_tokens_details\": {\n      \"cached_tokens\":
-        0\n    },\n    \"output_tokens\": 19,\n    \"output_tokens_details\": {\n
-        \     \"reasoning_tokens\": 0\n    },\n    \"total_tokens\": 153\n  },\n  \"user\":
-        null,\n  \"metadata\": {}\n}"
+      string: "{\n  \"id\": \"resp_0bfa0f6350140b5f0169fb7d14281481958cb04d22bd8eb5c0\"\
+        ,\n  \"object\": \"response\",\n  \"created_at\": 1778089236,\n  \"status\"\
+        : \"completed\",\n  \"background\": false,\n  \"billing\": {\n    \"payer\"\
+        : \"developer\"\n  },\n  \"completed_at\": 1778089237,\n  \"error\": null,\n\
+        \  \"frequency_penalty\": 0.0,\n  \"incomplete_details\": null,\n  \"instructions\"\
+        : null,\n  \"max_output_tokens\": null,\n  \"max_tool_calls\": null,\n  \"\
+        model\": \"gpt-5.4-2026-03-05\",\n  \"moderation\": null,\n  \"output\": [\n\
+        \    {\n      \"id\": \"msg_0bfa0f6350140b5f0169fb7d149b4881959373bb26506465ac\"\
+        ,\n      \"type\": \"message\",\n      \"status\": \"completed\",\n      \"\
+        content\": [\n        {\n          \"type\": \"output_text\",\n          \"\
+        annotations\": [],\n          \"logprobs\": [],\n          \"text\": \"{\\\
+        \"id\\\":\\\"C\\\",\\\"data\\\":\\\"Data for C\\\"}\"\n        }\n      ],\n\
+        \      \"phase\": \"final_answer\",\n      \"role\": \"assistant\"\n    }\n\
+        \  ],\n  \"parallel_tool_calls\": true,\n  \"presence_penalty\": 0.0,\n  \"\
+        previous_response_id\": null,\n  \"prompt_cache_key\": null,\n  \"prompt_cache_retention\"\
+        : \"in_memory\",\n  \"reasoning\": {\n    \"effort\": \"none\",\n    \"summary\"\
+        : null\n  },\n  \"safety_identifier\": null,\n  \"service_tier\": \"default\"\
+        ,\n  \"store\": false,\n  \"temperature\": 1.0,\n  \"text\": {\n    \"format\"\
+        : {\n      \"type\": \"json_schema\",\n      \"description\": null,\n    \
+        \  \"name\": \"structured_data\",\n      \"schema\": {\n        \"description\"\
+        : \"A data result.\",\n        \"properties\": {\n          \"id\": {\n  \
+        \          \"type\": \"string\"\n          },\n          \"data\": {\n   \
+        \         \"type\": \"string\"\n          }\n        },\n        \"required\"\
+        : [\n          \"id\",\n          \"data\"\n        ],\n        \"type\":\
+        \ \"object\",\n        \"additionalProperties\": false\n      },\n      \"\
+        strict\": true\n    },\n    \"verbosity\": \"medium\"\n  },\n  \"tool_choice\"\
+        : \"auto\",\n  \"tools\": [\n    {\n      \"type\": \"function\",\n      \"\
+        description\": \"Fetch data by ID.\",\n      \"name\": \"fetch_data\",\n \
+        \     \"parameters\": {\n        \"properties\": {\n          \"id\": {\n\
+        \            \"type\": \"string\"\n          }\n        },\n        \"required\"\
+        : [\n          \"id\"\n        ],\n        \"type\": \"object\",\n       \
+        \ \"additionalProperties\": false\n      },\n      \"strict\": true\n    }\n\
+        \  ],\n  \"top_logprobs\": 0,\n  \"top_p\": 0.98,\n  \"truncation\": \"disabled\"\
+        ,\n  \"usage\": {\n    \"input_tokens\": 134,\n    \"input_tokens_details\"\
+        : {\n      \"cached_tokens\": 0\n    },\n    \"output_tokens\": 19,\n    \"\
+        output_tokens_details\": {\n      \"reasoning_tokens\": 0\n    },\n    \"\
+        total_tokens\": 153\n  },\n  \"user\": null,\n  \"metadata\": {}\n}"
     headers:
       CF-Cache-Status:
       - DYNAMIC

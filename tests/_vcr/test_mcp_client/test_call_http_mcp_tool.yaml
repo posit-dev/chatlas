@@ -48,7 +48,11 @@ interactions:
     uri: http://localhost:8081/mcp
   response:
     body:
-      string: "event: message\r\ndata: {\"jsonrpc\":\"2.0\",\"id\":0,\"result\":{\"protocolVersion\":\"2025-11-25\",\"capabilities\":{\"experimental\":{},\"prompts\":{\"listChanged\":false},\"resources\":{\"subscribe\":false,\"listChanged\":false},\"tools\":{\"listChanged\":false}},\"serverInfo\":{\"name\":\"test\",\"version\":\"1.27.0\"}}}\r\n\r\n"
+      string: "event: message\r\ndata: {\"jsonrpc\":\"2.0\",\"id\":0,\"result\":{\"\
+        protocolVersion\":\"2025-11-25\",\"capabilities\":{\"experimental\":{},\"\
+        prompts\":{\"listChanged\":false},\"resources\":{\"subscribe\":false,\"listChanged\"\
+        :false},\"tools\":{\"listChanged\":false}},\"serverInfo\":{\"name\":\"test\"\
+        ,\"version\":\"1.27.0\"}}}\r\n\r\n"
     headers:
       Transfer-Encoding:
       - chunked
@@ -130,8 +134,10 @@ interactions:
     uri: http://localhost:8081/mcp
   response:
     body:
-      string: "event: message\r\ndata: {\"jsonrpc\":\"2.0\",\"id\":1,\"result\":{\"tools\":[{\"name\":\"get_current_date\",\"description\":\"Gets
-        the current date\",\"inputSchema\":{\"properties\":{},\"title\":\"get_current_dateArguments\",\"type\":\"object\"}}]}}\r\n\r\n"
+      string: "event: message\r\ndata: {\"jsonrpc\":\"2.0\",\"id\":1,\"result\":{\"\
+        tools\":[{\"name\":\"get_current_date\",\"description\":\"Gets the current\
+        \ date\",\"inputSchema\":{\"properties\":{},\"title\":\"get_current_dateArguments\"\
+        ,\"type\":\"object\"}}]}}\r\n\r\n"
     headers:
       Transfer-Encoding:
       - chunked
@@ -153,13 +159,14 @@ interactions:
       code: 200
       message: OK
 - request:
-    body: '{"include": ["reasoning.encrypted_content"], "input": [{"role": "system",
-      "content": [{"type": "input_text", "text": "Be very terse, not even punctuation."}]},
-      {"role": "user", "content": [{"type": "input_text", "text": "What''s the current
-      date in YYYY-MM-DD format?"}]}], "model": "gpt-5.4", "store": false, "stream":
-      true, "tools": [{"type": "function", "name": "get_current_date", "description":
-      "Gets the current date", "parameters": {"properties": {}, "type": "object",
-      "additionalProperties": false}, "strict": false}]}'
+    body: '{"include": ["reasoning.encrypted_content"], "input": [{"type": "message",
+      "role": "system", "content": [{"type": "input_text", "text": "Be very terse,
+      not even punctuation."}]}, {"type": "message", "role": "user", "content": [{"type":
+      "input_text", "text": "What''s the current date in YYYY-MM-DD format?"}]}],
+      "model": "gpt-5.4", "store": false, "stream": true, "tools": [{"type": "function",
+      "name": "get_current_date", "description": "Gets the current date", "parameters":
+      {"properties": {}, "type": "object", "additionalProperties": false}, "strict":
+      false}]}'
     headers:
       Accept:
       - application/json
@@ -284,7 +291,9 @@ interactions:
     uri: http://localhost:8081/mcp
   response:
     body:
-      string: "event: message\r\ndata: {\"jsonrpc\":\"2.0\",\"id\":2,\"result\":{\"content\":[{\"type\":\"text\",\"text\":\"2024-01-01\"}],\"isError\":false}}\r\n\r\n"
+      string: "event: message\r\ndata: {\"jsonrpc\":\"2.0\",\"id\":2,\"result\":{\"\
+        content\":[{\"type\":\"text\",\"text\":\"2024-01-01\"}],\"isError\":false}}\r\
+        \n\r\n"
     headers:
       Transfer-Encoding:
       - chunked
@@ -306,10 +315,11 @@ interactions:
       code: 200
       message: OK
 - request:
-    body: '{"include": ["reasoning.encrypted_content"], "input": [{"role": "system",
-      "content": [{"type": "input_text", "text": "Be very terse, not even punctuation."}]},
-      {"role": "user", "content": [{"type": "input_text", "text": "What''s the current
-      date in YYYY-MM-DD format?"}]}, {"type": "function_call", "call_id": "fc_07732a9883e265ff0169fb7ce185b881a2ba03d36e977d5171",
+    body: '{"include": ["reasoning.encrypted_content"], "input": [{"type": "message",
+      "role": "system", "content": [{"type": "input_text", "text": "Be very terse,
+      not even punctuation."}]}, {"type": "message", "role": "user", "content": [{"type":
+      "input_text", "text": "What''s the current date in YYYY-MM-DD format?"}]}, {"type":
+      "function_call", "call_id": "fc_07732a9883e265ff0169fb7ce185b881a2ba03d36e977d5171",
       "name": "get_current_date", "arguments": "{}"}, {"type": "function_call_output",
       "call_id": "fc_07732a9883e265ff0169fb7ce185b881a2ba03d36e977d5171", "output":
       "2024-01-01"}], "model": "gpt-5.4", "store": false, "stream": true, "tools":

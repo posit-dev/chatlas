@@ -1,12 +1,13 @@
 interactions:
 - request:
-    body: '{"include": ["reasoning.encrypted_content"], "input": [{"role": "system",
-      "content": [{"type": "input_text", "text": "Always use a tool to help you answer.
-      Reply with ''It is ____.''."}]}, {"role": "user", "content": [{"type": "input_text",
-      "text": "What''s the current date in YYYY-MM-DD format?"}]}], "model": "gpt-5.4",
-      "store": false, "stream": true, "tools": [{"type": "function", "name": "get_date",
-      "description": "Gets the current date", "parameters": {"properties": {}, "type":
-      "object", "additionalProperties": false, "required": []}, "strict": true}]}'
+    body: '{"include": ["reasoning.encrypted_content"], "input": [{"type": "message",
+      "role": "system", "content": [{"type": "input_text", "text": "Always use a tool
+      to help you answer. Reply with ''It is ____.''."}]}, {"type": "message", "role":
+      "user", "content": [{"type": "input_text", "text": "What''s the current date
+      in YYYY-MM-DD format?"}]}], "model": "gpt-5.4", "store": false, "stream": true,
+      "tools": [{"type": "function", "name": "get_date", "description": "Gets the
+      current date", "parameters": {"properties": {}, "type": "object", "additionalProperties":
+      false, "required": []}, "strict": true}]}'
     headers:
       accept:
       - application/json
@@ -110,12 +111,12 @@ interactions:
       code: 200
       message: OK
 - request:
-    body: '{"include": ["reasoning.encrypted_content"], "input": [{"role": "system",
-      "content": [{"type": "input_text", "text": "Always use a tool to help you answer.
-      Reply with ''It is ____.''."}]}, {"role": "user", "content": [{"type": "input_text",
-      "text": "What''s the current date in YYYY-MM-DD format?"}]}, {"type": "function_call",
-      "call_id": "fc_075ddfa016e58c6b016a6bc6d2f86c81959a95d390cf21855a", "name":
-      "get_date", "arguments": "{}"}, {"type": "function_call_output", "call_id":
+    body: '{"include": ["reasoning.encrypted_content"], "input": [{"type": "message",
+      "role": "system", "content": [{"type": "input_text", "text": "Always use a tool
+      to help you answer. Reply with ''It is ____.''."}]}, {"type": "message", "role":
+      "user", "content": [{"type": "input_text", "text": "What''s the current date
+      in YYYY-MM-DD format?"}]}, {"type": "function_call", "call_id": "fc_075ddfa016e58c6b016a6bc6d2f86c81959a95d390cf21855a",
+      "name": "get_date", "arguments": "{}"}, {"type": "function_call_output", "call_id":
       "fc_075ddfa016e58c6b016a6bc6d2f86c81959a95d390cf21855a", "output": "2024-01-01"}],
       "model": "gpt-5.4", "store": false, "stream": true, "tools": [{"type": "function",
       "name": "get_date", "description": "Gets the current date", "parameters": {"properties":
@@ -283,20 +284,20 @@ interactions:
       code: 200
       message: OK
 - request:
-    body: '{"include": ["reasoning.encrypted_content"], "input": [{"role": "system",
-      "content": [{"type": "input_text", "text": "Always use a tool to help you answer.
-      Reply with ''It is ____.''."}]}, {"role": "user", "content": [{"type": "input_text",
-      "text": "What''s the current date in YYYY-MM-DD format?"}]}, {"type": "function_call",
-      "call_id": "fc_075ddfa016e58c6b016a6bc6d2f86c81959a95d390cf21855a", "name":
-      "get_date", "arguments": "{}"}, {"type": "function_call_output", "call_id":
+    body: '{"include": ["reasoning.encrypted_content"], "input": [{"type": "message",
+      "role": "system", "content": [{"type": "input_text", "text": "Always use a tool
+      to help you answer. Reply with ''It is ____.''."}]}, {"type": "message", "role":
+      "user", "content": [{"type": "input_text", "text": "What''s the current date
+      in YYYY-MM-DD format?"}]}, {"type": "function_call", "call_id": "fc_075ddfa016e58c6b016a6bc6d2f86c81959a95d390cf21855a",
+      "name": "get_date", "arguments": "{}"}, {"type": "function_call_output", "call_id":
       "fc_075ddfa016e58c6b016a6bc6d2f86c81959a95d390cf21855a", "output": "2024-01-01"},
       {"role": "assistant", "content": [{"type": "output_text", "text": "It is 2024-01-01.",
-      "annotations": []}], "status": "completed", "type": "message"}, {"role": "user",
-      "content": [{"type": "input_text", "text": "What month is it? Provide the full
-      name."}]}], "model": "gpt-5.4", "store": false, "stream": true, "tools": [{"type":
-      "function", "name": "get_date", "description": "Gets the current date", "parameters":
-      {"properties": {}, "type": "object", "additionalProperties": false, "required":
-      []}, "strict": true}]}'
+      "annotations": []}], "status": "completed", "type": "message"}, {"type": "message",
+      "role": "user", "content": [{"type": "input_text", "text": "What month is it?
+      Provide the full name."}]}], "model": "gpt-5.4", "store": false, "stream": true,
+      "tools": [{"type": "function", "name": "get_date", "description": "Gets the
+      current date", "parameters": {"properties": {}, "type": "object", "additionalProperties":
+      false, "required": []}, "strict": true}]}'
     headers:
       accept:
       - application/json
@@ -400,17 +401,17 @@ interactions:
       code: 200
       message: OK
 - request:
-    body: '{"include": ["reasoning.encrypted_content"], "input": [{"role": "system",
-      "content": [{"type": "input_text", "text": "Always use a tool to help you answer.
-      Reply with ''It is ____.''."}]}, {"role": "user", "content": [{"type": "input_text",
-      "text": "What''s the current date in YYYY-MM-DD format?"}]}, {"type": "function_call",
-      "call_id": "fc_075ddfa016e58c6b016a6bc6d2f86c81959a95d390cf21855a", "name":
-      "get_date", "arguments": "{}"}, {"type": "function_call_output", "call_id":
+    body: '{"include": ["reasoning.encrypted_content"], "input": [{"type": "message",
+      "role": "system", "content": [{"type": "input_text", "text": "Always use a tool
+      to help you answer. Reply with ''It is ____.''."}]}, {"type": "message", "role":
+      "user", "content": [{"type": "input_text", "text": "What''s the current date
+      in YYYY-MM-DD format?"}]}, {"type": "function_call", "call_id": "fc_075ddfa016e58c6b016a6bc6d2f86c81959a95d390cf21855a",
+      "name": "get_date", "arguments": "{}"}, {"type": "function_call_output", "call_id":
       "fc_075ddfa016e58c6b016a6bc6d2f86c81959a95d390cf21855a", "output": "2024-01-01"},
       {"role": "assistant", "content": [{"type": "output_text", "text": "It is 2024-01-01.",
-      "annotations": []}], "status": "completed", "type": "message"}, {"role": "user",
-      "content": [{"type": "input_text", "text": "What month is it? Provide the full
-      name."}]}, {"type": "function_call", "call_id": "fc_08d5c1e2247afc44016a6bc6d4d4fc8196bd5292158e686211",
+      "annotations": []}], "status": "completed", "type": "message"}, {"type": "message",
+      "role": "user", "content": [{"type": "input_text", "text": "What month is it?
+      Provide the full name."}]}, {"type": "function_call", "call_id": "fc_08d5c1e2247afc44016a6bc6d4d4fc8196bd5292158e686211",
       "name": "get_date", "arguments": "{}"}, {"type": "function_call_output", "call_id":
       "fc_08d5c1e2247afc44016a6bc6d4d4fc8196bd5292158e686211", "output": "2024-01-01"}],
       "model": "gpt-5.4", "store": false, "stream": true, "tools": [{"type": "function",
@@ -549,13 +550,14 @@ interactions:
       code: 200
       message: OK
 - request:
-    body: '{"include": ["reasoning.encrypted_content"], "input": [{"role": "system",
-      "content": [{"type": "input_text", "text": "Be very terse, not even punctuation."}]},
-      {"role": "user", "content": [{"type": "input_text", "text": "What''s the current
-      date in YYYY-MM-DD format?"}]}], "model": "gpt-5.4", "store": false, "stream":
-      true, "tools": [{"type": "function", "name": "get_date", "description": "Gets
-      the current date", "parameters": {"properties": {}, "type": "object", "additionalProperties":
-      false, "required": []}, "strict": true}]}'
+    body: '{"include": ["reasoning.encrypted_content"], "input": [{"type": "message",
+      "role": "system", "content": [{"type": "input_text", "text": "Be very terse,
+      not even punctuation."}]}, {"type": "message", "role": "user", "content": [{"type":
+      "input_text", "text": "What''s the current date in YYYY-MM-DD format?"}]}],
+      "model": "gpt-5.4", "store": false, "stream": true, "tools": [{"type": "function",
+      "name": "get_date", "description": "Gets the current date", "parameters": {"properties":
+      {}, "type": "object", "additionalProperties": false, "required": []}, "strict":
+      true}]}'
     headers:
       accept:
       - application/json
@@ -659,10 +661,11 @@ interactions:
       code: 200
       message: OK
 - request:
-    body: '{"include": ["reasoning.encrypted_content"], "input": [{"role": "system",
-      "content": [{"type": "input_text", "text": "Be very terse, not even punctuation."}]},
-      {"role": "user", "content": [{"type": "input_text", "text": "What''s the current
-      date in YYYY-MM-DD format?"}]}, {"type": "function_call", "call_id": "fc_072b5328fa541b25016a6bc6d717b88197b5d2e44db1b3dc2b",
+    body: '{"include": ["reasoning.encrypted_content"], "input": [{"type": "message",
+      "role": "system", "content": [{"type": "input_text", "text": "Be very terse,
+      not even punctuation."}]}, {"type": "message", "role": "user", "content": [{"type":
+      "input_text", "text": "What''s the current date in YYYY-MM-DD format?"}]}, {"type":
+      "function_call", "call_id": "fc_072b5328fa541b25016a6bc6d717b88197b5d2e44db1b3dc2b",
       "name": "get_date", "arguments": "{}"}, {"type": "function_call_output", "call_id":
       "fc_072b5328fa541b25016a6bc6d717b88197b5d2e44db1b3dc2b", "output": "2024-01-01"}],
       "model": "gpt-5.4", "store": false, "stream": true, "tools": [{"type": "function",
@@ -807,15 +810,15 @@ interactions:
       code: 200
       message: OK
 - request:
-    body: '{"include": ["reasoning.encrypted_content"], "input": [{"role": "system",
-      "content": [{"type": "input_text", "text": "Be very terse, not even punctuation."}]},
-      {"role": "user", "content": [{"type": "input_text", "text": "\n        What
-      are Joe and Hadley''s favourite colours?\n        Answer like name1: colour1,
-      name2: colour2\n    "}]}], "model": "gpt-5.4", "store": false, "stream": true,
-      "tools": [{"type": "function", "name": "favorite_color", "description": "Returns
-      a person''s favourite colour", "parameters": {"properties": {"_person": {"type":
-      "string"}}, "required": ["_person"], "type": "object", "additionalProperties":
-      false}, "strict": true}]}'
+    body: '{"include": ["reasoning.encrypted_content"], "input": [{"type": "message",
+      "role": "system", "content": [{"type": "input_text", "text": "Be very terse,
+      not even punctuation."}]}, {"type": "message", "role": "user", "content": [{"type":
+      "input_text", "text": "\n        What are Joe and Hadley''s favourite colours?\n        Answer
+      like name1: colour1, name2: colour2\n    "}]}], "model": "gpt-5.4", "store":
+      false, "stream": true, "tools": [{"type": "function", "name": "favorite_color",
+      "description": "Returns a person''s favourite colour", "parameters": {"properties":
+      {"_person": {"type": "string"}}, "required": ["_person"], "type": "object",
+      "additionalProperties": false}, "strict": true}]}'
     headers:
       accept:
       - application/json
@@ -939,16 +942,17 @@ interactions:
       code: 200
       message: OK
 - request:
-    body: '{"include": ["reasoning.encrypted_content"], "input": [{"role": "system",
-      "content": [{"type": "input_text", "text": "Be very terse, not even punctuation."}]},
-      {"role": "user", "content": [{"type": "input_text", "text": "\n        What
-      are Joe and Hadley''s favourite colours?\n        Answer like name1: colour1,
-      name2: colour2\n    "}]}, {"type": "function_call", "call_id": "fc_00442bb7f639c555016a6bc6d8f6a88194b55ce4d351f06270",
-      "name": "favorite_color", "arguments": "{\"_person\":\"Joe\"}"}, {"type": "function_call",
-      "call_id": "fc_00442bb7f639c555016a6bc6d8f6b88194af5012355d2d4c6e", "name":
-      "favorite_color", "arguments": "{\"_person\":\"Hadley\"}"}, {"type": "function_call_output",
-      "call_id": "fc_00442bb7f639c555016a6bc6d8f6a88194b55ce4d351f06270", "output":
-      "sage green"}, {"type": "function_call_output", "call_id": "fc_00442bb7f639c555016a6bc6d8f6b88194af5012355d2d4c6e",
+    body: '{"include": ["reasoning.encrypted_content"], "input": [{"type": "message",
+      "role": "system", "content": [{"type": "input_text", "text": "Be very terse,
+      not even punctuation."}]}, {"type": "message", "role": "user", "content": [{"type":
+      "input_text", "text": "\n        What are Joe and Hadley''s favourite colours?\n        Answer
+      like name1: colour1, name2: colour2\n    "}]}, {"type": "function_call", "call_id":
+      "fc_00442bb7f639c555016a6bc6d8f6a88194b55ce4d351f06270", "name": "favorite_color",
+      "arguments": "{\"_person\":\"Joe\"}"}, {"type": "function_call", "call_id":
+      "fc_00442bb7f639c555016a6bc6d8f6b88194af5012355d2d4c6e", "name": "favorite_color",
+      "arguments": "{\"_person\":\"Hadley\"}"}, {"type": "function_call_output", "call_id":
+      "fc_00442bb7f639c555016a6bc6d8f6a88194b55ce4d351f06270", "output": "sage green"},
+      {"type": "function_call_output", "call_id": "fc_00442bb7f639c555016a6bc6d8f6b88194af5012355d2d4c6e",
       "output": "red"}], "model": "gpt-5.4", "store": false, "stream": true, "tools":
       [{"type": "function", "name": "favorite_color", "description": "Returns a person''s
       favourite colour", "parameters": {"properties": {"_person": {"type": "string"}},
@@ -1111,19 +1115,20 @@ interactions:
       code: 200
       message: OK
 - request:
-    body: '{"include": ["reasoning.encrypted_content"], "input": [{"role": "system",
-      "content": [{"type": "input_text", "text": "\n        Be very terse, not even
-      punctuation. If asked for equipment to pack,\n        first use the weather_forecast
-      tool provided to you. Then, use the\n        equipment tool provided to you.\n        "}]},
-      {"role": "user", "content": [{"type": "input_text", "text": "What should I pack
-      for New York this weekend?"}]}], "model": "gpt-5.4", "store": false, "stream":
-      true, "tools": [{"type": "function", "name": "weather_forecast", "description":
-      "Gets the weather forecast for a city", "parameters": {"properties": {"city":
-      {"type": "string"}}, "required": ["city"], "type": "object", "additionalProperties":
-      false}, "strict": true}, {"type": "function", "name": "equipment", "description":
-      "Gets the equipment needed for a weather condition", "parameters": {"properties":
-      {"weather": {"type": "string"}}, "required": ["weather"], "type": "object",
-      "additionalProperties": false}, "strict": true}]}'
+    body: '{"include": ["reasoning.encrypted_content"], "input": [{"type": "message",
+      "role": "system", "content": [{"type": "input_text", "text": "\n        Be very
+      terse, not even punctuation. If asked for equipment to pack,\n        first
+      use the weather_forecast tool provided to you. Then, use the\n        equipment
+      tool provided to you.\n        "}]}, {"type": "message", "role": "user", "content":
+      [{"type": "input_text", "text": "What should I pack for New York this weekend?"}]}],
+      "model": "gpt-5.4", "store": false, "stream": true, "tools": [{"type": "function",
+      "name": "weather_forecast", "description": "Gets the weather forecast for a
+      city", "parameters": {"properties": {"city": {"type": "string"}}, "required":
+      ["city"], "type": "object", "additionalProperties": false}, "strict": true},
+      {"type": "function", "name": "equipment", "description": "Gets the equipment
+      needed for a weather condition", "parameters": {"properties": {"weather": {"type":
+      "string"}}, "required": ["weather"], "type": "object", "additionalProperties":
+      false}, "strict": true}]}'
     headers:
       accept:
       - application/json
@@ -1258,12 +1263,13 @@ interactions:
       code: 200
       message: OK
 - request:
-    body: '{"include": ["reasoning.encrypted_content"], "input": [{"role": "system",
-      "content": [{"type": "input_text", "text": "\n        Be very terse, not even
-      punctuation. If asked for equipment to pack,\n        first use the weather_forecast
-      tool provided to you. Then, use the\n        equipment tool provided to you.\n        "}]},
-      {"role": "user", "content": [{"type": "input_text", "text": "What should I pack
-      for New York this weekend?"}]}, {"type": "function_call", "call_id": "fc_00d577935a3511f1016a6bc6db33cc81908a93f256c1141bd1",
+    body: '{"include": ["reasoning.encrypted_content"], "input": [{"type": "message",
+      "role": "system", "content": [{"type": "input_text", "text": "\n        Be very
+      terse, not even punctuation. If asked for equipment to pack,\n        first
+      use the weather_forecast tool provided to you. Then, use the\n        equipment
+      tool provided to you.\n        "}]}, {"type": "message", "role": "user", "content":
+      [{"type": "input_text", "text": "What should I pack for New York this weekend?"}]},
+      {"type": "function_call", "call_id": "fc_00d577935a3511f1016a6bc6db33cc81908a93f256c1141bd1",
       "name": "weather_forecast", "arguments": "{\"city\":\"New York\"}"}, {"type":
       "function_call_output", "call_id": "fc_00d577935a3511f1016a6bc6db33cc81908a93f256c1141bd1",
       "output": "rainy"}], "model": "gpt-5.4", "store": false, "stream": true, "tools":
@@ -1405,12 +1411,13 @@ interactions:
       code: 200
       message: OK
 - request:
-    body: '{"include": ["reasoning.encrypted_content"], "input": [{"role": "system",
-      "content": [{"type": "input_text", "text": "\n        Be very terse, not even
-      punctuation. If asked for equipment to pack,\n        first use the weather_forecast
-      tool provided to you. Then, use the\n        equipment tool provided to you.\n        "}]},
-      {"role": "user", "content": [{"type": "input_text", "text": "What should I pack
-      for New York this weekend?"}]}, {"type": "function_call", "call_id": "fc_00d577935a3511f1016a6bc6db33cc81908a93f256c1141bd1",
+    body: '{"include": ["reasoning.encrypted_content"], "input": [{"type": "message",
+      "role": "system", "content": [{"type": "input_text", "text": "\n        Be very
+      terse, not even punctuation. If asked for equipment to pack,\n        first
+      use the weather_forecast tool provided to you. Then, use the\n        equipment
+      tool provided to you.\n        "}]}, {"type": "message", "role": "user", "content":
+      [{"type": "input_text", "text": "What should I pack for New York this weekend?"}]},
+      {"type": "function_call", "call_id": "fc_00d577935a3511f1016a6bc6db33cc81908a93f256c1141bd1",
       "name": "weather_forecast", "arguments": "{\"city\":\"New York\"}"}, {"type":
       "function_call_output", "call_id": "fc_00d577935a3511f1016a6bc6db33cc81908a93f256c1141bd1",
       "output": "rainy"}, {"type": "function_call", "call_id": "fc_0fa8be76957154ae016a6bc6dbe4f081969d99015bdd58dc09",

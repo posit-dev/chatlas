@@ -1,11 +1,12 @@
 interactions:
 - request:
-    body: '{"include": ["reasoning.encrypted_content"], "input": [{"role": "user",
-      "content": [{"type": "input_text", "text": "Call record_tool with prompt_id=''A''"}]}],
-      "model": "gpt-5.4", "store": false, "stream": false, "tools": [{"type": "function",
-      "name": "record_tool", "description": "Records which prompt''s tool executed.",
-      "parameters": {"properties": {"prompt_id": {"type": "string"}}, "required":
-      ["prompt_id"], "type": "object", "additionalProperties": false}, "strict": true}]}'
+    body: '{"include": ["reasoning.encrypted_content"], "input": [{"type": "message",
+      "role": "user", "content": [{"type": "input_text", "text": "Call record_tool
+      with prompt_id=''A''"}]}], "model": "gpt-5.4", "store": false, "stream": false,
+      "tools": [{"type": "function", "name": "record_tool", "description": "Records
+      which prompt''s tool executed.", "parameters": {"properties": {"prompt_id":
+      {"type": "string"}}, "required": ["prompt_id"], "type": "object", "additionalProperties":
+      false}, "strict": true}]}'
     headers:
       Accept:
       - application/json
@@ -27,34 +28,35 @@ interactions:
     uri: https://api.openai.com/v1/responses
   response:
     body:
-      string: "{\n  \"id\": \"resp_09869ff323a138d40169fb7d156fdc819593a79b73024405dc\",\n
-        \ \"object\": \"response\",\n  \"created_at\": 1778089237,\n  \"status\":
-        \"completed\",\n  \"background\": false,\n  \"billing\": {\n    \"payer\":
-        \"developer\"\n  },\n  \"completed_at\": 1778089238,\n  \"error\": null,\n
-        \ \"frequency_penalty\": 0.0,\n  \"incomplete_details\": null,\n  \"instructions\":
-        null,\n  \"max_output_tokens\": null,\n  \"max_tool_calls\": null,\n  \"model\":
-        \"gpt-5.4-2026-03-05\",\n  \"moderation\": null,\n  \"output\": [\n    {\n
-        \     \"id\": \"fc_09869ff323a138d40169fb7d15d35c8195ba246ff485917d6b\",\n
-        \     \"type\": \"function_call\",\n      \"status\": \"completed\",\n      \"arguments\":
-        \"{\\\"prompt_id\\\":\\\"A\\\"}\",\n      \"call_id\": \"call_9pSpDD2knhKPyuEfs1HU7tPz\",\n
-        \     \"name\": \"record_tool\"\n    }\n  ],\n  \"parallel_tool_calls\": true,\n
-        \ \"presence_penalty\": 0.0,\n  \"previous_response_id\": null,\n  \"prompt_cache_key\":
-        null,\n  \"prompt_cache_retention\": \"in_memory\",\n  \"reasoning\": {\n
-        \   \"effort\": \"none\",\n    \"summary\": null\n  },\n  \"safety_identifier\":
-        null,\n  \"service_tier\": \"default\",\n  \"store\": false,\n  \"temperature\":
-        1.0,\n  \"text\": {\n    \"format\": {\n      \"type\": \"text\"\n    },\n
-        \   \"verbosity\": \"medium\"\n  },\n  \"tool_choice\": \"auto\",\n  \"tools\":
-        [\n    {\n      \"type\": \"function\",\n      \"description\": \"Records
-        which prompt's tool executed.\",\n      \"name\": \"record_tool\",\n      \"parameters\":
-        {\n        \"properties\": {\n          \"prompt_id\": {\n            \"type\":
-        \"string\"\n          }\n        },\n        \"required\": [\n          \"prompt_id\"\n
-        \       ],\n        \"type\": \"object\",\n        \"additionalProperties\":
-        false\n      },\n      \"strict\": true\n    }\n  ],\n  \"top_logprobs\":
-        0,\n  \"top_p\": 0.98,\n  \"truncation\": \"disabled\",\n  \"usage\": {\n
-        \   \"input_tokens\": 53,\n    \"input_tokens_details\": {\n      \"cached_tokens\":
-        0\n    },\n    \"output_tokens\": 19,\n    \"output_tokens_details\": {\n
-        \     \"reasoning_tokens\": 0\n    },\n    \"total_tokens\": 72\n  },\n  \"user\":
-        null,\n  \"metadata\": {}\n}"
+      string: "{\n  \"id\": \"resp_09869ff323a138d40169fb7d156fdc819593a79b73024405dc\"\
+        ,\n  \"object\": \"response\",\n  \"created_at\": 1778089237,\n  \"status\"\
+        : \"completed\",\n  \"background\": false,\n  \"billing\": {\n    \"payer\"\
+        : \"developer\"\n  },\n  \"completed_at\": 1778089238,\n  \"error\": null,\n\
+        \  \"frequency_penalty\": 0.0,\n  \"incomplete_details\": null,\n  \"instructions\"\
+        : null,\n  \"max_output_tokens\": null,\n  \"max_tool_calls\": null,\n  \"\
+        model\": \"gpt-5.4-2026-03-05\",\n  \"moderation\": null,\n  \"output\": [\n\
+        \    {\n      \"id\": \"fc_09869ff323a138d40169fb7d15d35c8195ba246ff485917d6b\"\
+        ,\n      \"type\": \"function_call\",\n      \"status\": \"completed\",\n\
+        \      \"arguments\": \"{\\\"prompt_id\\\":\\\"A\\\"}\",\n      \"call_id\"\
+        : \"call_9pSpDD2knhKPyuEfs1HU7tPz\",\n      \"name\": \"record_tool\"\n  \
+        \  }\n  ],\n  \"parallel_tool_calls\": true,\n  \"presence_penalty\": 0.0,\n\
+        \  \"previous_response_id\": null,\n  \"prompt_cache_key\": null,\n  \"prompt_cache_retention\"\
+        : \"in_memory\",\n  \"reasoning\": {\n    \"effort\": \"none\",\n    \"summary\"\
+        : null\n  },\n  \"safety_identifier\": null,\n  \"service_tier\": \"default\"\
+        ,\n  \"store\": false,\n  \"temperature\": 1.0,\n  \"text\": {\n    \"format\"\
+        : {\n      \"type\": \"text\"\n    },\n    \"verbosity\": \"medium\"\n  },\n\
+        \  \"tool_choice\": \"auto\",\n  \"tools\": [\n    {\n      \"type\": \"function\"\
+        ,\n      \"description\": \"Records which prompt's tool executed.\",\n   \
+        \   \"name\": \"record_tool\",\n      \"parameters\": {\n        \"properties\"\
+        : {\n          \"prompt_id\": {\n            \"type\": \"string\"\n      \
+        \    }\n        },\n        \"required\": [\n          \"prompt_id\"\n   \
+        \     ],\n        \"type\": \"object\",\n        \"additionalProperties\"\
+        : false\n      },\n      \"strict\": true\n    }\n  ],\n  \"top_logprobs\"\
+        : 0,\n  \"top_p\": 0.98,\n  \"truncation\": \"disabled\",\n  \"usage\": {\n\
+        \    \"input_tokens\": 53,\n    \"input_tokens_details\": {\n      \"cached_tokens\"\
+        : 0\n    },\n    \"output_tokens\": 19,\n    \"output_tokens_details\": {\n\
+        \      \"reasoning_tokens\": 0\n    },\n    \"total_tokens\": 72\n  },\n \
+        \ \"user\": null,\n  \"metadata\": {}\n}"
     headers:
       CF-Cache-Status:
       - DYNAMIC
@@ -98,12 +100,13 @@ interactions:
       code: 200
       message: OK
 - request:
-    body: '{"include": ["reasoning.encrypted_content"], "input": [{"role": "user",
-      "content": [{"type": "input_text", "text": "Call record_tool with prompt_id=''C''"}]}],
-      "model": "gpt-5.4", "store": false, "stream": false, "tools": [{"type": "function",
-      "name": "record_tool", "description": "Records which prompt''s tool executed.",
-      "parameters": {"properties": {"prompt_id": {"type": "string"}}, "required":
-      ["prompt_id"], "type": "object", "additionalProperties": false}, "strict": true}]}'
+    body: '{"include": ["reasoning.encrypted_content"], "input": [{"type": "message",
+      "role": "user", "content": [{"type": "input_text", "text": "Call record_tool
+      with prompt_id=''C''"}]}], "model": "gpt-5.4", "store": false, "stream": false,
+      "tools": [{"type": "function", "name": "record_tool", "description": "Records
+      which prompt''s tool executed.", "parameters": {"properties": {"prompt_id":
+      {"type": "string"}}, "required": ["prompt_id"], "type": "object", "additionalProperties":
+      false}, "strict": true}]}'
     headers:
       Accept:
       - application/json
@@ -125,34 +128,35 @@ interactions:
     uri: https://api.openai.com/v1/responses
   response:
     body:
-      string: "{\n  \"id\": \"resp_0b20c672ef3740d70169fb7d15931081a2ad094485b3a57c91\",\n
-        \ \"object\": \"response\",\n  \"created_at\": 1778089237,\n  \"status\":
-        \"completed\",\n  \"background\": false,\n  \"billing\": {\n    \"payer\":
-        \"developer\"\n  },\n  \"completed_at\": 1778089238,\n  \"error\": null,\n
-        \ \"frequency_penalty\": 0.0,\n  \"incomplete_details\": null,\n  \"instructions\":
-        null,\n  \"max_output_tokens\": null,\n  \"max_tool_calls\": null,\n  \"model\":
-        \"gpt-5.4-2026-03-05\",\n  \"moderation\": null,\n  \"output\": [\n    {\n
-        \     \"id\": \"fc_0b20c672ef3740d70169fb7d1618f081a2a60d46ad1354f32b\",\n
-        \     \"type\": \"function_call\",\n      \"status\": \"completed\",\n      \"arguments\":
-        \"{\\\"prompt_id\\\":\\\"C\\\"}\",\n      \"call_id\": \"call_CXDKlhY4KzJWWeN9vDdSsrlk\",\n
-        \     \"name\": \"record_tool\"\n    }\n  ],\n  \"parallel_tool_calls\": true,\n
-        \ \"presence_penalty\": 0.0,\n  \"previous_response_id\": null,\n  \"prompt_cache_key\":
-        null,\n  \"prompt_cache_retention\": \"in_memory\",\n  \"reasoning\": {\n
-        \   \"effort\": \"none\",\n    \"summary\": null\n  },\n  \"safety_identifier\":
-        null,\n  \"service_tier\": \"default\",\n  \"store\": false,\n  \"temperature\":
-        1.0,\n  \"text\": {\n    \"format\": {\n      \"type\": \"text\"\n    },\n
-        \   \"verbosity\": \"medium\"\n  },\n  \"tool_choice\": \"auto\",\n  \"tools\":
-        [\n    {\n      \"type\": \"function\",\n      \"description\": \"Records
-        which prompt's tool executed.\",\n      \"name\": \"record_tool\",\n      \"parameters\":
-        {\n        \"properties\": {\n          \"prompt_id\": {\n            \"type\":
-        \"string\"\n          }\n        },\n        \"required\": [\n          \"prompt_id\"\n
-        \       ],\n        \"type\": \"object\",\n        \"additionalProperties\":
-        false\n      },\n      \"strict\": true\n    }\n  ],\n  \"top_logprobs\":
-        0,\n  \"top_p\": 0.98,\n  \"truncation\": \"disabled\",\n  \"usage\": {\n
-        \   \"input_tokens\": 53,\n    \"input_tokens_details\": {\n      \"cached_tokens\":
-        0\n    },\n    \"output_tokens\": 19,\n    \"output_tokens_details\": {\n
-        \     \"reasoning_tokens\": 0\n    },\n    \"total_tokens\": 72\n  },\n  \"user\":
-        null,\n  \"metadata\": {}\n}"
+      string: "{\n  \"id\": \"resp_0b20c672ef3740d70169fb7d15931081a2ad094485b3a57c91\"\
+        ,\n  \"object\": \"response\",\n  \"created_at\": 1778089237,\n  \"status\"\
+        : \"completed\",\n  \"background\": false,\n  \"billing\": {\n    \"payer\"\
+        : \"developer\"\n  },\n  \"completed_at\": 1778089238,\n  \"error\": null,\n\
+        \  \"frequency_penalty\": 0.0,\n  \"incomplete_details\": null,\n  \"instructions\"\
+        : null,\n  \"max_output_tokens\": null,\n  \"max_tool_calls\": null,\n  \"\
+        model\": \"gpt-5.4-2026-03-05\",\n  \"moderation\": null,\n  \"output\": [\n\
+        \    {\n      \"id\": \"fc_0b20c672ef3740d70169fb7d1618f081a2a60d46ad1354f32b\"\
+        ,\n      \"type\": \"function_call\",\n      \"status\": \"completed\",\n\
+        \      \"arguments\": \"{\\\"prompt_id\\\":\\\"C\\\"}\",\n      \"call_id\"\
+        : \"call_CXDKlhY4KzJWWeN9vDdSsrlk\",\n      \"name\": \"record_tool\"\n  \
+        \  }\n  ],\n  \"parallel_tool_calls\": true,\n  \"presence_penalty\": 0.0,\n\
+        \  \"previous_response_id\": null,\n  \"prompt_cache_key\": null,\n  \"prompt_cache_retention\"\
+        : \"in_memory\",\n  \"reasoning\": {\n    \"effort\": \"none\",\n    \"summary\"\
+        : null\n  },\n  \"safety_identifier\": null,\n  \"service_tier\": \"default\"\
+        ,\n  \"store\": false,\n  \"temperature\": 1.0,\n  \"text\": {\n    \"format\"\
+        : {\n      \"type\": \"text\"\n    },\n    \"verbosity\": \"medium\"\n  },\n\
+        \  \"tool_choice\": \"auto\",\n  \"tools\": [\n    {\n      \"type\": \"function\"\
+        ,\n      \"description\": \"Records which prompt's tool executed.\",\n   \
+        \   \"name\": \"record_tool\",\n      \"parameters\": {\n        \"properties\"\
+        : {\n          \"prompt_id\": {\n            \"type\": \"string\"\n      \
+        \    }\n        },\n        \"required\": [\n          \"prompt_id\"\n   \
+        \     ],\n        \"type\": \"object\",\n        \"additionalProperties\"\
+        : false\n      },\n      \"strict\": true\n    }\n  ],\n  \"top_logprobs\"\
+        : 0,\n  \"top_p\": 0.98,\n  \"truncation\": \"disabled\",\n  \"usage\": {\n\
+        \    \"input_tokens\": 53,\n    \"input_tokens_details\": {\n      \"cached_tokens\"\
+        : 0\n    },\n    \"output_tokens\": 19,\n    \"output_tokens_details\": {\n\
+        \      \"reasoning_tokens\": 0\n    },\n    \"total_tokens\": 72\n  },\n \
+        \ \"user\": null,\n  \"metadata\": {}\n}"
     headers:
       CF-Cache-Status:
       - DYNAMIC
@@ -196,12 +200,13 @@ interactions:
       code: 200
       message: OK
 - request:
-    body: '{"include": ["reasoning.encrypted_content"], "input": [{"role": "user",
-      "content": [{"type": "input_text", "text": "Call record_tool with prompt_id=''B''"}]}],
-      "model": "gpt-5.4", "store": false, "stream": false, "tools": [{"type": "function",
-      "name": "record_tool", "description": "Records which prompt''s tool executed.",
-      "parameters": {"properties": {"prompt_id": {"type": "string"}}, "required":
-      ["prompt_id"], "type": "object", "additionalProperties": false}, "strict": true}]}'
+    body: '{"include": ["reasoning.encrypted_content"], "input": [{"type": "message",
+      "role": "user", "content": [{"type": "input_text", "text": "Call record_tool
+      with prompt_id=''B''"}]}], "model": "gpt-5.4", "store": false, "stream": false,
+      "tools": [{"type": "function", "name": "record_tool", "description": "Records
+      which prompt''s tool executed.", "parameters": {"properties": {"prompt_id":
+      {"type": "string"}}, "required": ["prompt_id"], "type": "object", "additionalProperties":
+      false}, "strict": true}]}'
     headers:
       Accept:
       - application/json
@@ -223,34 +228,35 @@ interactions:
     uri: https://api.openai.com/v1/responses
   response:
     body:
-      string: "{\n  \"id\": \"resp_04a5429b6b429c0b0169fb7d1609a081a28fa7270d4c246c08\",\n
-        \ \"object\": \"response\",\n  \"created_at\": 1778089238,\n  \"status\":
-        \"completed\",\n  \"background\": false,\n  \"billing\": {\n    \"payer\":
-        \"developer\"\n  },\n  \"completed_at\": 1778089238,\n  \"error\": null,\n
-        \ \"frequency_penalty\": 0.0,\n  \"incomplete_details\": null,\n  \"instructions\":
-        null,\n  \"max_output_tokens\": null,\n  \"max_tool_calls\": null,\n  \"model\":
-        \"gpt-5.4-2026-03-05\",\n  \"moderation\": null,\n  \"output\": [\n    {\n
-        \     \"id\": \"fc_04a5429b6b429c0b0169fb7d167c1881a293cab02f2159cb98\",\n
-        \     \"type\": \"function_call\",\n      \"status\": \"completed\",\n      \"arguments\":
-        \"{\\\"prompt_id\\\":\\\"B\\\"}\",\n      \"call_id\": \"call_4U2UL8dxe8eXOzApxUrseq6T\",\n
-        \     \"name\": \"record_tool\"\n    }\n  ],\n  \"parallel_tool_calls\": true,\n
-        \ \"presence_penalty\": 0.0,\n  \"previous_response_id\": null,\n  \"prompt_cache_key\":
-        null,\n  \"prompt_cache_retention\": \"in_memory\",\n  \"reasoning\": {\n
-        \   \"effort\": \"none\",\n    \"summary\": null\n  },\n  \"safety_identifier\":
-        null,\n  \"service_tier\": \"default\",\n  \"store\": false,\n  \"temperature\":
-        1.0,\n  \"text\": {\n    \"format\": {\n      \"type\": \"text\"\n    },\n
-        \   \"verbosity\": \"medium\"\n  },\n  \"tool_choice\": \"auto\",\n  \"tools\":
-        [\n    {\n      \"type\": \"function\",\n      \"description\": \"Records
-        which prompt's tool executed.\",\n      \"name\": \"record_tool\",\n      \"parameters\":
-        {\n        \"properties\": {\n          \"prompt_id\": {\n            \"type\":
-        \"string\"\n          }\n        },\n        \"required\": [\n          \"prompt_id\"\n
-        \       ],\n        \"type\": \"object\",\n        \"additionalProperties\":
-        false\n      },\n      \"strict\": true\n    }\n  ],\n  \"top_logprobs\":
-        0,\n  \"top_p\": 0.98,\n  \"truncation\": \"disabled\",\n  \"usage\": {\n
-        \   \"input_tokens\": 53,\n    \"input_tokens_details\": {\n      \"cached_tokens\":
-        0\n    },\n    \"output_tokens\": 19,\n    \"output_tokens_details\": {\n
-        \     \"reasoning_tokens\": 0\n    },\n    \"total_tokens\": 72\n  },\n  \"user\":
-        null,\n  \"metadata\": {}\n}"
+      string: "{\n  \"id\": \"resp_04a5429b6b429c0b0169fb7d1609a081a28fa7270d4c246c08\"\
+        ,\n  \"object\": \"response\",\n  \"created_at\": 1778089238,\n  \"status\"\
+        : \"completed\",\n  \"background\": false,\n  \"billing\": {\n    \"payer\"\
+        : \"developer\"\n  },\n  \"completed_at\": 1778089238,\n  \"error\": null,\n\
+        \  \"frequency_penalty\": 0.0,\n  \"incomplete_details\": null,\n  \"instructions\"\
+        : null,\n  \"max_output_tokens\": null,\n  \"max_tool_calls\": null,\n  \"\
+        model\": \"gpt-5.4-2026-03-05\",\n  \"moderation\": null,\n  \"output\": [\n\
+        \    {\n      \"id\": \"fc_04a5429b6b429c0b0169fb7d167c1881a293cab02f2159cb98\"\
+        ,\n      \"type\": \"function_call\",\n      \"status\": \"completed\",\n\
+        \      \"arguments\": \"{\\\"prompt_id\\\":\\\"B\\\"}\",\n      \"call_id\"\
+        : \"call_4U2UL8dxe8eXOzApxUrseq6T\",\n      \"name\": \"record_tool\"\n  \
+        \  }\n  ],\n  \"parallel_tool_calls\": true,\n  \"presence_penalty\": 0.0,\n\
+        \  \"previous_response_id\": null,\n  \"prompt_cache_key\": null,\n  \"prompt_cache_retention\"\
+        : \"in_memory\",\n  \"reasoning\": {\n    \"effort\": \"none\",\n    \"summary\"\
+        : null\n  },\n  \"safety_identifier\": null,\n  \"service_tier\": \"default\"\
+        ,\n  \"store\": false,\n  \"temperature\": 1.0,\n  \"text\": {\n    \"format\"\
+        : {\n      \"type\": \"text\"\n    },\n    \"verbosity\": \"medium\"\n  },\n\
+        \  \"tool_choice\": \"auto\",\n  \"tools\": [\n    {\n      \"type\": \"function\"\
+        ,\n      \"description\": \"Records which prompt's tool executed.\",\n   \
+        \   \"name\": \"record_tool\",\n      \"parameters\": {\n        \"properties\"\
+        : {\n          \"prompt_id\": {\n            \"type\": \"string\"\n      \
+        \    }\n        },\n        \"required\": [\n          \"prompt_id\"\n   \
+        \     ],\n        \"type\": \"object\",\n        \"additionalProperties\"\
+        : false\n      },\n      \"strict\": true\n    }\n  ],\n  \"top_logprobs\"\
+        : 0,\n  \"top_p\": 0.98,\n  \"truncation\": \"disabled\",\n  \"usage\": {\n\
+        \    \"input_tokens\": 53,\n    \"input_tokens_details\": {\n      \"cached_tokens\"\
+        : 0\n    },\n    \"output_tokens\": 19,\n    \"output_tokens_details\": {\n\
+        \      \"reasoning_tokens\": 0\n    },\n    \"total_tokens\": 72\n  },\n \
+        \ \"user\": null,\n  \"metadata\": {}\n}"
     headers:
       CF-Cache-Status:
       - DYNAMIC
@@ -294,9 +300,9 @@ interactions:
       code: 200
       message: OK
 - request:
-    body: '{"include": ["reasoning.encrypted_content"], "input": [{"role": "user",
-      "content": [{"type": "input_text", "text": "Call record_tool with prompt_id=''A''"}]},
-      {"type": "function_call", "call_id": "fc_09869ff323a138d40169fb7d15d35c8195ba246ff485917d6b",
+    body: '{"include": ["reasoning.encrypted_content"], "input": [{"type": "message",
+      "role": "user", "content": [{"type": "input_text", "text": "Call record_tool
+      with prompt_id=''A''"}]}, {"type": "function_call", "call_id": "fc_09869ff323a138d40169fb7d15d35c8195ba246ff485917d6b",
       "name": "record_tool", "arguments": "{\"prompt_id\":\"A\"}"}, {"type": "function_call_output",
       "call_id": "fc_09869ff323a138d40169fb7d15d35c8195ba246ff485917d6b", "output":
       "Executed for A"}], "model": "gpt-5.4", "store": false, "stream": false, "tools":
@@ -327,35 +333,36 @@ interactions:
     uri: https://api.openai.com/v1/responses
   response:
     body:
-      string: "{\n  \"id\": \"resp_0a66520ed419d31d0169fb7d174fac81968c6c4b270cbb480e\",\n
-        \ \"object\": \"response\",\n  \"created_at\": 1778089239,\n  \"status\":
-        \"completed\",\n  \"background\": false,\n  \"billing\": {\n    \"payer\":
-        \"developer\"\n  },\n  \"completed_at\": 1778089239,\n  \"error\": null,\n
-        \ \"frequency_penalty\": 0.0,\n  \"incomplete_details\": null,\n  \"instructions\":
-        null,\n  \"max_output_tokens\": null,\n  \"max_tool_calls\": null,\n  \"model\":
-        \"gpt-5.4-2026-03-05\",\n  \"moderation\": null,\n  \"output\": [\n    {\n
-        \     \"id\": \"msg_0a66520ed419d31d0169fb7d17b0808196b765a17714796e03\",\n
-        \     \"type\": \"message\",\n      \"status\": \"completed\",\n      \"content\":
-        [\n        {\n          \"type\": \"output_text\",\n          \"annotations\":
-        [],\n          \"logprobs\": [],\n          \"text\": \"Done.\"\n        }\n
-        \     ],\n      \"phase\": \"final_answer\",\n      \"role\": \"assistant\"\n
-        \   }\n  ],\n  \"parallel_tool_calls\": true,\n  \"presence_penalty\": 0.0,\n
-        \ \"previous_response_id\": null,\n  \"prompt_cache_key\": null,\n  \"prompt_cache_retention\":
-        \"in_memory\",\n  \"reasoning\": {\n    \"effort\": \"none\",\n    \"summary\":
-        null\n  },\n  \"safety_identifier\": null,\n  \"service_tier\": \"default\",\n
-        \ \"store\": false,\n  \"temperature\": 1.0,\n  \"text\": {\n    \"format\":
-        {\n      \"type\": \"text\"\n    },\n    \"verbosity\": \"medium\"\n  },\n
-        \ \"tool_choice\": \"auto\",\n  \"tools\": [\n    {\n      \"type\": \"function\",\n
-        \     \"description\": \"Records which prompt's tool executed.\",\n      \"name\":
-        \"record_tool\",\n      \"parameters\": {\n        \"properties\": {\n          \"prompt_id\":
-        {\n            \"type\": \"string\"\n          }\n        },\n        \"required\":
-        [\n          \"prompt_id\"\n        ],\n        \"type\": \"object\",\n        \"additionalProperties\":
-        false\n      },\n      \"strict\": true\n    }\n  ],\n  \"top_logprobs\":
-        0,\n  \"top_p\": 0.98,\n  \"truncation\": \"disabled\",\n  \"usage\": {\n
-        \   \"input_tokens\": 86,\n    \"input_tokens_details\": {\n      \"cached_tokens\":
-        0\n    },\n    \"output_tokens\": 6,\n    \"output_tokens_details\": {\n      \"reasoning_tokens\":
-        0\n    },\n    \"total_tokens\": 92\n  },\n  \"user\": null,\n  \"metadata\":
-        {}\n}"
+      string: "{\n  \"id\": \"resp_0a66520ed419d31d0169fb7d174fac81968c6c4b270cbb480e\"\
+        ,\n  \"object\": \"response\",\n  \"created_at\": 1778089239,\n  \"status\"\
+        : \"completed\",\n  \"background\": false,\n  \"billing\": {\n    \"payer\"\
+        : \"developer\"\n  },\n  \"completed_at\": 1778089239,\n  \"error\": null,\n\
+        \  \"frequency_penalty\": 0.0,\n  \"incomplete_details\": null,\n  \"instructions\"\
+        : null,\n  \"max_output_tokens\": null,\n  \"max_tool_calls\": null,\n  \"\
+        model\": \"gpt-5.4-2026-03-05\",\n  \"moderation\": null,\n  \"output\": [\n\
+        \    {\n      \"id\": \"msg_0a66520ed419d31d0169fb7d17b0808196b765a17714796e03\"\
+        ,\n      \"type\": \"message\",\n      \"status\": \"completed\",\n      \"\
+        content\": [\n        {\n          \"type\": \"output_text\",\n          \"\
+        annotations\": [],\n          \"logprobs\": [],\n          \"text\": \"Done.\"\
+        \n        }\n      ],\n      \"phase\": \"final_answer\",\n      \"role\"\
+        : \"assistant\"\n    }\n  ],\n  \"parallel_tool_calls\": true,\n  \"presence_penalty\"\
+        : 0.0,\n  \"previous_response_id\": null,\n  \"prompt_cache_key\": null,\n\
+        \  \"prompt_cache_retention\": \"in_memory\",\n  \"reasoning\": {\n    \"\
+        effort\": \"none\",\n    \"summary\": null\n  },\n  \"safety_identifier\"\
+        : null,\n  \"service_tier\": \"default\",\n  \"store\": false,\n  \"temperature\"\
+        : 1.0,\n  \"text\": {\n    \"format\": {\n      \"type\": \"text\"\n    },\n\
+        \    \"verbosity\": \"medium\"\n  },\n  \"tool_choice\": \"auto\",\n  \"tools\"\
+        : [\n    {\n      \"type\": \"function\",\n      \"description\": \"Records\
+        \ which prompt's tool executed.\",\n      \"name\": \"record_tool\",\n   \
+        \   \"parameters\": {\n        \"properties\": {\n          \"prompt_id\"\
+        : {\n            \"type\": \"string\"\n          }\n        },\n        \"\
+        required\": [\n          \"prompt_id\"\n        ],\n        \"type\": \"object\"\
+        ,\n        \"additionalProperties\": false\n      },\n      \"strict\": true\n\
+        \    }\n  ],\n  \"top_logprobs\": 0,\n  \"top_p\": 0.98,\n  \"truncation\"\
+        : \"disabled\",\n  \"usage\": {\n    \"input_tokens\": 86,\n    \"input_tokens_details\"\
+        : {\n      \"cached_tokens\": 0\n    },\n    \"output_tokens\": 6,\n    \"\
+        output_tokens_details\": {\n      \"reasoning_tokens\": 0\n    },\n    \"\
+        total_tokens\": 92\n  },\n  \"user\": null,\n  \"metadata\": {}\n}"
     headers:
       CF-Cache-Status:
       - DYNAMIC
@@ -399,9 +406,9 @@ interactions:
       code: 200
       message: OK
 - request:
-    body: '{"include": ["reasoning.encrypted_content"], "input": [{"role": "user",
-      "content": [{"type": "input_text", "text": "Call record_tool with prompt_id=''C''"}]},
-      {"type": "function_call", "call_id": "fc_0b20c672ef3740d70169fb7d1618f081a2a60d46ad1354f32b",
+    body: '{"include": ["reasoning.encrypted_content"], "input": [{"type": "message",
+      "role": "user", "content": [{"type": "input_text", "text": "Call record_tool
+      with prompt_id=''C''"}]}, {"type": "function_call", "call_id": "fc_0b20c672ef3740d70169fb7d1618f081a2a60d46ad1354f32b",
       "name": "record_tool", "arguments": "{\"prompt_id\":\"C\"}"}, {"type": "function_call_output",
       "call_id": "fc_0b20c672ef3740d70169fb7d1618f081a2a60d46ad1354f32b", "output":
       "Executed for C"}], "model": "gpt-5.4", "store": false, "stream": false, "tools":
@@ -432,35 +439,36 @@ interactions:
     uri: https://api.openai.com/v1/responses
   response:
     body:
-      string: "{\n  \"id\": \"resp_082a3a5e3163c6d00169fb7d176620819e84da511c8c414e19\",\n
-        \ \"object\": \"response\",\n  \"created_at\": 1778089239,\n  \"status\":
-        \"completed\",\n  \"background\": false,\n  \"billing\": {\n    \"payer\":
-        \"developer\"\n  },\n  \"completed_at\": 1778089239,\n  \"error\": null,\n
-        \ \"frequency_penalty\": 0.0,\n  \"incomplete_details\": null,\n  \"instructions\":
-        null,\n  \"max_output_tokens\": null,\n  \"max_tool_calls\": null,\n  \"model\":
-        \"gpt-5.4-2026-03-05\",\n  \"moderation\": null,\n  \"output\": [\n    {\n
-        \     \"id\": \"msg_082a3a5e3163c6d00169fb7d17c358819ead8b39876d196e51\",\n
-        \     \"type\": \"message\",\n      \"status\": \"completed\",\n      \"content\":
-        [\n        {\n          \"type\": \"output_text\",\n          \"annotations\":
-        [],\n          \"logprobs\": [],\n          \"text\": \"Done.\"\n        }\n
-        \     ],\n      \"phase\": \"final_answer\",\n      \"role\": \"assistant\"\n
-        \   }\n  ],\n  \"parallel_tool_calls\": true,\n  \"presence_penalty\": 0.0,\n
-        \ \"previous_response_id\": null,\n  \"prompt_cache_key\": null,\n  \"prompt_cache_retention\":
-        \"in_memory\",\n  \"reasoning\": {\n    \"effort\": \"none\",\n    \"summary\":
-        null\n  },\n  \"safety_identifier\": null,\n  \"service_tier\": \"default\",\n
-        \ \"store\": false,\n  \"temperature\": 1.0,\n  \"text\": {\n    \"format\":
-        {\n      \"type\": \"text\"\n    },\n    \"verbosity\": \"medium\"\n  },\n
-        \ \"tool_choice\": \"auto\",\n  \"tools\": [\n    {\n      \"type\": \"function\",\n
-        \     \"description\": \"Records which prompt's tool executed.\",\n      \"name\":
-        \"record_tool\",\n      \"parameters\": {\n        \"properties\": {\n          \"prompt_id\":
-        {\n            \"type\": \"string\"\n          }\n        },\n        \"required\":
-        [\n          \"prompt_id\"\n        ],\n        \"type\": \"object\",\n        \"additionalProperties\":
-        false\n      },\n      \"strict\": true\n    }\n  ],\n  \"top_logprobs\":
-        0,\n  \"top_p\": 0.98,\n  \"truncation\": \"disabled\",\n  \"usage\": {\n
-        \   \"input_tokens\": 86,\n    \"input_tokens_details\": {\n      \"cached_tokens\":
-        0\n    },\n    \"output_tokens\": 6,\n    \"output_tokens_details\": {\n      \"reasoning_tokens\":
-        0\n    },\n    \"total_tokens\": 92\n  },\n  \"user\": null,\n  \"metadata\":
-        {}\n}"
+      string: "{\n  \"id\": \"resp_082a3a5e3163c6d00169fb7d176620819e84da511c8c414e19\"\
+        ,\n  \"object\": \"response\",\n  \"created_at\": 1778089239,\n  \"status\"\
+        : \"completed\",\n  \"background\": false,\n  \"billing\": {\n    \"payer\"\
+        : \"developer\"\n  },\n  \"completed_at\": 1778089239,\n  \"error\": null,\n\
+        \  \"frequency_penalty\": 0.0,\n  \"incomplete_details\": null,\n  \"instructions\"\
+        : null,\n  \"max_output_tokens\": null,\n  \"max_tool_calls\": null,\n  \"\
+        model\": \"gpt-5.4-2026-03-05\",\n  \"moderation\": null,\n  \"output\": [\n\
+        \    {\n      \"id\": \"msg_082a3a5e3163c6d00169fb7d17c358819ead8b39876d196e51\"\
+        ,\n      \"type\": \"message\",\n      \"status\": \"completed\",\n      \"\
+        content\": [\n        {\n          \"type\": \"output_text\",\n          \"\
+        annotations\": [],\n          \"logprobs\": [],\n          \"text\": \"Done.\"\
+        \n        }\n      ],\n      \"phase\": \"final_answer\",\n      \"role\"\
+        : \"assistant\"\n    }\n  ],\n  \"parallel_tool_calls\": true,\n  \"presence_penalty\"\
+        : 0.0,\n  \"previous_response_id\": null,\n  \"prompt_cache_key\": null,\n\
+        \  \"prompt_cache_retention\": \"in_memory\",\n  \"reasoning\": {\n    \"\
+        effort\": \"none\",\n    \"summary\": null\n  },\n  \"safety_identifier\"\
+        : null,\n  \"service_tier\": \"default\",\n  \"store\": false,\n  \"temperature\"\
+        : 1.0,\n  \"text\": {\n    \"format\": {\n      \"type\": \"text\"\n    },\n\
+        \    \"verbosity\": \"medium\"\n  },\n  \"tool_choice\": \"auto\",\n  \"tools\"\
+        : [\n    {\n      \"type\": \"function\",\n      \"description\": \"Records\
+        \ which prompt's tool executed.\",\n      \"name\": \"record_tool\",\n   \
+        \   \"parameters\": {\n        \"properties\": {\n          \"prompt_id\"\
+        : {\n            \"type\": \"string\"\n          }\n        },\n        \"\
+        required\": [\n          \"prompt_id\"\n        ],\n        \"type\": \"object\"\
+        ,\n        \"additionalProperties\": false\n      },\n      \"strict\": true\n\
+        \    }\n  ],\n  \"top_logprobs\": 0,\n  \"top_p\": 0.98,\n  \"truncation\"\
+        : \"disabled\",\n  \"usage\": {\n    \"input_tokens\": 86,\n    \"input_tokens_details\"\
+        : {\n      \"cached_tokens\": 0\n    },\n    \"output_tokens\": 6,\n    \"\
+        output_tokens_details\": {\n      \"reasoning_tokens\": 0\n    },\n    \"\
+        total_tokens\": 92\n  },\n  \"user\": null,\n  \"metadata\": {}\n}"
     headers:
       CF-Cache-Status:
       - DYNAMIC
@@ -504,9 +512,9 @@ interactions:
       code: 200
       message: OK
 - request:
-    body: '{"include": ["reasoning.encrypted_content"], "input": [{"role": "user",
-      "content": [{"type": "input_text", "text": "Call record_tool with prompt_id=''B''"}]},
-      {"type": "function_call", "call_id": "fc_04a5429b6b429c0b0169fb7d167c1881a293cab02f2159cb98",
+    body: '{"include": ["reasoning.encrypted_content"], "input": [{"type": "message",
+      "role": "user", "content": [{"type": "input_text", "text": "Call record_tool
+      with prompt_id=''B''"}]}, {"type": "function_call", "call_id": "fc_04a5429b6b429c0b0169fb7d167c1881a293cab02f2159cb98",
       "name": "record_tool", "arguments": "{\"prompt_id\":\"B\"}"}, {"type": "function_call_output",
       "call_id": "fc_04a5429b6b429c0b0169fb7d167c1881a293cab02f2159cb98", "output":
       "Executed for B"}], "model": "gpt-5.4", "store": false, "stream": false, "tools":
@@ -537,35 +545,36 @@ interactions:
     uri: https://api.openai.com/v1/responses
   response:
     body:
-      string: "{\n  \"id\": \"resp_0e9705df976312ff0169fb7d1855bc819fb99e57e114dea8d5\",\n
-        \ \"object\": \"response\",\n  \"created_at\": 1778089240,\n  \"status\":
-        \"completed\",\n  \"background\": false,\n  \"billing\": {\n    \"payer\":
-        \"developer\"\n  },\n  \"completed_at\": 1778089241,\n  \"error\": null,\n
-        \ \"frequency_penalty\": 0.0,\n  \"incomplete_details\": null,\n  \"instructions\":
-        null,\n  \"max_output_tokens\": null,\n  \"max_tool_calls\": null,\n  \"model\":
-        \"gpt-5.4-2026-03-05\",\n  \"moderation\": null,\n  \"output\": [\n    {\n
-        \     \"id\": \"msg_0e9705df976312ff0169fb7d18ce24819fb768c2abde2c9f08\",\n
-        \     \"type\": \"message\",\n      \"status\": \"completed\",\n      \"content\":
-        [\n        {\n          \"type\": \"output_text\",\n          \"annotations\":
-        [],\n          \"logprobs\": [],\n          \"text\": \"Done.\"\n        }\n
-        \     ],\n      \"phase\": \"final_answer\",\n      \"role\": \"assistant\"\n
-        \   }\n  ],\n  \"parallel_tool_calls\": true,\n  \"presence_penalty\": 0.0,\n
-        \ \"previous_response_id\": null,\n  \"prompt_cache_key\": null,\n  \"prompt_cache_retention\":
-        \"in_memory\",\n  \"reasoning\": {\n    \"effort\": \"none\",\n    \"summary\":
-        null\n  },\n  \"safety_identifier\": null,\n  \"service_tier\": \"default\",\n
-        \ \"store\": false,\n  \"temperature\": 1.0,\n  \"text\": {\n    \"format\":
-        {\n      \"type\": \"text\"\n    },\n    \"verbosity\": \"medium\"\n  },\n
-        \ \"tool_choice\": \"auto\",\n  \"tools\": [\n    {\n      \"type\": \"function\",\n
-        \     \"description\": \"Records which prompt's tool executed.\",\n      \"name\":
-        \"record_tool\",\n      \"parameters\": {\n        \"properties\": {\n          \"prompt_id\":
-        {\n            \"type\": \"string\"\n          }\n        },\n        \"required\":
-        [\n          \"prompt_id\"\n        ],\n        \"type\": \"object\",\n        \"additionalProperties\":
-        false\n      },\n      \"strict\": true\n    }\n  ],\n  \"top_logprobs\":
-        0,\n  \"top_p\": 0.98,\n  \"truncation\": \"disabled\",\n  \"usage\": {\n
-        \   \"input_tokens\": 86,\n    \"input_tokens_details\": {\n      \"cached_tokens\":
-        0\n    },\n    \"output_tokens\": 6,\n    \"output_tokens_details\": {\n      \"reasoning_tokens\":
-        0\n    },\n    \"total_tokens\": 92\n  },\n  \"user\": null,\n  \"metadata\":
-        {}\n}"
+      string: "{\n  \"id\": \"resp_0e9705df976312ff0169fb7d1855bc819fb99e57e114dea8d5\"\
+        ,\n  \"object\": \"response\",\n  \"created_at\": 1778089240,\n  \"status\"\
+        : \"completed\",\n  \"background\": false,\n  \"billing\": {\n    \"payer\"\
+        : \"developer\"\n  },\n  \"completed_at\": 1778089241,\n  \"error\": null,\n\
+        \  \"frequency_penalty\": 0.0,\n  \"incomplete_details\": null,\n  \"instructions\"\
+        : null,\n  \"max_output_tokens\": null,\n  \"max_tool_calls\": null,\n  \"\
+        model\": \"gpt-5.4-2026-03-05\",\n  \"moderation\": null,\n  \"output\": [\n\
+        \    {\n      \"id\": \"msg_0e9705df976312ff0169fb7d18ce24819fb768c2abde2c9f08\"\
+        ,\n      \"type\": \"message\",\n      \"status\": \"completed\",\n      \"\
+        content\": [\n        {\n          \"type\": \"output_text\",\n          \"\
+        annotations\": [],\n          \"logprobs\": [],\n          \"text\": \"Done.\"\
+        \n        }\n      ],\n      \"phase\": \"final_answer\",\n      \"role\"\
+        : \"assistant\"\n    }\n  ],\n  \"parallel_tool_calls\": true,\n  \"presence_penalty\"\
+        : 0.0,\n  \"previous_response_id\": null,\n  \"prompt_cache_key\": null,\n\
+        \  \"prompt_cache_retention\": \"in_memory\",\n  \"reasoning\": {\n    \"\
+        effort\": \"none\",\n    \"summary\": null\n  },\n  \"safety_identifier\"\
+        : null,\n  \"service_tier\": \"default\",\n  \"store\": false,\n  \"temperature\"\
+        : 1.0,\n  \"text\": {\n    \"format\": {\n      \"type\": \"text\"\n    },\n\
+        \    \"verbosity\": \"medium\"\n  },\n  \"tool_choice\": \"auto\",\n  \"tools\"\
+        : [\n    {\n      \"type\": \"function\",\n      \"description\": \"Records\
+        \ which prompt's tool executed.\",\n      \"name\": \"record_tool\",\n   \
+        \   \"parameters\": {\n        \"properties\": {\n          \"prompt_id\"\
+        : {\n            \"type\": \"string\"\n          }\n        },\n        \"\
+        required\": [\n          \"prompt_id\"\n        ],\n        \"type\": \"object\"\
+        ,\n        \"additionalProperties\": false\n      },\n      \"strict\": true\n\
+        \    }\n  ],\n  \"top_logprobs\": 0,\n  \"top_p\": 0.98,\n  \"truncation\"\
+        : \"disabled\",\n  \"usage\": {\n    \"input_tokens\": 86,\n    \"input_tokens_details\"\
+        : {\n      \"cached_tokens\": 0\n    },\n    \"output_tokens\": 6,\n    \"\
+        output_tokens_details\": {\n      \"reasoning_tokens\": 0\n    },\n    \"\
+        total_tokens\": 92\n  },\n  \"user\": null,\n  \"metadata\": {}\n}"
     headers:
       CF-Cache-Status:
       - DYNAMIC
