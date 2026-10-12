@@ -12,7 +12,7 @@ Not all providers support PDF input, so check the documentation for the provider
 
 | Name | Type | Description | Default |
 |----|----|----|----|
-| url | [str](https://docs.python.org/3/library/stdtypes.html#str) | A URL to a remote PDF file. | *required* |
+| url | [str](https://docs.python.org/3/builtins/stdtypes.html#str) | A URL to a remote PDF file. | *required* |
 
 ## Returns
 
@@ -24,4 +24,4 @@ Not all providers support PDF input, so check the documentation for the provider
 
 | Name | Type | Description |
 |----|----|----|
-|  | [ValueError](https://docs.python.org/3/library/exceptions.html#ValueError) | If the URL is not valid, or if it’s a `data:` URL with an unsupported content type. |
+|  | [ValueError](https://docs.python.org/3/builtins/exceptions.html#ValueError) | If the URL is not valid, or if it’s a `data:` URL with an unsupported content type. |

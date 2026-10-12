@@ -80,7 +80,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="../site_libs/quarto-html/quarto-syntax-highlighting-8f68c619070a9997a612f17db9fc177b.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-d371f0ab0b9878dc2c083d135a92b822.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-dbb44467009f5f46961876d98a9e1bd1.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -784,6 +784,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
+  <a href="../reference/types.SupportsContent.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">types.SupportsContent</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
   <a href="../reference/types.TokenUsage.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">types.TokenUsage</span></a>
   </div>
@@ -848,7 +854,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h1>FileManager</h1>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>FileManager(provider)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Manage files hosted by a chat’s provider. Accessed via <code>chat.files</code>.</p>
-<p>Upload a file once with <code>.upload()</code>, then pass the returned <code>ContentUploaded</code> to <code>.chat()</code> (and other chat methods) like any other content, instead of re-sending the file’s bytes on every turn.</p>
+<p>Upload a file once with <code>.upload()</code>, then pass the returned reference to <code>.chat()</code> (and other chat methods) like any other content, instead of re-sending the file’s bytes on every turn. To reuse a file uploaded in an earlier session, pass the result of <code>.get()</code> to <code>.chat()</code> the same way.</p>
 <p>Supported for <code>ChatOpenAI()</code> (the Responses API), <code>ChatAnthropic()</code>, and <code>ChatGoogle()</code> (the Gemini Developer API). Every other provider – including <code>ChatOpenAICompletions()</code>, OpenAI-compatible third parties (<code>ChatGroq()</code>, <code>ChatMistral()</code>, <code>ChatOllama()</code>, etc.), <code>ChatAzureOpenAI()</code>, <code>ChatBedrockAnthropic()</code>, <code>ChatPosit()</code>, and Vertex-backed chats (<code>ChatVertex()</code>, or <code>ChatGoogle()</code> configured for Vertex) – raises <code>NotImplementedError</code> from every method here.</p>
 <section id="notes" class="level2 doc-section doc-section-notes">
 <h2 class="doc-section doc-section-notes anchored" data-anchor-id="notes">Notes</h2>
@@ -928,7 +934,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tbody>
 <tr class="odd">
 <td>id</td>
-<td><a href="https://docs.python.org/3/library/stdtypes.html#str">str</a></td>
+<td><a href="https://docs.python.org/3/builtins/stdtypes.html#str">str</a></td>
 <td>The provider-assigned file id (e.g., <code>ContentUploaded.id</code>).</td>
 <td><em>required</em></td>
 </tr>
@@ -976,7 +982,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tbody>
 <tr class="odd">
 <td>id</td>
-<td><a href="https://docs.python.org/3/library/stdtypes.html#str">str</a></td>
+<td><a href="https://docs.python.org/3/builtins/stdtypes.html#str">str</a></td>
 <td>The provider-assigned file id (e.g., <code>ContentUploaded.id</code>).</td>
 <td><em>required</em></td>
 </tr>
@@ -997,7 +1003,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tr class="odd">
 <td></td>
 <td><a href="https://posit-dev.github.io/chatlas/reference/types.FileMetadata.html#chatlas.types.FileMetadata">FileMetadata</a></td>
-<td>Metadata for the file.</td>
+<td>Metadata for the file, which can be passed straight to <code>.chat()</code> (and other chat methods) to reference the file in a turn – e.g.&nbsp;to reuse a file uploaded in an earlier session: <code>python report = chat.files.get("file_011CRabc...") chat.chat("Summarize the key findings.", report)</code></td>
 </tr>
 </tbody>
 </table>
@@ -1059,13 +1065,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tbody>
 <tr class="odd">
 <td>file</td>
-<td><a href="https://docs.python.org/3/library/stdtypes.html#str">str</a> | <a href="https://docs.python.org/3/library/os.html#module-os">os</a>.<a href="https://docs.python.org/3/library/os.html#os.PathLike">PathLike</a>[<a href="https://docs.python.org/3/library/stdtypes.html#str">str</a>] | <a href="https://docs.python.org/3/library/typing.html#typing.IO">IO</a>[<a href="https://docs.python.org/3/library/stdtypes.html#bytes">bytes</a>]</td>
+<td><a href="https://docs.python.org/3/builtins/stdtypes.html#str">str</a> | <a href="https://docs.python.org/3/library/os.html#module-os">os</a>.<a href="https://docs.python.org/3/library/os.html#os.PathLike">PathLike</a>[<a href="https://docs.python.org/3/builtins/stdtypes.html#str">str</a>] | <a href="https://docs.python.org/3/library/typing.html#typing.IO">IO</a>[<a href="https://docs.python.org/3/builtins/stdtypes.html#bytes">bytes</a>]</td>
 <td>A path to a file, or a binary file-like object, to upload.</td>
 <td><em>required</em></td>
 </tr>
 <tr class="even">
 <td>mime_type</td>
-<td><a href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>[<a href="https://docs.python.org/3/library/stdtypes.html#str">str</a>]</td>
+<td><a href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>[<a href="https://docs.python.org/3/builtins/stdtypes.html#str">str</a>]</td>
 <td>The file’s MIME type. If not provided, it’s guessed from <code>file</code>.</td>
 <td><code>None</code></td>
 </tr>

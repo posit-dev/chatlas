@@ -12,8 +12,8 @@ Use this for plain text, Markdown, CSV, code, and other non-PDF documents hosted
 
 | Name | Type | Description | Default |
 |----|----|----|----|
-| url | [str](https://docs.python.org/3/library/stdtypes.html#str) | A URL to a remote file, or a `data:` URL carrying the document inline. | *required* |
-| mime_type | [Literal](https://docs.python.org/3/library/typing.html#typing.Literal)\['auto'\] \| [str](https://docs.python.org/3/library/stdtypes.html#str) | The document’s MIME type. If `"auto"`, it’s guessed from the URL’s file extension, falling back to `"text/plain"`. `data:` URLs always use the type declared in the URL itself. | `'auto'` |
+| url | [str](https://docs.python.org/3/builtins/stdtypes.html#str) | A URL to a remote file, or a `data:` URL carrying the document inline. | *required* |
+| mime_type | [Literal](https://docs.python.org/3/library/typing.html#typing.Literal)\['auto'\] \| [str](https://docs.python.org/3/builtins/stdtypes.html#str) | The document’s MIME type. If `"auto"`, it’s guessed from the URL’s file extension, falling back to `"text/plain"`. `data:` URLs always use the type declared in the URL itself. | `'auto'` |
 
 ## Returns
 
@@ -25,4 +25,4 @@ Use this for plain text, Markdown, CSV, code, and other non-PDF documents hosted
 
 | Name | Type | Description |
 |----|----|----|
-|  | [ValueError](https://docs.python.org/3/library/exceptions.html#ValueError) | If the URL points to a PDF (use `content_pdf_url()` instead), or is a malformed `data:` URL. |
+|  | [ValueError](https://docs.python.org/3/builtins/exceptions.html#ValueError) | If the URL points to a PDF (use `content_pdf_url()` instead), or is a malformed `data:` URL. |

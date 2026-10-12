@@ -80,7 +80,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="../site_libs/quarto-html/quarto-syntax-highlighting-8f68c619070a9997a612f17db9fc177b.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-d371f0ab0b9878dc2c083d135a92b822.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-dbb44467009f5f46961876d98a9e1bd1.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -784,6 +784,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
+  <a href="../reference/types.SupportsContent.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">types.SupportsContent</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
   <a href="../reference/types.TokenUsage.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">types.TokenUsage</span></a>
   </div>
@@ -864,19 +870,19 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tbody>
 <tr class="odd">
 <td>contents</td>
-<td><a href="https://docs.python.org/3/library/stdtypes.html#str">str</a> | <a href="https://docs.python.org/3/library/typing.html#typing.Sequence">Sequence</a>[<a href="https://posit-dev.github.io/chatlas/reference/types.Content.html#chatlas.types.Content">Content</a> | <a href="https://docs.python.org/3/library/stdtypes.html#str">str</a>]</td>
+<td><a href="https://docs.python.org/3/builtins/stdtypes.html#str">str</a> | <a href="https://docs.python.org/3/library/typing.html#typing.Sequence">Sequence</a>[<code>ContentInput</code>]</td>
 <td>A list of <a href="https://posit-dev.github.io/chatlas/reference/types.Content.html#chatlas.types.Content"><code>Content</code></a> objects.</td>
 <td><em>required</em></td>
 </tr>
 <tr class="even">
 <td>tokens</td>
-<td><a href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>[<a href="https://docs.python.org/3/library/stdtypes.html#tuple">tuple</a>[<a href="https://docs.python.org/3/library/functions.html#int">int</a>, <a href="https://docs.python.org/3/library/functions.html#int">int</a>, <a href="https://docs.python.org/3/library/functions.html#int">int</a>] | <a href="https://docs.python.org/3/library/stdtypes.html#list">list</a>[<a href="https://docs.python.org/3/library/functions.html#int">int</a>]]</td>
+<td><a href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>[<a href="https://docs.python.org/3/builtins/stdtypes.html#tuple">tuple</a>[<a href="https://docs.python.org/3/builtins/functions.html#int">int</a>, <a href="https://docs.python.org/3/builtins/functions.html#int">int</a>, <a href="https://docs.python.org/3/builtins/functions.html#int">int</a>] | <a href="https://docs.python.org/3/builtins/stdtypes.html#list">list</a>[<a href="https://docs.python.org/3/builtins/functions.html#int">int</a>]]</td>
 <td>A numeric vector of length 3 representing the number of input, output, and cached tokens (respectively) used in this turn.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="odd">
 <td>finish_reason</td>
-<td><a href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>[<code>FinishReason</code> | <a href="https://docs.python.org/3/library/stdtypes.html#str">str</a>]</td>
+<td><a href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>[<code>FinishReason</code> | <a href="https://docs.python.org/3/builtins/stdtypes.html#str">str</a>]</td>
 <td>The (normalized) reason why the turn ended, e.g.&nbsp;<code>"success"</code>, <code>"tool_use"</code>, <code>"max_tokens"</code>, <code>"content_filter"</code>, <code>"context_window"</code>, or <code>"stop_sequence"</code>. Providers may also surface a reason chatlas doesn’t yet recognize, in which case the raw string is passed through unchanged.</td>
 <td><code>None</code></td>
 </tr>
@@ -888,13 +894,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </tr>
 <tr class="odd">
 <td>cost</td>
-<td><a href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>[<a href="https://docs.python.org/3/library/functions.html#float">float</a>]</td>
+<td><a href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>[<a href="https://docs.python.org/3/builtins/functions.html#float">float</a>]</td>
 <td>The cost of this turn in USD. This is computed when the turn is created based on the token usage and pricing information (including service tier).</td>
 <td><code>None</code></td>
 </tr>
 <tr class="even">
 <td>partial_reason</td>
-<td><a href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>[<a href="https://docs.python.org/3/library/stdtypes.html#str">str</a>]</td>
+<td><a href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>[<a href="https://docs.python.org/3/builtins/stdtypes.html#str">str</a>]</td>
 <td>If set, indicates this turn is incomplete (e.g., the stream was interrupted or cancelled). The value describes the reason for the partial state.</td>
 <td><code>None</code></td>
 </tr>

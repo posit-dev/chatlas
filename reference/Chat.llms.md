@@ -14,6 +14,7 @@ You should generally not create this object yourself, but instead call [`ChatOpe
 
 | Name | Description |
 |----|----|
+| [conversation_id](#chatlas.Chat.conversation_id) | A property to get (or set) an identifier for the current conversation. |
 | [current_display](#chatlas.Chat.current_display) | Get the currently active markdown display, if any. |
 | [files](#chatlas.Chat.files) | Manage files hosted by this chat’s provider. |
 | [model](#chatlas.Chat.model) | A property to get (or set) the model used by the chat. |
@@ -30,6 +31,8 @@ You should generally not create this object yourself, but instead call [`ChatOpe
 | [chat_structured](#chatlas.Chat.chat_structured) | Extract structured data. |
 | [chat_structured_async](#chatlas.Chat.chat_structured_async) | Extract structured data from the given input asynchronously. |
 | [cleanup_mcp_tools](#chatlas.Chat.cleanup_mcp_tools) | Close MCP server connections (and their corresponding tools). |
+| [close](#chatlas.Chat.close) | Release resources held by this chat’s provider (e.g., HTTP connection |
+| [close_async](#chatlas.Chat.close_async) | Asynchronous variant of `close()`. |
 | [console](#chatlas.Chat.console) | Enter a chat console to interact with the LLM. |
 | [export](#chatlas.Chat.export) | Export the chat history to a file. |
 | [export_eval](#chatlas.Chat.export_eval) | Creates an Inspect AI eval dataset sample from the current chat. |
@@ -92,12 +95,12 @@ Enter a web-based chat app to interact with the LLM.
 
 | Name | Type | Description | Default |
 |----|----|----|----|
-| stream | [bool](https://docs.python.org/3/library/functions.html#bool) | Whether to stream the response (i.e., have the response appear in chunks). | `True` |
-| port | [int](https://docs.python.org/3/library/functions.html#int) | The port to run the app on (the default is 0, which will choose a random port). | `0` |
-| host | [str](https://docs.python.org/3/library/stdtypes.html#str) | The host to run the app on (the default is “127.0.0.1”). | `'127.0.0.1'` |
-| launch_browser | [bool](https://docs.python.org/3/library/functions.html#bool) | Whether to launch a browser window. | `True` |
+| stream | [bool](https://docs.python.org/3/builtins/functions.html#bool) | Whether to stream the response (i.e., have the response appear in chunks). | `True` |
+| port | [int](https://docs.python.org/3/builtins/functions.html#int) | The port to run the app on (the default is 0, which will choose a random port). | `0` |
+| host | [str](https://docs.python.org/3/builtins/stdtypes.html#str) | The host to run the app on (the default is “127.0.0.1”). | `'127.0.0.1'` |
+| launch_browser | [bool](https://docs.python.org/3/builtins/functions.html#bool) | Whether to launch a browser window. | `True` |
 | bookmark_store | [Literal](https://docs.python.org/3/library/typing.html#typing.Literal)\['url', 'server', 'disable'\] | One of the following (default is “url”): - `"url"`: Store bookmarks in the URL (default). - `"server"`: Store bookmarks on the server (requires a server-side storage backend). - `"disable"`: Disable bookmarking. | `'url'` |
-| bg_thread | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\[[bool](https://docs.python.org/3/library/functions.html#bool)\] | Whether to run the app in a background thread. If `None`, the app will run in a background thread if the current environment is a notebook. | `None` |
+| bg_thread | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\[[bool](https://docs.python.org/3/builtins/functions.html#bool)\] | Whether to run the app in a background thread. If `None`, the app will run in a background thread if the current environment is a notebook. | `None` |
 | echo | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\[`EchoOptions`\] | One of the following (defaults to `"none"` when `stream=True` and `"text"` when `stream=False`): - `"text"`: Echo just the text content of the response. - `"output"`: Echo text and tool call content. - `"all"`: Echo both the assistant and user turn. - `"none"`: Do not echo any content. | `None` |
 | content | [Literal](https://docs.python.org/3/library/typing.html#typing.Literal)\['text', 'all'\] | Whether to display text content or all content (i.e., tool calls). | `'all'` |
 | kwargs | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\[[SubmitInputArgsT](https://posit-dev.github.io/chatlas/reference/types.SubmitInputArgsT.html#chatlas.types.SubmitInputArgsT)\] | Additional keyword arguments to pass to the method used for requesting the response. | `None` |
@@ -114,9 +117,9 @@ Generate a response from the chat.
 
 | Name | Type | Description | Default |
 |----|----|----|----|
-| args | [Content](https://posit-dev.github.io/chatlas/reference/types.Content.html#chatlas.types.Content) \| [str](https://docs.python.org/3/library/stdtypes.html#str) | The user input(s) to generate a response from. | `()` |
+| args | `ContentInput` | The user input(s) to generate a response from. Each may be a string, a `Content` object, or any object implementing `.to_content()` (e.g. `FileMetadata` from `chat.files.get()`). | `()` |
 | echo | `EchoOptions` | One of the following (default is “output”): - `"text"`: Echo just the text content of the response. - `"output"`: Echo text and tool call content. - `"all"`: Echo both the assistant and user turn. - `"none"`: Do not echo any content. | `'output'` |
-| stream | [bool](https://docs.python.org/3/library/functions.html#bool) | Whether to stream the response (i.e., have the response appear in chunks). | `True` |
+| stream | [bool](https://docs.python.org/3/builtins/functions.html#bool) | Whether to stream the response (i.e., have the response appear in chunks). | `True` |
 | kwargs | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\[[SubmitInputArgsT](https://posit-dev.github.io/chatlas/reference/types.SubmitInputArgsT.html#chatlas.types.SubmitInputArgsT)\] | Additional keyword arguments to pass to the method used for requesting the response. | `None` |
 
 #### Returns
@@ -137,9 +140,9 @@ Generate a response from the chat asynchronously.
 
 | Name | Type | Description | Default |
 |----|----|----|----|
-| args | [Content](https://posit-dev.github.io/chatlas/reference/types.Content.html#chatlas.types.Content) \| [str](https://docs.python.org/3/library/stdtypes.html#str) | The user input(s) to generate a response from. | `()` |
+| args | `ContentInput` | The user input(s) to generate a response from. Each may be a string, a `Content` object, or any object implementing `.to_content()` (e.g. `FileMetadata` from `chat.files.get()`). | `()` |
 | echo | `EchoOptions` | One of the following (default is “output”): - `"text"`: Echo just the text content of the response. - `"output"`: Echo text and tool call content. - `"all"`: Echo both the assistant and user turn. - `"none"`: Do not echo any content. | `'output'` |
-| stream | [bool](https://docs.python.org/3/library/functions.html#bool) | Whether to stream the response (i.e., have the response appear in chunks). | `True` |
+| stream | [bool](https://docs.python.org/3/builtins/functions.html#bool) | Whether to stream the response (i.e., have the response appear in chunks). | `True` |
 | kwargs | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\[[SubmitInputArgsT](https://posit-dev.github.io/chatlas/reference/types.SubmitInputArgsT.html#chatlas.types.SubmitInputArgsT)\] | Additional keyword arguments to pass to the method used for requesting the response. | `None` |
 
 #### Returns
@@ -160,10 +163,10 @@ Extract structured data.
 
 | Name | Type | Description | Default |
 |----|----|----|----|
-| args | [Content](https://posit-dev.github.io/chatlas/reference/types.Content.html#chatlas.types.Content) \| [str](https://docs.python.org/3/library/stdtypes.html#str) | The input to send to the chatbot. This is typically the text you want to extract data from, but it can be omitted if the data is obvious from the existing conversation. | `()` |
-| data_model | [type](https://docs.python.org/3/library/functions.html#type)\[`BaseModelT`\] | A Pydantic model describing the structure of the data to extract. | *required* |
+| args | `ContentInput` | The input to send to the chatbot. This is typically the text you want to extract data from, but it can be omitted if the data is obvious from the existing conversation. | `()` |
+| data_model | [type](https://docs.python.org/3/builtins/functions.html#type)\[`BaseModelT`\] | A Pydantic model describing the structure of the data to extract. | *required* |
 | echo | `EchoOptions` | One of the following (default is “none”): - `"text"`: Echo just the text content of the response. - `"output"`: Echo text and tool call content. - `"all"`: Echo both the assistant and user turn. - `"none"`: Do not echo any content. | `'none'` |
-| stream | [bool](https://docs.python.org/3/library/functions.html#bool) | Whether to stream the response (i.e., have the response appear in chunks). | `False` |
+| stream | [bool](https://docs.python.org/3/builtins/functions.html#bool) | Whether to stream the response (i.e., have the response appear in chunks). | `False` |
 | kwargs | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\[[SubmitInputArgsT](https://posit-dev.github.io/chatlas/reference/types.SubmitInputArgsT.html#chatlas.types.SubmitInputArgsT)\] | Additional keyword arguments to pass to the method used for requesting the response. | `None` |
 
 #### Returns
@@ -190,10 +193,10 @@ Extract structured data from the given input asynchronously.
 
 | Name | Type | Description | Default |
 |----|----|----|----|
-| args | [Content](https://posit-dev.github.io/chatlas/reference/types.Content.html#chatlas.types.Content) \| [str](https://docs.python.org/3/library/stdtypes.html#str) | The input to send to the chatbot. This is typically the text you want to extract data from, but it can be omitted if the data is obvious from the existing conversation. | `()` |
-| data_model | [type](https://docs.python.org/3/library/functions.html#type)\[`BaseModelT`\] | A Pydantic model describing the structure of the data to extract. | *required* |
+| args | `ContentInput` | The input to send to the chatbot. This is typically the text you want to extract data from, but it can be omitted if the data is obvious from the existing conversation. | `()` |
+| data_model | [type](https://docs.python.org/3/builtins/functions.html#type)\[`BaseModelT`\] | A Pydantic model describing the structure of the data to extract. | *required* |
 | echo | `EchoOptions` | One of the following (default is “none”): - `"text"`: Echo just the text content of the response. - `"output"`: Echo text and tool call content. - `"all"`: Echo both the assistant and user turn. - `"none"`: Do not echo any content. | `'none'` |
-| stream | [bool](https://docs.python.org/3/library/functions.html#bool) | Whether to stream the response (i.e., have the response appear in chunks). Defaults to `True` if `echo` is not “none”. | `False` |
+| stream | [bool](https://docs.python.org/3/builtins/functions.html#bool) | Whether to stream the response (i.e., have the response appear in chunks). Defaults to `True` if `echo` is not “none”. | `False` |
 | kwargs | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\[[SubmitInputArgsT](https://posit-dev.github.io/chatlas/reference/types.SubmitInputArgsT.html#chatlas.types.SubmitInputArgsT)\] | Additional keyword arguments to pass to the method used for requesting the response. | `None` |
 
 #### Returns
@@ -216,13 +219,46 @@ This method closes the MCP client sessions and removes the tools registered from
 
 | Name | Type | Description | Default |
 |----|----|----|----|
-| names | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\[[Sequence](https://docs.python.org/3/library/typing.html#typing.Sequence)\[[str](https://docs.python.org/3/library/stdtypes.html#str)\]\] | If provided, only clean up the tools and session associated with these names. If not provided, clean up all registered MCP tools and sessions. | `None` |
+| names | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\[[Sequence](https://docs.python.org/3/library/typing.html#typing.Sequence)\[[str](https://docs.python.org/3/builtins/stdtypes.html#str)\]\] | If provided, only clean up the tools and session associated with these names. If not provided, clean up all registered MCP tools and sessions. | `None` |
 
 #### Returns
 
 | Name | Type | Description |
 |------|------|-------------|
 |      | None |             |
+
+### close
+
+``` python
+Chat.close()
+```
+
+Release resources held by this chat’s provider (e.g., HTTP connection pools, database sessions).
+
+This is useful in long-lived applications (e.g., Shiny, FastAPI) that create a `Chat` per session and need to release resources when the session ends. Note that MCP server sessions can only be closed asynchronously – use `close_async()` if MCP tools are registered.
+
+Safe to call multiple times. Providers only close resources they created themselves; clients or connections supplied by the caller are left open. Emits a warning if MCP server sessions are still open, since those can only be closed asynchronously.
+
+#### Examples
+
+In a Shiny app, close the chat when the session ends:
+
+``` python
+from chatlas import ChatSnowflake
+
+chat = ChatSnowflake(model="llama3.1-70b")
+session.on_ended(chat.close)
+```
+
+### close_async
+
+``` python
+Chat.close_async()
+```
+
+Asynchronous variant of `close()`.
+
+In addition to releasing the provider’s resources, this also closes any MCP server sessions registered via `register_mcp_tools_stdio_async()` or `register_mcp_tools_http_stream_async()`.
 
 ### console
 
@@ -239,7 +275,7 @@ To quit, input ‘exit’ or press Ctrl+C.
 | Name | Type | Description | Default |
 |----|----|----|----|
 | echo | `EchoOptions` | One of the following (default is “output”): - `"text"`: Echo just the text content of the response. - `"output"`: Echo text and tool call content. - `"all"`: Echo both the assistant and user turn. - `"none"`: Do not echo any content. | `'output'` |
-| stream | [bool](https://docs.python.org/3/library/functions.html#bool) | Whether to stream the response (i.e., have the response appear in chunks). | `True` |
+| stream | [bool](https://docs.python.org/3/builtins/functions.html#bool) | Whether to stream the response (i.e., have the response appear in chunks). | `True` |
 | kwargs | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\[[SubmitInputArgsT](https://posit-dev.github.io/chatlas/reference/types.SubmitInputArgsT.html#chatlas.types.SubmitInputArgsT)\] | Additional keyword arguments to pass to the method used for requesting the response | `None` |
 
 #### Returns
@@ -268,12 +304,12 @@ Export the chat history to a file.
 
 | Name | Type | Description | Default |
 |----|----|----|----|
-| filename | [str](https://docs.python.org/3/library/stdtypes.html#str) \| [Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path) | The filename to export the chat to. Currently this must be a `.md` or `.html` file. | *required* |
+| filename | [str](https://docs.python.org/3/builtins/stdtypes.html#str) \| [Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path) | The filename to export the chat to. Currently this must be a `.md` or `.html` file. | *required* |
 | turns | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\[[Sequence](https://docs.python.org/3/library/typing.html#typing.Sequence)\[[Turn](https://posit-dev.github.io/chatlas/reference/Turn.html#chatlas.Turn)\]\] | The `.get_turns()` to export. If not provided, the chat’s current turns will be used. | `None` |
-| title | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\[[str](https://docs.python.org/3/library/stdtypes.html#str)\] | A title to place at the top of the exported file. | `None` |
-| overwrite | [bool](https://docs.python.org/3/library/functions.html#bool) | Whether to overwrite the file if it already exists. | `False` |
+| title | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\[[str](https://docs.python.org/3/builtins/stdtypes.html#str)\] | A title to place at the top of the exported file. | `None` |
+| overwrite | [bool](https://docs.python.org/3/builtins/functions.html#bool) | Whether to overwrite the file if it already exists. | `False` |
 | content | [Literal](https://docs.python.org/3/library/typing.html#typing.Literal)\['text', 'all'\] | Whether to include text content, all content (i.e., tool calls), or no content. | `'text'` |
-| include_system_prompt | [bool](https://docs.python.org/3/library/functions.html#bool) | Whether to include the system prompt in a | `True` |
+| include_system_prompt | [bool](https://docs.python.org/3/builtins/functions.html#bool) | Whether to include the system prompt in a | `True` |
 
 #### Returns
 
@@ -307,10 +343,10 @@ Each call to this method appends a single Sample as a new line in the specified 
 
 | Name | Type | Description | Default |
 |----|----|----|----|
-| filename | [str](https://docs.python.org/3/library/stdtypes.html#str) \| [Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path) | The filename to export the chat to. Currently this must be a `.jsonl` file. | *required* |
-| target | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\[[str](https://docs.python.org/3/library/stdtypes.html#str)\] | The target output for the eval sample. By default, this is taken to be the content of the last assistant turn. | `None` |
-| include_system_prompt | [bool](https://docs.python.org/3/library/functions.html#bool) | Whether to include the system prompt (if any) as the first turn in the eval sample. | `True` |
-| turns | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\[[list](https://docs.python.org/3/library/stdtypes.html#list)\[[Turn](https://posit-dev.github.io/chatlas/reference/Turn.html#chatlas.Turn)\]\] | The input turns for the eval sample. By default, this is taken to be all turns except the last (assistant) turn. Note that system prompts are not allowed here, but controlled separately via the `include_system_prompt` parameter. | `None` |
+| filename | [str](https://docs.python.org/3/builtins/stdtypes.html#str) \| [Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path) | The filename to export the chat to. Currently this must be a `.jsonl` file. | *required* |
+| target | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\[[str](https://docs.python.org/3/builtins/stdtypes.html#str)\] | The target output for the eval sample. By default, this is taken to be the content of the last assistant turn. | `None` |
+| include_system_prompt | [bool](https://docs.python.org/3/builtins/functions.html#bool) | Whether to include the system prompt (if any) as the first turn in the eval sample. | `True` |
+| turns | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\[[list](https://docs.python.org/3/builtins/stdtypes.html#list)\[[Turn](https://posit-dev.github.io/chatlas/reference/Turn.html#chatlas.Turn)\]\] | The input turns for the eval sample. By default, this is taken to be all turns except the last (assistant) turn. Note that system prompts are not allowed here, but controlled separately via the `include_system_prompt` parameter. | `None` |
 | overwrite | [Literal](https://docs.python.org/3/library/typing.html#typing.Literal)\['append', True, False\] | Behavior when the file already exists: - `"append"` (default): Append to the existing file. - `True`: Overwrite the existing file. - `False`: Raise an error if the file already exists. | `'append'` |
 | kwargs | [Any](https://docs.python.org/3/library/typing.html#typing.Any) | Additional keyword arguments to pass to the `Sample()` constructor. This is primarily useful for setting an ID or metadata on the sample. | `{}` |
 
@@ -387,13 +423,13 @@ This is a rough estimate, treat it as such. Providers may change their pricing f
 | Name | Type | Description | Default |
 |----|----|----|----|
 | include | [Literal](https://docs.python.org/3/library/typing.html#typing.Literal)\['all', 'last'\] | One of the following (default is “all”): - `"all"`: Return the total cost of all turns in the chat. - `"last"`: Return the cost of the last turn in the chat. | `'all'` |
-| token_price | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\[[tuple](https://docs.python.org/3/library/stdtypes.html#tuple)\[[float](https://docs.python.org/3/library/functions.html#float), [float](https://docs.python.org/3/library/functions.html#float), [float](https://docs.python.org/3/library/functions.html#float)\]\] | An optional tuple in the format of (input_token_cost, output_token_cost, cached_token_cost) for bringing your own cost information. - `"input_token_cost"`: The cost per user token in USD per million tokens. - `"output_token_cost"`: The cost per assistant token in USD per million tokens. - `"cached_token_cost"`: The cost per cached token read in USD per million tokens. | `None` |
+| token_price | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\[[tuple](https://docs.python.org/3/builtins/stdtypes.html#tuple)\[[float](https://docs.python.org/3/builtins/functions.html#float), [float](https://docs.python.org/3/builtins/functions.html#float), [float](https://docs.python.org/3/builtins/functions.html#float)\]\] | An optional tuple in the format of (input_token_cost, output_token_cost, cached_token_cost) for bringing your own cost information. - `"input_token_cost"`: The cost per user token in USD per million tokens. - `"output_token_cost"`: The cost per assistant token in USD per million tokens. - `"cached_token_cost"`: The cost per cached token read in USD per million tokens. | `None` |
 
 #### Returns
 
 | Name | Type | Description |
 |----|----|----|
-|  | [float](https://docs.python.org/3/library/functions.html#float) | The cost of the chat, in USD. |
+|  | [float](https://docs.python.org/3/builtins/functions.html#float) | The cost of the chat, in USD. |
 
 ### get_last_turn
 
@@ -421,13 +457,13 @@ Get the tokens for each turn in the chat.
 
 | Name | Type | Description |
 |----|----|----|
-|  | [list](https://docs.python.org/3/library/stdtypes.html#list)\[`TokensDict`\] | A list of dictionaries with the token counts for each (non-system) turn |
+|  | [list](https://docs.python.org/3/builtins/stdtypes.html#list)\[`TokensDict`\] | A list of dictionaries with the token counts for each (non-system) turn |
 
 #### Raises
 
 | Name | Type | Description |
 |----|----|----|
-|  | [ValueError](https://docs.python.org/3/library/exceptions.html#ValueError) | If the chat’s turns (i.e., `.get_turns()`) are not in an expected format. This may happen if the chat history is manually set (i.e., `.set_turns()`). In this case, you can inspect the “raw” token values via the `.get_turns()` method (each turn has a `.tokens` attribute). |
+|  | [ValueError](https://docs.python.org/3/builtins/exceptions.html#ValueError) | If the chat’s turns (i.e., `.get_turns()`) are not in an expected format. This may happen if the chat history is manually set (i.e., `.set_turns()`). In this case, you can inspect the “raw” token values via the `.get_turns()` method (each turn has a `.tokens` attribute). |
 
 ### get_tools
 
@@ -441,7 +477,7 @@ Get the list of registered tools.
 
 | Name | Type | Description |
 |----|----|----|
-|  | [list](https://docs.python.org/3/library/stdtypes.html#list)\[[Tool](https://posit-dev.github.io/chatlas/reference/Tool.html#chatlas.Tool) \| `ToolBuiltIn`\] | A list of `Tool` or `ToolBuiltIn` instances that are currently registered with the chat. |
+|  | [list](https://docs.python.org/3/builtins/stdtypes.html#list)\[[Tool](https://posit-dev.github.io/chatlas/reference/Tool.html#chatlas.Tool) \| `ToolBuiltIn`\] | A list of `Tool` or `ToolBuiltIn` instances that are currently registered with the chat. |
 
 ### get_turns
 
@@ -455,7 +491,7 @@ Get all the turns (i.e., message contents) in the chat.
 
 | Name | Type | Description | Default |
 |----|----|----|----|
-| include_system_prompt | [bool](https://docs.python.org/3/library/functions.html#bool) | Whether to include the system prompt in the turns. | `False` |
+| include_system_prompt | [bool](https://docs.python.org/3/builtins/functions.html#bool) | Whether to include the system prompt in the turns. | `False` |
 | tool_result_role | [Literal](https://docs.python.org/3/library/typing.html#typing.Literal)\['assistant', 'user'\] | The role to assign to turns containing tool results. By default, tool results are assigned a role of “user” since they represent information provided to the assistant. If set to “assistant” tool result content (plus the surrounding assistant turn contents) is collected into a single assistant turn. This is convenient for display purposes and more generally if you want the tool calling loop to be contained in a single turn. | `'user'` |
 
 ### list_models
@@ -509,7 +545,7 @@ print(f"Cheapest model: {cheapest['id']}")
 
 | Name | Type | Description |
 |----|----|----|
-|  | [list](https://docs.python.org/3/library/stdtypes.html#list)\[`ModelInfo`\] | A list of ModelInfo dictionaries containing model information. Each dictionary contains: - `id` (str): The model identifier to use with the Chat constructor - `name` (str, optional): Human-readable model name - `input` (float, optional): Cost per input token in USD per million tokens - `output` (float, optional): Cost per output token in USD per million tokens - `cached_input` (float, optional): Cost per cached input token in USD per million tokens - `created_at` (date, optional): Date the model was created - `owned_by` (str, optional): Organization that owns the model - `provider` (str, optional): Model provider name - `size` (int, optional): Model size in bytes - `url` (str, optional): URL with more information about the model The list is typically sorted by creation date (most recent first). |
+|  | [list](https://docs.python.org/3/builtins/stdtypes.html#list)\[`ModelInfo`\] | A list of ModelInfo dictionaries containing model information. Each dictionary contains: - `id` (str): The model identifier to use with the Chat constructor - `name` (str, optional): Human-readable model name - `input` (float, optional): Cost per input token in USD per million tokens - `output` (float, optional): Cost per output token in USD per million tokens - `cached_input` (float, optional): Cost per cached input token in USD per million tokens - `created_at` (date, optional): Date the model was created - `owned_by` (str, optional): Organization that owns the model - `provider` (str, optional): Model provider name - `size` (int, optional): Model size in bytes - `url` (str, optional): URL with more information about the model The list is typically sorted by creation date (most recent first). |
 
 #### Note
 
@@ -590,12 +626,12 @@ Connects to an MCP server (that communicates over a streamable HTTP transport) a
 
 | Name | Type | Description | Default |
 |----|----|----|----|
-| url | [str](https://docs.python.org/3/library/stdtypes.html#str) | URL endpoint where the Streamable HTTP server is mounted (e.g., `http://localhost:8000/mcp`) | *required* |
-| name | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\[[str](https://docs.python.org/3/library/stdtypes.html#str)\] | A unique name for the MCP server session. If not provided, the name is derived from the MCP server information. This name is primarily useful for cleanup purposes (i.e., to close a particular MCP session). | `None` |
-| include_tools | [Sequence](https://docs.python.org/3/library/typing.html#typing.Sequence)\[[str](https://docs.python.org/3/library/stdtypes.html#str)\] | List of tool names to include. By default, all available tools are included. | `()` |
-| exclude_tools | [Sequence](https://docs.python.org/3/library/typing.html#typing.Sequence)\[[str](https://docs.python.org/3/library/stdtypes.html#str)\] | List of tool names to exclude. This parameter and `include_tools` are mutually exclusive. | `()` |
-| namespace | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\[[str](https://docs.python.org/3/library/stdtypes.html#str)\] | A namespace to prepend to tool names (i.e., `namespace.tool_name`) from this MCP server. This is primarily useful to avoid name collisions with other tools already registered with the chat. This namespace applies when tools are advertised to the LLM, so try to use a meaningful name that describes the server and/or the tools it provides. For example, if you have a server that provides tools for mathematical operations, you might use `math` as the namespace. | `None` |
-| transport_kwargs | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\[[dict](https://docs.python.org/3/library/stdtypes.html#dict)\[[str](https://docs.python.org/3/library/stdtypes.html#str), [Any](https://docs.python.org/3/library/typing.html#typing.Any)\]\] | Additional keyword arguments for the transport layer (i.e., `mcp.client.streamable_http.streamable_http_client`). | `None` |
+| url | [str](https://docs.python.org/3/builtins/stdtypes.html#str) | URL endpoint where the Streamable HTTP server is mounted (e.g., `http://localhost:8000/mcp`) | *required* |
+| name | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\[[str](https://docs.python.org/3/builtins/stdtypes.html#str)\] | A unique name for the MCP server session. If not provided, the name is derived from the MCP server information. This name is primarily useful for cleanup purposes (i.e., to close a particular MCP session). | `None` |
+| include_tools | [Sequence](https://docs.python.org/3/library/typing.html#typing.Sequence)\[[str](https://docs.python.org/3/builtins/stdtypes.html#str)\] | List of tool names to include. By default, all available tools are included. | `()` |
+| exclude_tools | [Sequence](https://docs.python.org/3/library/typing.html#typing.Sequence)\[[str](https://docs.python.org/3/builtins/stdtypes.html#str)\] | List of tool names to exclude. This parameter and `include_tools` are mutually exclusive. | `()` |
+| namespace | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\[[str](https://docs.python.org/3/builtins/stdtypes.html#str)\] | A namespace to prepend to tool names (i.e., `namespace.tool_name`) from this MCP server. This is primarily useful to avoid name collisions with other tools already registered with the chat. This namespace applies when tools are advertised to the LLM, so try to use a meaningful name that describes the server and/or the tools it provides. For example, if you have a server that provides tools for mathematical operations, you might use `math` as the namespace. | `None` |
+| transport_kwargs | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\[[dict](https://docs.python.org/3/builtins/stdtypes.html#dict)\[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [Any](https://docs.python.org/3/library/typing.html#typing.Any)\]\] | Additional keyword arguments for the transport layer (i.e., `mcp.client.streamable_http.streamable_http_client`). | `None` |
 
 #### Returns
 
@@ -682,13 +718,13 @@ In more detail, this method:
 
 | Name | Type | Description | Default |
 |----|----|----|----|
-| command | [str](https://docs.python.org/3/library/stdtypes.html#str) | System command to execute to start the MCP server (e.g., `python`). | *required* |
-| args | [list](https://docs.python.org/3/library/stdtypes.html#list)\[[str](https://docs.python.org/3/library/stdtypes.html#str)\] | Arguments to pass to the system command (e.g., `["-m", "my_mcp_server"]`). | *required* |
-| name | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\[[str](https://docs.python.org/3/library/stdtypes.html#str)\] | A unique name for the MCP server session. If not provided, the name is derived from the MCP server information. This name is primarily useful for cleanup purposes (i.e., to close a particular MCP session). | `None` |
-| include_tools | [Sequence](https://docs.python.org/3/library/typing.html#typing.Sequence)\[[str](https://docs.python.org/3/library/stdtypes.html#str)\] | List of tool names to include. By default, all available tools are included. | `()` |
-| exclude_tools | [Sequence](https://docs.python.org/3/library/typing.html#typing.Sequence)\[[str](https://docs.python.org/3/library/stdtypes.html#str)\] | List of tool names to exclude. This parameter and `include_tools` are mutually exclusive. | `()` |
-| namespace | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\[[str](https://docs.python.org/3/library/stdtypes.html#str)\] | A namespace to prepend to tool names (i.e., `namespace.tool_name`) from this MCP server. This is primarily useful to avoid name collisions with other tools already registered with the chat. This namespace applies when tools are advertised to the LLM, so try to use a meaningful name that describes the server and/or the tools it provides. For example, if you have a server that provides tools for mathematical operations, you might use `math` as the namespace. | `None` |
-| transport_kwargs | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\[[dict](https://docs.python.org/3/library/stdtypes.html#dict)\[[str](https://docs.python.org/3/library/stdtypes.html#str), [Any](https://docs.python.org/3/library/typing.html#typing.Any)\]\] | Additional keyword arguments for the stdio transport layer (i.e., `mcp.client.stdio.stdio_client`). | `None` |
+| command | [str](https://docs.python.org/3/builtins/stdtypes.html#str) | System command to execute to start the MCP server (e.g., `python`). | *required* |
+| args | [list](https://docs.python.org/3/builtins/stdtypes.html#list)\[[str](https://docs.python.org/3/builtins/stdtypes.html#str)\] | Arguments to pass to the system command (e.g., `["-m", "my_mcp_server"]`). | *required* |
+| name | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\[[str](https://docs.python.org/3/builtins/stdtypes.html#str)\] | A unique name for the MCP server session. If not provided, the name is derived from the MCP server information. This name is primarily useful for cleanup purposes (i.e., to close a particular MCP session). | `None` |
+| include_tools | [Sequence](https://docs.python.org/3/library/typing.html#typing.Sequence)\[[str](https://docs.python.org/3/builtins/stdtypes.html#str)\] | List of tool names to include. By default, all available tools are included. | `()` |
+| exclude_tools | [Sequence](https://docs.python.org/3/library/typing.html#typing.Sequence)\[[str](https://docs.python.org/3/builtins/stdtypes.html#str)\] | List of tool names to exclude. This parameter and `include_tools` are mutually exclusive. | `()` |
+| namespace | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\[[str](https://docs.python.org/3/builtins/stdtypes.html#str)\] | A namespace to prepend to tool names (i.e., `namespace.tool_name`) from this MCP server. This is primarily useful to avoid name collisions with other tools already registered with the chat. This namespace applies when tools are advertised to the LLM, so try to use a meaningful name that describes the server and/or the tools it provides. For example, if you have a server that provides tools for mathematical operations, you might use `math` as the namespace. | `None` |
+| transport_kwargs | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\[[dict](https://docs.python.org/3/builtins/stdtypes.html#dict)\[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [Any](https://docs.python.org/3/library/typing.html#typing.Any)\]\] | Additional keyword arguments for the stdio transport layer (i.e., `mcp.client.stdio.stdio_client`). | `None` |
 
 #### Returns
 
@@ -829,14 +865,14 @@ Note that each call replaces *all* of the options: anything not passed reverts t
 
 | Name | Type | Description | Default |
 |----|----|----|----|
-| rich_markdown | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\[[dict](https://docs.python.org/3/library/stdtypes.html#dict)\[[str](https://docs.python.org/3/library/stdtypes.html#str), [Any](https://docs.python.org/3/library/typing.html#typing.Any)\]\] | A dictionary of options to pass to `rich.markdown.Markdown()`. This is only relevant when outputting to the console. | `None` |
-| rich_console | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\[[dict](https://docs.python.org/3/library/stdtypes.html#dict)\[[str](https://docs.python.org/3/library/stdtypes.html#str), [Any](https://docs.python.org/3/library/typing.html#typing.Any)\]\] | A dictionary of options to pass to `rich.console.Console()`. This is only relevant when outputting to the console. | `None` |
-| css_styles | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\[[dict](https://docs.python.org/3/library/stdtypes.html#dict)\[[str](https://docs.python.org/3/library/stdtypes.html#str), [str](https://docs.python.org/3/library/stdtypes.html#str)\]\] | A dictionary of CSS styles to apply to `IPython.display.Markdown()`. This is only relevant when outputing to the browser. | `None` |
-| tool_result_max_lines | [int](https://docs.python.org/3/library/functions.html#int) \| None \| [MISSING_TYPE](https://posit-dev.github.io/chatlas/reference/types.MISSING_TYPE.html#chatlas.types.MISSING_TYPE) | Truncate an echoed tool result to this many lines, noting how many were dropped. The full value remains available on the turn. Pass `None` to echo it in full. This is only relevant when outputting to the console. | `MISSING` |
-| tool_result_max_height | [str](https://docs.python.org/3/library/stdtypes.html#str) \| None \| [MISSING_TYPE](https://posit-dev.github.io/chatlas/reference/types.MISSING_TYPE.html#chatlas.types.MISSING_TYPE) | A CSS length (e.g. `"400px"`) bounding the height of an echoed tool result, which scrolls internally beyond it. Pass `None` to let it grow. This is only relevant when outputting to the browser. | `MISSING` |
-| thinking_max_lines | [int](https://docs.python.org/3/library/functions.html#int) \| None \| [MISSING_TYPE](https://posit-dev.github.io/chatlas/reference/types.MISSING_TYPE.html#chatlas.types.MISSING_TYPE) | Cap echoed reasoning at this many lines, keeping the most recent and noting how many earlier ones were dropped. Pass `None` to echo it in full. This is only relevant when outputting to the console; in the browser, reasoning collapses on its own once it’s complete. | `MISSING` |
-| web_activity_max_sources | [int](https://docs.python.org/3/library/functions.html#int) \| None \| [MISSING_TYPE](https://posit-dev.github.io/chatlas/reference/types.MISSING_TYPE.html#chatlas.types.MISSING_TYPE) | Cap the source list of an echoed web-activity panel at this many entries, noting how many were dropped. Pass `None` to echo them all. This is only relevant when outputting to the console; in the browser the panel is collapsed and scrolls internally, so every source is listed. | `MISSING` |
-| image_max_lines | [int](https://docs.python.org/3/library/functions.html#int) \| None \| [MISSING_TYPE](https://posit-dev.github.io/chatlas/reference/types.MISSING_TYPE.html#chatlas.types.MISSING_TYPE) | Cap a console image thumbnail at this many rows. Pass `None` to remove the height cap. This is only relevant when outputting to the console; browser output uses the original image. | `MISSING` |
+| rich_markdown | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\[[dict](https://docs.python.org/3/builtins/stdtypes.html#dict)\[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [Any](https://docs.python.org/3/library/typing.html#typing.Any)\]\] | A dictionary of options to pass to `rich.markdown.Markdown()`. This is only relevant when outputting to the console. | `None` |
+| rich_console | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\[[dict](https://docs.python.org/3/builtins/stdtypes.html#dict)\[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [Any](https://docs.python.org/3/library/typing.html#typing.Any)\]\] | A dictionary of options to pass to `rich.console.Console()`. This is only relevant when outputting to the console. | `None` |
+| css_styles | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\[[dict](https://docs.python.org/3/builtins/stdtypes.html#dict)\[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [str](https://docs.python.org/3/builtins/stdtypes.html#str)\]\] | A dictionary of CSS styles to apply to `IPython.display.Markdown()`. This is only relevant when outputing to the browser. | `None` |
+| tool_result_max_lines | [int](https://docs.python.org/3/builtins/functions.html#int) \| None \| [MISSING_TYPE](https://posit-dev.github.io/chatlas/reference/types.MISSING_TYPE.html#chatlas.types.MISSING_TYPE) | Truncate an echoed tool result to this many lines, noting how many were dropped. The full value remains available on the turn. Pass `None` to echo it in full. This is only relevant when outputting to the console. | `MISSING` |
+| tool_result_max_height | [str](https://docs.python.org/3/builtins/stdtypes.html#str) \| None \| [MISSING_TYPE](https://posit-dev.github.io/chatlas/reference/types.MISSING_TYPE.html#chatlas.types.MISSING_TYPE) | A CSS length (e.g. `"400px"`) bounding the height of an echoed tool result, which scrolls internally beyond it. Pass `None` to let it grow. This is only relevant when outputting to the browser. | `MISSING` |
+| thinking_max_lines | [int](https://docs.python.org/3/builtins/functions.html#int) \| None \| [MISSING_TYPE](https://posit-dev.github.io/chatlas/reference/types.MISSING_TYPE.html#chatlas.types.MISSING_TYPE) | Cap echoed reasoning at this many lines, keeping the most recent and noting how many earlier ones were dropped. Pass `None` to echo it in full. This is only relevant when outputting to the console; in the browser, reasoning collapses on its own once it’s complete. | `MISSING` |
+| web_activity_max_sources | [int](https://docs.python.org/3/builtins/functions.html#int) \| None \| [MISSING_TYPE](https://posit-dev.github.io/chatlas/reference/types.MISSING_TYPE.html#chatlas.types.MISSING_TYPE) | Cap the source list of an echoed web-activity panel at this many entries, noting how many were dropped. Pass `None` to echo them all. This is only relevant when outputting to the console; in the browser the panel is collapsed and scrolls internally, so every source is listed. | `MISSING` |
+| image_max_lines | [int](https://docs.python.org/3/builtins/functions.html#int) \| None \| [MISSING_TYPE](https://posit-dev.github.io/chatlas/reference/types.MISSING_TYPE.html#chatlas.types.MISSING_TYPE) | Cap a console image thumbnail at this many rows. Pass `None` to remove the height cap. This is only relevant when outputting to the console; browser output uses the original image. | `MISSING` |
 
 ### set_model_params
 
@@ -864,15 +900,15 @@ By default, if the parameter is not set (i.e., set to `MISSING`), the provider�
 
 | Name | Type | Description | Default |
 |----|----|----|----|
-| temperature | [float](https://docs.python.org/3/library/functions.html#float) \| None \| [MISSING_TYPE](https://posit-dev.github.io/chatlas/reference/types.MISSING_TYPE.html#chatlas.types.MISSING_TYPE) | Temperature of the sampling distribution. | `MISSING` |
-| top_p | [float](https://docs.python.org/3/library/functions.html#float) \| None \| [MISSING_TYPE](https://posit-dev.github.io/chatlas/reference/types.MISSING_TYPE.html#chatlas.types.MISSING_TYPE) | The cumulative probability for token selection. | `MISSING` |
-| top_k | [int](https://docs.python.org/3/library/functions.html#int) \| None \| [MISSING_TYPE](https://posit-dev.github.io/chatlas/reference/types.MISSING_TYPE.html#chatlas.types.MISSING_TYPE) | The number of highest probability vocabulary tokens to keep. | `MISSING` |
-| frequency_penalty | [float](https://docs.python.org/3/library/functions.html#float) \| None \| [MISSING_TYPE](https://posit-dev.github.io/chatlas/reference/types.MISSING_TYPE.html#chatlas.types.MISSING_TYPE) | Frequency penalty for generated tokens. | `MISSING` |
-| presence_penalty | [float](https://docs.python.org/3/library/functions.html#float) \| None \| [MISSING_TYPE](https://posit-dev.github.io/chatlas/reference/types.MISSING_TYPE.html#chatlas.types.MISSING_TYPE) | Presence penalty for generated tokens. | `MISSING` |
-| seed | [int](https://docs.python.org/3/library/functions.html#int) \| None \| [MISSING_TYPE](https://posit-dev.github.io/chatlas/reference/types.MISSING_TYPE.html#chatlas.types.MISSING_TYPE) | Seed for random number generator. | `MISSING` |
-| max_tokens | [int](https://docs.python.org/3/library/functions.html#int) \| None \| [MISSING_TYPE](https://posit-dev.github.io/chatlas/reference/types.MISSING_TYPE.html#chatlas.types.MISSING_TYPE) | Maximum number of tokens to generate. | `MISSING` |
-| log_probs | [bool](https://docs.python.org/3/library/functions.html#bool) \| None \| [MISSING_TYPE](https://posit-dev.github.io/chatlas/reference/types.MISSING_TYPE.html#chatlas.types.MISSING_TYPE) | Include the log probabilities in the output? | `MISSING` |
-| stop_sequences | [list](https://docs.python.org/3/library/stdtypes.html#list)\[[str](https://docs.python.org/3/library/stdtypes.html#str)\] \| None \| [MISSING_TYPE](https://posit-dev.github.io/chatlas/reference/types.MISSING_TYPE.html#chatlas.types.MISSING_TYPE) | A character vector of tokens to stop generation on. | `MISSING` |
+| temperature | [float](https://docs.python.org/3/builtins/functions.html#float) \| None \| [MISSING_TYPE](https://posit-dev.github.io/chatlas/reference/types.MISSING_TYPE.html#chatlas.types.MISSING_TYPE) | Temperature of the sampling distribution. | `MISSING` |
+| top_p | [float](https://docs.python.org/3/builtins/functions.html#float) \| None \| [MISSING_TYPE](https://posit-dev.github.io/chatlas/reference/types.MISSING_TYPE.html#chatlas.types.MISSING_TYPE) | The cumulative probability for token selection. | `MISSING` |
+| top_k | [int](https://docs.python.org/3/builtins/functions.html#int) \| None \| [MISSING_TYPE](https://posit-dev.github.io/chatlas/reference/types.MISSING_TYPE.html#chatlas.types.MISSING_TYPE) | The number of highest probability vocabulary tokens to keep. | `MISSING` |
+| frequency_penalty | [float](https://docs.python.org/3/builtins/functions.html#float) \| None \| [MISSING_TYPE](https://posit-dev.github.io/chatlas/reference/types.MISSING_TYPE.html#chatlas.types.MISSING_TYPE) | Frequency penalty for generated tokens. | `MISSING` |
+| presence_penalty | [float](https://docs.python.org/3/builtins/functions.html#float) \| None \| [MISSING_TYPE](https://posit-dev.github.io/chatlas/reference/types.MISSING_TYPE.html#chatlas.types.MISSING_TYPE) | Presence penalty for generated tokens. | `MISSING` |
+| seed | [int](https://docs.python.org/3/builtins/functions.html#int) \| None \| [MISSING_TYPE](https://posit-dev.github.io/chatlas/reference/types.MISSING_TYPE.html#chatlas.types.MISSING_TYPE) | Seed for random number generator. | `MISSING` |
+| max_tokens | [int](https://docs.python.org/3/builtins/functions.html#int) \| None \| [MISSING_TYPE](https://posit-dev.github.io/chatlas/reference/types.MISSING_TYPE.html#chatlas.types.MISSING_TYPE) | Maximum number of tokens to generate. | `MISSING` |
+| log_probs | [bool](https://docs.python.org/3/builtins/functions.html#bool) \| None \| [MISSING_TYPE](https://posit-dev.github.io/chatlas/reference/types.MISSING_TYPE.html#chatlas.types.MISSING_TYPE) | Include the log probabilities in the output? | `MISSING` |
+| stop_sequences | [list](https://docs.python.org/3/builtins/stdtypes.html#list)\[[str](https://docs.python.org/3/builtins/stdtypes.html#str)\] \| None \| [MISSING_TYPE](https://posit-dev.github.io/chatlas/reference/types.MISSING_TYPE.html#chatlas.types.MISSING_TYPE) | A character vector of tokens to stop generation on. | `MISSING` |
 
 ### set_tools
 
@@ -888,7 +924,7 @@ This replaces any previously registered tools with the provided list of tools. T
 
 | Name | Type | Description | Default |
 |----|----|----|----|
-| tools | [list](https://docs.python.org/3/library/stdtypes.html#list)\[[Callable](https://docs.python.org/3/library/typing.html#typing.Callable)\[…, [Any](https://docs.python.org/3/library/typing.html#typing.Any)\] \| [Callable](https://docs.python.org/3/library/typing.html#typing.Callable)\[…, [Awaitable](https://docs.python.org/3/library/typing.html#typing.Awaitable)\[[Any](https://docs.python.org/3/library/typing.html#typing.Any)\]\] \| [Tool](https://posit-dev.github.io/chatlas/reference/Tool.html#chatlas.Tool) \| `ToolBuiltIn`\] | A list of `Tool` instances to set as the chat’s tools. | *required* |
+| tools | [list](https://docs.python.org/3/builtins/stdtypes.html#list)\[[Callable](https://docs.python.org/3/library/typing.html#typing.Callable)\[…, [Any](https://docs.python.org/3/library/typing.html#typing.Any)\] \| [Callable](https://docs.python.org/3/library/typing.html#typing.Callable)\[…, [Awaitable](https://docs.python.org/3/library/typing.html#typing.Awaitable)\[[Any](https://docs.python.org/3/library/typing.html#typing.Any)\]\] \| [Tool](https://posit-dev.github.io/chatlas/reference/Tool.html#chatlas.Tool) \| `ToolBuiltIn`\] | A list of `Tool` instances to set as the chat’s tools. | *required* |
 
 ### set_turns
 
@@ -925,10 +961,10 @@ Generate a response from the chat in a streaming fashion.
 
 | Name | Type | Description | Default |
 |----|----|----|----|
-| args | [Content](https://posit-dev.github.io/chatlas/reference/types.Content.html#chatlas.types.Content) \| [str](https://docs.python.org/3/library/stdtypes.html#str) | The user input(s) to generate a response from. | `()` |
+| args | `ContentInput` | The user input(s) to generate a response from. Each may be a string, a `Content` object, or any object implementing `.to_content()` (e.g. `FileMetadata` from `chat.files.get()`). | `()` |
 | content | [Literal](https://docs.python.org/3/library/typing.html#typing.Literal)\['text', 'all'\] | Whether to yield just text content or include rich content objects (e.g., tool calls) when relevant. | `'text'` |
 | echo | `EchoOptions` | One of the following (default is “none”): - `"text"`: Echo just the text content of the response. - `"output"`: Echo text and tool call content. - `"all"`: Echo both the assistant and user turn. - `"none"`: Do not echo any content. | `'none'` |
-| data_model | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\[[type](https://docs.python.org/3/library/functions.html#type)\[[BaseModel](https://docs.pydantic.dev/latest/api/pydantic/base_model/#pydantic.BaseModel)\]\] | A Pydantic model describing the structure of the data to extract. When provided, the response will be constrained to match this structure. The streamed chunks will be JSON text that, when concatenated, forms a valid JSON object matching the model. After consuming the stream, use `data_model.model_validate_json("".join(chunks))` to parse the result. | `None` |
+| data_model | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\[[type](https://docs.python.org/3/builtins/functions.html#type)\[[BaseModel](https://docs.pydantic.dev/latest/api/pydantic/base_model/#pydantic.BaseModel)\]\] | A Pydantic model describing the structure of the data to extract. When provided, the response will be constrained to match this structure. The streamed chunks will be JSON text that, when concatenated, forms a valid JSON object matching the model. After consuming the stream, use `data_model.model_validate_json("".join(chunks))` to parse the result. | `None` |
 | kwargs | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\[[SubmitInputArgsT](https://posit-dev.github.io/chatlas/reference/types.SubmitInputArgsT.html#chatlas.types.SubmitInputArgsT)\] | Additional keyword arguments to pass to the method used for requesting the response. | `None` |
 | controller | `StreamController` \| None | A `StreamController` for cooperative stream cancellation. When provided, calling `controller.cancel()` stops the stream after the current chunk and preserves the partial response in conversation history. This is useful for building UIs (e.g., a “stop generating” button) where you want to interrupt a response without losing what’s been generated so far. The same controller can be reused across multiple streams by calling `controller.reset()` before starting a new stream. | `None` |
 
@@ -974,10 +1010,10 @@ Generate a response from the chat in a streaming fashion asynchronously.
 
 | Name | Type | Description | Default |
 |----|----|----|----|
-| args | [Content](https://posit-dev.github.io/chatlas/reference/types.Content.html#chatlas.types.Content) \| [str](https://docs.python.org/3/library/stdtypes.html#str) | The user input(s) to generate a response from. | `()` |
+| args | `ContentInput` | The user input(s) to generate a response from. Each may be a string, a `Content` object, or any object implementing `.to_content()` (e.g. `FileMetadata` from `chat.files.get()`). | `()` |
 | content | [Literal](https://docs.python.org/3/library/typing.html#typing.Literal)\['text', 'all'\] | Whether to yield just text content or include rich content objects (e.g., tool calls) when relevant. | `'text'` |
 | echo | `EchoOptions` | One of the following (default is “none”): - `"text"`: Echo just the text content of the response. - `"output"`: Echo text and tool call content. - `"all"`: Echo both the assistant and user turn. - `"none"`: Do not echo any content. | `'none'` |
-| data_model | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\[[type](https://docs.python.org/3/library/functions.html#type)\[[BaseModel](https://docs.pydantic.dev/latest/api/pydantic/base_model/#pydantic.BaseModel)\]\] | A Pydantic model describing the structure of the data to extract. When provided, the response will be constrained to match this structure. The streamed chunks will be JSON text that, when concatenated, forms a valid JSON object matching the model. After consuming the stream, use `data_model.model_validate_json("".join(chunks))` to parse the result. | `None` |
+| data_model | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\[[type](https://docs.python.org/3/builtins/functions.html#type)\[[BaseModel](https://docs.pydantic.dev/latest/api/pydantic/base_model/#pydantic.BaseModel)\]\] | A Pydantic model describing the structure of the data to extract. When provided, the response will be constrained to match this structure. The streamed chunks will be JSON text that, when concatenated, forms a valid JSON object matching the model. After consuming the stream, use `data_model.model_validate_json("".join(chunks))` to parse the result. | `None` |
 | kwargs | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\[[SubmitInputArgsT](https://posit-dev.github.io/chatlas/reference/types.SubmitInputArgsT.html#chatlas.types.SubmitInputArgsT)\] | Additional keyword arguments to pass to the method used for requesting the response. | `None` |
 | controller | `StreamController` \| None | A `StreamController` for cooperative stream cancellation. When provided, calling `controller.cancel()` stops the stream after the current chunk and preserves the partial response in conversation history. This is useful for building UIs (e.g., a “stop generating” button) where you want to interrupt a response without losing what’s been generated so far. The same controller can be reused across multiple streams by calling `controller.reset()` before starting a new stream. | `None` |
 
@@ -1027,9 +1063,9 @@ Translates this Chat instance into an InspectAI solver function that can be used
 
 | Name | Type | Description | Default |
 |----|----|----|----|
-| data_model | [type](https://docs.python.org/3/library/functions.html#type)\[[BaseModel](https://docs.pydantic.dev/latest/api/pydantic/base_model/#pydantic.BaseModel)\] \| None | A Pydantic model describing the structure of the data to extract. When provided, the solver will use `.chat_structured()` instead of `.chat()` to generate responses, and the output completion will be JSON serialized from the model instance. | `None` |
-| include_system_prompt | [bool](https://docs.python.org/3/library/functions.html#bool) | Whether to include the system prompt in the solver’s starting messages. | `False` |
-| include_turns | [bool](https://docs.python.org/3/library/functions.html#bool) | Whether to include the chat’s existing turns in the solver’s starting messages. | `False` |
+| data_model | [type](https://docs.python.org/3/builtins/functions.html#type)\[[BaseModel](https://docs.pydantic.dev/latest/api/pydantic/base_model/#pydantic.BaseModel)\] \| None | A Pydantic model describing the structure of the data to extract. When provided, the solver will use `.chat_structured()` instead of `.chat()` to generate responses, and the output completion will be JSON serialized from the model instance. | `None` |
+| include_system_prompt | [bool](https://docs.python.org/3/builtins/functions.html#bool) | Whether to include the system prompt in the solver’s starting messages. | `False` |
+| include_turns | [bool](https://docs.python.org/3/builtins/functions.html#bool) | Whether to include the chat’s existing turns in the solver’s starting messages. | `False` |
 
 #### Note
 
@@ -1087,15 +1123,15 @@ Estimate the token size of input content. This can help determine whether input(
 
 | Name | Type | Description | Default |
 |----|----|----|----|
-| args | [Content](https://posit-dev.github.io/chatlas/reference/types.Content.html#chatlas.types.Content) \| [str](https://docs.python.org/3/library/stdtypes.html#str) | The input to get a token count for. | `()` |
+| args | `ContentInput` | The input to get a token count for. | `()` |
 | include | [Literal](https://docs.python.org/3/library/typing.html#typing.Literal)\['new', 'complete'\] | What to include in the count. `"new"` (default) counts only the content in `args` plus any registered tools. `"complete"` estimates the total input tokens for the next request, adding the system prompt and conversation history (`.get_turns()`). Exactly what each mode counts is provider-dependent; see the Note below. | `'new'` |
-| data_model | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\[[type](https://docs.python.org/3/library/functions.html#type)\[[BaseModel](https://docs.pydantic.dev/latest/api/pydantic/base_model/#pydantic.BaseModel)\]\] | If the input is meant for data extraction (i.e., `.chat_structured()`), then this should be the Pydantic model that describes the structure of the data to extract. | `None` |
+| data_model | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\[[type](https://docs.python.org/3/builtins/functions.html#type)\[[BaseModel](https://docs.pydantic.dev/latest/api/pydantic/base_model/#pydantic.BaseModel)\]\] | If the input is meant for data extraction (i.e., `.chat_structured()`), then this should be the Pydantic model that describes the structure of the data to extract. | `None` |
 
 #### Returns
 
 | Name | Type | Description |
 |----|----|----|
-|  | [int](https://docs.python.org/3/library/functions.html#int) | The token count for the input. |
+|  | [int](https://docs.python.org/3/builtins/functions.html#int) | The token count for the input. |
 
 #### Note
 
@@ -1134,15 +1170,15 @@ Estimate the token size of input content. This can help determine whether input(
 
 | Name | Type | Description | Default |
 |----|----|----|----|
-| args | [Content](https://posit-dev.github.io/chatlas/reference/types.Content.html#chatlas.types.Content) \| [str](https://docs.python.org/3/library/stdtypes.html#str) | The input to get a token count for. | `()` |
+| args | `ContentInput` | The input to get a token count for. | `()` |
 | include | [Literal](https://docs.python.org/3/library/typing.html#typing.Literal)\['new', 'complete'\] | What to include in the count. `"new"` (default) counts only the content in `args` plus any registered tools. `"complete"` estimates the total input tokens for the next request, adding the system prompt and conversation history (`.get_turns()`). Exactly what each mode counts is provider-dependent; see the Note below. | `'new'` |
-| data_model | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\[[type](https://docs.python.org/3/library/functions.html#type)\[[BaseModel](https://docs.pydantic.dev/latest/api/pydantic/base_model/#pydantic.BaseModel)\]\] | If this input is meant for data extraction (i.e., `.chat_structured_async()`), then this should be the Pydantic model that describes the structure of the data to extract. | `None` |
+| data_model | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\[[type](https://docs.python.org/3/builtins/functions.html#type)\[[BaseModel](https://docs.pydantic.dev/latest/api/pydantic/base_model/#pydantic.BaseModel)\]\] | If this input is meant for data extraction (i.e., `.chat_structured_async()`), then this should be the Pydantic model that describes the structure of the data to extract. | `None` |
 
 #### Returns
 
 | Name | Type | Description |
 |----|----|----|
-|  | [int](https://docs.python.org/3/library/functions.html#int) | The token count for the input. |
+|  | [int](https://docs.python.org/3/builtins/functions.html#int) | The token count for the input. |
 
 #### Note
 

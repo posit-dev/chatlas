@@ -71,7 +71,7 @@ Render as a fenced code block, optionally capping the value’s height.
 
 | Name | Type | Description | Default |
 |----|----|----|----|
-| max_lines | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\[[int](https://docs.python.org/3/library/functions.html#int)\] | Truncate the value to this many lines, replacing the remainder with a count of what was dropped. `None` (the default) emits the full value. | `None` |
+| max_lines | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\[[int](https://docs.python.org/3/builtins/functions.html#int)\] | Truncate the value to this many lines, replacing the remainder with a count of what was dropped. `None` (the default) emits the full value. | `None` |
 
 ### to_html
 

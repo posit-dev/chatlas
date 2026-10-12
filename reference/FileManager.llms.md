@@ -6,7 +6,7 @@ FileManager(provider)
 
 Manage files hosted by a chat’s provider. Accessed via `chat.files`.
 
-Upload a file once with `.upload()`, then pass the returned `ContentUploaded` to `.chat()` (and other chat methods) like any other content, instead of re-sending the file’s bytes on every turn.
+Upload a file once with `.upload()`, then pass the returned reference to `.chat()` (and other chat methods) like any other content, instead of re-sending the file’s bytes on every turn. To reuse a file uploaded in an earlier session, pass the result of `.get()` to `.chat()` the same way.
 
 Supported for `ChatOpenAI()` (the Responses API), `ChatAnthropic()`, and `ChatGoogle()` (the Gemini Developer API). Every other provider – including `ChatOpenAICompletions()`, OpenAI-compatible third parties (`ChatGroq()`, `ChatMistral()`, `ChatOllama()`, etc.), `ChatAzureOpenAI()`, `ChatBedrockAnthropic()`, `ChatPosit()`, and Vertex-backed chats (`ChatVertex()`, or `ChatGoogle()` configured for Vertex) – raises `NotImplementedError` from every method here.
 
@@ -43,7 +43,7 @@ Delete a previously uploaded file from the provider.
 
 | Name | Type | Description | Default |
 |----|----|----|----|
-| id | [str](https://docs.python.org/3/library/stdtypes.html#str) | The provider-assigned file id (e.g., `ContentUploaded.id`). | *required* |
+| id | [str](https://docs.python.org/3/builtins/stdtypes.html#str) | The provider-assigned file id (e.g., `ContentUploaded.id`). | *required* |
 
 ### delete_async
 
@@ -89,13 +89,13 @@ Only supported for ChatOpenAI, ChatAnthropic, and ChatGoogle; other providers ra
 
 | Name | Type | Description | Default |
 |----|----|----|----|
-| id | [str](https://docs.python.org/3/library/stdtypes.html#str) | The provider-assigned file id (e.g., `ContentUploaded.id`). | *required* |
+| id | [str](https://docs.python.org/3/builtins/stdtypes.html#str) | The provider-assigned file id (e.g., `ContentUploaded.id`). | *required* |
 
 #### Returns
 
 | Name | Type | Description |
 |----|----|----|
-|  | [FileMetadata](https://posit-dev.github.io/chatlas/reference/types.FileMetadata.html#chatlas.types.FileMetadata) | Metadata for the file. |
+|  | [FileMetadata](https://posit-dev.github.io/chatlas/reference/types.FileMetadata.html#chatlas.types.FileMetadata) | Metadata for the file, which can be passed straight to `.chat()` (and other chat methods) to reference the file in a turn – e.g. to reuse a file uploaded in an earlier session: `python report = chat.files.get("file_011CRabc...") chat.chat("Summarize the key findings.", report)` |
 
 ### get_async
 
@@ -147,8 +147,8 @@ On `ChatGoogle()`, this blocks until Gemini finishes processing the file: large 
 
 | Name | Type | Description | Default |
 |----|----|----|----|
-| file | [str](https://docs.python.org/3/library/stdtypes.html#str) \| [os](https://docs.python.org/3/library/os.html#module-os).[PathLike](https://docs.python.org/3/library/os.html#os.PathLike)\[[str](https://docs.python.org/3/library/stdtypes.html#str)\] \| [IO](https://docs.python.org/3/library/typing.html#typing.IO)\[[bytes](https://docs.python.org/3/library/stdtypes.html#bytes)\] | A path to a file, or a binary file-like object, to upload. | *required* |
-| mime_type | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\[[str](https://docs.python.org/3/library/stdtypes.html#str)\] | The file’s MIME type. If not provided, it’s guessed from `file`. | `None` |
+| file | [str](https://docs.python.org/3/builtins/stdtypes.html#str) \| [os](https://docs.python.org/3/library/os.html#module-os).[PathLike](https://docs.python.org/3/library/os.html#os.PathLike)\[[str](https://docs.python.org/3/builtins/stdtypes.html#str)\] \| [IO](https://docs.python.org/3/library/typing.html#typing.IO)\[[bytes](https://docs.python.org/3/builtins/stdtypes.html#bytes)\] | A path to a file, or a binary file-like object, to upload. | *required* |
+| mime_type | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\[[str](https://docs.python.org/3/builtins/stdtypes.html#str)\] | The file’s MIME type. If not provided, it’s guessed from `file`. | `None` |
 
 #### Returns
 

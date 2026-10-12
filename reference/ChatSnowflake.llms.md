@@ -10,6 +10,7 @@ ChatSnowflake(
     password=None,
     private_key_file=None,
     private_key_file_pwd=None,
+    session=None,
     kwargs=None,
 )
 ```
@@ -18,11 +19,13 @@ Chat with a Snowflake Cortex LLM
 
 https://docs.snowflake.com/en/user-guide/snowflake-cortex/llm-functions
 
+Each `ChatSnowflake()` holds an underlying Snowpark session (and Snowflake connection). In long-lived applications that create a chat per session (e.g., Shiny), call [`Chat.close()`](../reference/Chat.llms.md#chatlas.Chat.close) when the session ends to release it – for example, `session.on_ended(chat.close)`.
+
 ## Prerequisites
 
 > **NOTE:**
 >
-> `ChatSnowflake`, requires the `snowflake-ml-python` package: `pip install "chatlas[snowflake]"`.
+> `ChatSnowflake` requires the `snowflake-core` and `snowflake-snowpark-python` packages: `pip install "chatlas[snowflake]"`.
 
 > **NOTE:**
 >
@@ -34,12 +37,13 @@ https://docs.snowflake.com/en/user-guide/snowflake-cortex/llm-functions
 
 | Name | Type | Description | Default |
 |----|----|----|----|
-| system_prompt | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\[[str](https://docs.python.org/3/library/stdtypes.html#str)\] | A system prompt to set the behavior of the assistant. | `None` |
-| model | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\[[str](https://docs.python.org/3/library/stdtypes.html#str)\] | The model to use for the chat. The default, None, will pick a reasonable default, and warn you about it. We strongly recommend explicitly choosing a model for all but the most casual use. | `None` |
-| connection_name | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\[[str](https://docs.python.org/3/library/stdtypes.html#str)\] | The name of the connection (i.e., section) within the connections.toml file. This is useful if you want to keep your credentials in a connections.toml file rather than specifying them directly in the arguments. https://docs.snowflake.com/en/developer-guide/snowpark/python/creating-session#connect-by-using-the-connections-toml-file | `None` |
-| account | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\[[str](https://docs.python.org/3/library/stdtypes.html#str)\] | Your Snowflake account identifier. Required if `connection_name` is not provided. https://docs.snowflake.com/en/user-guide/admin-account-identifier | `None` |
-| user | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\[[str](https://docs.python.org/3/library/stdtypes.html#str)\] | Your Snowflake user name. Required if `connection_name` is not provided. | `None` |
-| password | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\[[str](https://docs.python.org/3/library/stdtypes.html#str)\] | Your Snowflake password. Required if doing password authentication and `connection_name` is not provided. | `None` |
-| private_key_file | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\[[str](https://docs.python.org/3/library/stdtypes.html#str)\] | The path to your private key file. Required if you are using key pair authentication. https://docs.snowflake.com/en/user-guide/key-pair-auth | `None` |
-| private_key_file_pwd | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\[[str](https://docs.python.org/3/library/stdtypes.html#str)\] | The password for your private key file. Required if you are using key pair authentication. https://docs.snowflake.com/en/user-guide/key-pair-auth | `None` |
-| kwargs | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\[[dict](https://docs.python.org/3/library/stdtypes.html#dict)\[[str](https://docs.python.org/3/library/stdtypes.html#str), 'str \| int'\]\] | Additional keyword arguments passed along to the Snowflake connection builder. These can include any parameters supported by the `snowflake-ml-python` package. https://docs.snowflake.com/en/developer-guide/snowpark/python/creating-session#connect-by-specifying-connection-parameters | `None` |
+| system_prompt | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\[[str](https://docs.python.org/3/builtins/stdtypes.html#str)\] | A system prompt to set the behavior of the assistant. | `None` |
+| model | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\[[str](https://docs.python.org/3/builtins/stdtypes.html#str)\] | The model to use for the chat. The default, None, will pick a reasonable default, and warn you about it. We strongly recommend explicitly choosing a model for all but the most casual use. | `None` |
+| connection_name | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\[[str](https://docs.python.org/3/builtins/stdtypes.html#str)\] | The name of the connection (i.e., section) within the connections.toml file. This is useful if you want to keep your credentials in a connections.toml file rather than specifying them directly in the arguments. https://docs.snowflake.com/en/developer-guide/snowpark/python/creating-session#connect-by-using-the-connections-toml-file | `None` |
+| account | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\[[str](https://docs.python.org/3/builtins/stdtypes.html#str)\] | Your Snowflake account identifier. Required if `connection_name` is not provided. https://docs.snowflake.com/en/user-guide/admin-account-identifier | `None` |
+| user | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\[[str](https://docs.python.org/3/builtins/stdtypes.html#str)\] | Your Snowflake user name. Required if `connection_name` is not provided. | `None` |
+| password | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\[[str](https://docs.python.org/3/builtins/stdtypes.html#str)\] | Your Snowflake password. Required if doing password authentication and `connection_name` is not provided. | `None` |
+| private_key_file | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\[[str](https://docs.python.org/3/builtins/stdtypes.html#str)\] | The path to your private key file. Required if you are using key pair authentication. https://docs.snowflake.com/en/user-guide/key-pair-auth | `None` |
+| private_key_file_pwd | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\[[str](https://docs.python.org/3/builtins/stdtypes.html#str)\] | The password for your private key file. Required if you are using key pair authentication. https://docs.snowflake.com/en/user-guide/key-pair-auth | `None` |
+| session | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\['Session'\] | A `snowflake.snowpark.Session` to use for the connection. If not provided, a new session will be created from the other connection parameters. Note that calling [`Chat.close()`](../reference/Chat.llms.md#chatlas.Chat.close) does not close a caller-supplied `Session` – it only closes a session that chatlas created itself. | `None` |
+| kwargs | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\[[dict](https://docs.python.org/3/builtins/stdtypes.html#dict)\[[str](https://docs.python.org/3/builtins/stdtypes.html#str), 'str \| int'\]\] | Additional keyword arguments passed along to the Snowflake connection builder. These can include any parameters supported by the `snowflake-snowpark-python` package. https://docs.snowflake.com/en/developer-guide/snowpark/python/creating-session#connect-by-specifying-connection-parameters | `None` |

@@ -29,8 +29,11 @@ Note that this class is exposed for developers who wish to implement their own p
 | [batch_status](#chatlas.Provider.batch_status) | Get the status of a batch. |
 | [batch_submit](#chatlas.Provider.batch_submit) | Submit a batch of conversations for processing. |
 | [check_builtin_tool_support](#chatlas.Provider.check_builtin_tool_support) | Raise if this provider can’t translate `tool` into its API’s format. |
+| [close](#chatlas.Provider.close) | Release resources held by this provider (e.g., HTTP connection pools, |
+| [close_async](#chatlas.Provider.close_async) | Asynchronous variant of `close()`. |
 | [has_batch_support](#chatlas.Provider.has_batch_support) | Returns whether this provider supports batch processing. |
 | [list_models](#chatlas.Provider.list_models) | List all available models for the provider. |
+| [set_model](#chatlas.Provider.set_model) | Set the model used by the provider. |
 | [stream_content](#chatlas.Provider.stream_content) | Content to yield for `chunk`. |
 | [value_cost](#chatlas.Provider.value_cost) | Compute the cost for a completion. |
 
@@ -104,6 +107,28 @@ Raise if this provider can’t translate `tool` into its API’s format.
 
 Called when a built-in tool is registered with a [`Chat`](https://posit-dev.github.io/chatlas/reference/Chat.html#chatlas.Chat), so that unsupported tools fail immediately rather than being silently dropped (or rejected by a cryptic API error) on the first request.
 
+### close
+
+``` python
+Provider.close()
+```
+
+Release resources held by this provider (e.g., HTTP connection pools, database sessions).
+
+This is best-effort and only closes synchronous resources; use `close_async()` to also release asynchronous resources. Providers only close resources they created themselves – clients or connections supplied by the caller are left open. Implementations must be safe to call multiple times.
+
+The default implementation does nothing.
+
+### close_async
+
+``` python
+Provider.close_async()
+```
+
+Asynchronous variant of `close()`.
+
+Releases both synchronous and asynchronous resources held by this provider. The default implementation calls `close()`.
+
 ### has_batch_support
 
 ``` python
@@ -120,15 +145,33 @@ Provider.list_models()
 
 List all available models for the provider.
 
+### set_model
+
+``` python
+Provider.set_model(value)
+```
+
+Set the model used by the provider.
+
+The default implementation just updates the model name and returns the provider unchanged. Providers that dispatch to a different API flavor based on the model name (e.g., Posit AI) override this to return a different provider instance when the new model belongs to another flavor.
+
+#### Returns
+
+| Name | Type | Description |
+|----|----|----|
+|  | [Provider](https://posit-dev.github.io/chatlas/reference/Provider.html#chatlas.Provider) | The provider to use for subsequent requests (possibly `self`). |
+
 ### stream_content
 
 ``` python
-Provider.stream_content(chunk, completion)
+Provider.stream_content(chunk, completion, turns=())
 ```
 
 Content to yield for `chunk`.
 
 `completion` is the result of merging every chunk up to and including `chunk` (i.e. `stream_merge_chunks` runs first). Providers needing cross-chunk state read it from there rather than storing it on `self`: a single provider instance is shared across forked chats (`Chat.__deepcopy__` keeps `provider` by reference), so several streams can be in flight at once.
+
+`turns` is the full request history (prior turns plus the newest user turn) that produced this stream, for providers that need to resolve content referencing something outside `completion` itself (e.g. Anthropic’s `document_index` citations, which can reference a document from an earlier turn). Defaults to `()` for callers that don’t have it.
 
 ### value_cost
 
@@ -143,10 +186,10 @@ Compute the cost for a completion.
 | Name | Type | Description | Default |
 |----|----|----|----|
 | completion | `ChatCompletionT` | The completion object from the provider. | *required* |
-| tokens | [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)\[[int](https://docs.python.org/3/library/functions.html#int), [int](https://docs.python.org/3/library/functions.html#int), [int](https://docs.python.org/3/library/functions.html#int)\] \| None | Optional pre-computed tokens tuple. If not provided, will be extracted from the completion. | `None` |
+| tokens | [tuple](https://docs.python.org/3/builtins/stdtypes.html#tuple)\[[int](https://docs.python.org/3/builtins/functions.html#int), [int](https://docs.python.org/3/builtins/functions.html#int), [int](https://docs.python.org/3/builtins/functions.html#int)\] \| None | Optional pre-computed tokens tuple. If not provided, will be extracted from the completion. | `None` |
 
 #### Returns
 
 | Name | Type | Description |
 |----|----|----|
-|  | [float](https://docs.python.org/3/library/functions.html#float) \| None | The cost in USD, or None if cost cannot be computed. |
+|  | [float](https://docs.python.org/3/builtins/functions.html#float) \| None | The cost in USD, or None if cost cannot be computed. |

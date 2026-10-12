@@ -14,7 +14,7 @@ This is useful for interactive use: if the object is displayed, it can be viewed
 
 | Name | Type | Description |
 |----|----|----|
-| content | [str](https://docs.python.org/3/library/stdtypes.html#str) | The content of the chat response. |
+| content | [str](https://docs.python.org/3/builtins/stdtypes.html#str) | The content of the chat response. |
 
 ## Properties
 

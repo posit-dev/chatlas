@@ -80,7 +80,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="../site_libs/quarto-html/quarto-syntax-highlighting-8f68c619070a9997a612f17db9fc177b.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-d371f0ab0b9878dc2c083d135a92b822.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-dbb44467009f5f46961876d98a9e1bd1.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -784,6 +784,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
+  <a href="../reference/types.SupportsContent.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">types.SupportsContent</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
   <a href="../reference/types.TokenUsage.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">types.TokenUsage</span></a>
   </div>
@@ -889,20 +895,20 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tbody>
 <tr class="odd">
 <td>system_prompt</td>
-<td><a href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>[<a href="https://docs.python.org/3/library/stdtypes.html#str">str</a>]</td>
+<td><a href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>[<a href="https://docs.python.org/3/builtins/stdtypes.html#str">str</a>]</td>
 <td>A system prompt to set the behavior of the assistant.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="even">
 <td>model</td>
-<td><a href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>[<a href="https://docs.python.org/3/library/stdtypes.html#str">str</a>]</td>
+<td><a href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>[<a href="https://docs.python.org/3/builtins/stdtypes.html#str">str</a>]</td>
 <td>The model to use for the chat. The default, None, will pick a reasonable default, and warn you about it. We strongly recommend explicitly choosing a model for all but the most casual use.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="odd">
 <td>workspace_client</td>
 <td><a href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>['WorkspaceClient']</td>
-<td>A <code>databricks.sdk.WorkspaceClient()</code> to use for the connection. If not provided, a new client will be created.</td>
+<td>A <code>databricks.sdk.WorkspaceClient()</code> to use for the connection. If not provided, a new client will be created. Note that calling <a href="../reference/Chat.html#chatlas.Chat.close"><code>Chat.close()</code></a> does not close a caller-supplied <code>WorkspaceClient</code> – it only closes the OpenAI-compatible client that chatlas derives from it.</td>
 <td><code>None</code></td>
 </tr>
 </tbody>

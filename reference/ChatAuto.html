@@ -80,7 +80,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="../site_libs/quarto-html/quarto-syntax-highlighting-8f68c619070a9997a612f17db9fc177b.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-d371f0ab0b9878dc2c083d135a92b822.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-dbb44467009f5f46961876d98a9e1bd1.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -784,6 +784,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
+  <a href="../reference/types.SupportsContent.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">types.SupportsContent</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
   <a href="../reference/types.TokenUsage.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">types.TokenUsage</span></a>
   </div>
@@ -928,13 +934,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tbody>
 <tr class="odd">
 <td>provider_model</td>
-<td><a href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>[<a href="https://docs.python.org/3/library/stdtypes.html#str">str</a>]</td>
+<td><a href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>[<a href="https://docs.python.org/3/builtins/stdtypes.html#str">str</a>]</td>
 <td>The name of the provider and model to use in the format <code>"{provider}/{model}"</code>. Providers are strings formatted in kebab-case, e.g.&nbsp;to use <code>ChatBedrockAnthropic</code> set <code>provider="bedrock-anthropic"</code> (<code>provider="bedrock"</code> instead selects <code>ChatBedrock</code>), and models are the provider-specific model names, e.g.&nbsp;<code>"claude-sonnet-4-6"</code>. The <code>/{model}</code> portion may also be omitted, in which case, the default model for that provider will be used. If no value is provided, the <code>CHATLAS_CHAT_PROVIDER_MODEL</code> environment variable will be consulted for a fallback value. If this variable is also not set, a default value of <code>"openai"</code> is used.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="even">
 <td>system_prompt</td>
-<td><a href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>[<a href="https://docs.python.org/3/library/stdtypes.html#str">str</a>]</td>
+<td><a href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>[<a href="https://docs.python.org/3/builtins/stdtypes.html#str">str</a>]</td>
 <td>A system prompt to set the behavior of the assistant.</td>
 <td><code>None</code></td>
 </tr>
@@ -946,7 +952,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </tr>
 <tr class="even">
 <td>model</td>
-<td><a href="https://docs.python.org/3/library/stdtypes.html#str">str</a> | <a href="https://posit-dev.github.io/chatlas/reference/types.MISSING_TYPE.html#chatlas.types.MISSING_TYPE">DEPRECATED_TYPE</a></td>
+<td><a href="https://docs.python.org/3/builtins/stdtypes.html#str">str</a> | <a href="https://posit-dev.github.io/chatlas/reference/types.MISSING_TYPE.html#chatlas.types.MISSING_TYPE">DEPRECATED_TYPE</a></td>
 <td>Deprecated; use <code>provider_model</code> instead.</td>
 <td><code>DEPRECATED</code></td>
 </tr>
@@ -995,7 +1001,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tbody>
 <tr class="odd">
 <td></td>
-<td><a href="https://docs.python.org/3/library/exceptions.html#ValueError">ValueError</a></td>
+<td><a href="https://docs.python.org/3/builtins/exceptions.html#ValueError">ValueError</a></td>
 <td>If no valid provider is specified either through parameters or environment variables.</td>
 </tr>
 </tbody>

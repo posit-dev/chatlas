@@ -12,7 +12,7 @@ This error is meant to be raised when an end user has chosen to deny a tool call
 
 | Name | Type | Description | Default |
 |----|----|----|----|
-| reason | [str](https://docs.python.org/3/library/stdtypes.html#str) | A string describing the reason for rejecting the tool call. This will be included in the error message passed to the LLM. In addition to the reason, the error message will also include “Tool call rejected.” to indicate that the tool call was not processed. | `'The user has chosen to disallow the tool call.'` |
+| reason | [str](https://docs.python.org/3/builtins/stdtypes.html#str) | A string describing the reason for rejecting the tool call. This will be included in the error message passed to the LLM. In addition to the reason, the error message will also include “Tool call rejected.” to indicate that the tool call was not processed. | `'The user has chosen to disallow the tool call.'` |
 
 ## Raises
 

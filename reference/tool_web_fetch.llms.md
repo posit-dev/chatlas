@@ -19,9 +19,9 @@ Supported providers: Claude (Anthropic), Google (Gemini and Vertex). Registering
 
 | Name | Type | Description | Default |
 |----|----|----|----|
-| allowed_domains | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\[[list](https://docs.python.org/3/library/stdtypes.html#list)\[[str](https://docs.python.org/3/library/stdtypes.html#str)\]\] | Restrict fetches to specific domains. Only supported by Claude. | `None` |
-| blocked_domains | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\[[list](https://docs.python.org/3/library/stdtypes.html#list)\[[str](https://docs.python.org/3/library/stdtypes.html#str)\]\] | Exclude specific domains from fetches. Only supported by Claude. Cannot be used with `allowed_domains`. | `None` |
-| max_uses | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\[[int](https://docs.python.org/3/library/functions.html#int)\] | Maximum number of fetches allowed per request. Only supported by Claude. | `None` |
+| allowed_domains | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\[[list](https://docs.python.org/3/builtins/stdtypes.html#list)\[[str](https://docs.python.org/3/builtins/stdtypes.html#str)\]\] | Restrict fetches to specific domains. Only supported by Claude. | `None` |
+| blocked_domains | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\[[list](https://docs.python.org/3/builtins/stdtypes.html#list)\[[str](https://docs.python.org/3/builtins/stdtypes.html#str)\]\] | Exclude specific domains from fetches. Only supported by Claude. Cannot be used with `allowed_domains`. | `None` |
+| max_uses | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\[[int](https://docs.python.org/3/builtins/functions.html#int)\] | Maximum number of fetches allowed per request. Only supported by Claude. | `None` |
 
 ## Returns
 

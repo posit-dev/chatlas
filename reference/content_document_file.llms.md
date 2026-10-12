@@ -14,8 +14,8 @@ This embeds the file’s bytes in every request that includes it. For a large do
 
 | Name | Type | Description | Default |
 |----|----|----|----|
-| path | [str](https://docs.python.org/3/library/stdtypes.html#str) \| [Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path) | A path to a local file. | *required* |
-| mime_type | [Literal](https://docs.python.org/3/library/typing.html#typing.Literal)\['auto'\] \| [str](https://docs.python.org/3/library/stdtypes.html#str) | The file’s MIME type. If `"auto"`, it’s guessed from the file’s extension, falling back to `"text/plain"` for unrecognized extensions (e.g. most source code files). | `'auto'` |
+| path | [str](https://docs.python.org/3/builtins/stdtypes.html#str) \| [Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path) | A path to a local file. | *required* |
+| mime_type | [Literal](https://docs.python.org/3/library/typing.html#typing.Literal)\['auto'\] \| [str](https://docs.python.org/3/builtins/stdtypes.html#str) | The file’s MIME type. If `"auto"`, it’s guessed from the file’s extension, falling back to `"text/plain"` for unrecognized extensions (e.g. most source code files). | `'auto'` |
 
 ## Returns
 
@@ -27,5 +27,5 @@ This embeds the file’s bytes in every request that includes it. For a large do
 
 | Name | Type | Description |
 |----|----|----|
-|  | [FileNotFoundError](https://docs.python.org/3/library/exceptions.html#FileNotFoundError) | If the specified file does not exist. |
-|  | [ValueError](https://docs.python.org/3/library/exceptions.html#ValueError) | If `path` points to a PDF file (use `content_pdf_file()` instead). |
+|  | [FileNotFoundError](https://docs.python.org/3/builtins/exceptions.html#FileNotFoundError) | If the specified file does not exist. |
+|  | [ValueError](https://docs.python.org/3/builtins/exceptions.html#ValueError) | If `path` points to a PDF file (use `content_pdf_file()` instead). |

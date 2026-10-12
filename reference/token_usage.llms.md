@@ -12,4 +12,4 @@ Call this function to find out the cumulative number of tokens that you have sen
 
 | Name | Type | Description |
 |----|----|----|
-|  | [list](https://docs.python.org/3/library/stdtypes.html#list)\[[TokenUsage](https://posit-dev.github.io/chatlas/reference/types.TokenUsage.html#chatlas.types.TokenUsage)\] \| None | A list of dictionaries with the following keys: “name”, “input”, “output”, and “cost”. If no cost data is available for the name/model combination chosen, then “cost” will be None. If no tokens have been logged, then None is returned. |
+|  | [list](https://docs.python.org/3/builtins/stdtypes.html#list)\[[TokenUsage](https://posit-dev.github.io/chatlas/reference/types.TokenUsage.html#chatlas.types.TokenUsage)\] \| None | A list of dictionaries with the following keys: “name”, “input”, “output”, and “cost”. If no cost data is available for the name/model combination chosen, then “cost” will be None. If no tokens have been logged, then None is returned. |

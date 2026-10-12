@@ -80,7 +80,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="../site_libs/quarto-html/quarto-syntax-highlighting-8f68c619070a9997a612f17db9fc177b.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-d371f0ab0b9878dc2c083d135a92b822.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-dbb44467009f5f46961876d98a9e1bd1.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -784,6 +784,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
+  <a href="../reference/types.SupportsContent.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">types.SupportsContent</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
   <a href="../reference/types.TokenUsage.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">types.TokenUsage</span></a>
   </div>
@@ -887,7 +893,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tbody>
 <tr class="odd">
 <td>system_prompt</td>
-<td><a href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>[<a href="https://docs.python.org/3/library/stdtypes.html#str">str</a>]</td>
+<td><a href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>[<a href="https://docs.python.org/3/builtins/stdtypes.html#str">str</a>]</td>
 <td>A system prompt to set the behavior of the assistant.</td>
 <td><code>None</code></td>
 </tr>
@@ -899,7 +905,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </tr>
 <tr class="odd">
 <td>base_url</td>
-<td><a href="https://docs.python.org/3/library/stdtypes.html#str">str</a></td>
+<td><a href="https://docs.python.org/3/builtins/stdtypes.html#str">str</a></td>
 <td>The base URL to the endpoint; the default uses OpenAI. Since <code>ChatOpenAI()</code> uses the Responses API, most third-party backends won’t work here. For OpenAI-compatible backends (e.g., vLLM, Ollama, LiteLLM), use <a href="https://posit-dev.github.io/chatlas/reference/ChatOpenAICompletions.html#chatlas.ChatOpenAICompletions"><code>ChatOpenAICompletions</code></a> instead.</td>
 <td><code>'https://api.openai.com/v1'</code></td>
 </tr>
@@ -917,7 +923,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </tr>
 <tr class="even">
 <td>api_key</td>
-<td><a href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>[<a href="https://docs.python.org/3/library/stdtypes.html#str">str</a>]</td>
+<td><a href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>[<a href="https://docs.python.org/3/builtins/stdtypes.html#str">str</a>]</td>
 <td>The API key to use for authentication. You generally should not supply this directly, but instead set the <code>OPENAI_API_KEY</code> environment variable.</td>
 <td><code>None</code></td>
 </tr>

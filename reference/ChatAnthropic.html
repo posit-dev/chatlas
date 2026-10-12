@@ -80,7 +80,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="../site_libs/quarto-html/quarto-syntax-highlighting-8f68c619070a9997a612f17db9fc177b.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-d371f0ab0b9878dc2c083d135a92b822.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-dbb44467009f5f46961876d98a9e1bd1.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -784,6 +784,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
+  <a href="../reference/types.SupportsContent.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">types.SupportsContent</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
   <a href="../reference/types.TokenUsage.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">types.TokenUsage</span></a>
   </div>
@@ -901,7 +907,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tbody>
 <tr class="odd">
 <td>system_prompt</td>
-<td><a href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>[<a href="https://docs.python.org/3/library/stdtypes.html#str">str</a>]</td>
+<td><a href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>[<a href="https://docs.python.org/3/builtins/stdtypes.html#str">str</a>]</td>
 <td>A system prompt to set the behavior of the assistant.</td>
 <td><code>None</code></td>
 </tr>
@@ -913,14 +919,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </tr>
 <tr class="odd">
 <td>max_tokens</td>
-<td><a href="https://docs.python.org/3/library/functions.html#int">int</a></td>
+<td><a href="https://docs.python.org/3/builtins/functions.html#int">int</a></td>
 <td>Maximum number of tokens to generate before stopping.</td>
 <td><code>4096</code></td>
 </tr>
 <tr class="even">
 <td>reasoning</td>
 <td><a href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>['int | ReasoningEffort | ThinkingConfigEnabledParam']</td>
-<td>Controls Claude’s extended thinking. Pass an integer to set a fixed thinking budget (the number of tokens allocated to reasoning; must be ≥1024 and less than <code>max_tokens</code>). Alternatively, pass a string effort level (<code>"low"</code>, <code>"medium"</code>, <code>"high"</code>, <code>"xhigh"</code>, or <code>"max"</code>) to enable adaptive thinking, where Claude decides how much to think based on the requested effort. See <a href="https://docs.claude.com/en/docs/build-with-claude/extended-thinking">extended thinking</a> for details.</td>
+<td>Controls Claude’s extended thinking. Pass a string effort level (<code>"low"</code>, <code>"medium"</code>, <code>"high"</code>, <code>"xhigh"</code>, or <code>"max"</code>) to enable adaptive thinking, where Claude decides how much to think based on the requested effort. Alternatively, pass an integer to set a fixed thinking budget (the number of tokens allocated to reasoning; must be ≥1024 and less than <code>max_tokens</code>). Fixed budgets are deprecated on Claude Opus 4.6 / Sonnet 4.6 and rejected by later models (including the default, Claude Sonnet 5), so use an effort level there. See <a href="https://docs.claude.com/en/docs/build-with-claude/extended-thinking">extended thinking</a> for details.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="odd">
@@ -937,14 +943,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </tr>
 <tr class="odd">
 <td>api_key</td>
-<td><a href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>[<a href="https://docs.python.org/3/library/stdtypes.html#str">str</a>]</td>
+<td><a href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>[<a href="https://docs.python.org/3/builtins/stdtypes.html#str">str</a>]</td>
 <td>The API key to use for authentication. You generally should not supply this directly, but instead set the <code>ANTHROPIC_API_KEY</code> environment variable.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="even">
 <td>kwargs</td>
 <td><a href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>['ChatClientArgs']</td>
-<td>Additional arguments to pass to the <code>anthropic.Anthropic()</code> client constructor.</td>
+<td>Additional arguments to pass to the <code>anthropic.Anthropic()</code> client constructor. Note that the client defaults <code>base_url</code> to the <code>ANTHROPIC_BASE_URL</code> environment variable when it is set, so setting that variable is enough to route requests through a proxy or gateway.</td>
 <td><code>None</code></td>
 </tr>
 </tbody>

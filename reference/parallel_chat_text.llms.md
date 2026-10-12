@@ -21,11 +21,11 @@ This is a convenience function that wraps `parallel_chat()` and extracts just th
 | Name | Type | Description | Default |
 |----|----|----|----|
 | chat | [Chat](https://posit-dev.github.io/chatlas/reference/Chat.html#chatlas.Chat) | A base chat object. | *required* |
-| prompts | [list](https://docs.python.org/3/library/stdtypes.html#list)\[`ContentT`\] \| [list](https://docs.python.org/3/library/stdtypes.html#list)\[[list](https://docs.python.org/3/library/stdtypes.html#list)\[`ContentT`\]\] | A list of prompts. Each prompt can be a string or a list of string/Content objects. | *required* |
-| max_active | [int](https://docs.python.org/3/library/functions.html#int) | The maximum number of simultaneous requests to send. | `10` |
-| rpm | [int](https://docs.python.org/3/library/functions.html#int) | Maximum number of requests per minute. Default is 500. | `500` |
+| prompts | [list](https://docs.python.org/3/builtins/stdtypes.html#list)\[`ContentT`\] \| [list](https://docs.python.org/3/builtins/stdtypes.html#list)\[[list](https://docs.python.org/3/builtins/stdtypes.html#list)\[`ContentT`\]\] | A list of prompts. Each prompt can be a string or a list of string/Content objects. | *required* |
+| max_active | [int](https://docs.python.org/3/builtins/functions.html#int) | The maximum number of simultaneous requests to send. | `10` |
+| rpm | [int](https://docs.python.org/3/builtins/functions.html#int) | Maximum number of requests per minute. Default is 500. | `500` |
 | on_error | [Literal](https://docs.python.org/3/library/typing.html#typing.Literal)\['return', 'continue', 'stop'\] | What to do when a request fails. One of: \* `"return"` (the default): stop processing new requests, wait for in-flight requests to finish, then return. \* `"continue"`: keep going, performing every request. \* `"stop"`: stop processing and throw an error. | `'return'` |
-| kwargs | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\[[dict](https://docs.python.org/3/library/stdtypes.html#dict)\[[str](https://docs.python.org/3/library/stdtypes.html#str), [Any](https://docs.python.org/3/library/typing.html#typing.Any)\]\] | Additional keyword arguments to pass to the chat method. | `None` |
+| kwargs | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\[[dict](https://docs.python.org/3/builtins/stdtypes.html#dict)\[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [Any](https://docs.python.org/3/library/typing.html#typing.Any)\]\] | Additional keyword arguments to pass to the chat method. | `None` |
 
 ## Returns
 

@@ -12,7 +12,7 @@ Not all providers support PDF input, so check the documentation for the provider
 
 | Name | Type | Description | Default |
 |----|----|----|----|
-| path | [str](https://docs.python.org/3/library/stdtypes.html#str) \| [Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path) | A path to a local PDF file. | *required* |
+| path | [str](https://docs.python.org/3/builtins/stdtypes.html#str) \| [Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path) | A path to a local PDF file. | *required* |
 
 ## Returns
 

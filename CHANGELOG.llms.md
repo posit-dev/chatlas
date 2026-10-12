@@ -1,6 +1,92 @@
 # Changelog
 
-## \[UNRELEASED\]
+## \[Unreleased\]
+
+### New features
+
+- The result of `chat.files.get()` (and elements of `chat.files.list()`) can now be passed straight to `.chat()` (and anywhere else content is accepted), so a file uploaded in an earlier session can be reused from its id alone: `chat.chat("Summarize this.", chat.files.get("file_011CRabc..."))`. When the provider doesn’t report a MIME type (OpenAI’s Files API never does), it’s guessed from the filename. For when you want the underlying `ContentUploaded` reference itself (e.g. to build a `UserTurn` by hand), `FileMetadata` gains a `.to_content()` method. This works via a new general convention: any object implementing `to_content() -> Content` (see `chatlas.types.SupportsContent`) is accepted anywhere content is passed, so third-party packages can make their own objects usable as chat inputs. (#417)
+
+### Changes
+
+- The `snowflake` extra (i.e., `pip install "chatlas[snowflake]"`) no longer installs `snowflake-ml-python`, which pulled in the heavy torch ecosystem and blocked installation on Python 3.13+. `ChatSnowflake()` has used the Cortex REST API (`snowflake.core`) since v0.11.0, so it only needs `snowflake-core` and `snowflake-snowpark-python`.
+
+### Bug fixes
+
+- `ChatBedrockAnthropic(reasoning=)` now accepts an effort level (`"low"`, `"medium"`, `"high"`, `"xhigh"` or `"max"`) to enable adaptive thinking, as `ChatAnthropic()` already did. It previously only took a token budget, which its default model (Claude Sonnet 5) rejects, so there was no way to turn on thinking with that model.
+- `ChatBedrock()` (with `api="messages"` or `api="responses"`) no longer sends a URL for `content_pdf_url()`/`content_document_url()` content, which `bedrock-mantle` rejects since it can’t fetch URLs itself. The bytes are downloaded and sent instead, as they already were before URL passthrough was added. `ChatBedrockAnthropic()` gets the same fix, since Bedrock’s InvokeModel API can’t fetch `url` sources either. (#410)
+- Bedrock-backed providers now fail fast with a clear error for `content_image_url()` content (remote images were already rejected by Bedrock with an opaque API error, since it can’t fetch URLs). Download the image and use `content_image_file()` instead. (#410)
+- `ChatOpenAI()` now sends `type: "message"` on every message-shaped input item to the Responses API (text, images, PDFs, documents, and uploaded-file references, across all roles). OpenAI infers the type when it’s absent, but some OpenAI-compatible servers (e.g. llama.cpp) only infer it for system/developer/user items and reject replayed assistant items without it, which broke multi-turn conversations against those servers. This is a no-op against OpenAI itself.
+- `ChatBedrock()` (with the default `api="converse"`) no longer sends assistant turns with an empty `content` array, which Converse rejects. This happens when a response carries no content blocks, for example when a guardrail intervenes before the model produces any. A `"[empty string]"` placeholder is sent instead, matching how empty text content is already normalized. (#426)
+- `ChatPosit()` now handles setting `chat.model` to a model from the other family (Claude vs. non-Claude): the underlying provider is swapped so requests go to the correct endpoint, instead of failing with a mismatched request. The `cache` setting is preserved across switches.
+- Anthropic-backed providers (`ChatAnthropic()`, `ChatPosit()`, `ChatBedrock()`, etc.) no longer fail with `Invalid signature in thinking block` when the conversation history contains reasoning from a non-Claude model (e.g., after switching `chat.model` across families); such thinking is now replayed as plain text so the model can still see it.
+- `content_image_file()` no longer fails with `ValueError: unknown file extension` when `resize` uses the `!` (ignore aspect ratio) flag on an image larger than the requested box, e.g. `resize="200x200!"`. (#433)
+- `params(top_k=)` is no longer sent as `top_logprobs` for OpenAI-based providers (the two are unrelated; OpenAI has no `top_k` sampling parameter). `top_k` is now dropped with the standard unsupported-parameter warning. (#412)
+- `Chat.export()` and `interpolate_file()` now always read and write files as UTF-8. Previously they relied on the platform’s default locale encoding, so on a non-UTF-8 locale `export()` could raise `UnicodeEncodeError` and `interpolate_file()` could silently return a corrupted (mojibake) prompt instead of the file’s contents. (#437)
+- `ChatAnthropic()` no longer drops assistant turns that have no content; doing so could produce two consecutive user messages, violating the API’s user/assistant alternation requirement. A `"[empty string]"` placeholder is sent instead, matching how empty text content is already normalized. (#416)
+
+## \[0.23.0\] - 2026-09-04
+
+### New features
+
+- `Chat` gains `close()` and `close_async()` methods (plus context-manager support) for releasing resources held by the provider – HTTP connection pools, the Snowflake Snowpark session/connection, and (via `close_async()`) MCP server sessions. This is useful in long-lived applications like Shiny that create a chat per user session: `session.on_ended(chat.close)`. Providers only close resources they created themselves; caller-supplied clients are left open.
+
+- `ChatSnowflake()` gains a `session` parameter for supplying an existing `snowflake.snowpark.Session`, mirroring `ChatDatabricks()`’s `workspace_client`. This lets one session be shared across multiple chats; `Chat.close()` only closes sessions that chatlas created itself, leaving caller-supplied sessions open.
+
+- When running on Posit Connect, chatlas now forwards the Shiny viewer’s session token to Connect’s LLM gateway (as a `Posit-Connect-User-Session-Token` header) so gateway usage can be attributed to the viewer. This happens automatically for Shiny content and only affects requests to the gateway.
+
+### Changes
+
+- `ChatHuggingFace()`’s default `model` is now `Qwen/Qwen3-235B-A22B-Instruct-2507` (previously `meta-llama/Llama-3.1-8B-Instruct`), matching ellmer’s default. (#414)
+- `ChatBedrock()` now defaults `base_url` to the official AWS SDKs’ endpoint override environment variables when set: `AWS_ENDPOINT_URL_BEDROCK_RUNTIME` for `api="converse"`, and `AWS_ENDPOINT_URL_BEDROCK_MANTLE` for `api="messages"` and `api="responses"`. Similarly, `ChatAnthropic()` respects the `ANTHROPIC_BASE_URL` environment variable (via the anthropic SDK). Setting these variables is enough to route requests through a proxy or gateway, so you don’t have to pass `base_url` on every call.
+
+### Bug fixes
+
+- `ChatBedrock()`’s default model (previously `"us.anthropic.claude-sonnet-4-6"`) is now `"us.anthropic.claude-sonnet-5"`, which mantle’s `api="messages"` endpoint actually serves. Separately, the cross-region inference prefix (e.g. `"us."`) is now stripped from the model id sent in requests to `api="messages"` and `api="responses"`, since mantle rejects it even though Converse requires it. Previously, a mantle-only model with a cross-region prefix (e.g. `model="us.openai.gpt-5.4"`) would 404. (#411)
+- `ChatDatabricks()` no longer drops the assistant’s reply from the conversation when a GPT-OSS endpoint streams typed content. The typed part array was merged into the accumulated completion before it was normalized, so every later text delta was appended to it one character at a time and the finished turn came back empty. (#409)
+- `.to_solver()` no longer corrupts the system prompt or the prior turns it reads out of Inspect AI’s message state. The system prompt was being set to the `repr()` of the `ChatMessageSystem` object rather than its text, and message content arriving in Inspect AI’s `str` form (rather than as a list of `Content`) was iterated one character at a time. (#407)
+- `ChatGoogle()` no longer raises `ValueError: Unknown content type: ContentThinking` on the second and later turns when `reasoning` is enabled; thinking content is now replayed to the model as thought parts, and the `thought_signature` on thought parts is preserved (previously only tool-call parts kept it). (#403)
+- `ChatOllama()` now distinguishes a remote endpoint it can’t reach from a genuinely missing local install, and validates a supplied `model` against `/api/tags` at construction time instead of only when `model` is omitted. (#393)
+
+## \[0.22.0\] - 2026-08-25
+
+### Changes
+
+- `ChatAnthropic()`, `ChatBedrock()`, and `ChatPosit()` now require `anthropic>=1.0.0`. As a result, custom `http_client`s passed to Anthropic-backed providers must now be `httpx2` clients (rather than `httpx`), matching the anthropic SDK’s own requirement.
+- `ChatBedrock()` and `ChatBedrockAnthropic()` now raise at construction if no AWS region can be resolved (from the `aws_region` argument, the `AWS_REGION`/`AWS_DEFAULT_REGION` environment variables, or the AWS profile), rather than silently defaulting to `us-east-1`. This behavior change is inherited from anthropic 1.0.
+- On Anthropic-backed providers, the `temperature`, `top_p`, and `top_k` model parameters are deprecated: anthropic 1.0 removed them from the request schema since current models ignore them. chatlas now forwards them via `extra_body` (with a `DeprecationWarning`) so older models that still honor them keep working; this forwarding will be removed in a future release.
+
+### Added
+
+- `Chat` gains a settable `.conversation_id` property. When set, the identifier is recorded as the `gen_ai.conversation.id` attribute on the OpenTelemetry `chat` and `invoke_agent` spans, allowing backends to group spans belonging to the same conversation (per the OpenTelemetry GenAI semantic conventions). Developer-facing: intended for frameworks that manage conversation history; chatlas never generates an identifier on its own.
+
+### Bug fixes
+
+- `ChatDatabricks()` no longer crashes on GPT-OSS endpoints that return `message.content` / `delta.content` as a list of typed parts instead of a plain string; text parts are concatenated back into a string and reasoning summaries become `ContentThinking`/`ContentThinkingDelta`, both streaming and non-streaming. (#392)
+
+## \[0.21.2\] - 2026-08-20
+
+### Bug fixes
+
+- Rich tool results containing images or PDFs remain semantic `ContentToolResult` objects in saved chat history, so restoring a conversation no longer exposes provider-only XML and media as user-authored content.
+- `ChatOpenAI()` web-search citations no longer report the inline Markdown source link as `ContentCitation.grounded_span`; OpenAI’s citation offsets identify that marker rather than the answer text it supports. (#388)
+- `ChatOpenAI()` no longer crashes while streaming web-search citations with current OpenAI SDKs, which emit annotations as model objects rather than dictionaries.
+- `ChatAnthropic()` now identifies Claude 5 and later models as supporting native structured output, so automatic mode does not fall back to tools. (#390)
+
+## \[0.21.1\] - 2026-08-12
+
+### Bug fixes
+
+- `ChatGoogle()` and `ChatVertex()` now emit grounded citations immediately after the answer text they support while streaming, before the related web search or URL-fetch activity. This keeps streamed citations attached to their answer text instead of separating them into a later activity segment.
+- OpenAI-based providers now support the OpenAI 3 SDK and its native `httpx2` clients. Custom clients are typed and documented as `httpx2`; legacy `httpx` clients remain supported at runtime during migration. (#387)
+- `ChatAnthropic()` citations backed by `document_index` (from `tool_web_fetch()` results and document/PDF attachments) now resolve to a source URL, instead of always coming back without one. Anthropic counts that index across every document-shaped block in the whole request, including ones from prior turns, which chatlas wasn’t accounting for. (#382)
+- Token cost lookups (`.get_cost()`, `token_usage()`) no longer crash on models with no input price (e.g. output-only video generation models on Bedrock), and read ellmer’s current pricing data format, which now wraps the price list in a versioned envelope rather than a bare array. (#382)
+- `Chat.to_solver()` now reports `total_tokens` including cached input tokens, matching what Inspect’s own `generate()` path records. Previously the total was just input plus output, so under a prompt-cache hit an eval run through the solver under-reported its total by exactly the number of cached tokens. (#216)
+
+### Breaking changes
+
+- Custom `Provider` implementations must accept a `turns` keyword argument on `.stream_content()`, `.stream_turn()`, and `.value_turn()`. chatlas passes the complete request history to these hooks so providers can resolve response references to content from earlier turns. (#382)
+
+## \[0.21.0\] - 2026-08-04
 
 ### New features
 

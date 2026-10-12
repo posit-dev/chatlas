@@ -40,10 +40,10 @@ Chat with a Google Vertex AI model.
 
 | Name | Type | Description | Default |
 |----|----|----|----|
-| model | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\[[str](https://docs.python.org/3/library/stdtypes.html#str)\] | The model to use for the chat. The default, None, will pick a reasonable default, and warn you about it. We strongly recommend explicitly choosing a model for all but the most casual use. | `None` |
-| project | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\[[str](https://docs.python.org/3/library/stdtypes.html#str)\] | The Google Cloud project ID (e.g., “your-project-id”). If not provided, the GOOGLE_CLOUD_PROJECT environment variable will be used. | `None` |
-| location | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\[[str](https://docs.python.org/3/library/stdtypes.html#str)\] | The Google Cloud location (e.g., “us-central1”). If not provided, the GOOGLE_CLOUD_LOCATION environment variable will be used. | `None` |
-| system_prompt | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\[[str](https://docs.python.org/3/library/stdtypes.html#str)\] | A system prompt to set the behavior of the assistant. | `None` |
+| model | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\[[str](https://docs.python.org/3/builtins/stdtypes.html#str)\] | The model to use for the chat. The default, None, will pick a reasonable default, and warn you about it. We strongly recommend explicitly choosing a model for all but the most casual use. | `None` |
+| project | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\[[str](https://docs.python.org/3/builtins/stdtypes.html#str)\] | The Google Cloud project ID (e.g., “your-project-id”). If not provided, the GOOGLE_CLOUD_PROJECT environment variable will be used. | `None` |
+| location | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\[[str](https://docs.python.org/3/builtins/stdtypes.html#str)\] | The Google Cloud location (e.g., “us-central1”). If not provided, the GOOGLE_CLOUD_LOCATION environment variable will be used. | `None` |
+| system_prompt | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\[[str](https://docs.python.org/3/builtins/stdtypes.html#str)\] | A system prompt to set the behavior of the assistant. | `None` |
 
 ## Returns
 

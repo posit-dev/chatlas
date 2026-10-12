@@ -43,7 +43,7 @@ ul.task-list li input[type="checkbox"] {
 <link href="site_libs/quarto-html/quarto-syntax-highlighting-8f68c619070a9997a612f17db9fc177b.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-d371f0ab0b9878dc2c083d135a92b822.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-dbb44467009f5f46961876d98a9e1bd1.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -135,175 +135,202 @@ ul.task-list li input[type="checkbox"] {
   <ul>
   <li><a href="#changelog" id="toc-changelog" class="nav-link active" data-scroll-target="#changelog">Changelog</a>
   <ul class="collapse">
-  <li><a href="#unreleased" id="toc-unreleased" class="nav-link" data-scroll-target="#unreleased">[UNRELEASED]</a>
+  <li><a href="#unreleased" id="toc-unreleased" class="nav-link" data-scroll-target="#unreleased">[Unreleased]</a>
   <ul class="collapse">
   <li><a href="#new-features" id="toc-new-features" class="nav-link" data-scroll-target="#new-features">New features</a></li>
-  <li><a href="#improvements" id="toc-improvements" class="nav-link" data-scroll-target="#improvements">Improvements</a></li>
+  <li><a href="#changes" id="toc-changes" class="nav-link" data-scroll-target="#changes">Changes</a></li>
   <li><a href="#bug-fixes" id="toc-bug-fixes" class="nav-link" data-scroll-target="#bug-fixes">Bug fixes</a></li>
-  <li><a href="#breaking-changes" id="toc-breaking-changes" class="nav-link" data-scroll-target="#breaking-changes">Breaking changes</a></li>
   </ul></li>
-  <li><a href="#section" id="toc-section" class="nav-link" data-scroll-target="#section">[0.20.0] - 2026-07-29</a>
+  <li><a href="#section" id="toc-section" class="nav-link" data-scroll-target="#section">[0.23.0] - 2026-09-04</a>
   <ul class="collapse">
   <li><a href="#new-features-1" id="toc-new-features-1" class="nav-link" data-scroll-target="#new-features-1">New features</a></li>
-  <li><a href="#improvements-1" id="toc-improvements-1" class="nav-link" data-scroll-target="#improvements-1">Improvements</a></li>
-  <li><a href="#changes" id="toc-changes" class="nav-link" data-scroll-target="#changes">Changes</a></li>
+  <li><a href="#changes-1" id="toc-changes-1" class="nav-link" data-scroll-target="#changes-1">Changes</a></li>
   <li><a href="#bug-fixes-1" id="toc-bug-fixes-1" class="nav-link" data-scroll-target="#bug-fixes-1">Bug fixes</a></li>
-  <li><a href="#breaking-changes-1" id="toc-breaking-changes-1" class="nav-link" data-scroll-target="#breaking-changes-1">Breaking changes</a></li>
   </ul></li>
-  <li><a href="#section-1" id="toc-section-1" class="nav-link" data-scroll-target="#section-1">[0.19.2] - 2026-07-08</a>
+  <li><a href="#section-1" id="toc-section-1" class="nav-link" data-scroll-target="#section-1">[0.22.0] - 2026-08-25</a>
   <ul class="collapse">
-  <li><a href="#new-features-2" id="toc-new-features-2" class="nav-link" data-scroll-target="#new-features-2">New features</a></li>
-  </ul></li>
-  <li><a href="#section-2" id="toc-section-2" class="nav-link" data-scroll-target="#section-2">[0.19.1] - 2026-07-01</a>
-  <ul class="collapse">
-  <li><a href="#new-features-3" id="toc-new-features-3" class="nav-link" data-scroll-target="#new-features-3">New features</a></li>
-  </ul></li>
-  <li><a href="#section-3" id="toc-section-3" class="nav-link" data-scroll-target="#section-3">[0.19.0] - 2026-06-15</a>
-  <ul class="collapse">
-  <li><a href="#new-features-4" id="toc-new-features-4" class="nav-link" data-scroll-target="#new-features-4">New features</a></li>
+  <li><a href="#changes-2" id="toc-changes-2" class="nav-link" data-scroll-target="#changes-2">Changes</a></li>
+  <li><a href="#added" id="toc-added" class="nav-link" data-scroll-target="#added">Added</a></li>
   <li><a href="#bug-fixes-2" id="toc-bug-fixes-2" class="nav-link" data-scroll-target="#bug-fixes-2">Bug fixes</a></li>
   </ul></li>
-  <li><a href="#section-4" id="toc-section-4" class="nav-link" data-scroll-target="#section-4">[0.18.1] - 2026-05-21</a>
+  <li><a href="#section-2" id="toc-section-2" class="nav-link" data-scroll-target="#section-2">[0.21.2] - 2026-08-20</a>
   <ul class="collapse">
-  <li><a href="#improvements-2" id="toc-improvements-2" class="nav-link" data-scroll-target="#improvements-2">Improvements</a></li>
   <li><a href="#bug-fixes-3" id="toc-bug-fixes-3" class="nav-link" data-scroll-target="#bug-fixes-3">Bug fixes</a></li>
   </ul></li>
-  <li><a href="#section-5" id="toc-section-5" class="nav-link" data-scroll-target="#section-5">[0.18.0] - 2026-05-12</a>
+  <li><a href="#section-3" id="toc-section-3" class="nav-link" data-scroll-target="#section-3">[0.21.1] - 2026-08-12</a>
+  <ul class="collapse">
+  <li><a href="#bug-fixes-4" id="toc-bug-fixes-4" class="nav-link" data-scroll-target="#bug-fixes-4">Bug fixes</a></li>
+  <li><a href="#breaking-changes" id="toc-breaking-changes" class="nav-link" data-scroll-target="#breaking-changes">Breaking changes</a></li>
+  </ul></li>
+  <li><a href="#section-4" id="toc-section-4" class="nav-link" data-scroll-target="#section-4">[0.21.0] - 2026-08-04</a>
+  <ul class="collapse">
+  <li><a href="#new-features-2" id="toc-new-features-2" class="nav-link" data-scroll-target="#new-features-2">New features</a></li>
+  <li><a href="#improvements" id="toc-improvements" class="nav-link" data-scroll-target="#improvements">Improvements</a></li>
+  <li><a href="#bug-fixes-5" id="toc-bug-fixes-5" class="nav-link" data-scroll-target="#bug-fixes-5">Bug fixes</a></li>
+  <li><a href="#breaking-changes-1" id="toc-breaking-changes-1" class="nav-link" data-scroll-target="#breaking-changes-1">Breaking changes</a></li>
+  </ul></li>
+  <li><a href="#section-5" id="toc-section-5" class="nav-link" data-scroll-target="#section-5">[0.20.0] - 2026-07-29</a>
+  <ul class="collapse">
+  <li><a href="#new-features-3" id="toc-new-features-3" class="nav-link" data-scroll-target="#new-features-3">New features</a></li>
+  <li><a href="#improvements-1" id="toc-improvements-1" class="nav-link" data-scroll-target="#improvements-1">Improvements</a></li>
+  <li><a href="#changes-3" id="toc-changes-3" class="nav-link" data-scroll-target="#changes-3">Changes</a></li>
+  <li><a href="#bug-fixes-6" id="toc-bug-fixes-6" class="nav-link" data-scroll-target="#bug-fixes-6">Bug fixes</a></li>
+  <li><a href="#breaking-changes-2" id="toc-breaking-changes-2" class="nav-link" data-scroll-target="#breaking-changes-2">Breaking changes</a></li>
+  </ul></li>
+  <li><a href="#section-6" id="toc-section-6" class="nav-link" data-scroll-target="#section-6">[0.19.2] - 2026-07-08</a>
+  <ul class="collapse">
+  <li><a href="#new-features-4" id="toc-new-features-4" class="nav-link" data-scroll-target="#new-features-4">New features</a></li>
+  </ul></li>
+  <li><a href="#section-7" id="toc-section-7" class="nav-link" data-scroll-target="#section-7">[0.19.1] - 2026-07-01</a>
   <ul class="collapse">
   <li><a href="#new-features-5" id="toc-new-features-5" class="nav-link" data-scroll-target="#new-features-5">New features</a></li>
-  <li><a href="#improvements-3" id="toc-improvements-3" class="nav-link" data-scroll-target="#improvements-3">Improvements</a></li>
-  <li><a href="#bug-fixes-4" id="toc-bug-fixes-4" class="nav-link" data-scroll-target="#bug-fixes-4">Bug fixes</a></li>
   </ul></li>
-  <li><a href="#section-6" id="toc-section-6" class="nav-link" data-scroll-target="#section-6">[0.17.0] - 2026-05-11</a>
+  <li><a href="#section-8" id="toc-section-8" class="nav-link" data-scroll-target="#section-8">[0.19.0] - 2026-06-15</a>
   <ul class="collapse">
   <li><a href="#new-features-6" id="toc-new-features-6" class="nav-link" data-scroll-target="#new-features-6">New features</a></li>
-  <li><a href="#improvements-4" id="toc-improvements-4" class="nav-link" data-scroll-target="#improvements-4">Improvements</a></li>
-  </ul></li>
-  <li><a href="#section-7" id="toc-section-7" class="nav-link" data-scroll-target="#section-7">[0.16.0] - 2026-04-16</a>
-  <ul class="collapse">
-  <li><a href="#new-features-7" id="toc-new-features-7" class="nav-link" data-scroll-target="#new-features-7">New features</a></li>
-  <li><a href="#bug-fixes-5" id="toc-bug-fixes-5" class="nav-link" data-scroll-target="#bug-fixes-5">Bug fixes</a></li>
-  </ul></li>
-  <li><a href="#section-8" id="toc-section-8" class="nav-link" data-scroll-target="#section-8">[0.15.2] – 2026-02-27</a>
-  <ul class="collapse">
-  <li><a href="#bug-fixes-6" id="toc-bug-fixes-6" class="nav-link" data-scroll-target="#bug-fixes-6">Bug fixes</a></li>
-  </ul></li>
-  <li><a href="#section-9" id="toc-section-9" class="nav-link" data-scroll-target="#section-9">[0.15.1] – 2026-01-22</a>
-  <ul class="collapse">
-  <li><a href="#new-features-8" id="toc-new-features-8" class="nav-link" data-scroll-target="#new-features-8">New features</a></li>
   <li><a href="#bug-fixes-7" id="toc-bug-fixes-7" class="nav-link" data-scroll-target="#bug-fixes-7">Bug fixes</a></li>
   </ul></li>
-  <li><a href="#section-10" id="toc-section-10" class="nav-link" data-scroll-target="#section-10">[0.15.0] - 2026-01-06</a>
+  <li><a href="#section-9" id="toc-section-9" class="nav-link" data-scroll-target="#section-9">[0.18.1] - 2026-05-21</a>
   <ul class="collapse">
-  <li><a href="#new-features-9" id="toc-new-features-9" class="nav-link" data-scroll-target="#new-features-9">New features</a></li>
-  <li><a href="#changes-1" id="toc-changes-1" class="nav-link" data-scroll-target="#changes-1">Changes</a></li>
-  <li><a href="#improvements-5" id="toc-improvements-5" class="nav-link" data-scroll-target="#improvements-5">Improvements</a></li>
+  <li><a href="#improvements-2" id="toc-improvements-2" class="nav-link" data-scroll-target="#improvements-2">Improvements</a></li>
   <li><a href="#bug-fixes-8" id="toc-bug-fixes-8" class="nav-link" data-scroll-target="#bug-fixes-8">Bug fixes</a></li>
   </ul></li>
-  <li><a href="#section-11" id="toc-section-11" class="nav-link" data-scroll-target="#section-11">[0.14.0] - 2025-12-09</a>
+  <li><a href="#section-10" id="toc-section-10" class="nav-link" data-scroll-target="#section-10">[0.18.0] - 2026-05-12</a>
   <ul class="collapse">
-  <li><a href="#new-features-10" id="toc-new-features-10" class="nav-link" data-scroll-target="#new-features-10">New features</a></li>
-  <li><a href="#changes-2" id="toc-changes-2" class="nav-link" data-scroll-target="#changes-2">Changes</a></li>
-  <li><a href="#improvements-6" id="toc-improvements-6" class="nav-link" data-scroll-target="#improvements-6">Improvements</a></li>
+  <li><a href="#new-features-7" id="toc-new-features-7" class="nav-link" data-scroll-target="#new-features-7">New features</a></li>
+  <li><a href="#improvements-3" id="toc-improvements-3" class="nav-link" data-scroll-target="#improvements-3">Improvements</a></li>
   <li><a href="#bug-fixes-9" id="toc-bug-fixes-9" class="nav-link" data-scroll-target="#bug-fixes-9">Bug fixes</a></li>
   </ul></li>
-  <li><a href="#section-12" id="toc-section-12" class="nav-link" data-scroll-target="#section-12">[0.13.2] - 2025-10-02</a>
+  <li><a href="#section-11" id="toc-section-11" class="nav-link" data-scroll-target="#section-11">[0.17.0] - 2026-05-11</a>
   <ul class="collapse">
-  <li><a href="#improvements-7" id="toc-improvements-7" class="nav-link" data-scroll-target="#improvements-7">Improvements</a></li>
+  <li><a href="#new-features-8" id="toc-new-features-8" class="nav-link" data-scroll-target="#new-features-8">New features</a></li>
+  <li><a href="#improvements-4" id="toc-improvements-4" class="nav-link" data-scroll-target="#improvements-4">Improvements</a></li>
+  </ul></li>
+  <li><a href="#section-12" id="toc-section-12" class="nav-link" data-scroll-target="#section-12">[0.16.0] - 2026-04-16</a>
+  <ul class="collapse">
+  <li><a href="#new-features-9" id="toc-new-features-9" class="nav-link" data-scroll-target="#new-features-9">New features</a></li>
   <li><a href="#bug-fixes-10" id="toc-bug-fixes-10" class="nav-link" data-scroll-target="#bug-fixes-10">Bug fixes</a></li>
   </ul></li>
-  <li><a href="#section-13" id="toc-section-13" class="nav-link" data-scroll-target="#section-13">[0.13.1] - 2025-09-18</a>
+  <li><a href="#section-13" id="toc-section-13" class="nav-link" data-scroll-target="#section-13">[0.15.2] – 2026-02-27</a>
   <ul class="collapse">
   <li><a href="#bug-fixes-11" id="toc-bug-fixes-11" class="nav-link" data-scroll-target="#bug-fixes-11">Bug fixes</a></li>
   </ul></li>
-  <li><a href="#section-14" id="toc-section-14" class="nav-link" data-scroll-target="#section-14">[0.13.0] - 2025-09-10</a>
+  <li><a href="#section-14" id="toc-section-14" class="nav-link" data-scroll-target="#section-14">[0.15.1] – 2026-01-22</a>
   <ul class="collapse">
-  <li><a href="#new-features-11" id="toc-new-features-11" class="nav-link" data-scroll-target="#new-features-11">New features</a></li>
-  <li><a href="#improvements-8" id="toc-improvements-8" class="nav-link" data-scroll-target="#improvements-8">Improvements</a></li>
-  </ul></li>
-  <li><a href="#section-15" id="toc-section-15" class="nav-link" data-scroll-target="#section-15">[0.12.0] - 2025-09-08</a>
-  <ul class="collapse">
-  <li><a href="#breaking-changes-2" id="toc-breaking-changes-2" class="nav-link" data-scroll-target="#breaking-changes-2">Breaking changes</a></li>
-  <li><a href="#new-features-12" id="toc-new-features-12" class="nav-link" data-scroll-target="#new-features-12">New features</a></li>
+  <li><a href="#new-features-10" id="toc-new-features-10" class="nav-link" data-scroll-target="#new-features-10">New features</a></li>
   <li><a href="#bug-fixes-12" id="toc-bug-fixes-12" class="nav-link" data-scroll-target="#bug-fixes-12">Bug fixes</a></li>
   </ul></li>
-  <li><a href="#section-16" id="toc-section-16" class="nav-link" data-scroll-target="#section-16">[0.11.1] - 2025-08-29</a>
+  <li><a href="#section-15" id="toc-section-15" class="nav-link" data-scroll-target="#section-15">[0.15.0] - 2026-01-06</a>
   <ul class="collapse">
-  <li><a href="#new-features-13" id="toc-new-features-13" class="nav-link" data-scroll-target="#new-features-13">New features</a></li>
-  <li><a href="#bug-fixes-13" id="toc-bug-fixes-13" class="nav-link" data-scroll-target="#bug-fixes-13">Bug fixes</a></li>
-  <li><a href="#changes-3" id="toc-changes-3" class="nav-link" data-scroll-target="#changes-3">Changes</a></li>
-  </ul></li>
-  <li><a href="#section-17" id="toc-section-17" class="nav-link" data-scroll-target="#section-17">[0.11.0] - 2025-08-26</a>
-  <ul class="collapse">
-  <li><a href="#new-features-14" id="toc-new-features-14" class="nav-link" data-scroll-target="#new-features-14">New features</a></li>
-  <li><a href="#improvements-9" id="toc-improvements-9" class="nav-link" data-scroll-target="#improvements-9">Improvements</a></li>
+  <li><a href="#new-features-11" id="toc-new-features-11" class="nav-link" data-scroll-target="#new-features-11">New features</a></li>
   <li><a href="#changes-4" id="toc-changes-4" class="nav-link" data-scroll-target="#changes-4">Changes</a></li>
+  <li><a href="#improvements-5" id="toc-improvements-5" class="nav-link" data-scroll-target="#improvements-5">Improvements</a></li>
+  <li><a href="#bug-fixes-13" id="toc-bug-fixes-13" class="nav-link" data-scroll-target="#bug-fixes-13">Bug fixes</a></li>
   </ul></li>
-  <li><a href="#section-18" id="toc-section-18" class="nav-link" data-scroll-target="#section-18">[0.10.0] - 2025-08-19</a>
+  <li><a href="#section-16" id="toc-section-16" class="nav-link" data-scroll-target="#section-16">[0.14.0] - 2025-12-09</a>
   <ul class="collapse">
-  <li><a href="#new-features-15" id="toc-new-features-15" class="nav-link" data-scroll-target="#new-features-15">New features</a></li>
+  <li><a href="#new-features-12" id="toc-new-features-12" class="nav-link" data-scroll-target="#new-features-12">New features</a></li>
   <li><a href="#changes-5" id="toc-changes-5" class="nav-link" data-scroll-target="#changes-5">Changes</a></li>
+  <li><a href="#improvements-6" id="toc-improvements-6" class="nav-link" data-scroll-target="#improvements-6">Improvements</a></li>
   <li><a href="#bug-fixes-14" id="toc-bug-fixes-14" class="nav-link" data-scroll-target="#bug-fixes-14">Bug fixes</a></li>
   </ul></li>
-  <li><a href="#section-19" id="toc-section-19" class="nav-link" data-scroll-target="#section-19">[0.9.2] - 2025-08-08</a>
+  <li><a href="#section-17" id="toc-section-17" class="nav-link" data-scroll-target="#section-17">[0.13.2] - 2025-10-02</a>
+  <ul class="collapse">
+  <li><a href="#improvements-7" id="toc-improvements-7" class="nav-link" data-scroll-target="#improvements-7">Improvements</a></li>
+  <li><a href="#bug-fixes-15" id="toc-bug-fixes-15" class="nav-link" data-scroll-target="#bug-fixes-15">Bug fixes</a></li>
+  </ul></li>
+  <li><a href="#section-18" id="toc-section-18" class="nav-link" data-scroll-target="#section-18">[0.13.1] - 2025-09-18</a>
+  <ul class="collapse">
+  <li><a href="#bug-fixes-16" id="toc-bug-fixes-16" class="nav-link" data-scroll-target="#bug-fixes-16">Bug fixes</a></li>
+  </ul></li>
+  <li><a href="#section-19" id="toc-section-19" class="nav-link" data-scroll-target="#section-19">[0.13.0] - 2025-09-10</a>
+  <ul class="collapse">
+  <li><a href="#new-features-13" id="toc-new-features-13" class="nav-link" data-scroll-target="#new-features-13">New features</a></li>
+  <li><a href="#improvements-8" id="toc-improvements-8" class="nav-link" data-scroll-target="#improvements-8">Improvements</a></li>
+  </ul></li>
+  <li><a href="#section-20" id="toc-section-20" class="nav-link" data-scroll-target="#section-20">[0.12.0] - 2025-09-08</a>
+  <ul class="collapse">
+  <li><a href="#breaking-changes-3" id="toc-breaking-changes-3" class="nav-link" data-scroll-target="#breaking-changes-3">Breaking changes</a></li>
+  <li><a href="#new-features-14" id="toc-new-features-14" class="nav-link" data-scroll-target="#new-features-14">New features</a></li>
+  <li><a href="#bug-fixes-17" id="toc-bug-fixes-17" class="nav-link" data-scroll-target="#bug-fixes-17">Bug fixes</a></li>
+  </ul></li>
+  <li><a href="#section-21" id="toc-section-21" class="nav-link" data-scroll-target="#section-21">[0.11.1] - 2025-08-29</a>
+  <ul class="collapse">
+  <li><a href="#new-features-15" id="toc-new-features-15" class="nav-link" data-scroll-target="#new-features-15">New features</a></li>
+  <li><a href="#bug-fixes-18" id="toc-bug-fixes-18" class="nav-link" data-scroll-target="#bug-fixes-18">Bug fixes</a></li>
+  <li><a href="#changes-6" id="toc-changes-6" class="nav-link" data-scroll-target="#changes-6">Changes</a></li>
+  </ul></li>
+  <li><a href="#section-22" id="toc-section-22" class="nav-link" data-scroll-target="#section-22">[0.11.0] - 2025-08-26</a>
+  <ul class="collapse">
+  <li><a href="#new-features-16" id="toc-new-features-16" class="nav-link" data-scroll-target="#new-features-16">New features</a></li>
+  <li><a href="#improvements-9" id="toc-improvements-9" class="nav-link" data-scroll-target="#improvements-9">Improvements</a></li>
+  <li><a href="#changes-7" id="toc-changes-7" class="nav-link" data-scroll-target="#changes-7">Changes</a></li>
+  </ul></li>
+  <li><a href="#section-23" id="toc-section-23" class="nav-link" data-scroll-target="#section-23">[0.10.0] - 2025-08-19</a>
+  <ul class="collapse">
+  <li><a href="#new-features-17" id="toc-new-features-17" class="nav-link" data-scroll-target="#new-features-17">New features</a></li>
+  <li><a href="#changes-8" id="toc-changes-8" class="nav-link" data-scroll-target="#changes-8">Changes</a></li>
+  <li><a href="#bug-fixes-19" id="toc-bug-fixes-19" class="nav-link" data-scroll-target="#bug-fixes-19">Bug fixes</a></li>
+  </ul></li>
+  <li><a href="#section-24" id="toc-section-24" class="nav-link" data-scroll-target="#section-24">[0.9.2] - 2025-08-08</a>
   <ul class="collapse">
   <li><a href="#improvements-10" id="toc-improvements-10" class="nav-link" data-scroll-target="#improvements-10">Improvements</a></li>
   </ul></li>
-  <li><a href="#section-20" id="toc-section-20" class="nav-link" data-scroll-target="#section-20">[0.9.1] - 2025-07-09</a>
+  <li><a href="#section-25" id="toc-section-25" class="nav-link" data-scroll-target="#section-25">[0.9.1] - 2025-07-09</a>
   <ul class="collapse">
-  <li><a href="#bug-fixes-15" id="toc-bug-fixes-15" class="nav-link" data-scroll-target="#bug-fixes-15">Bug fixes</a></li>
-  </ul></li>
-  <li><a href="#section-21" id="toc-section-21" class="nav-link" data-scroll-target="#section-21">[0.9.0] - 2025-07-02</a>
-  <ul class="collapse">
-  <li><a href="#new-features-16" id="toc-new-features-16" class="nav-link" data-scroll-target="#new-features-16">New features</a></li>
-  <li><a href="#changes-6" id="toc-changes-6" class="nav-link" data-scroll-target="#changes-6">Changes</a></li>
-  <li><a href="#improvements-11" id="toc-improvements-11" class="nav-link" data-scroll-target="#improvements-11">Improvements</a></li>
-  <li><a href="#bug-fixes-16" id="toc-bug-fixes-16" class="nav-link" data-scroll-target="#bug-fixes-16">Bug fixes</a></li>
-  <li><a href="#developer-apis" id="toc-developer-apis" class="nav-link" data-scroll-target="#developer-apis">Developer APIs</a></li>
-  </ul></li>
-  <li><a href="#section-22" id="toc-section-22" class="nav-link" data-scroll-target="#section-22">[0.8.1] - 2025-05-30</a></li>
-  <li><a href="#section-23" id="toc-section-23" class="nav-link" data-scroll-target="#section-23">[0.8.0] - 2025-05-30</a>
-  <ul class="collapse">
-  <li><a href="#new-features-17" id="toc-new-features-17" class="nav-link" data-scroll-target="#new-features-17">New features</a></li>
-  <li><a href="#improvements-12" id="toc-improvements-12" class="nav-link" data-scroll-target="#improvements-12">Improvements</a></li>
-  <li><a href="#changes-7" id="toc-changes-7" class="nav-link" data-scroll-target="#changes-7">Changes</a></li>
-  <li><a href="#bug-fixes-17" id="toc-bug-fixes-17" class="nav-link" data-scroll-target="#bug-fixes-17">Bug fixes</a></li>
-  </ul></li>
-  <li><a href="#section-24" id="toc-section-24" class="nav-link" data-scroll-target="#section-24">[0.7.1] - 2025-05-10</a></li>
-  <li><a href="#section-25" id="toc-section-25" class="nav-link" data-scroll-target="#section-25">[0.7.0] - 2025-04-22</a>
-  <ul class="collapse">
-  <li><a href="#new-features-18" id="toc-new-features-18" class="nav-link" data-scroll-target="#new-features-18">New features</a></li>
-  <li><a href="#improvements-13" id="toc-improvements-13" class="nav-link" data-scroll-target="#improvements-13">Improvements</a></li>
-  <li><a href="#changes-8" id="toc-changes-8" class="nav-link" data-scroll-target="#changes-8">Changes</a></li>
-  <li><a href="#breaking-changes-4" id="toc-breaking-changes-4" class="nav-link" data-scroll-target="#breaking-changes-4">Breaking changes</a></li>
-  </ul></li>
-  <li><a href="#section-26" id="toc-section-26" class="nav-link" data-scroll-target="#section-26">[0.6.1] - 2025-04-03</a>
-  <ul class="collapse">
-  <li><a href="#bug-fixes-18" id="toc-bug-fixes-18" class="nav-link" data-scroll-target="#bug-fixes-18">Bug fixes</a></li>
-  </ul></li>
-  <li><a href="#section-27" id="toc-section-27" class="nav-link" data-scroll-target="#section-27">[0.6.0] - 2025-04-01</a>
-  <ul class="collapse">
-  <li><a href="#new-features-19" id="toc-new-features-19" class="nav-link" data-scroll-target="#new-features-19">New features</a></li>
-  <li><a href="#improvements-14" id="toc-improvements-14" class="nav-link" data-scroll-target="#improvements-14">Improvements</a></li>
-  </ul></li>
-  <li><a href="#section-28" id="toc-section-28" class="nav-link" data-scroll-target="#section-28">[0.5.0] - 2025-03-18</a>
-  <ul class="collapse">
-  <li><a href="#new-features-20" id="toc-new-features-20" class="nav-link" data-scroll-target="#new-features-20">New features</a></li>
-  <li><a href="#improvements-15" id="toc-improvements-15" class="nav-link" data-scroll-target="#improvements-15">Improvements</a></li>
-  <li><a href="#bug-fixes-19" id="toc-bug-fixes-19" class="nav-link" data-scroll-target="#bug-fixes-19">Bug fixes</a></li>
-  </ul></li>
-  <li><a href="#section-29" id="toc-section-29" class="nav-link" data-scroll-target="#section-29">[0.4.0] - 2025-02-19</a>
-  <ul class="collapse">
-  <li><a href="#new-features-21" id="toc-new-features-21" class="nav-link" data-scroll-target="#new-features-21">New features</a></li>
-  <li><a href="#improvements-16" id="toc-improvements-16" class="nav-link" data-scroll-target="#improvements-16">Improvements</a></li>
   <li><a href="#bug-fixes-20" id="toc-bug-fixes-20" class="nav-link" data-scroll-target="#bug-fixes-20">Bug fixes</a></li>
   </ul></li>
-  <li><a href="#section-30" id="toc-section-30" class="nav-link" data-scroll-target="#section-30">[0.3.0] - 2024-12-20</a>
+  <li><a href="#section-26" id="toc-section-26" class="nav-link" data-scroll-target="#section-26">[0.9.0] - 2025-07-02</a>
+  <ul class="collapse">
+  <li><a href="#new-features-18" id="toc-new-features-18" class="nav-link" data-scroll-target="#new-features-18">New features</a></li>
+  <li><a href="#changes-9" id="toc-changes-9" class="nav-link" data-scroll-target="#changes-9">Changes</a></li>
+  <li><a href="#improvements-11" id="toc-improvements-11" class="nav-link" data-scroll-target="#improvements-11">Improvements</a></li>
+  <li><a href="#bug-fixes-21" id="toc-bug-fixes-21" class="nav-link" data-scroll-target="#bug-fixes-21">Bug fixes</a></li>
+  <li><a href="#developer-apis" id="toc-developer-apis" class="nav-link" data-scroll-target="#developer-apis">Developer APIs</a></li>
+  </ul></li>
+  <li><a href="#section-27" id="toc-section-27" class="nav-link" data-scroll-target="#section-27">[0.8.1] - 2025-05-30</a></li>
+  <li><a href="#section-28" id="toc-section-28" class="nav-link" data-scroll-target="#section-28">[0.8.0] - 2025-05-30</a>
+  <ul class="collapse">
+  <li><a href="#new-features-19" id="toc-new-features-19" class="nav-link" data-scroll-target="#new-features-19">New features</a></li>
+  <li><a href="#improvements-12" id="toc-improvements-12" class="nav-link" data-scroll-target="#improvements-12">Improvements</a></li>
+  <li><a href="#changes-10" id="toc-changes-10" class="nav-link" data-scroll-target="#changes-10">Changes</a></li>
+  <li><a href="#bug-fixes-22" id="toc-bug-fixes-22" class="nav-link" data-scroll-target="#bug-fixes-22">Bug fixes</a></li>
+  </ul></li>
+  <li><a href="#section-29" id="toc-section-29" class="nav-link" data-scroll-target="#section-29">[0.7.1] - 2025-05-10</a></li>
+  <li><a href="#section-30" id="toc-section-30" class="nav-link" data-scroll-target="#section-30">[0.7.0] - 2025-04-22</a>
+  <ul class="collapse">
+  <li><a href="#new-features-20" id="toc-new-features-20" class="nav-link" data-scroll-target="#new-features-20">New features</a></li>
+  <li><a href="#improvements-13" id="toc-improvements-13" class="nav-link" data-scroll-target="#improvements-13">Improvements</a></li>
+  <li><a href="#changes-11" id="toc-changes-11" class="nav-link" data-scroll-target="#changes-11">Changes</a></li>
+  <li><a href="#breaking-changes-5" id="toc-breaking-changes-5" class="nav-link" data-scroll-target="#breaking-changes-5">Breaking changes</a></li>
+  </ul></li>
+  <li><a href="#section-31" id="toc-section-31" class="nav-link" data-scroll-target="#section-31">[0.6.1] - 2025-04-03</a>
+  <ul class="collapse">
+  <li><a href="#bug-fixes-23" id="toc-bug-fixes-23" class="nav-link" data-scroll-target="#bug-fixes-23">Bug fixes</a></li>
+  </ul></li>
+  <li><a href="#section-32" id="toc-section-32" class="nav-link" data-scroll-target="#section-32">[0.6.0] - 2025-04-01</a>
+  <ul class="collapse">
+  <li><a href="#new-features-21" id="toc-new-features-21" class="nav-link" data-scroll-target="#new-features-21">New features</a></li>
+  <li><a href="#improvements-14" id="toc-improvements-14" class="nav-link" data-scroll-target="#improvements-14">Improvements</a></li>
+  </ul></li>
+  <li><a href="#section-33" id="toc-section-33" class="nav-link" data-scroll-target="#section-33">[0.5.0] - 2025-03-18</a>
   <ul class="collapse">
   <li><a href="#new-features-22" id="toc-new-features-22" class="nav-link" data-scroll-target="#new-features-22">New features</a></li>
-  <li><a href="#bug-fixes-21" id="toc-bug-fixes-21" class="nav-link" data-scroll-target="#bug-fixes-21">Bug fixes</a></li>
+  <li><a href="#improvements-15" id="toc-improvements-15" class="nav-link" data-scroll-target="#improvements-15">Improvements</a></li>
+  <li><a href="#bug-fixes-24" id="toc-bug-fixes-24" class="nav-link" data-scroll-target="#bug-fixes-24">Bug fixes</a></li>
   </ul></li>
-  <li><a href="#section-31" id="toc-section-31" class="nav-link" data-scroll-target="#section-31">[0.2.0] - 2024-12-11</a></li>
+  <li><a href="#section-34" id="toc-section-34" class="nav-link" data-scroll-target="#section-34">[0.4.0] - 2025-02-19</a>
+  <ul class="collapse">
+  <li><a href="#new-features-23" id="toc-new-features-23" class="nav-link" data-scroll-target="#new-features-23">New features</a></li>
+  <li><a href="#improvements-16" id="toc-improvements-16" class="nav-link" data-scroll-target="#improvements-16">Improvements</a></li>
+  <li><a href="#bug-fixes-25" id="toc-bug-fixes-25" class="nav-link" data-scroll-target="#bug-fixes-25">Bug fixes</a></li>
+  </ul></li>
+  <li><a href="#section-35" id="toc-section-35" class="nav-link" data-scroll-target="#section-35">[0.3.0] - 2024-12-20</a>
+  <ul class="collapse">
+  <li><a href="#new-features-24" id="toc-new-features-24" class="nav-link" data-scroll-target="#new-features-24">New features</a></li>
+  <li><a href="#bug-fixes-26" id="toc-bug-fixes-26" class="nav-link" data-scroll-target="#bug-fixes-26">Bug fixes</a></li>
+  </ul></li>
+  <li><a href="#section-36" id="toc-section-36" class="nav-link" data-scroll-target="#section-36">[0.2.0] - 2024-12-11</a></li>
   </ul></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/posit-dev/chatlas/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li><li><a href="https://github.com/posit-dev/chatlas/edit/main/docs/CHANGELOG.md" class="toc-action"><i class="bi empty"></i>Edit this page</a></li></ul></div></nav>
@@ -323,9 +350,122 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 -->
 <section id="unreleased" class="level2">
-<h2 class="anchored" data-anchor-id="unreleased">[UNRELEASED]</h2>
+<h2 class="anchored" data-anchor-id="unreleased">[Unreleased]</h2>
 <section id="new-features" class="level3">
 <h3 class="anchored" data-anchor-id="new-features">New features</h3>
+<ul>
+<li>The result of <code>chat.files.get()</code> (and elements of <code>chat.files.list()</code>) can now be passed straight to <code>.chat()</code> (and anywhere else content is accepted), so a file uploaded in an earlier session can be reused from its id alone: <code>chat.chat("Summarize this.", chat.files.get("file_011CRabc..."))</code>. When the provider doesn’t report a MIME type (OpenAI’s Files API never does), it’s guessed from the filename. For when you want the underlying <code>ContentUploaded</code> reference itself (e.g.&nbsp;to build a <code>UserTurn</code> by hand), <code>FileMetadata</code> gains a <code>.to_content()</code> method. This works via a new general convention: any object implementing <code>to_content() -&gt; Content</code> (see <code>chatlas.types.SupportsContent</code>) is accepted anywhere content is passed, so third-party packages can make their own objects usable as chat inputs. (#417)</li>
+</ul>
+</section>
+<section id="changes" class="level3">
+<h3 class="anchored" data-anchor-id="changes">Changes</h3>
+<ul>
+<li>The <code>snowflake</code> extra (i.e., <code>pip install "chatlas[snowflake]"</code>) no longer installs <code>snowflake-ml-python</code>, which pulled in the heavy torch ecosystem and blocked installation on Python 3.13+. <code>ChatSnowflake()</code> has used the Cortex REST API (<code>snowflake.core</code>) since v0.11.0, so it only needs <code>snowflake-core</code> and <code>snowflake-snowpark-python</code>.</li>
+</ul>
+</section>
+<section id="bug-fixes" class="level3">
+<h3 class="anchored" data-anchor-id="bug-fixes">Bug fixes</h3>
+<ul>
+<li><code>ChatBedrockAnthropic(reasoning=)</code> now accepts an effort level (<code>"low"</code>, <code>"medium"</code>, <code>"high"</code>, <code>"xhigh"</code> or <code>"max"</code>) to enable adaptive thinking, as <code>ChatAnthropic()</code> already did. It previously only took a token budget, which its default model (Claude Sonnet 5) rejects, so there was no way to turn on thinking with that model.</li>
+<li><code>ChatBedrock()</code> (with <code>api="messages"</code> or <code>api="responses"</code>) no longer sends a URL for <code>content_pdf_url()</code>/<code>content_document_url()</code> content, which <code>bedrock-mantle</code> rejects since it can’t fetch URLs itself. The bytes are downloaded and sent instead, as they already were before URL passthrough was added. <code>ChatBedrockAnthropic()</code> gets the same fix, since Bedrock’s InvokeModel API can’t fetch <code>url</code> sources either. (#410)</li>
+<li>Bedrock-backed providers now fail fast with a clear error for <code>content_image_url()</code> content (remote images were already rejected by Bedrock with an opaque API error, since it can’t fetch URLs). Download the image and use <code>content_image_file()</code> instead. (#410)</li>
+<li><code>ChatOpenAI()</code> now sends <code>type: "message"</code> on every message-shaped input item to the Responses API (text, images, PDFs, documents, and uploaded-file references, across all roles). OpenAI infers the type when it’s absent, but some OpenAI-compatible servers (e.g.&nbsp;llama.cpp) only infer it for system/developer/user items and reject replayed assistant items without it, which broke multi-turn conversations against those servers. This is a no-op against OpenAI itself.</li>
+<li><code>ChatBedrock()</code> (with the default <code>api="converse"</code>) no longer sends assistant turns with an empty <code>content</code> array, which Converse rejects. This happens when a response carries no content blocks, for example when a guardrail intervenes before the model produces any. A <code>"[empty string]"</code> placeholder is sent instead, matching how empty text content is already normalized. (#426)</li>
+<li><code>ChatPosit()</code> now handles setting <code>chat.model</code> to a model from the other family (Claude vs.&nbsp;non-Claude): the underlying provider is swapped so requests go to the correct endpoint, instead of failing with a mismatched request. The <code>cache</code> setting is preserved across switches.</li>
+<li>Anthropic-backed providers (<code>ChatAnthropic()</code>, <code>ChatPosit()</code>, <code>ChatBedrock()</code>, etc.) no longer fail with <code>Invalid signature in thinking block</code> when the conversation history contains reasoning from a non-Claude model (e.g., after switching <code>chat.model</code> across families); such thinking is now replayed as plain text so the model can still see it.</li>
+<li><code>content_image_file()</code> no longer fails with <code>ValueError: unknown file extension</code> when <code>resize</code> uses the <code>!</code> (ignore aspect ratio) flag on an image larger than the requested box, e.g.&nbsp;<code>resize="200x200!"</code>. (#433)</li>
+<li><code>params(top_k=)</code> is no longer sent as <code>top_logprobs</code> for OpenAI-based providers (the two are unrelated; OpenAI has no <code>top_k</code> sampling parameter). <code>top_k</code> is now dropped with the standard unsupported-parameter warning. (#412)</li>
+<li><code>Chat.export()</code> and <code>interpolate_file()</code> now always read and write files as UTF-8. Previously they relied on the platform’s default locale encoding, so on a non-UTF-8 locale <code>export()</code> could raise <code>UnicodeEncodeError</code> and <code>interpolate_file()</code> could silently return a corrupted (mojibake) prompt instead of the file’s contents. (#437)</li>
+<li><code>ChatAnthropic()</code> no longer drops assistant turns that have no content; doing so could produce two consecutive user messages, violating the API’s user/assistant alternation requirement. A <code>"[empty string]"</code> placeholder is sent instead, matching how empty text content is already normalized. (#416)</li>
+</ul>
+</section>
+</section>
+<section id="section" class="level2">
+<h2 class="anchored" data-anchor-id="section">[0.23.0] - 2026-09-04</h2>
+<section id="new-features-1" class="level3">
+<h3 class="anchored" data-anchor-id="new-features-1">New features</h3>
+<ul>
+<li><p><code>Chat</code> gains <code>close()</code> and <code>close_async()</code> methods (plus context-manager support) for releasing resources held by the provider – HTTP connection pools, the Snowflake Snowpark session/connection, and (via <code>close_async()</code>) MCP server sessions. This is useful in long-lived applications like Shiny that create a chat per user session: <code>session.on_ended(chat.close)</code>. Providers only close resources they created themselves; caller-supplied clients are left open.</p></li>
+<li><p><code>ChatSnowflake()</code> gains a <code>session</code> parameter for supplying an existing <code>snowflake.snowpark.Session</code>, mirroring <code>ChatDatabricks()</code>’s <code>workspace_client</code>. This lets one session be shared across multiple chats; <code>Chat.close()</code> only closes sessions that chatlas created itself, leaving caller-supplied sessions open.</p></li>
+<li><p>When running on Posit Connect, chatlas now forwards the Shiny viewer’s session token to Connect’s LLM gateway (as a <code>Posit-Connect-User-Session-Token</code> header) so gateway usage can be attributed to the viewer. This happens automatically for Shiny content and only affects requests to the gateway.</p></li>
+</ul>
+</section>
+<section id="changes-1" class="level3">
+<h3 class="anchored" data-anchor-id="changes-1">Changes</h3>
+<ul>
+<li><code>ChatHuggingFace()</code>’s default <code>model</code> is now <code>Qwen/Qwen3-235B-A22B-Instruct-2507</code> (previously <code>meta-llama/Llama-3.1-8B-Instruct</code>), matching ellmer’s default. (#414)</li>
+<li><code>ChatBedrock()</code> now defaults <code>base_url</code> to the official AWS SDKs’ endpoint override environment variables when set: <code>AWS_ENDPOINT_URL_BEDROCK_RUNTIME</code> for <code>api="converse"</code>, and <code>AWS_ENDPOINT_URL_BEDROCK_MANTLE</code> for <code>api="messages"</code> and <code>api="responses"</code>. Similarly, <code>ChatAnthropic()</code> respects the <code>ANTHROPIC_BASE_URL</code> environment variable (via the anthropic SDK). Setting these variables is enough to route requests through a proxy or gateway, so you don’t have to pass <code>base_url</code> on every call.</li>
+</ul>
+</section>
+<section id="bug-fixes-1" class="level3">
+<h3 class="anchored" data-anchor-id="bug-fixes-1">Bug fixes</h3>
+<ul>
+<li><code>ChatBedrock()</code>’s default model (previously <code>"us.anthropic.claude-sonnet-4-6"</code>) is now <code>"us.anthropic.claude-sonnet-5"</code>, which mantle’s <code>api="messages"</code> endpoint actually serves. Separately, the cross-region inference prefix (e.g.&nbsp;<code>"us."</code>) is now stripped from the model id sent in requests to <code>api="messages"</code> and <code>api="responses"</code>, since mantle rejects it even though Converse requires it. Previously, a mantle-only model with a cross-region prefix (e.g.&nbsp;<code>model="us.openai.gpt-5.4"</code>) would 404. (#411)</li>
+<li><code>ChatDatabricks()</code> no longer drops the assistant’s reply from the conversation when a GPT-OSS endpoint streams typed content. The typed part array was merged into the accumulated completion before it was normalized, so every later text delta was appended to it one character at a time and the finished turn came back empty. (#409)</li>
+<li><code>.to_solver()</code> no longer corrupts the system prompt or the prior turns it reads out of Inspect AI’s message state. The system prompt was being set to the <code>repr()</code> of the <code>ChatMessageSystem</code> object rather than its text, and message content arriving in Inspect AI’s <code>str</code> form (rather than as a list of <code>Content</code>) was iterated one character at a time. (#407)</li>
+<li><code>ChatGoogle()</code> no longer raises <code>ValueError: Unknown content type: ContentThinking</code> on the second and later turns when <code>reasoning</code> is enabled; thinking content is now replayed to the model as thought parts, and the <code>thought_signature</code> on thought parts is preserved (previously only tool-call parts kept it). (#403)</li>
+<li><code>ChatOllama()</code> now distinguishes a remote endpoint it can’t reach from a genuinely missing local install, and validates a supplied <code>model</code> against <code>/api/tags</code> at construction time instead of only when <code>model</code> is omitted. (#393)</li>
+</ul>
+</section>
+</section>
+<section id="section-1" class="level2">
+<h2 class="anchored" data-anchor-id="section-1">[0.22.0] - 2026-08-25</h2>
+<section id="changes-2" class="level3">
+<h3 class="anchored" data-anchor-id="changes-2">Changes</h3>
+<ul>
+<li><code>ChatAnthropic()</code>, <code>ChatBedrock()</code>, and <code>ChatPosit()</code> now require <code>anthropic&gt;=1.0.0</code>. As a result, custom <code>http_client</code>s passed to Anthropic-backed providers must now be <code>httpx2</code> clients (rather than <code>httpx</code>), matching the anthropic SDK’s own requirement.</li>
+<li><code>ChatBedrock()</code> and <code>ChatBedrockAnthropic()</code> now raise at construction if no AWS region can be resolved (from the <code>aws_region</code> argument, the <code>AWS_REGION</code>/<code>AWS_DEFAULT_REGION</code> environment variables, or the AWS profile), rather than silently defaulting to <code>us-east-1</code>. This behavior change is inherited from anthropic 1.0.</li>
+<li>On Anthropic-backed providers, the <code>temperature</code>, <code>top_p</code>, and <code>top_k</code> model parameters are deprecated: anthropic 1.0 removed them from the request schema since current models ignore them. chatlas now forwards them via <code>extra_body</code> (with a <code>DeprecationWarning</code>) so older models that still honor them keep working; this forwarding will be removed in a future release.</li>
+</ul>
+</section>
+<section id="added" class="level3">
+<h3 class="anchored" data-anchor-id="added">Added</h3>
+<ul>
+<li><code>Chat</code> gains a settable <code>.conversation_id</code> property. When set, the identifier is recorded as the <code>gen_ai.conversation.id</code> attribute on the OpenTelemetry <code>chat</code> and <code>invoke_agent</code> spans, allowing backends to group spans belonging to the same conversation (per the OpenTelemetry GenAI semantic conventions). Developer-facing: intended for frameworks that manage conversation history; chatlas never generates an identifier on its own.</li>
+</ul>
+</section>
+<section id="bug-fixes-2" class="level3">
+<h3 class="anchored" data-anchor-id="bug-fixes-2">Bug fixes</h3>
+<ul>
+<li><code>ChatDatabricks()</code> no longer crashes on GPT-OSS endpoints that return <code>message.content</code> / <code>delta.content</code> as a list of typed parts instead of a plain string; text parts are concatenated back into a string and reasoning summaries become <code>ContentThinking</code>/<code>ContentThinkingDelta</code>, both streaming and non-streaming. (#392)</li>
+</ul>
+</section>
+</section>
+<section id="section-2" class="level2">
+<h2 class="anchored" data-anchor-id="section-2">[0.21.2] - 2026-08-20</h2>
+<section id="bug-fixes-3" class="level3">
+<h3 class="anchored" data-anchor-id="bug-fixes-3">Bug fixes</h3>
+<ul>
+<li>Rich tool results containing images or PDFs remain semantic <code>ContentToolResult</code> objects in saved chat history, so restoring a conversation no longer exposes provider-only XML and media as user-authored content.</li>
+<li><code>ChatOpenAI()</code> web-search citations no longer report the inline Markdown source link as <code>ContentCitation.grounded_span</code>; OpenAI’s citation offsets identify that marker rather than the answer text it supports. (#388)</li>
+<li><code>ChatOpenAI()</code> no longer crashes while streaming web-search citations with current OpenAI SDKs, which emit annotations as model objects rather than dictionaries.</li>
+<li><code>ChatAnthropic()</code> now identifies Claude 5 and later models as supporting native structured output, so automatic mode does not fall back to tools. (#390)</li>
+</ul>
+</section>
+</section>
+<section id="section-3" class="level2">
+<h2 class="anchored" data-anchor-id="section-3">[0.21.1] - 2026-08-12</h2>
+<section id="bug-fixes-4" class="level3">
+<h3 class="anchored" data-anchor-id="bug-fixes-4">Bug fixes</h3>
+<ul>
+<li><code>ChatGoogle()</code> and <code>ChatVertex()</code> now emit grounded citations immediately after the answer text they support while streaming, before the related web search or URL-fetch activity. This keeps streamed citations attached to their answer text instead of separating them into a later activity segment.</li>
+<li>OpenAI-based providers now support the OpenAI 3 SDK and its native <code>httpx2</code> clients. Custom clients are typed and documented as <code>httpx2</code>; legacy <code>httpx</code> clients remain supported at runtime during migration. (#387)</li>
+<li><code>ChatAnthropic()</code> citations backed by <code>document_index</code> (from <code>tool_web_fetch()</code> results and document/PDF attachments) now resolve to a source URL, instead of always coming back without one. Anthropic counts that index across every document-shaped block in the whole request, including ones from prior turns, which chatlas wasn’t accounting for. (#382)</li>
+<li>Token cost lookups (<code>.get_cost()</code>, <code>token_usage()</code>) no longer crash on models with no input price (e.g.&nbsp;output-only video generation models on Bedrock), and read ellmer’s current pricing data format, which now wraps the price list in a versioned envelope rather than a bare array. (#382)</li>
+<li><code>Chat.to_solver()</code> now reports <code>total_tokens</code> including cached input tokens, matching what Inspect’s own <code>generate()</code> path records. Previously the total was just input plus output, so under a prompt-cache hit an eval run through the solver under-reported its total by exactly the number of cached tokens. (#216)</li>
+</ul>
+</section>
+<section id="breaking-changes" class="level3">
+<h3 class="anchored" data-anchor-id="breaking-changes">Breaking changes</h3>
+<ul>
+<li>Custom <code>Provider</code> implementations must accept a <code>turns</code> keyword argument on <code>.stream_content()</code>, <code>.stream_turn()</code>, and <code>.value_turn()</code>. chatlas passes the complete request history to these hooks so providers can resolve response references to content from earlier turns. (#382)</li>
+</ul>
+</section>
+</section>
+<section id="section-4" class="level2">
+<h2 class="anchored" data-anchor-id="section-4">[0.21.0] - 2026-08-04</h2>
+<section id="new-features-2" class="level3">
+<h3 class="anchored" data-anchor-id="new-features-2">New features</h3>
 <ul>
 <li>New <code>ChatBedrock()</code> gives full access to AWS Bedrock’s model catalog — Nova, Llama, Mistral, DeepSeek, Qwen, plus the GPT-5 family, Grok 4.3, and Gemma 4 — not just Claude, none of which were previously available through chatlas. It replaces <code>ChatBedrockAnthropic()</code> as the recommended entrypoint; the right request format (<code>"converse"</code>, <code>"responses"</code>, or <code>"messages"</code>) is picked automatically from the model name, or set <code>api</code> explicitly.</li>
 </ul>
@@ -349,8 +489,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 <li>Registering a built-in tool (<code>tool_web_search()</code>, <code>tool_web_fetch()</code>) with a provider that can’t run it now fails immediately with a clear error naming the tool and provider, instead of silently no-op’ing or dying deep inside a later request. (#367)</li>
 </ul>
 </section>
-<section id="bug-fixes" class="level3">
-<h3 class="anchored" data-anchor-id="bug-fixes">Bug fixes</h3>
+<section id="bug-fixes-5" class="level3">
+<h3 class="anchored" data-anchor-id="bug-fixes-5">Bug fixes</h3>
 <ul>
 <li><code>echo="all"</code> no longer displays tool results twice — once in full as part of the user turn, and again on their own.</li>
 <li><code>Chat.set_echo_options(css_styles=)</code> now actually applies in notebooks.</li>
@@ -361,17 +501,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 <li><code>ChatAnthropic()</code> (and <code>ChatBedrockAnthropic()</code>) now bill refusal-fallback turns at the correct (serving model’s) rate rather than the originally requested model’s, mirroring <a href="https://github.com/tidyverse/ellmer/pull/1058">ellmer’s equivalent fix</a>.</li>
 </ul>
 </section>
-<section id="breaking-changes" class="level3">
-<h3 class="anchored" data-anchor-id="breaking-changes">Breaking changes</h3>
+<section id="breaking-changes-1" class="level3">
+<h3 class="anchored" data-anchor-id="breaking-changes-1">Breaking changes</h3>
 <ul>
 <li><code>ChatGithub()</code> is now defunct: it always raises <code>RuntimeError</code>. GitHub Models was retired on 2026-07-30, so the underlying API no longer works. Use <code>ChatGoogle()</code> (offers a free tier) or <code>ChatPosit()</code> (offers a free trial) instead.</li>
 </ul>
 </section>
 </section>
-<section id="section" class="level2">
-<h2 class="anchored" data-anchor-id="section">[0.20.0] - 2026-07-29</h2>
-<section id="new-features-1" class="level3">
-<h3 class="anchored" data-anchor-id="new-features-1">New features</h3>
+<section id="section-5" class="level2">
+<h2 class="anchored" data-anchor-id="section-5">[0.20.0] - 2026-07-29</h2>
+<section id="new-features-3" class="level3">
+<h3 class="anchored" data-anchor-id="new-features-3">New features</h3>
 <ul>
 <li>New <code>content_document_file()</code> and <code>content_document_url()</code> prepare plain text, Markdown, CSV, code, and (on <code>ChatOpenAI()</code>) binary office files like <code>.docx</code>/<code>.xlsx</code>/<code>.doc</code>/<code>.xls</code>/<code>.rtf</code>/<code>.odt</code> for chat input, returning a new <code>ContentDocument</code> type. Previously the only way to attach a non-PDF file was to read and string-interpolate it yourself, which lost the filename and OpenAI’s spreadsheet parsing. Provider support varies:
 <ul>
@@ -404,15 +544,15 @@ Like <code>content_pdf_url()</code>, <code>content_document_url()</code> doesn�
 <li><code>ChatOpenAI().token_count()</code> now uses OpenAI’s token-counting endpoint for accurate, tool-aware counts instead of a local <code>tiktoken</code> estimate.</li>
 </ul>
 </section>
-<section id="changes" class="level3">
-<h3 class="anchored" data-anchor-id="changes">Changes</h3>
+<section id="changes-3" class="level3">
+<h3 class="anchored" data-anchor-id="changes-3">Changes</h3>
 <ul>
 <li>MCP support now requires <code>mcp&gt;=2.0.0</code>. The 2.0 release of the <code>mcp</code> SDK renamed its model fields (and removed <code>mcp.server.fastmcp.FastMCP</code>), so older <code>mcp</code> versions are no longer compatible. This only affects users of the optional <code>mcp</code> extra (i.e., <code>register_mcp_tools_*()</code>).</li>
 <li><code>Turn.finish_reason</code> is now normalized to a consistent set of values (<code>"success"</code>, <code>"tool_use"</code>, <code>"max_tokens"</code>, <code>"content_filter"</code>, <code>"context_window"</code>, <code>"stop_sequence"</code>) across most providers, so you no longer need provider-specific logic to check why a turn ended. Previously each provider surfaced its own raw string (e.g.&nbsp;Anthropic’s <code>"end_turn"</code>/<code>"tool_use"</code> vs.&nbsp;OpenAI Completions’ <code>"stop"</code>/<code>"tool_calls"</code> vs.&nbsp;Google’s <code>"STOP"</code>/<code>"SAFETY"</code>), so the same outcome could require different checks depending on which <code>Chat*()</code> you used. Reasons chatlas doesn’t yet recognize still pass through unchanged.</li>
 </ul>
 </section>
-<section id="bug-fixes-1" class="level3">
-<h3 class="anchored" data-anchor-id="bug-fixes-1">Bug fixes</h3>
+<section id="bug-fixes-6" class="level3">
+<h3 class="anchored" data-anchor-id="bug-fixes-6">Bug fixes</h3>
 <ul>
 <li><code>ChatGoogle()</code> no longer errors when mixing custom tools and built-in tools (e.g.&nbsp;<code>tool_web_search()</code>) on Gemini 3+ models.</li>
 <li>Turns containing web search/fetch content can now be passed to a different provider (e.g.&nbsp;<code>ChatAnthropic().set_turns(openai_chat.get_turns())</code>). Previously this raised <code>ValueError: Unsupported content type</code> on <code>ChatOpenAI()</code>, and <code>ChatAnthropic()</code> forwarded the other provider’s raw payload as if it were its own, producing an invalid request. Each provider now replays only the built-in tool content it produced and drops the rest.</li>
@@ -422,8 +562,8 @@ Like <code>content_pdf_url()</code>, <code>content_document_url()</code> doesn�
 <li>Streaming two adjacent pieces of same-typed content that define no merge behavior (e.g.&nbsp;two tool requests) no longer raises <code>TypeError</code>. They are now appended as separate content instead.</li>
 </ul>
 </section>
-<section id="breaking-changes-1" class="level3">
-<h3 class="anchored" data-anchor-id="breaking-changes-1">Breaking changes</h3>
+<section id="breaking-changes-2" class="level3">
+<h3 class="anchored" data-anchor-id="breaking-changes-2">Breaking changes</h3>
 <ul>
 <li><code>ContentToolResponseSearch.urls</code> (a <code>list[str]</code>) has been replaced by <code>.sources</code> (a <code>list[WebSource]</code>), each carrying the result’s <code>url</code> and <code>title</code>. Code reading <code>.urls</code> should switch to <code>[s.url for s in x.sources]</code>.</li>
 <li>The <code>Provider</code> abstract base class changed shape, which affects third-party <code>Provider</code> subclasses (not users of the built-in <code>Chat*()</code> functions): <code>stream_text()</code> was removed, and <code>stream_content()</code> both returns a <code>Sequence[Content]</code> (subsuming what <code>stream_text()</code> did) and takes a second <code>completion</code> argument holding the merged-so-far completion. Implementations needing state across chunks should read it from <code>completion</code> rather than storing it on <code>self</code>, since one provider instance is shared across forked chats.</li>
@@ -431,28 +571,28 @@ Like <code>content_pdf_url()</code>, <code>content_document_url()</code> doesn�
 </ul>
 </section>
 </section>
-<section id="section-1" class="level2">
-<h2 class="anchored" data-anchor-id="section-1">[0.19.2] - 2026-07-08</h2>
-<section id="new-features-2" class="level3">
-<h3 class="anchored" data-anchor-id="new-features-2">New features</h3>
+<section id="section-6" class="level2">
+<h2 class="anchored" data-anchor-id="section-6">[0.19.2] - 2026-07-08</h2>
+<section id="new-features-4" class="level3">
+<h3 class="anchored" data-anchor-id="new-features-4">New features</h3>
 <ul>
 <li>The <code>.app()</code> method now includes latest shinychat features like history, file attachments, etc.</li>
 </ul>
 </section>
 </section>
-<section id="section-2" class="level2">
-<h2 class="anchored" data-anchor-id="section-2">[0.19.1] - 2026-07-01</h2>
-<section id="new-features-3" class="level3">
-<h3 class="anchored" data-anchor-id="new-features-3">New features</h3>
+<section id="section-7" class="level2">
+<h2 class="anchored" data-anchor-id="section-7">[0.19.1] - 2026-07-01</h2>
+<section id="new-features-5" class="level3">
+<h3 class="anchored" data-anchor-id="new-features-5">New features</h3>
 <ul>
 <li>Added <code>ChatPosit()</code> for chatting via the <a href="https://posit.ai/">Posit AI</a> gateway. (#323)</li>
 </ul>
 </section>
 </section>
-<section id="section-3" class="level2">
-<h2 class="anchored" data-anchor-id="section-3">[0.19.0] - 2026-06-15</h2>
-<section id="new-features-4" class="level3">
-<h3 class="anchored" data-anchor-id="new-features-4">New features</h3>
+<section id="section-8" class="level2">
+<h2 class="anchored" data-anchor-id="section-8">[0.19.0] - 2026-06-15</h2>
+<section id="new-features-6" class="level3">
+<h3 class="anchored" data-anchor-id="new-features-6">New features</h3>
 <ul>
 <li>chatlas is now instrumented with <a href="https://opentelemetry.io/">OpenTelemetry</a> (OTel) out of the box, making it much easier to see how your app behaves in production — where time goes, how many tokens you’re spending, which tools run, and where things fail. Without writing any tracing code, you get spans that capture the full structure of a conversation as one connected trace: an <code>invoke_agent</code> span over the whole chat loop, a <code>chat</code> span per model call, and an <code>execute_tool</code> span per tool invocation, with attributes (token usage, response model/ID, tool errors) that follow the <a href="https://opentelemetry.io/docs/specs/semconv/gen-ai/">OTel GenAI semantic conventions</a>. Because chatlas keeps its spans active during each call, HTTP spans from provider instrumentors and any spans your own tools emit nest underneath automatically. Point it at any OTel-compatible backend (Logfire, Datadog, Honeycomb, Jaeger, …); message content is omitted by default and opt-in via <code>OTEL_INSTRUMENTATION_GENAI_CAPTURE_MESSAGE_CONTENT=true</code>. See the <a href="https://posit-dev.github.io/chatlas/get-started/monitor.html">monitoring guide</a> to get started. (#310)</li>
 <li><code>Chat</code> gains a <code>model</code> property to get (or set) the model after the chat is created. Setting it does not validate the model name.</li>
@@ -460,32 +600,32 @@ Like <code>content_pdf_url()</code>, <code>content_document_url()</code> doesn�
 <li><code>ChatAnthropic()</code>’s <code>reasoning</code> parameter now accepts a string effort level (<code>"low"</code>, <code>"medium"</code>, <code>"high"</code>, <code>"xhigh"</code>, or <code>"max"</code>) to enable Claude’s adaptive thinking, in addition to an integer token budget.</li>
 </ul>
 </section>
-<section id="bug-fixes-2" class="level3">
-<h3 class="anchored" data-anchor-id="bug-fixes-2">Bug fixes</h3>
+<section id="bug-fixes-7" class="level3">
+<h3 class="anchored" data-anchor-id="bug-fixes-7">Bug fixes</h3>
 <ul>
 <li>OpenAI-compatible providers (e.g., <code>ChatOllama()</code> with models like qwen3) now capture thinking content returned in a <code>reasoning</code> field, not just <code>reasoning_content</code>. Previously this thinking content was silently dropped.</li>
 </ul>
 </section>
 </section>
-<section id="section-4" class="level2">
-<h2 class="anchored" data-anchor-id="section-4">[0.18.1] - 2026-05-21</h2>
+<section id="section-9" class="level2">
+<h2 class="anchored" data-anchor-id="section-9">[0.18.1] - 2026-05-21</h2>
 <section id="improvements-2" class="level3">
 <h3 class="anchored" data-anchor-id="improvements-2">Improvements</h3>
 <ul>
 <li><code>Content.tagify()</code> implementations (<code>ContentToolRequest</code>, <code>ContentToolResult</code>, <code>ContentThinking</code>) now annotate their return type as <code>htmltools.Tagified</code> and fully tagify their output, complying with htmltools 0.7.0’s tightened Tagifiable contract. Embedding these contents inside another <code>.tagify()</code> recursion no longer trips the new boundary check in htmltools 0.7.0. (#311)</li>
 </ul>
 </section>
-<section id="bug-fixes-3" class="level3">
-<h3 class="anchored" data-anchor-id="bug-fixes-3">Bug fixes</h3>
+<section id="bug-fixes-8" class="level3">
+<h3 class="anchored" data-anchor-id="bug-fixes-8">Bug fixes</h3>
 <ul>
 <li><code>ContentPDF</code> is now exported from <code>chatlas.types</code>, matching all other <code>Content</code> subclasses. (#312)</li>
 </ul>
 </section>
 </section>
-<section id="section-5" class="level2">
-<h2 class="anchored" data-anchor-id="section-5">[0.18.0] - 2026-05-12</h2>
-<section id="new-features-5" class="level3">
-<h3 class="anchored" data-anchor-id="new-features-5">New features</h3>
+<section id="section-10" class="level2">
+<h2 class="anchored" data-anchor-id="section-10">[0.18.0] - 2026-05-12</h2>
+<section id="new-features-7" class="level3">
+<h3 class="anchored" data-anchor-id="new-features-7">New features</h3>
 <ul>
 <li>New <code>StreamController</code> class for cooperative stream cancellation. Pass a controller to <code>.stream()</code> or <code>.stream_async()</code> and call <code>controller.cancel()</code> to stop the stream cleanly (e.g., from a Shiny “stop generating” button). The partial response is preserved in conversation history. (#279)</li>
 </ul>
@@ -499,8 +639,8 @@ Like <code>content_pdf_url()</code>, <code>content_document_url()</code> doesn�
 <li><code>ChatOpenAI()</code> now warns when <code>base_url</code> points to a non-OpenAI host, guiding users to <code>ChatOpenAICompletions()</code> for third-party backends like vLLM, Ollama, and LiteLLM. (#285)</li>
 </ul>
 </section>
-<section id="bug-fixes-4" class="level3">
-<h3 class="anchored" data-anchor-id="bug-fixes-4">Bug fixes</h3>
+<section id="bug-fixes-9" class="level3">
+<h3 class="anchored" data-anchor-id="bug-fixes-9">Bug fixes</h3>
 <ul>
 <li>Fixed thinking content being silently dropped during streaming for completions-based providers (DeepSeek, Groq, OpenRouter, etc.). The streaming path was returning finalized <code>ContentThinking</code> objects instead of <code>ContentThinkingDelta</code> fragments, which the <code>TurnAccumulator</code> didn’t recognize. (#301)</li>
 <li>Fixed <code>model_dump(mode="json")</code> failing on <code>Turn</code>s containing <code>bytes</code> fields (e.g., <code>ContentPDF.data</code>, <code>thought_signature</code> in <code>ContentToolRequest</code>/<code>ContentThinking</code> extras). Bytes values are now base64-encoded during serialization and decoded on validation, so JSON round-trips work correctly.</li>
@@ -509,10 +649,10 @@ Like <code>content_pdf_url()</code>, <code>content_document_url()</code> doesn�
 </ul>
 </section>
 </section>
-<section id="section-6" class="level2">
-<h2 class="anchored" data-anchor-id="section-6">[0.17.0] - 2026-05-11</h2>
-<section id="new-features-6" class="level3">
-<h3 class="anchored" data-anchor-id="new-features-6">New features</h3>
+<section id="section-11" class="level2">
+<h2 class="anchored" data-anchor-id="section-11">[0.17.0] - 2026-05-11</h2>
+<section id="new-features-8" class="level3">
+<h3 class="anchored" data-anchor-id="new-features-8">New features</h3>
 <ul>
 <li><code>ChatOpenAICompletions()</code> (and providers built on it like <code>ChatDeepSeek</code>, <code>ChatOpenRouter</code>, etc.) now extracts <code>reasoning_content</code> from model responses as <code>ContentThinking</code> objects. A new <code>preserve_thinking</code> parameter controls whether reasoning content is sent back to the API in multi-turn conversations; it defaults to <code>False</code> but is set to <code>True</code> for <code>ChatDeepSeek</code> (required for V4 tool-calling) and <code>ChatOpenRouter</code> (recommended for quality). (#295)</li>
 </ul>
@@ -537,18 +677,18 @@ Like <code>content_pdf_url()</code>, <code>content_document_url()</code> doesn�
 </ul>
 </section>
 </section>
-<section id="section-7" class="level2">
-<h2 class="anchored" data-anchor-id="section-7">[0.16.0] - 2026-04-16</h2>
-<section id="new-features-7" class="level3">
-<h3 class="anchored" data-anchor-id="new-features-7">New features</h3>
+<section id="section-12" class="level2">
+<h2 class="anchored" data-anchor-id="section-12">[0.16.0] - 2026-04-16</h2>
+<section id="new-features-9" class="level3">
+<h3 class="anchored" data-anchor-id="new-features-9">New features</h3>
 <ul>
 <li>New <code>ChatLMStudio()</code> provider for chatting with local models via <a href="https://lmstudio.ai">LM Studio</a>. (#280)</li>
 <li>The <code>.stream()</code> and <code>.stream_async()</code> methods now yield <code>ContentThinking</code> objects (instead of plain strings) for thinking/reasoning content when <code>content="all"</code>. This allows downstream packages like shinychat to provide specific UI for thinking content. (#276)</li>
 <li>Built-in tools (<code>tool_web_search()</code>, <code>tool_web_fetch()</code>) now include <code>description</code> and <code>annotations</code> properties, making their metadata consistent with user-defined tools created by <code>Tool()</code>. (#278)</li>
 </ul>
 </section>
-<section id="bug-fixes-5" class="level3">
-<h3 class="anchored" data-anchor-id="bug-fixes-5">Bug fixes</h3>
+<section id="bug-fixes-10" class="level3">
+<h3 class="anchored" data-anchor-id="bug-fixes-10">Bug fixes</h3>
 <ul>
 <li>Fixed OpenAI streaming crash (<code>AttributeError: 'NoneType' object has no attribute 'output'</code>) caused by a new <code>response.rate_limits.updated</code> event emitted after <code>response.completed</code>. (#282)</li>
 <li>Fixed tool calling with Google thinking models (e.g., <code>gemini-3-flash-preview</code>) failing with a 400 <code>INVALID_ARGUMENT</code> error about a missing <code>thought_signature</code>. The signature is now preserved and forwarded in subsequent turns. (#274)</li>
@@ -556,35 +696,35 @@ Like <code>content_pdf_url()</code>, <code>content_document_url()</code> doesn�
 </ul>
 </section>
 </section>
-<section id="section-8" class="level2">
-<h2 class="anchored" data-anchor-id="section-8">[0.15.2] – 2026-02-27</h2>
-<section id="bug-fixes-6" class="level3">
-<h3 class="anchored" data-anchor-id="bug-fixes-6">Bug fixes</h3>
+<section id="section-13" class="level2">
+<h2 class="anchored" data-anchor-id="section-13">[0.15.2] – 2026-02-27</h2>
+<section id="bug-fixes-11" class="level3">
+<h3 class="anchored" data-anchor-id="bug-fixes-11">Bug fixes</h3>
 <ul>
 <li>Fixed compatibility with rich &gt;= 14.3.0 and Anthropic SDK v0.82+. (#269)</li>
 </ul>
 </section>
 </section>
-<section id="section-9" class="level2">
-<h2 class="anchored" data-anchor-id="section-9">[0.15.1] – 2026-01-22</h2>
-<section id="new-features-8" class="level3">
-<h3 class="anchored" data-anchor-id="new-features-8">New features</h3>
+<section id="section-14" class="level2">
+<h2 class="anchored" data-anchor-id="section-14">[0.15.1] – 2026-01-22</h2>
+<section id="new-features-10" class="level3">
+<h3 class="anchored" data-anchor-id="new-features-10">New features</h3>
 <ul>
 <li><code>.stream()</code> and <code>.stream_async()</code> now support a <code>data_model</code> parameter for structured data extraction while streaming. (#262)</li>
 <li><code>.to_solver()</code> now supports a <code>data_model</code> parameter for structured data extraction in evals. When provided, the solver uses <code>.chat_structured()</code> instead of <code>.chat()</code> and outputs JSON-serialized data. (#264)</li>
 </ul>
 </section>
-<section id="bug-fixes-7" class="level3">
-<h3 class="anchored" data-anchor-id="bug-fixes-7">Bug fixes</h3>
+<section id="bug-fixes-12" class="level3">
+<h3 class="anchored" data-anchor-id="bug-fixes-12">Bug fixes</h3>
 <ul>
 <li>Fixed <code>ContentToolResult</code> with an <code>error</code> not being JSON serializable. When a tool call failed, calling <code>.get_turns()</code> followed by <code>.model_dump_json()</code> would raise a <code>PydanticSerializationError</code>. (#267)</li>
 </ul>
 </section>
 </section>
-<section id="section-10" class="level2">
-<h2 class="anchored" data-anchor-id="section-10">[0.15.0] - 2026-01-06</h2>
-<section id="new-features-9" class="level3">
-<h3 class="anchored" data-anchor-id="new-features-9">New features</h3>
+<section id="section-15" class="level2">
+<h2 class="anchored" data-anchor-id="section-15">[0.15.0] - 2026-01-06</h2>
+<section id="new-features-11" class="level3">
+<h3 class="anchored" data-anchor-id="new-features-11">New features</h3>
 <ul>
 <li><code>ChatOpenAI()</code>, <code>ChatAnthropic()</code>, and <code>ChatGoogle()</code> gain a new <code>reasoning</code> parameter to easily opt-into, and fully customize, reasoning capabilities. (#202, #260)
 <ul>
@@ -601,8 +741,8 @@ Like <code>content_pdf_url()</code>, <code>content_document_url()</code> doesn�
 <li><code>ChatAuto()</code> now accepts <code>"claude"</code> as an alias for <code>"anthropic"</code>, reflecting Anthropic’s rebranding of developer tools under the Claude name. (#239)</li>
 </ul>
 </section>
-<section id="changes-1" class="level3">
-<h3 class="anchored" data-anchor-id="changes-1">Changes</h3>
+<section id="changes-4" class="level3">
+<h3 class="anchored" data-anchor-id="changes-4">Changes</h3>
 <ul>
 <li><code>repr()</code> now generally gives the same result as <code>str()</code> for many classes (<code>Chat</code>, <code>Turn</code>, <code>Content</code>, etc). This leads to a more human-readable result (and is closer to the result that gets <code>echo</code>ed by <code>.chat()</code>). (#245)</li>
 <li>The <code>Chat.get_cost()</code> method’s <code>options</code> parameter was renamed to <code>include</code>. (#244)</li>
@@ -616,8 +756,8 @@ Like <code>content_pdf_url()</code>, <code>content_document_url()</code> doesn�
 <li><code>ChatSnowflake()</code> now sets the <code>application</code> config parameter for partner identification. Defaults to <code>"py_chatlas"</code> but can be overridden via the <code>SF_PARTNER</code> environment variable. (#209)</li>
 </ul>
 </section>
-<section id="bug-fixes-8" class="level3">
-<h3 class="anchored" data-anchor-id="bug-fixes-8">Bug fixes</h3>
+<section id="bug-fixes-13" class="level3">
+<h3 class="anchored" data-anchor-id="bug-fixes-13">Bug fixes</h3>
 <ul>
 <li>Fixed structured data extraction with <code>ChatAnthropic()</code> failing for Pydantic models containing nested types (e.g., <code>list[NestedModel]</code>). The issue was that <code>$defs</code> (containing nested type definitions) was incorrectly placed inside the schema, breaking JSON <code>$ref</code> pointer references. (#100)</li>
 <li>Fixed MCP tools failing with OpenAI providers due to strict mode schema validation. OpenAI’s strict mode rejects standard JSON Schema features like <code>format: "uri"</code> and requires all properties in the <code>required</code> array. MCP tools now set <code>strict=false</code> to use standard JSON Schema conventions. (#255)</li>
@@ -626,10 +766,10 @@ Like <code>content_pdf_url()</code>, <code>content_document_url()</code> doesn�
 </ul>
 </section>
 </section>
-<section id="section-11" class="level2">
-<h2 class="anchored" data-anchor-id="section-11">[0.14.0] - 2025-12-09</h2>
-<section id="new-features-10" class="level3">
-<h3 class="anchored" data-anchor-id="new-features-10">New features</h3>
+<section id="section-16" class="level2">
+<h2 class="anchored" data-anchor-id="section-16">[0.14.0] - 2025-12-09</h2>
+<section id="new-features-12" class="level3">
+<h3 class="anchored" data-anchor-id="new-features-12">New features</h3>
 <ul>
 <li><code>ChatOpenAI()</code> (and <code>ChatAzureOpenAI()</code>) gain access to latest models, built-in tools, etc. as a result of moving to the new <a href="https://platform.openai.com/docs/api-reference/responses">Responses API</a>. (#192)</li>
 <li>Added new family of functions (<code>parallel_chat()</code>, <code>parallel_chat_text()</code>, and <code>parallel_chat_structured()</code>) for submitting multiple prompts at once with some basic rate limiting toggles. (#188)</li>
@@ -648,8 +788,8 @@ Like <code>content_pdf_url()</code>, <code>content_document_url()</code> doesn�
 <li>Added rudimentary support for a new <code>ContentThinking</code> type. (#192)</li>
 </ul>
 </section>
-<section id="changes-2" class="level3">
-<h3 class="anchored" data-anchor-id="changes-2">Changes</h3>
+<section id="changes-5" class="level3">
+<h3 class="anchored" data-anchor-id="changes-5">Changes</h3>
 <ul>
 <li><code>ChatOpenAI()</code> (and <code>ChatAzureOpenAI()</code>) move from OpenAI’s Completions API to <a href="https://platform.openai.com/docs/api-reference/responses">Responses API</a>. If this happens to break behavior, change <code>ChatOpenAI()</code> -&gt; <code>ChatOpenAICompletions()</code> (or <code>ChatAzureOpenAI()</code> -&gt; <code>ChatAzureOpenAICompletions()</code>). (#192)</li>
 <li>The <code>Turn</code> class is now a base class with three specialized subclasses: <code>UserTurn</code>, <code>AssistantTurn</code>, and <code>SystemTurn</code>. Use these new classes to construct turns by hand. (#224)</li>
@@ -666,8 +806,8 @@ Like <code>content_pdf_url()</code>, <code>content_document_url()</code> doesn�
 <li><code>content_pdf_file()</code> and <code>content_pdf_url()</code> now include relevant <code>filename</code> information. (#199)</li>
 </ul>
 </section>
-<section id="bug-fixes-9" class="level3">
-<h3 class="anchored" data-anchor-id="bug-fixes-9">Bug fixes</h3>
+<section id="bug-fixes-14" class="level3">
+<h3 class="anchored" data-anchor-id="bug-fixes-14">Bug fixes</h3>
 <ul>
 <li><code>.set_model_params()</code> now works correctly for <code>.*_async()</code> methods. (#198)</li>
 <li><code>.chat_structured()</code> results are now included correctly into the multi-turn conversation history. (#203)</li>
@@ -675,34 +815,34 @@ Like <code>content_pdf_url()</code>, <code>content_document_url()</code> doesn�
 </ul>
 </section>
 </section>
-<section id="section-12" class="level2">
-<h2 class="anchored" data-anchor-id="section-12">[0.13.2] - 2025-10-02</h2>
+<section id="section-17" class="level2">
+<h2 class="anchored" data-anchor-id="section-17">[0.13.2] - 2025-10-02</h2>
 <section id="improvements-7" class="level3">
 <h3 class="anchored" data-anchor-id="improvements-7">Improvements</h3>
 <ul>
 <li><code>ContentToolResult</code>’s <code>.get_model_value()</code> method now calls <code>.to_json(orient="record")</code> (instead of <code>.to_json()</code>) when relevant. As a result, if a tool call returns a Pandas <code>DataFrame</code> (or similar), the model now receives a less confusing (and smaller) JSON format. (#183)</li>
 </ul>
 </section>
-<section id="bug-fixes-10" class="level3">
-<h3 class="anchored" data-anchor-id="bug-fixes-10">Bug fixes</h3>
+<section id="bug-fixes-15" class="level3">
+<h3 class="anchored" data-anchor-id="bug-fixes-15">Bug fixes</h3>
 <ul>
 <li><code>ChatAzureOpenAI()</code> and <code>ChatDatabricks()</code> now work as expected when a <code>OPENAI_API_KEY</code> environment variable isn’t present. (#185)</li>
 </ul>
 </section>
 </section>
-<section id="section-13" class="level2">
-<h2 class="anchored" data-anchor-id="section-13">[0.13.1] - 2025-09-18</h2>
-<section id="bug-fixes-11" class="level3">
-<h3 class="anchored" data-anchor-id="bug-fixes-11">Bug fixes</h3>
+<section id="section-18" class="level2">
+<h2 class="anchored" data-anchor-id="section-18">[0.13.1] - 2025-09-18</h2>
+<section id="bug-fixes-16" class="level3">
+<h3 class="anchored" data-anchor-id="bug-fixes-16">Bug fixes</h3>
 <ul>
 <li><code>ChatGithub()</code> once again uses the appropriate <code>base_url</code> when generating reponses (problem introduced in v0.11.0). (#182)</li>
 </ul>
 </section>
 </section>
-<section id="section-14" class="level2">
-<h2 class="anchored" data-anchor-id="section-14">[0.13.0] - 2025-09-10</h2>
-<section id="new-features-11" class="level3">
-<h3 class="anchored" data-anchor-id="new-features-11">New features</h3>
+<section id="section-19" class="level2">
+<h2 class="anchored" data-anchor-id="section-19">[0.13.0] - 2025-09-10</h2>
+<section id="new-features-13" class="level3">
+<h3 class="anchored" data-anchor-id="new-features-13">New features</h3>
 <ul>
 <li>Added support for submitting multiple chats in one batch. With batch submission, results can take up to 24 hours to complete, but in return you pay ~50% less than usual. For more, see the <a href="https://posit-dev.github.io/chatlas/reference/">reference</a> for <code>batch_chat()</code>, <code>batch_chat_text()</code>, <code>batch_chat_structured()</code> and <code>batch_chat_completed()</code>. (#177)</li>
 <li>The <code>Chat</code> class gains new <code>.chat_structured()</code> (and <code>.chat_structured_async()</code>) methods. These methods supersede the now deprecated <code>.extract_data()</code> (and <code>.extract_data_async()</code>). The only difference is that the new methods return a <code>BaseModel</code> instance (instead of a <code>dict()</code>), leading to a better type hinting/checking experience. (#175)</li>
@@ -720,16 +860,16 @@ Like <code>content_pdf_url()</code>, <code>content_document_url()</code> doesn�
 </ul>
 </section>
 </section>
-<section id="section-15" class="level2">
-<h2 class="anchored" data-anchor-id="section-15">[0.12.0] - 2025-09-08</h2>
-<section id="breaking-changes-2" class="level3">
-<h3 class="anchored" data-anchor-id="breaking-changes-2">Breaking changes</h3>
+<section id="section-20" class="level2">
+<h2 class="anchored" data-anchor-id="section-20">[0.12.0] - 2025-09-08</h2>
+<section id="breaking-changes-3" class="level3">
+<h3 class="anchored" data-anchor-id="breaking-changes-3">Breaking changes</h3>
 <ul>
 <li><code>ChatAuto()</code>’s first (optional) positional parameter has changed from <code>system_prompt</code> to <code>provider_model</code>, and <code>system_prompt</code> is now a keyword parameter. As a result, you may need to change <code>ChatAuto("[system prompt]")</code> -&gt; <code>ChatAuto(system_prompt="[system prompt]")</code>. In addition, the <code>provider</code> and <code>model</code> keyword arguments are now deprecated, but continue to work with a warning, as are the previous <code>CHATLAS_CHAT_PROVIDER</code> and <code>CHATLAS_CHAT_MODEL</code> environment variables. (#159)</li>
 </ul>
 </section>
-<section id="new-features-12" class="level3">
-<h3 class="anchored" data-anchor-id="new-features-12">New features</h3>
+<section id="new-features-14" class="level3">
+<h3 class="anchored" data-anchor-id="new-features-14">New features</h3>
 <ul>
 <li><code>ChatAuto()</code>’s new <code>provider_model</code> takes both provider and model in a single string in the format <code>"{provider}/{model}"</code>, e.g.&nbsp;<code>"openai/gpt-5"</code>. If not provided, <code>ChatAuto()</code> looks for the <code>CHATLAS_CHAT_PROVIDER_MODEL</code> environment variable, defaulting to <code>"openai"</code> if neither are provided. Unlike previous versions of <code>ChatAuto()</code>, the environment variables are now used <em>only if function arguments are not provided</em>. In other words, if <code>provider_model</code> is given, the <code>CHATLAS_CHAT_PROVIDER_MODEL</code> environment variable is ignored. Similarly, <code>CHATLAS_CHAT_ARGS</code> are only used if no <code>kwargs</code> are provided. This improves interactive use cases, makes it easier to introduce application-specific environment variables, and puts more control in the hands of the developer. (#159)</li>
 <li>The <code>.register_tool()</code> method now:
@@ -740,39 +880,39 @@ Like <code>content_pdf_url()</code>, <code>content_document_url()</code> doesn�
 <li>The <code>ToolAnnotations</code> type gains an <code>extra</code> key field – providing a place for providing additional information that other consumers of tool annotations (e.g., <a href="https://posit-dev.github.io/shinychat/">shinychat</a>) may make use of.</li>
 </ul>
 </section>
-<section id="bug-fixes-12" class="level3">
-<h3 class="anchored" data-anchor-id="bug-fixes-12">Bug fixes</h3>
+<section id="bug-fixes-17" class="level3">
+<h3 class="anchored" data-anchor-id="bug-fixes-17">Bug fixes</h3>
 <ul>
 <li><code>ChatAuto()</code> now supports recently added providers such as <code>ChatCloudflare()</code>, <code>ChatDeepseek()</code>, <code>ChatHuggingFace()</code>, etc. (#159)</li>
 </ul>
 </section>
 </section>
-<section id="section-16" class="level2">
-<h2 class="anchored" data-anchor-id="section-16">[0.11.1] - 2025-08-29</h2>
-<section id="new-features-13" class="level3">
-<h3 class="anchored" data-anchor-id="new-features-13">New features</h3>
+<section id="section-21" class="level2">
+<h2 class="anchored" data-anchor-id="section-21">[0.11.1] - 2025-08-29</h2>
+<section id="new-features-15" class="level3">
+<h3 class="anchored" data-anchor-id="new-features-15">New features</h3>
 <ul>
 <li><code>.register_tool()</code> gains a <code>name</code> parameter (useful for overriding the name of the function). (#162)</li>
 </ul>
 </section>
-<section id="bug-fixes-13" class="level3">
-<h3 class="anchored" data-anchor-id="bug-fixes-13">Bug fixes</h3>
+<section id="bug-fixes-18" class="level3">
+<h3 class="anchored" data-anchor-id="bug-fixes-18">Bug fixes</h3>
 <ul>
 <li><code>ContentToolRequest</code> is (once again) serializable to/from JSON via Pydantic. (#164)</li>
 <li><code>.register_tool(model=model)</code> no longer unexpectedly errors when <code>model</code> contains <code>pydantic.Field(alias='_my_alias')</code>. (#161)</li>
 </ul>
 </section>
-<section id="changes-3" class="level3">
-<h3 class="anchored" data-anchor-id="changes-3">Changes</h3>
+<section id="changes-6" class="level3">
+<h3 class="anchored" data-anchor-id="changes-6">Changes</h3>
 <ul>
 <li><code>.register_tool(annotations=annotations)</code> drops support for <code>mcp.types.ToolAnnotations()</code> and instead expects a dictionary of the same info. (#164)</li>
 </ul>
 </section>
 </section>
-<section id="section-17" class="level2">
-<h2 class="anchored" data-anchor-id="section-17">[0.11.0] - 2025-08-26</h2>
-<section id="new-features-14" class="level3">
-<h3 class="anchored" data-anchor-id="new-features-14">New features</h3>
+<section id="section-22" class="level2">
+<h2 class="anchored" data-anchor-id="section-22">[0.11.0] - 2025-08-26</h2>
+<section id="new-features-16" class="level3">
+<h3 class="anchored" data-anchor-id="new-features-16">New features</h3>
 <ul>
 <li>The <code>Chat</code> class gains a new <code>.list_models()</code> method for obtaining a list of model ids/names, pricing info, and more. (#155)</li>
 <li><code>Chat</code>’s <code>.register_tool()</code> method gains an <code>annotations</code> parameter, which is useful for describing the tool and its behavior. This information is attached to <code>ContentToolRequest()</code> and <code>ContentToolResult()</code> (via the <code>.request</code> parameter) objects when tool calls occur. To include these objects in streaming content, make sure to set <code>.stream(content="all")</code>. (#156)</li>
@@ -784,17 +924,17 @@ Like <code>content_pdf_url()</code>, <code>content_document_url()</code> doesn�
 <li>Tools registered via MCP (e.g., <code>.register_mcp_tools_http_stream_async()</code>) now automatically pick up on tool annotations. (#156)</li>
 </ul>
 </section>
-<section id="changes-4" class="level3">
-<h3 class="anchored" data-anchor-id="changes-4">Changes</h3>
+<section id="changes-7" class="level3">
+<h3 class="anchored" data-anchor-id="changes-7">Changes</h3>
 <ul>
 <li><code>ChatGithub()</code> changed its default for <code>base_url</code> from <a href="https://models.inference.ai.azure.com" class="uri">https://models.inference.ai.azure.com</a> to <a href="https://models.github.ai/inference/" class="uri">https://models.github.ai/inference/</a>. As a result, more models are available (by default). (#155)</li>
 </ul>
 </section>
 </section>
-<section id="section-18" class="level2">
-<h2 class="anchored" data-anchor-id="section-18">[0.10.0] - 2025-08-19</h2>
-<section id="new-features-15" class="level3">
-<h3 class="anchored" data-anchor-id="new-features-15">New features</h3>
+<section id="section-23" class="level2">
+<h2 class="anchored" data-anchor-id="section-23">[0.10.0] - 2025-08-19</h2>
+<section id="new-features-17" class="level3">
+<h3 class="anchored" data-anchor-id="new-features-17">New features</h3>
 <ul>
 <li>Added <code>ChatCloudflare()</code> for chatting via <a href="https://developers.cloudflare.com/workers-ai/get-started/rest-api/">Cloudflare AI</a>. (#150)</li>
 <li>Added <code>ChatDeepSeek()</code> for chatting via <a href="https://www.deepseek.com/">DeepSeek</a>. (#147)</li>
@@ -804,21 +944,21 @@ Like <code>content_pdf_url()</code>, <code>content_document_url()</code> doesn�
 <li>Added <code>ChatPortkey()</code> for chatting via <a href="https://portkey.ai/">Portkey AI</a>. (#143)</li>
 </ul>
 </section>
-<section id="changes-5" class="level3">
-<h3 class="anchored" data-anchor-id="changes-5">Changes</h3>
+<section id="changes-8" class="level3">
+<h3 class="anchored" data-anchor-id="changes-8">Changes</h3>
 <ul>
 <li><code>ChatAnthropic()</code> and <code>ChatBedrockAnthropic()</code> now default to Claude Sonnet 4.0.</li>
 </ul>
 </section>
-<section id="bug-fixes-14" class="level3">
-<h3 class="anchored" data-anchor-id="bug-fixes-14">Bug fixes</h3>
+<section id="bug-fixes-19" class="level3">
+<h3 class="anchored" data-anchor-id="bug-fixes-19">Bug fixes</h3>
 <ul>
 <li>Fixed an issue where chatting with some models was leading to <code>KeyError: 'cached_input'</code>. (#149)</li>
 </ul>
 </section>
 </section>
-<section id="section-19" class="level2">
-<h2 class="anchored" data-anchor-id="section-19">[0.9.2] - 2025-08-08</h2>
+<section id="section-24" class="level2">
+<h2 class="anchored" data-anchor-id="section-24">[0.9.2] - 2025-08-08</h2>
 <section id="improvements-10" class="level3">
 <h3 class="anchored" data-anchor-id="improvements-10">Improvements</h3>
 <ul>
@@ -827,20 +967,20 @@ Like <code>content_pdf_url()</code>, <code>content_document_url()</code> doesn�
 </ul>
 </section>
 </section>
-<section id="section-20" class="level2">
-<h2 class="anchored" data-anchor-id="section-20">[0.9.1] - 2025-07-09</h2>
-<section id="bug-fixes-15" class="level3">
-<h3 class="anchored" data-anchor-id="bug-fixes-15">Bug fixes</h3>
+<section id="section-25" class="level2">
+<h2 class="anchored" data-anchor-id="section-25">[0.9.1] - 2025-07-09</h2>
+<section id="bug-fixes-20" class="level3">
+<h3 class="anchored" data-anchor-id="bug-fixes-20">Bug fixes</h3>
 <ul>
 <li><p>Fixed an issue where <code>.chat()</code> wasn’t streaming output properly in (the latest build of) Positron’s Jupyter notebook. (#131)</p></li>
 <li><p>Needless warnings and errors are no longer thrown when model pricing info is unavailable. (#132)</p></li>
 </ul>
 </section>
 </section>
-<section id="section-21" class="level2">
-<h2 class="anchored" data-anchor-id="section-21">[0.9.0] - 2025-07-02</h2>
-<section id="new-features-16" class="level3">
-<h3 class="anchored" data-anchor-id="new-features-16">New features</h3>
+<section id="section-26" class="level2">
+<h2 class="anchored" data-anchor-id="section-26">[0.9.0] - 2025-07-02</h2>
+<section id="new-features-18" class="level3">
+<h3 class="anchored" data-anchor-id="new-features-18">New features</h3>
 <ul>
 <li><code>Chat</code> gains a handful of new methods:
 <ul>
@@ -857,10 +997,10 @@ Like <code>content_pdf_url()</code>, <code>content_document_url()</code> doesn�
 <li><code>ChatGithub()</code> now supports the more standard <code>GITHUB_TOKEN</code> environment variable for storing the API key. (#123)</li>
 </ul>
 </section>
-<section id="changes-6" class="level3">
-<h3 class="anchored" data-anchor-id="changes-6">Changes</h3>
-<section id="breaking-changes-3" class="level4">
-<h4 class="anchored" data-anchor-id="breaking-changes-3">Breaking Changes</h4>
+<section id="changes-9" class="level3">
+<h3 class="anchored" data-anchor-id="changes-9">Changes</h3>
+<section id="breaking-changes-4" class="level4">
+<h4 class="anchored" data-anchor-id="breaking-changes-4">Breaking Changes</h4>
 <ul>
 <li><code>Chat</code> constructors (<code>ChatOpenAI()</code>, <code>ChatAnthropic()</code>, etc) no longer have a <code>turns</code> keyword parameter. Use the <code>.set_turns()</code> method instead to set the (initial) chat history. (#126)</li>
 <li><code>Chat</code>’s <code>.tokens()</code> methods have been removed in favor of <code>.get_tokens()</code> which returns both cumulative tokens in the turn and discrete tokens. (#106)</li>
@@ -885,8 +1025,8 @@ Like <code>content_pdf_url()</code>, <code>content_document_url()</code> doesn�
 <li><code>token_usage()</code> includes cost if it can be calculated. (#106)</li>
 </ul>
 </section>
-<section id="bug-fixes-16" class="level3">
-<h3 class="anchored" data-anchor-id="bug-fixes-16">Bug fixes</h3>
+<section id="bug-fixes-21" class="level3">
+<h3 class="anchored" data-anchor-id="bug-fixes-21">Bug fixes</h3>
 <ul>
 <li>Fixed an issue where <code>httpx</code> client customization (e.g., <code>ChatOpenAI(kwargs = {"http_client": httpx.Client()})</code>) wasn’t working as expected (#108)</li>
 </ul>
@@ -899,16 +1039,16 @@ Like <code>content_pdf_url()</code>, <code>content_document_url()</code> doesn�
 </ul>
 </section>
 </section>
-<section id="section-22" class="level2">
-<h2 class="anchored" data-anchor-id="section-22">[0.8.1] - 2025-05-30</h2>
+<section id="section-27" class="level2">
+<h2 class="anchored" data-anchor-id="section-27">[0.8.1] - 2025-05-30</h2>
 <ul>
 <li>Fixed <code>@overload</code> definitions for <code>.stream()</code> and <code>.stream_async()</code>.</li>
 </ul>
 </section>
-<section id="section-23" class="level2">
-<h2 class="anchored" data-anchor-id="section-23">[0.8.0] - 2025-05-30</h2>
-<section id="new-features-17" class="level3">
-<h3 class="anchored" data-anchor-id="new-features-17">New features</h3>
+<section id="section-28" class="level2">
+<h2 class="anchored" data-anchor-id="section-28">[0.8.0] - 2025-05-30</h2>
+<section id="new-features-19" class="level3">
+<h3 class="anchored" data-anchor-id="new-features-19">New features</h3>
 <ul>
 <li>New <code>.on_tool_request()</code> and <code>.on_tool_result()</code> methods register callbacks that fire when a tool is requested or produces a result. These callbacks can be used to implement custom logging or other actions when tools are called, without modifying the tool function (#101).</li>
 <li>New <code>ToolRejectError</code> exception can be thrown from tool request/result callbacks or from within a tool function itself to prevent the tool from executing. Moreover, this exception will provide some context for the the LLM to know that the tool didn’t produce a result because it was rejected. (#101)</li>
@@ -922,30 +1062,30 @@ Like <code>content_pdf_url()</code>, <code>content_document_url()</code> doesn�
 <li><code>Chat</code> instances can now be deep copied, which is useful for forking the chat session. (#96)</li>
 </ul>
 </section>
-<section id="changes-7" class="level3">
-<h3 class="anchored" data-anchor-id="changes-7">Changes</h3>
+<section id="changes-10" class="level3">
+<h3 class="anchored" data-anchor-id="changes-10">Changes</h3>
 <ul>
 <li><code>ChatDatabricks()</code>’s <code>model</code> now defaults to <code>databricks-claude-3-7-sonnet</code> instead of <code>databricks-dbrx-instruct</code>. (#95)</li>
 <li><code>ChatSnowflake()</code>’s <code>model</code> now defaults to <code>claude-3-7-sonnet</code> instead of <code>llama3.1-70b</code>. (#98)</li>
 </ul>
 </section>
-<section id="bug-fixes-17" class="level3">
-<h3 class="anchored" data-anchor-id="bug-fixes-17">Bug fixes</h3>
+<section id="bug-fixes-22" class="level3">
+<h3 class="anchored" data-anchor-id="bug-fixes-22">Bug fixes</h3>
 <ul>
 <li>Fixed an issue where <code>ChatDatabricks()</code> with an Anthropic <code>model</code> wasn’t handling empty-string responses gracefully. (#95)</li>
 </ul>
 </section>
 </section>
-<section id="section-24" class="level2">
-<h2 class="anchored" data-anchor-id="section-24">[0.7.1] - 2025-05-10</h2>
+<section id="section-29" class="level2">
+<h2 class="anchored" data-anchor-id="section-29">[0.7.1] - 2025-05-10</h2>
 <ul>
 <li>Added <code>openai</code> as a hard dependency, making installation easier for a wide range of use cases. (#91)</li>
 </ul>
 </section>
-<section id="section-25" class="level2">
-<h2 class="anchored" data-anchor-id="section-25">[0.7.0] - 2025-04-22</h2>
-<section id="new-features-18" class="level3">
-<h3 class="anchored" data-anchor-id="new-features-18">New features</h3>
+<section id="section-30" class="level2">
+<h2 class="anchored" data-anchor-id="section-30">[0.7.0] - 2025-04-22</h2>
+<section id="new-features-20" class="level3">
+<h3 class="anchored" data-anchor-id="new-features-20">New features</h3>
 <ul>
 <li>Added <code>ChatDatabricks()</code>, for chatting with Databrick’s <a href="https://docs.databricks.com/aws/en/machine-learning/model-serving/score-foundation-models">foundation models</a>. (#82)</li>
 <li><code>.stream()</code> and <code>.stream_async()</code> gain a <code>content</code> argument. Set this to <code>"all"</code> to include <code>ContentToolResult</code>/<code>ContentToolRequest</code> objects in the stream. (#75)</li>
@@ -973,33 +1113,33 @@ Like <code>content_pdf_url()</code>, <code>content_document_url()</code> doesn�
 <li><code>orjson</code> is now used for JSON loading and dumping. (#87)</li>
 </ul>
 </section>
-<section id="changes-8" class="level3">
-<h3 class="anchored" data-anchor-id="changes-8">Changes</h3>
+<section id="changes-11" class="level3">
+<h3 class="anchored" data-anchor-id="changes-11">Changes</h3>
 <ul>
 <li>The <code>echo</code> argument of the <code>.chat()</code> method defaults to a new value of <code>"output"</code>. As a result, tool requests and results are now echoed by default. To revert to the previous behavior, set <code>echo="text"</code>. (#78)</li>
 <li>Tool results are now dumped to JSON by default before being sent to the model. To revert to the previous behavior, have the tool return a <code>ContentToolResult</code> with <code>model_format="str"</code>. (#87)</li>
 </ul>
 </section>
-<section id="breaking-changes-4" class="level3">
-<h3 class="anchored" data-anchor-id="breaking-changes-4">Breaking changes</h3>
+<section id="breaking-changes-5" class="level3">
+<h3 class="anchored" data-anchor-id="breaking-changes-5">Breaking changes</h3>
 <ul>
 <li>The <code>.export()</code> method’s <code>include</code> argument has been renamed to <code>content</code> (to match <code>.stream()</code>). (#75)</li>
 </ul>
 </section>
 </section>
-<section id="section-26" class="level2">
-<h2 class="anchored" data-anchor-id="section-26">[0.6.1] - 2025-04-03</h2>
-<section id="bug-fixes-18" class="level3">
-<h3 class="anchored" data-anchor-id="bug-fixes-18">Bug fixes</h3>
+<section id="section-31" class="level2">
+<h2 class="anchored" data-anchor-id="section-31">[0.6.1] - 2025-04-03</h2>
+<section id="bug-fixes-23" class="level3">
+<h3 class="anchored" data-anchor-id="bug-fixes-23">Bug fixes</h3>
 <ul>
 <li>Fixed a missing dependency on the <code>requests</code> package.</li>
 </ul>
 </section>
 </section>
-<section id="section-27" class="level2">
-<h2 class="anchored" data-anchor-id="section-27">[0.6.0] - 2025-04-01</h2>
-<section id="new-features-19" class="level3">
-<h3 class="anchored" data-anchor-id="new-features-19">New features</h3>
+<section id="section-32" class="level2">
+<h2 class="anchored" data-anchor-id="section-32">[0.6.0] - 2025-04-01</h2>
+<section id="new-features-21" class="level3">
+<h3 class="anchored" data-anchor-id="new-features-21">New features</h3>
 <ul>
 <li>New <code>content_pdf_file()</code> and <code>content_pdf_url()</code> allow you to upload PDFs to supported models. (#74)</li>
 </ul>
@@ -1011,10 +1151,10 @@ Like <code>content_pdf_url()</code>, <code>content_document_url()</code> doesn�
 </ul>
 </section>
 </section>
-<section id="section-28" class="level2">
-<h2 class="anchored" data-anchor-id="section-28">[0.5.0] - 2025-03-18</h2>
-<section id="new-features-20" class="level3">
-<h3 class="anchored" data-anchor-id="new-features-20">New features</h3>
+<section id="section-33" class="level2">
+<h2 class="anchored" data-anchor-id="section-33">[0.5.0] - 2025-03-18</h2>
+<section id="new-features-22" class="level3">
+<h3 class="anchored" data-anchor-id="new-features-22">New features</h3>
 <ul>
 <li>Added a <code>ChatSnowflake()</code> class to interact with <a href="https://docs.snowflake.com/en/user-guide/snowflake-cortex/llm-functions">Snowflake Cortex LLM</a>. (#54)</li>
 <li>Added a <code>ChatAuto()</code> class, allowing for configuration of chat providers and models via environment variables. (#38, thanks <span class="citation" data-cites="mconflitti-pbc">@mconflitti-pbc</span>)</li>
@@ -1028,18 +1168,18 @@ Like <code>content_pdf_url()</code>, <code>content_document_url()</code> doesn�
 <li>All provider-specific <code>Chat</code> subclasses now have an associated extras in chatlas. For example, <code>ChatOpenAI</code> has <code>chatlas[openai]</code>, <code>ChatPerplexity</code> has <code>chatlas[perplexity]</code>, <code>ChatBedrockAnthropic</code> has <code>chatlas[bedrock-anthropic]</code>, and so forth for the other <code>Chat</code> classes. (#66)</li>
 </ul>
 </section>
-<section id="bug-fixes-19" class="level3">
-<h3 class="anchored" data-anchor-id="bug-fixes-19">Bug fixes</h3>
+<section id="bug-fixes-24" class="level3">
+<h3 class="anchored" data-anchor-id="bug-fixes-24">Bug fixes</h3>
 <ul>
 <li>Fixed an issue with content getting duplicated when it overflows in a <code>Live()</code> console. (#71)</li>
 <li>Fix an issue with tool calls not working with <code>ChatVertex()</code>. (#61)</li>
 </ul>
 </section>
 </section>
-<section id="section-29" class="level2">
-<h2 class="anchored" data-anchor-id="section-29">[0.4.0] - 2025-02-19</h2>
-<section id="new-features-21" class="level3">
-<h3 class="anchored" data-anchor-id="new-features-21">New features</h3>
+<section id="section-34" class="level2">
+<h2 class="anchored" data-anchor-id="section-34">[0.4.0] - 2025-02-19</h2>
+<section id="new-features-23" class="level3">
+<h3 class="anchored" data-anchor-id="new-features-23">New features</h3>
 <ul>
 <li>Added a <code>ChatVertex()</code> class to interact with Google Cloud’s Vertex AI. (#50)</li>
 <li>Added <code>.app(*, echo=)</code> support. This allows for chatlas to change the echo behavior when running the Shiny app. (#31)</li>
@@ -1051,8 +1191,8 @@ Like <code>content_pdf_url()</code>, <code>content_document_url()</code> doesn�
 <li>Migrated <code>ChatGoogle()</code>’s underlying python SDK from <code>google-generative</code> to <code>google-genai</code>. As a result, streaming tools are now working properly. (#50)</li>
 </ul>
 </section>
-<section id="bug-fixes-20" class="level3">
-<h3 class="anchored" data-anchor-id="bug-fixes-20">Bug fixes</h3>
+<section id="bug-fixes-25" class="level3">
+<h3 class="anchored" data-anchor-id="bug-fixes-25">Bug fixes</h3>
 <ul>
 <li>Fixed a bug where synchronous chat tools would not work properly when used in a <code>_async()</code> context. (#56)</li>
 <li>Fix broken <code>Chat</code>’s Shiny app when <code>.app(*, stream=True)</code> by using async chat tools. (#31)</li>
@@ -1060,17 +1200,17 @@ Like <code>content_pdf_url()</code>, <code>content_document_url()</code> doesn�
 </ul>
 </section>
 </section>
-<section id="section-30" class="level2">
-<h2 class="anchored" data-anchor-id="section-30">[0.3.0] - 2024-12-20</h2>
-<section id="new-features-22" class="level3">
-<h3 class="anchored" data-anchor-id="new-features-22">New features</h3>
+<section id="section-35" class="level2">
+<h2 class="anchored" data-anchor-id="section-35">[0.3.0] - 2024-12-20</h2>
+<section id="new-features-24" class="level3">
+<h3 class="anchored" data-anchor-id="new-features-24">New features</h3>
 <ul>
 <li><code>Chat</code>’s <code>.tokens()</code> method gains a <code>values</code> argument. Set it to <code>"discrete"</code> to get a result that can be summed to determine the token cost of submitting the current turns. The default (<code>"cumulative"</code>), remains the same (the result can be summed to determine the overall token cost of the conversation).</li>
 <li><code>Chat</code> gains a <code>.token_count()</code> method to help estimate token cost of new input. (#23)</li>
 </ul>
 </section>
-<section id="bug-fixes-21" class="level3">
-<h3 class="anchored" data-anchor-id="bug-fixes-21">Bug fixes</h3>
+<section id="bug-fixes-26" class="level3">
+<h3 class="anchored" data-anchor-id="bug-fixes-26">Bug fixes</h3>
 <ul>
 <li><code>ChatOllama</code> no longer fails when a <code>OPENAI_API_KEY</code> environment variable is not set.</li>
 <li><code>ChatOpenAI</code> now correctly includes the relevant <code>detail</code> on <code>ContentImageRemote()</code> input.</li>
@@ -1078,8 +1218,8 @@ Like <code>content_pdf_url()</code>, <code>content_document_url()</code> doesn�
 </ul>
 </section>
 </section>
-<section id="section-31" class="level2">
-<h2 class="anchored" data-anchor-id="section-31">[0.2.0] - 2024-12-11</h2>
+<section id="section-36" class="level2">
+<h2 class="anchored" data-anchor-id="section-36">[0.2.0] - 2024-12-11</h2>
 <p>First stable release of <code>chatlas</code>, see the website to learn more <a href="https://posit-dev.github.io/chatlas/" class="uri">https://posit-dev.github.io/chatlas/</a></p>
 
 

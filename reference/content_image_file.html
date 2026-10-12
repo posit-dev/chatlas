@@ -80,7 +80,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="../site_libs/quarto-html/quarto-syntax-highlighting-8f68c619070a9997a612f17db9fc177b.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-d371f0ab0b9878dc2c083d135a92b822.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-dbb44467009f5f46961876d98a9e1bd1.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -784,6 +784,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
+  <a href="../reference/types.SupportsContent.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">types.SupportsContent</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
   <a href="../reference/types.TokenUsage.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">types.TokenUsage</span></a>
   </div>
@@ -853,7 +859,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tbody>
 <tr class="odd">
 <td>path</td>
-<td><a href="https://docs.python.org/3/library/stdtypes.html#str">str</a></td>
+<td><a href="https://docs.python.org/3/builtins/stdtypes.html#str">str</a></td>
 <td>The path to the image file to include in the chat input.</td>
 <td><em>required</em></td>
 </tr>
@@ -865,7 +871,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </tr>
 <tr class="odd">
 <td>resize</td>
-<td><a href="https://docs.python.org/3/library/typing.html#typing.Union">Union</a>[<a href="https://docs.python.org/3/library/typing.html#typing.Literal">Literal</a>['low', 'high', 'none'], <a href="https://docs.python.org/3/library/stdtypes.html#str">str</a>, <a href="https://posit-dev.github.io/chatlas/reference/types.MISSING_TYPE.html#chatlas.types.MISSING_TYPE">MISSING_TYPE</a>]</td>
+<td><a href="https://docs.python.org/3/library/typing.html#typing.Union">Union</a>[<a href="https://docs.python.org/3/library/typing.html#typing.Literal">Literal</a>['low', 'high', 'none'], <a href="https://docs.python.org/3/builtins/stdtypes.html#str">str</a>, <a href="https://posit-dev.github.io/chatlas/reference/types.MISSING_TYPE.html#chatlas.types.MISSING_TYPE">MISSING_TYPE</a>]</td>
 <td>Resizing option for the image. Can be: - <code>"low"</code>: Resize to fit within 512x512 - <code>"high"</code>: Resize to fit within 2000x768 or 768x2000 - <code>"none"</code>: No resizing - Custom string (e.g., <code>"200x200"</code>, <code>"300x200&gt;!"</code>, etc.)</td>
 <td><code>MISSING</code></td>
 </tr>
@@ -914,12 +920,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tbody>
 <tr class="odd">
 <td></td>
-<td><a href="https://docs.python.org/3/library/exceptions.html#FileNotFoundError">FileNotFoundError</a></td>
+<td><a href="https://docs.python.org/3/builtins/exceptions.html#FileNotFoundError">FileNotFoundError</a></td>
 <td>If the specified file does not exist.</td>
 </tr>
 <tr class="even">
 <td></td>
-<td><a href="https://docs.python.org/3/library/exceptions.html#ValueError">ValueError</a></td>
+<td><a href="https://docs.python.org/3/builtins/exceptions.html#ValueError">ValueError</a></td>
 <td>If the file extension is unsupported or the resize option is invalid.</td>
 </tr>
 </tbody>

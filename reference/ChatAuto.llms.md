@@ -84,10 +84,10 @@ print(chat.provider.model)  # gemini-2.5-flash
 
 | Name | Type | Description | Default |
 |----|----|----|----|
-| provider_model | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\[[str](https://docs.python.org/3/library/stdtypes.html#str)\] | The name of the provider and model to use in the format `"{provider}/{model}"`. Providers are strings formatted in kebab-case, e.g. to use `ChatBedrockAnthropic` set `provider="bedrock-anthropic"` (`provider="bedrock"` instead selects `ChatBedrock`), and models are the provider-specific model names, e.g. `"claude-sonnet-4-6"`. The `/{model}` portion may also be omitted, in which case, the default model for that provider will be used. If no value is provided, the `CHATLAS_CHAT_PROVIDER_MODEL` environment variable will be consulted for a fallback value. If this variable is also not set, a default value of `"openai"` is used. | `None` |
-| system_prompt | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\[[str](https://docs.python.org/3/library/stdtypes.html#str)\] | A system prompt to set the behavior of the assistant. | `None` |
+| provider_model | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\[[str](https://docs.python.org/3/builtins/stdtypes.html#str)\] | The name of the provider and model to use in the format `"{provider}/{model}"`. Providers are strings formatted in kebab-case, e.g. to use `ChatBedrockAnthropic` set `provider="bedrock-anthropic"` (`provider="bedrock"` instead selects `ChatBedrock`), and models are the provider-specific model names, e.g. `"claude-sonnet-4-6"`. The `/{model}` portion may also be omitted, in which case, the default model for that provider will be used. If no value is provided, the `CHATLAS_CHAT_PROVIDER_MODEL` environment variable will be consulted for a fallback value. If this variable is also not set, a default value of `"openai"` is used. | `None` |
+| system_prompt | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\[[str](https://docs.python.org/3/builtins/stdtypes.html#str)\] | A system prompt to set the behavior of the assistant. | `None` |
 | provider | `AutoProviders` \| [DEPRECATED_TYPE](https://posit-dev.github.io/chatlas/reference/types.MISSING_TYPE.html#chatlas.types.MISSING_TYPE) | Deprecated; use `provider_model` instead. | `DEPRECATED` |
-| model | [str](https://docs.python.org/3/library/stdtypes.html#str) \| [DEPRECATED_TYPE](https://posit-dev.github.io/chatlas/reference/types.MISSING_TYPE.html#chatlas.types.MISSING_TYPE) | Deprecated; use `provider_model` instead. | `DEPRECATED` |
+| model | [str](https://docs.python.org/3/builtins/stdtypes.html#str) \| [DEPRECATED_TYPE](https://posit-dev.github.io/chatlas/reference/types.MISSING_TYPE.html#chatlas.types.MISSING_TYPE) | Deprecated; use `provider_model` instead. | `DEPRECATED` |
 | \*\*kwargs |  | Additional keyword arguments to pass to the `Chat` constructor. See the documentation for each provider for more details on the available options. These arguments can also be provided via the `CHATLAS_CHAT_ARGS` environment variable as a JSON string. When any additional arguments are provided to `ChatAuto()`, the env var is ignored. Note that `system_prompt` and `turns` can’t be set via environment variables. They must be provided/set directly to/on `ChatAuto()`. | `{}` |
 
 ## Note
@@ -104,4 +104,4 @@ If you want to work with a specific provider, but don’t know what models are a
 
 | Name | Type | Description |
 |----|----|----|
-|  | [ValueError](https://docs.python.org/3/library/exceptions.html#ValueError) | If no valid provider is specified either through parameters or environment variables. |
+|  | [ValueError](https://docs.python.org/3/builtins/exceptions.html#ValueError) | If no valid provider is specified either through parameters or environment variables. |

@@ -160,6 +160,7 @@ A provider-agnostic representation of content generated during an assistant/user
 | [types.MISSING](../reference/types.MISSING.llms.md#chatlas.types.MISSING) |  |
 | [types.Source](../reference/types.Source.llms.md#chatlas.types.Source) | Identity of a piece of evidence a citation or search result points to. |
 | [types.SubmitInputArgsT](../reference/types.SubmitInputArgsT.llms.md#chatlas.types.SubmitInputArgsT) | A TypedDict representing the provider specific arguments that can specified when |
+| [types.SupportsContent](../reference/types.SupportsContent.llms.md#chatlas.types.SupportsContent) | Structural type for objects that can be coerced to `Content`. |
 | [types.TokenUsage](../reference/types.TokenUsage.llms.md#chatlas.types.TokenUsage) | Token usage for a given provider (name). |
 | [types.ToolAnnotations](../reference/types.ToolAnnotations.llms.md#chatlas.types.ToolAnnotations) | Additional properties describing a Tool to clients. |
 | [types.ToolInfo](../reference/types.ToolInfo.llms.md#chatlas.types.ToolInfo) | Serializable tool information |

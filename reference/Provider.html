@@ -80,7 +80,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="../site_libs/quarto-html/quarto-syntax-highlighting-8f68c619070a9997a612f17db9fc177b.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-d371f0ab0b9878dc2c083d135a92b822.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-dbb44467009f5f46961876d98a9e1bd1.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -784,6 +784,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
+  <a href="../reference/types.SupportsContent.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">types.SupportsContent</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
   <a href="../reference/types.TokenUsage.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">types.TokenUsage</span></a>
   </div>
@@ -829,8 +835,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#chatlas.Provider.batch_status" id="toc-chatlas.Provider.batch_status" class="nav-link" data-scroll-target="#chatlas.Provider.batch_status">batch_status</a></li>
   <li><a href="#chatlas.Provider.batch_submit" id="toc-chatlas.Provider.batch_submit" class="nav-link" data-scroll-target="#chatlas.Provider.batch_submit">batch_submit</a></li>
   <li><a href="#chatlas.Provider.check_builtin_tool_support" id="toc-chatlas.Provider.check_builtin_tool_support" class="nav-link" data-scroll-target="#chatlas.Provider.check_builtin_tool_support">check_builtin_tool_support</a></li>
+  <li><a href="#chatlas.Provider.close" id="toc-chatlas.Provider.close" class="nav-link" data-scroll-target="#chatlas.Provider.close">close</a></li>
+  <li><a href="#chatlas.Provider.close_async" id="toc-chatlas.Provider.close_async" class="nav-link" data-scroll-target="#chatlas.Provider.close_async">close_async</a></li>
   <li><a href="#chatlas.Provider.has_batch_support" id="toc-chatlas.Provider.has_batch_support" class="nav-link" data-scroll-target="#chatlas.Provider.has_batch_support">has_batch_support</a></li>
   <li><a href="#chatlas.Provider.list_models" id="toc-chatlas.Provider.list_models" class="nav-link" data-scroll-target="#chatlas.Provider.list_models">list_models</a></li>
+  <li><a href="#chatlas.Provider.set_model" id="toc-chatlas.Provider.set_model" class="nav-link" data-scroll-target="#chatlas.Provider.set_model">set_model</a></li>
   <li><a href="#chatlas.Provider.stream_content" id="toc-chatlas.Provider.stream_content" class="nav-link" data-scroll-target="#chatlas.Provider.stream_content">stream_content</a></li>
   <li><a href="#chatlas.Provider.value_cost" id="toc-chatlas.Provider.value_cost" class="nav-link" data-scroll-target="#chatlas.Provider.value_cost">value_cost</a></li>
   </ul></li>
@@ -914,6 +923,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td>Raise if this provider can’t translate <code>tool</code> into its API’s format.</td>
 </tr>
 <tr class="odd">
+<td><a href="#chatlas.Provider.close">close</a></td>
+<td>Release resources held by this provider (e.g., HTTP connection pools,</td>
+</tr>
+<tr class="even">
+<td><a href="#chatlas.Provider.close_async">close_async</a></td>
+<td>Asynchronous variant of <code>close()</code>.</td>
+</tr>
+<tr class="odd">
 <td><a href="#chatlas.Provider.has_batch_support">has_batch_support</a></td>
 <td>Returns whether this provider supports batch processing.</td>
 </tr>
@@ -922,10 +939,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td>List all available models for the provider.</td>
 </tr>
 <tr class="odd">
+<td><a href="#chatlas.Provider.set_model">set_model</a></td>
+<td>Set the model used by the provider.</td>
+</tr>
+<tr class="even">
 <td><a href="#chatlas.Provider.stream_content">stream_content</a></td>
 <td>Content to yield for <code>chunk</code>.</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td><a href="#chatlas.Provider.value_cost">value_cost</a></td>
 <td>Compute the cost for a completion.</td>
 </tr>
@@ -972,25 +993,64 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>Raise if this provider can’t translate <code>tool</code> into its API’s format.</p>
 <p>Called when a built-in tool is registered with a <a href="https://posit-dev.github.io/chatlas/reference/Chat.html#chatlas.Chat"><code>Chat</code></a>, so that unsupported tools fail immediately rather than being silently dropped (or rejected by a cryptic API error) on the first request.</p>
 </section>
+<section id="chatlas.Provider.close" class="level3">
+<h3 class="anchored" data-anchor-id="chatlas.Provider.close">close</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>Provider.close()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Release resources held by this provider (e.g., HTTP connection pools, database sessions).</p>
+<p>This is best-effort and only closes synchronous resources; use <code>close_async()</code> to also release asynchronous resources. Providers only close resources they created themselves – clients or connections supplied by the caller are left open. Implementations must be safe to call multiple times.</p>
+<p>The default implementation does nothing.</p>
+</section>
+<section id="chatlas.Provider.close_async" class="level3">
+<h3 class="anchored" data-anchor-id="chatlas.Provider.close_async">close_async</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>Provider.close_async()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Asynchronous variant of <code>close()</code>.</p>
+<p>Releases both synchronous and asynchronous resources held by this provider. The default implementation calls <code>close()</code>.</p>
+</section>
 <section id="chatlas.Provider.has_batch_support" class="level3">
 <h3 class="anchored" data-anchor-id="chatlas.Provider.has_batch_support">has_batch_support</h3>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>Provider.has_batch_support()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>Provider.has_batch_support()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Returns whether this provider supports batch processing. Override this method to return True for providers that implement batch methods.</p>
 </section>
 <section id="chatlas.Provider.list_models" class="level3">
 <h3 class="anchored" data-anchor-id="chatlas.Provider.list_models">list_models</h3>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>Provider.list_models()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>Provider.list_models()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>List all available models for the provider.</p>
+</section>
+<section id="chatlas.Provider.set_model" class="level3">
+<h3 class="anchored" data-anchor-id="chatlas.Provider.set_model">set_model</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>Provider.set_model(value)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Set the model used by the provider.</p>
+<p>The default implementation just updates the model name and returns the provider unchanged. Providers that dispatch to a different API flavor based on the model name (e.g., Posit AI) override this to return a different provider instance when the new model belongs to another flavor.</p>
+<section id="returns" class="level4 doc-section doc-section-returns">
+<h4 class="doc-section doc-section-returns anchored" data-anchor-id="returns">Returns</h4>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td></td>
+<td><a href="https://posit-dev.github.io/chatlas/reference/Provider.html#chatlas.Provider">Provider</a></td>
+<td>The provider to use for subsequent requests (possibly <code>self</code>).</td>
+</tr>
+</tbody>
+</table>
+</section>
 </section>
 <section id="chatlas.Provider.stream_content" class="level3">
 <h3 class="anchored" data-anchor-id="chatlas.Provider.stream_content">stream_content</h3>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>Provider.stream_content(chunk, completion)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>Provider.stream_content(chunk, completion, turns<span class="op">=</span>())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Content to yield for <code>chunk</code>.</p>
 <p><code>completion</code> is the result of merging every chunk up to and including <code>chunk</code> (i.e.&nbsp;<code>stream_merge_chunks</code> runs first). Providers needing cross-chunk state read it from there rather than storing it on <code>self</code>: a single provider instance is shared across forked chats (<code>Chat.__deepcopy__</code> keeps <code>provider</code> by reference), so several streams can be in flight at once.</p>
+<p><code>turns</code> is the full request history (prior turns plus the newest user turn) that produced this stream, for providers that need to resolve content referencing something outside <code>completion</code> itself (e.g. Anthropic’s <code>document_index</code> citations, which can reference a document from an earlier turn). Defaults to <code>()</code> for callers that don’t have it.</p>
 </section>
 <section id="chatlas.Provider.value_cost" class="level3">
 <h3 class="anchored" data-anchor-id="chatlas.Provider.value_cost">value_cost</h3>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>Provider.value_cost(completion, tokens<span class="op">=</span><span class="va">None</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>Provider.value_cost(completion, tokens<span class="op">=</span><span class="va">None</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Compute the cost for a completion.</p>
 <section id="parameters" class="level4 doc-section doc-section-parameters">
 <h4 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters">Parameters</h4>
@@ -1012,15 +1072,15 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </tr>
 <tr class="even">
 <td>tokens</td>
-<td><a href="https://docs.python.org/3/library/stdtypes.html#tuple">tuple</a>[<a href="https://docs.python.org/3/library/functions.html#int">int</a>, <a href="https://docs.python.org/3/library/functions.html#int">int</a>, <a href="https://docs.python.org/3/library/functions.html#int">int</a>] | None</td>
+<td><a href="https://docs.python.org/3/builtins/stdtypes.html#tuple">tuple</a>[<a href="https://docs.python.org/3/builtins/functions.html#int">int</a>, <a href="https://docs.python.org/3/builtins/functions.html#int">int</a>, <a href="https://docs.python.org/3/builtins/functions.html#int">int</a>] | None</td>
 <td>Optional pre-computed tokens tuple. If not provided, will be extracted from the completion.</td>
 <td><code>None</code></td>
 </tr>
 </tbody>
 </table>
 </section>
-<section id="returns" class="level4 doc-section doc-section-returns">
-<h4 class="doc-section doc-section-returns anchored" data-anchor-id="returns">Returns</h4>
+<section id="returns-1" class="level4 doc-section doc-section-returns">
+<h4 class="doc-section doc-section-returns anchored" data-anchor-id="returns-1">Returns</h4>
 <table class="caption-top table">
 <thead>
 <tr class="header">
@@ -1032,7 +1092,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tbody>
 <tr class="odd">
 <td></td>
-<td><a href="https://docs.python.org/3/library/functions.html#float">float</a> | None</td>
+<td><a href="https://docs.python.org/3/builtins/functions.html#float">float</a> | None</td>
 <td>The cost in USD, or None if cost cannot be computed.</td>
 </tr>
 </tbody>

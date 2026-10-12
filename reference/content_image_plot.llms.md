@@ -12,9 +12,9 @@ This function captures the current matplotlib plot, resizes it to the specified 
 
 | Name | Type | Description | Default |
 |----|----|----|----|
-| width | [int](https://docs.python.org/3/library/functions.html#int) | The desired width of the output image in pixels. | `768` |
-| height | [int](https://docs.python.org/3/library/functions.html#int) | The desired height of the output image in pixels. | `768` |
-| dpi | [int](https://docs.python.org/3/library/functions.html#int) | The DPI (dots per inch) of the output image. | `72` |
+| width | [int](https://docs.python.org/3/builtins/functions.html#int) | The desired width of the output image in pixels. | `768` |
+| height | [int](https://docs.python.org/3/builtins/functions.html#int) | The desired height of the output image in pixels. | `768` |
+| dpi | [int](https://docs.python.org/3/builtins/functions.html#int) | The DPI (dots per inch) of the output image. | `72` |
 
 ## Returns
 
@@ -26,7 +26,7 @@ This function captures the current matplotlib plot, resizes it to the specified 
 
 | Name | Type | Description |
 |----|----|----|
-|  | [ValueError](https://docs.python.org/3/library/exceptions.html#ValueError) | If width or height is not a positive integer. |
+|  | [ValueError](https://docs.python.org/3/builtins/exceptions.html#ValueError) | If width or height is not a positive integer. |
 
 ## Examples
 

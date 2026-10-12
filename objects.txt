@@ -60,8 +60,14 @@ chatlas.Chat.chat_structured_async py:function 1 reference/Chat.html#chatlas.Cha
 chatlas._chat.Chat.chat_structured_async py:function 1 reference/Chat.html#chatlas.Chat.chat_structured_async chatlas.Chat.chat_structured_async
 chatlas.Chat.cleanup_mcp_tools py:function 1 reference/Chat.html#chatlas.Chat.cleanup_mcp_tools -
 chatlas._chat.Chat.cleanup_mcp_tools py:function 1 reference/Chat.html#chatlas.Chat.cleanup_mcp_tools chatlas.Chat.cleanup_mcp_tools
+chatlas.Chat.close py:function 1 reference/Chat.html#chatlas.Chat.close -
+chatlas._chat.Chat.close py:function 1 reference/Chat.html#chatlas.Chat.close chatlas.Chat.close
+chatlas.Chat.close_async py:function 1 reference/Chat.html#chatlas.Chat.close_async -
+chatlas._chat.Chat.close_async py:function 1 reference/Chat.html#chatlas.Chat.close_async chatlas.Chat.close_async
 chatlas.Chat.console py:function 1 reference/Chat.html#chatlas.Chat.console -
 chatlas._chat.Chat.console py:function 1 reference/Chat.html#chatlas.Chat.console chatlas.Chat.console
+chatlas.Chat.conversation_id py:attribute 1 reference/Chat.html#chatlas.Chat.conversation_id -
+chatlas._chat.Chat.conversation_id py:attribute 1 reference/Chat.html#chatlas.Chat.conversation_id chatlas.Chat.conversation_id
 chatlas.Chat.current_display py:attribute 1 reference/Chat.html#chatlas.Chat.current_display -
 chatlas._chat.Chat.current_display py:attribute 1 reference/Chat.html#chatlas.Chat.current_display chatlas.Chat.current_display
 chatlas.Chat.export py:function 1 reference/Chat.html#chatlas.Chat.export -
@@ -214,6 +220,10 @@ chatlas.Provider.batch_submit py:function 1 reference/Provider.html#chatlas.Prov
 chatlas._provider.Provider.batch_submit py:function 1 reference/Provider.html#chatlas.Provider.batch_submit chatlas.Provider.batch_submit
 chatlas.Provider.check_builtin_tool_support py:function 1 reference/Provider.html#chatlas.Provider.check_builtin_tool_support -
 chatlas._provider.Provider.check_builtin_tool_support py:function 1 reference/Provider.html#chatlas.Provider.check_builtin_tool_support chatlas.Provider.check_builtin_tool_support
+chatlas.Provider.close py:function 1 reference/Provider.html#chatlas.Provider.close -
+chatlas._provider.Provider.close py:function 1 reference/Provider.html#chatlas.Provider.close chatlas.Provider.close
+chatlas.Provider.close_async py:function 1 reference/Provider.html#chatlas.Provider.close_async -
+chatlas._provider.Provider.close_async py:function 1 reference/Provider.html#chatlas.Provider.close_async chatlas.Provider.close_async
 chatlas.Provider.has_batch_support py:function 1 reference/Provider.html#chatlas.Provider.has_batch_support -
 chatlas._provider.Provider.has_batch_support py:function 1 reference/Provider.html#chatlas.Provider.has_batch_support chatlas.Provider.has_batch_support
 chatlas.Provider.list_models py:function 1 reference/Provider.html#chatlas.Provider.list_models -
@@ -222,6 +232,8 @@ chatlas.Provider.model py:attribute 1 reference/Provider.html#chatlas.Provider.m
 chatlas._provider.Provider.model py:attribute 1 reference/Provider.html#chatlas.Provider.model chatlas.Provider.model
 chatlas.Provider.name py:attribute 1 reference/Provider.html#chatlas.Provider.name -
 chatlas._provider.Provider.name py:attribute 1 reference/Provider.html#chatlas.Provider.name chatlas.Provider.name
+chatlas.Provider.set_model py:function 1 reference/Provider.html#chatlas.Provider.set_model -
+chatlas._provider.Provider.set_model py:function 1 reference/Provider.html#chatlas.Provider.set_model chatlas.Provider.set_model
 chatlas.Provider.stream_content py:function 1 reference/Provider.html#chatlas.Provider.stream_content -
 chatlas._provider.Provider.stream_content py:function 1 reference/Provider.html#chatlas.Provider.stream_content chatlas.Provider.stream_content
 chatlas.Provider.supported_builtin_tools py:attribute 1 reference/Provider.html#chatlas.Provider.supported_builtin_tools -
@@ -292,6 +304,8 @@ chatlas.types.ChatResponseAsync py:class 1 reference/types.ChatResponseAsync.htm
 chatlas._chat.ChatResponseAsync py:class 1 reference/types.ChatResponseAsync.html#chatlas.types.ChatResponseAsync chatlas.types.ChatResponseAsync
 chatlas.types.FileMetadata.extra py:attribute 1 reference/types.FileMetadata.html#chatlas.types.FileMetadata.extra -
 chatlas._files.FileMetadata.extra py:attribute 1 reference/types.FileMetadata.html#chatlas.types.FileMetadata.extra chatlas.types.FileMetadata.extra
+chatlas.types.FileMetadata.to_content py:function 1 reference/types.FileMetadata.html#chatlas.types.FileMetadata.to_content -
+chatlas._files.FileMetadata.to_content py:function 1 reference/types.FileMetadata.html#chatlas.types.FileMetadata.to_content chatlas.types.FileMetadata.to_content
 chatlas.types.FileMetadata py:class 1 reference/types.FileMetadata.html#chatlas.types.FileMetadata -
 chatlas._files.FileMetadata py:class 1 reference/types.FileMetadata.html#chatlas.types.FileMetadata chatlas.types.FileMetadata
 chatlas.types.ImageContentTypes py:attribute 1 reference/types.ImageContentTypes.html#chatlas.types.ImageContentTypes -
@@ -304,6 +318,10 @@ chatlas.types.Source py:class 1 reference/types.Source.html#chatlas.types.Source
 chatlas._content.Source py:class 1 reference/types.Source.html#chatlas.types.Source chatlas.types.Source
 chatlas.types.SubmitInputArgsT py:attribute 1 reference/types.SubmitInputArgsT.html#chatlas.types.SubmitInputArgsT -
 chatlas._provider.SubmitInputArgsT py:attribute 1 reference/types.SubmitInputArgsT.html#chatlas.types.SubmitInputArgsT chatlas.types.SubmitInputArgsT
+chatlas.types.SupportsContent.to_content py:function 1 reference/types.SupportsContent.html#chatlas.types.SupportsContent.to_content -
+chatlas._content.SupportsContent.to_content py:function 1 reference/types.SupportsContent.html#chatlas.types.SupportsContent.to_content chatlas.types.SupportsContent.to_content
+chatlas.types.SupportsContent py:class 1 reference/types.SupportsContent.html#chatlas.types.SupportsContent -
+chatlas._content.SupportsContent py:class 1 reference/types.SupportsContent.html#chatlas.types.SupportsContent chatlas.types.SupportsContent
 chatlas.types.TokenUsage py:class 1 reference/types.TokenUsage.html#chatlas.types.TokenUsage -
 chatlas._tokens.TokenUsage py:class 1 reference/types.TokenUsage.html#chatlas.types.TokenUsage chatlas.types.TokenUsage
 chatlas.types.ToolAnnotations.destructiveHint py:attribute 1 reference/types.ToolAnnotations.html#chatlas.types.ToolAnnotations.destructiveHint -

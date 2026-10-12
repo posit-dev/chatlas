@@ -25,10 +25,10 @@ Supported providers: OpenAI (`ChatOpenAI()`), Claude (Anthropic), Google (Gemini
 
 | Name | Type | Description | Default |
 |----|----|----|----|
-| allowed_domains | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\[[list](https://docs.python.org/3/library/stdtypes.html#list)\[[str](https://docs.python.org/3/library/stdtypes.html#str)\]\] | Restrict searches to specific domains (e.g., `['nytimes.com', 'bbc.com']`). Supported by OpenAI and Claude. Cannot be used with `blocked_domains`. | `None` |
-| blocked_domains | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\[[list](https://docs.python.org/3/library/stdtypes.html#list)\[[str](https://docs.python.org/3/library/stdtypes.html#str)\]\] | Exclude specific domains from searches. Supported by Claude and Google. Cannot be used with `allowed_domains`. | `None` |
+| allowed_domains | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\[[list](https://docs.python.org/3/builtins/stdtypes.html#list)\[[str](https://docs.python.org/3/builtins/stdtypes.html#str)\]\] | Restrict searches to specific domains (e.g., `['nytimes.com', 'bbc.com']`). Supported by OpenAI and Claude. Cannot be used with `blocked_domains`. | `None` |
+| blocked_domains | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\[[list](https://docs.python.org/3/builtins/stdtypes.html#list)\[[str](https://docs.python.org/3/builtins/stdtypes.html#str)\]\] | Exclude specific domains from searches. Supported by Claude and Google. Cannot be used with `allowed_domains`. | `None` |
 | user_location | 'Optional\[UserLocation\]' | Location information to localize search results. A dictionary with optional keys: `country` (2-letter ISO code), `city`, `region`, and `timezone` (IANA timezone like ‘America/New_York’). Supported by OpenAI and Claude. | `None` |
-| max_uses | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\[[int](https://docs.python.org/3/library/functions.html#int)\] | Maximum number of searches allowed per request. Only supported by Claude. | `None` |
+| max_uses | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\[[int](https://docs.python.org/3/builtins/functions.html#int)\] | Maximum number of searches allowed per request. Only supported by Claude. | `None` |
 
 ## Returns
 

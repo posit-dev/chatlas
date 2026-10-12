@@ -33,9 +33,9 @@ Databricks provides out-of-the-box access to a number of [foundation models](htt
 
 | Name | Type | Description | Default |
 |----|----|----|----|
-| system_prompt | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\[[str](https://docs.python.org/3/library/stdtypes.html#str)\] | A system prompt to set the behavior of the assistant. | `None` |
-| model | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\[[str](https://docs.python.org/3/library/stdtypes.html#str)\] | The model to use for the chat. The default, None, will pick a reasonable default, and warn you about it. We strongly recommend explicitly choosing a model for all but the most casual use. | `None` |
-| workspace_client | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\['WorkspaceClient'\] | A `databricks.sdk.WorkspaceClient()` to use for the connection. If not provided, a new client will be created. | `None` |
+| system_prompt | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\[[str](https://docs.python.org/3/builtins/stdtypes.html#str)\] | A system prompt to set the behavior of the assistant. | `None` |
+| model | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\[[str](https://docs.python.org/3/builtins/stdtypes.html#str)\] | The model to use for the chat. The default, None, will pick a reasonable default, and warn you about it. We strongly recommend explicitly choosing a model for all but the most casual use. | `None` |
+| workspace_client | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\['WorkspaceClient'\] | A `databricks.sdk.WorkspaceClient()` to use for the connection. If not provided, a new client will be created. Note that calling [`Chat.close()`](../reference/Chat.llms.md#chatlas.Chat.close) does not close a caller-supplied `WorkspaceClient` – it only closes the OpenAI-compatible client that chatlas derives from it. | `None` |
 
 ## Returns
 

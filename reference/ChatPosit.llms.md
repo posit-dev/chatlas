@@ -37,10 +37,10 @@ chat.chat("Tell me three jokes about statisticians")
 
 | Name | Type | Description | Default |
 |----|----|----|----|
-| system_prompt | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\[[str](https://docs.python.org/3/library/stdtypes.html#str)\] | A system prompt to set the behavior of the assistant. | `None` |
-| base_url | [str](https://docs.python.org/3/library/stdtypes.html#str) | The base URL of the Posit AI gateway. | `'https://gateway.posit.ai'` |
-| model | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\[[str](https://docs.python.org/3/library/stdtypes.html#str)\] | The model to use for the chat. The default, None, will pick a reasonable default, and warn you about it. We strongly recommend explicitly choosing a model for all but the most casual use. | `None` |
-| credentials | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\[[Callable](https://docs.python.org/3/library/typing.html#typing.Callable)\[\[\], [str](https://docs.python.org/3/library/stdtypes.html#str)\]\] | A zero-argument function that returns a bearer token string. If omitted, `ChatPosit()` manages the OAuth device-flow login and its on-disk token cache automatically. | `None` |
+| system_prompt | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\[[str](https://docs.python.org/3/builtins/stdtypes.html#str)\] | A system prompt to set the behavior of the assistant. | `None` |
+| base_url | [str](https://docs.python.org/3/builtins/stdtypes.html#str) | The base URL of the Posit AI gateway. | `'https://gateway.posit.ai'` |
+| model | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\[[str](https://docs.python.org/3/builtins/stdtypes.html#str)\] | The model to use for the chat. The default, None, will pick a reasonable default, and warn you about it. We strongly recommend explicitly choosing a model for all but the most casual use. | `None` |
+| credentials | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\[[Callable](https://docs.python.org/3/library/typing.html#typing.Callable)\[\[\], [str](https://docs.python.org/3/builtins/stdtypes.html#str)\]\] | A zero-argument function that returns a bearer token string. If omitted, `ChatPosit()` manages the OAuth device-flow login and its on-disk token cache automatically. | `None` |
 | cache | [Literal](https://docs.python.org/3/library/typing.html#typing.Literal)\['5m', '1h', 'none'\] | How long to cache inputs? Defaults to “5m” (five minutes). Only applies when a Claude model is selected. See `ChatAnthropic` for details. | `'5m'` |
 
 ## Returns

@@ -39,11 +39,11 @@ chat.chat("What is the capital of France?")
 
 | Name | Type | Description | Default |
 |----|----|----|----|
-| model | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\[[str](https://docs.python.org/3/library/stdtypes.html#str)\] | The model to use for the chat. If `None`, a list of locally loaded models will be printed. | `None` |
-| system_prompt | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\[[str](https://docs.python.org/3/library/stdtypes.html#str)\] | A system prompt to set the behavior of the assistant. | `None` |
-| base_url | [str](https://docs.python.org/3/library/stdtypes.html#str) | The base URL to the endpoint. The default uses the LM Studio local server. You can also set the `LMSTUDIO_BASE_URL` environment variable to override this default. | `'http://localhost:1234'` |
-| api_key | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\[[str](https://docs.python.org/3/library/stdtypes.html#str)\] | An optional API key. LM Studio doesn’t require credentials for local usage. If you’re accessing an LM Studio instance behind a reverse proxy or secured endpoint that enforces bearer-token authentication, you can set the `LMSTUDIO_API_KEY` environment variable or provide a value here. | `None` |
-| seed | [int](https://docs.python.org/3/library/functions.html#int) \| None \| [MISSING_TYPE](https://posit-dev.github.io/chatlas/reference/types.MISSING_TYPE.html#chatlas.types.MISSING_TYPE) | Optional integer seed that helps to make output more reproducible. | `MISSING` |
+| model | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\[[str](https://docs.python.org/3/builtins/stdtypes.html#str)\] | The model to use for the chat. If `None`, a list of locally loaded models will be printed. | `None` |
+| system_prompt | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\[[str](https://docs.python.org/3/builtins/stdtypes.html#str)\] | A system prompt to set the behavior of the assistant. | `None` |
+| base_url | [str](https://docs.python.org/3/builtins/stdtypes.html#str) | The base URL to the endpoint. The default uses the LM Studio local server. You can also set the `LMSTUDIO_BASE_URL` environment variable to override this default. | `'http://localhost:1234'` |
+| api_key | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\[[str](https://docs.python.org/3/builtins/stdtypes.html#str)\] | An optional API key. LM Studio doesn’t require credentials for local usage. If you’re accessing an LM Studio instance behind a reverse proxy or secured endpoint that enforces bearer-token authentication, you can set the `LMSTUDIO_API_KEY` environment variable or provide a value here. | `None` |
+| seed | [int](https://docs.python.org/3/builtins/functions.html#int) \| None \| [MISSING_TYPE](https://posit-dev.github.io/chatlas/reference/types.MISSING_TYPE.html#chatlas.types.MISSING_TYPE) | Optional integer seed that helps to make output more reproducible. | `MISSING` |
 | kwargs | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\['ChatClientArgs'\] | Additional arguments to pass to the `openai.OpenAI()` client constructor. | `None` |
 
 ## Note
