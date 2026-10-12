@@ -10,6 +10,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### New features
+
+* `FileMetadata` (returned by `chat.files.get()` and `chat.files.list()`) gains a `.to_content()` method that builds a `ContentUploaded` reference you can pass straight to `.chat()`, so a file uploaded in an earlier session can be reused from its id alone. When the provider doesn't report a MIME type (OpenAI's Files API never does), it's guessed from the filename. (#417)
+
 ### Changes
 
 * The `snowflake` extra (i.e., `pip install "chatlas[snowflake]"`) no longer installs `snowflake-ml-python`, which pulled in the heavy torch ecosystem and blocked installation on Python 3.13+. `ChatSnowflake()` has used the Cortex REST API (`snowflake.core`) since v0.11.0, so it only needs `snowflake-core` and `snowflake-snowpark-python`.

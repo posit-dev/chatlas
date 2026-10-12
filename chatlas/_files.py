@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import mimetypes
 import os
 from contextlib import contextmanager
 from datetime import datetime
@@ -33,6 +34,42 @@ class FileMetadata(BaseModel):
     `ContentUploaded.extra`, which is a plain dict because that type gets
     serialized as part of a chat's turns.
     """
+
+    def to_content(self) -> ContentUploaded:
+        """Build a `ContentUploaded` reference to this file.
+
+        The result can be passed straight to `.chat()` (and other chat
+        methods), so a file uploaded in an earlier session can be reused from
+        its id alone:
+
+        ```python
+        report = chat.files.get("file_011CRabc...").to_content()
+        chat.chat("Summarize the key findings.", report)
+        ```
+
+        When the provider doesn't report a MIME type (OpenAI's Files API
+        never does), it's guessed from `filename`, falling back to
+        `"application/octet-stream"` -- the same guessing `chat.files.upload()`
+        applies. The returned reference's `extra` is a plain, serializable
+        dict of the normalized fields, not the provider's own file object
+        held on `FileMetadata.extra`.
+
+        Returns
+        -------
+        ContentUploaded
+            A reference to the file, usable as content in `.chat()`.
+        """
+        mime_type = (
+            self.mime_type
+            or mimetypes.guess_type(self.filename or "")[0]
+            or "application/octet-stream"
+        )
+        return ContentUploaded(
+            id=self.id,
+            mime_type=mime_type,
+            provider=self.provider,
+            extra={"filename": self.filename, "size_bytes": self.size_bytes},
+        )
 
 
 class FileManager:
@@ -148,7 +185,9 @@ class FileManager:
         Returns
         -------
         FileMetadata
-            Metadata for the file.
+            Metadata for the file. Call its `.to_content()` method to get a
+            `ContentUploaded` that can be passed straight to `.chat()`, e.g.
+            to reuse a file uploaded in an earlier session.
         """
         return self._provider.file_get(id)
 

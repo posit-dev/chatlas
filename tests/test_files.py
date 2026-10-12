@@ -1,3 +1,5 @@
+from types import SimpleNamespace
+
 import pytest
 from chatlas import (
     ChatAzureOpenAI,
@@ -6,8 +8,9 @@ from chatlas import (
     ChatOllama,
     ChatPosit,
 )
-from chatlas._files import FileManager, maybe_write
-from chatlas._provider_openai import OpenAIProvider
+from chatlas._content import ContentUploaded
+from chatlas._files import FileManager, FileMetadata, maybe_write
+from chatlas._provider_openai import OpenAIProvider, openai_meta
 
 
 def fake_download(provider: OpenAIProvider, data: bytes) -> None:
@@ -47,6 +50,55 @@ def test_maybe_write_roundtrip(tmp_path):
     assert maybe_write(b"abc", dest) == b"abc"
     assert dest.read_bytes() == b"abc"
     assert maybe_write(b"abc", None) == b"abc"
+
+
+def test_to_content_uses_known_mime_type():
+    meta = FileMetadata(
+        id="file-abc",
+        filename="report.pdf",
+        mime_type="application/pdf",
+        provider="anthropic",
+    )
+    content = meta.to_content()
+    assert isinstance(content, ContentUploaded)
+    assert content.id == "file-abc"
+    assert content.mime_type == "application/pdf"
+    assert content.provider == "anthropic"
+    # extra holds plain, serializable normalized fields -- not the provider's
+    # own (often unserializable) file object from FileMetadata.extra
+    assert content.extra == {"filename": "report.pdf", "size_bytes": None}
+    content.model_dump_json()
+
+
+def test_to_content_guesses_mime_type_from_filename():
+    meta = FileMetadata(id="file-abc", filename="report.pdf", provider="openai")
+    assert meta.to_content().mime_type == "application/pdf"
+
+
+def test_to_content_falls_back_to_octet_stream():
+    meta = FileMetadata(id="file-abc", filename="data.unknownext", provider="openai")
+    assert meta.to_content().mime_type == "application/octet-stream"
+
+    meta_no_name = FileMetadata(id="file-abc", provider="openai")
+    assert meta_no_name.to_content().mime_type == "application/octet-stream"
+
+
+def test_openai_meta_to_content_roundtrip():
+    # OpenAI's Files API doesn't report a MIME type, so file_get() yields
+    # mime_type=None; to_content() must still produce a valid ContentUploaded
+    # (previously this meant hand-building one from files.get() failed).
+    fake_file = SimpleNamespace(
+        id="file-abc",
+        filename="quarterly-report.pdf",
+        bytes=1024,
+        created_at=1_700_000_000,
+    )
+    meta = openai_meta(fake_file)  # type: ignore[arg-type]
+    assert meta.mime_type is None
+
+    content = meta.to_content()
+    assert content.mime_type == "application/pdf"
+    assert content.provider == "openai"
 
 
 def test_files_accessor_type(monkeypatch):
