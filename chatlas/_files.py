@@ -54,11 +54,22 @@ class FileMetadata(BaseModel):
         dict of the normalized fields, not the provider's own file object
         held on `FileMetadata.extra`.
 
+        On Google, this raises for metadata describing a file that can't be
+        referenced in a turn: `.files.get()`/`.list()` also describe files
+        that are still processing or failed to upload (so you can manage
+        them), but Gemini only accepts an `ACTIVE` file's full URI as input.
+
         Returns
         -------
         ContentUploaded
             A reference to the file, usable as content in `.chat()`.
         """
+        if self.provider == "google":
+            # Local import: ._provider_google imports this module.
+            from ._provider_google import google_check_meta
+
+            google_check_meta(self)
+
         mime_type = (
             self.mime_type
             or mimetypes.guess_type(self.filename or "")[0]
