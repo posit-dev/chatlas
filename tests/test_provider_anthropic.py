@@ -856,6 +856,36 @@ def test_chat_structured_stream_true_tool_mode_downgrades_gracefully():
     assert person == Person(name="John", age=15)
 
 
+@pytest.mark.asyncio
+async def test_chat_structured_async_stream_true_tool_mode_downgrades_gracefully():
+    # chat_structured_async() takes a separate async path
+    # (_submit_and_extract_data_async); cover it so the async fallback can't
+    # regress independently (gh-317).
+    from unittest.mock import AsyncMock, patch
+
+    model = "claude-3-5-sonnet-20241022"
+    chat = ChatAnthropic(model=model, structured_output_mode="tool", api_key="x")
+
+    class Person(BaseModel):
+        name: str
+        age: int
+
+    fake = _fake_tool_mode_message(model)
+    provider = cast(AnthropicProvider, chat.provider)
+
+    with patch.object(
+        provider._async_client.messages,
+        "create",
+        new=AsyncMock(return_value=fake),
+    ):
+        with pytest.warns(UserWarning, match="streaming"):
+            person = await chat.chat_structured_async(
+                "John, age 15", data_model=Person, stream=True
+            )
+
+    assert person == Person(name="John", age=15)
+
+
 @pytest.mark.vcr
 @retry_api_call
 def test_anthropic_images():

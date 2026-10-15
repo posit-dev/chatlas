@@ -244,4 +244,7 @@ for chunk in chat.stream("John, age 15, won first prize", data_model=Person):
 person = Person.model_validate_json("".join(chunks))
 ```
 
+Incremental delivery depends on the provider: some providers can't stream structured output (for example, Anthropic models in `structured_output_mode="tool"`, or older Claude models).
+In that case, chatlas warns, falls back to a single non-streaming request, and yields the complete JSON as one chunk — the accumulate-then-parse pattern above works unchanged either way.
+
 The streamed `chat` also records the result as a `ContentJson` in conversation history, so `chat.get_last_turn()` reflects the extracted data just as it would after `.chat_structured()`.
