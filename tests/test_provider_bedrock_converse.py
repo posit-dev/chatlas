@@ -2190,14 +2190,15 @@ class TestStructuredOutputMode:
         )
         assert chat.provider.can_stream(Person) is True
 
-    def test_structured_output_mode_rejected_off_converse(self):
-        for api in ("messages", "responses"):
-            with pytest.raises(ValueError, match="structured_output_mode"):
-                ChatBedrock(
-                    api=api,  # type: ignore[arg-type]
-                    aws_region="us-east-1",
-                    structured_output_mode="native",
-                )
+    def test_structured_output_mode_rejected_for_responses_api(self):
+        # "messages" also accepts `structured_output_mode` (covered in
+        # test_provider_bedrock_mantle.py); "responses" does not.
+        with pytest.raises(ValueError, match="structured_output_mode"):
+            ChatBedrock(
+                api="responses",
+                aws_region="us-east-1",
+                structured_output_mode="native",
+            )
 
     def test_data_model_request_advertises_registered_tools(self):
         # At the provider level, tools are advertised so multi-step

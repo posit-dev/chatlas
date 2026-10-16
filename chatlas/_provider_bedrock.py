@@ -3,8 +3,9 @@ from __future__ import annotations
 import json
 import os
 import re
+import warnings
 from importlib import resources
-from typing import TYPE_CHECKING, Any, Literal, Optional, cast
+from typing import TYPE_CHECKING, Any, Literal, Optional, cast, overload
 
 import httpx
 
@@ -15,17 +16,22 @@ from ._provider import ModelInfo, no_file_management
 from ._provider_anthropic import AnthropicProvider, StructuredOutputMode
 from ._provider_openai import OpenAIProvider
 from ._provider_openai_generic import openai_models_to_info
+from ._turn import caller_stacklevel
 from ._utils import MISSING, MISSING_TYPE, AnyTypeDict, split_http_client_kwargs
 
 if TYPE_CHECKING:
+    from anthropic import BadRequestError
     from botocore.credentials import Credentials
     from botocore.session import Session
+    from pydantic import BaseModel
 
     from ._content import Content
     from ._provider_anthropic import ContentBlockParam
     from ._provider_openai import ResponseInputItemParam
-    from ._turn import Role
+    from ._tools import Tool, ToolBuiltIn
+    from ._turn import Role, Turn
     from .types.anthropic import ChatClientArgs as AnthropicClientArgs
+    from .types.anthropic import SubmitInputArgs as AnthropicSubmitInputArgs
     from .types.bedrock import ChatClientArgs as ConverseClientArgs
     from .types.openai import ChatClientArgs as OpenAIClientArgs
 
@@ -135,12 +141,13 @@ def ChatBedrock(
     structured_output_mode
         How to extract structured data when a `data_model` is given. `"auto"`
         (default) uses Bedrock's native structured outputs API
-        (`outputConfig`) for models known to support it (currently Anthropic
+        (`outputConfig` for `api="converse"`, `output_config` for
+        `api="messages"`) for models known to support it (currently Anthropic
         Claude models), and a forced tool call otherwise; if a model rejects
-        `outputConfig`, chatlas warns, remembers, and falls back to the tool
-        call for subsequent requests. `"native"` forces the `outputConfig`
-        API; `"tool"` forces the tool call. Only applies when
-        `api="converse"`. Native mode streams structured output
+        the native API, chatlas warns, remembers, and falls back to the tool
+        call for subsequent requests. `"native"` forces the native API;
+        `"tool"` forces the tool call. Not supported when
+        `api="responses"`. Native mode streams structured output
         incrementally; tool mode falls back to a single non-streaming
         request (with a warning) from `.stream()`/`.stream_async()`.
     kwargs
@@ -179,9 +186,9 @@ def ChatBedrock(
             f'Invalid `api` value "{api}". '
             'Must be one of "converse", "messages", or "responses".'
         )
-    if structured_output_mode != "auto" and api != "converse":
+    if structured_output_mode != "auto" and api == "responses":
         raise ValueError(
-            '`structured_output_mode` is only supported when `api="converse"`.'
+            '`structured_output_mode` is not supported when `api="responses"`.'
         )
 
     region = bedrock_region(aws_profile, aws_region)
@@ -246,6 +253,7 @@ def ChatBedrock(
             # The Messages API caches via cache_control blocks, which have no
             # "auto" equivalent; all Claude models support caching.
             cache="5m" if cache == "auto" else cache,
+            structured_output_mode=structured_output_mode,
             kwargs=cast("Optional[AnthropicClientArgs]", kwargs),
         ),
         system_prompt=system_prompt,
@@ -320,6 +328,7 @@ class BedrockMessagesProvider(AnthropicProvider):
         base_url: Optional[str],
         max_tokens: int = 4096,
         cache: Literal["5m", "1h", "none"] = "5m",
+        structured_output_mode: StructuredOutputMode = "auto",
         name: str = "AWS/Bedrock",
         kwargs: Optional["AnthropicClientArgs"] = None,
     ):
@@ -341,7 +350,13 @@ class BedrockMessagesProvider(AnthropicProvider):
             model=model,
             max_tokens=max_tokens,
             cache=cache,
+            structured_output_mode=structured_output_mode,
         )
+        # Models that have rejected `output_config` with a 400, and models
+        # that have accepted it (see `_native_retry_args`/`can_stream`);
+        # only populated in "auto" mode.
+        self._native_unsupported_models: set[str] = set()
+        self._native_verified_models: set[str] = set()
 
         sync_kwargs, async_kwargs = split_http_client_kwargs(
             bedrock_client_kwargs(
@@ -378,6 +393,212 @@ class BedrockMessagesProvider(AnthropicProvider):
     @staticmethod
     def _as_content_block(content: "Content") -> "ContentBlockParam":
         return AnthropicProvider._as_content_block(materialize_url_content(content))
+
+    # -- Native structured-output probing ------------------------------------
+    #
+    # Mantle's `output_config` support is per-model in a way that can't be
+    # derived from the model ID, and differs from both the Anthropic API and
+    # Converse (verified live 2026-10-16: `claude-opus-5` accepts it while
+    # `claude-haiku-4-5` and `claude-opus-4-8` 400 with
+    # "output_config.format: Extra inputs are not permitted"). So "auto" mode
+    # is optimistic, exactly like the Converse provider: the first native
+    # attempt doubles as the probe, the specific rejection is remembered, and
+    # the request is retried with the forced tool call.
+
+    @overload
+    def chat_perform(
+        self,
+        *,
+        stream: Literal[False],
+        turns: list["Turn"],
+        tools: dict[str, "Tool | ToolBuiltIn"],
+        data_model: Optional[type[BaseModel]] = None,
+        kwargs: Optional["AnthropicSubmitInputArgs"] = None,
+    ): ...
+
+    @overload
+    def chat_perform(
+        self,
+        *,
+        stream: Literal[True],
+        turns: list["Turn"],
+        tools: dict[str, "Tool | ToolBuiltIn"],
+        data_model: Optional[type[BaseModel]] = None,
+        kwargs: Optional["AnthropicSubmitInputArgs"] = None,
+    ): ...
+
+    def chat_perform(
+        self,
+        *,
+        stream: bool,
+        turns: list["Turn"],
+        tools: dict[str, "Tool | ToolBuiltIn"],
+        data_model: Optional[type[BaseModel]] = None,
+        kwargs: Optional["AnthropicSubmitInputArgs"] = None,
+    ):
+        from anthropic import BadRequestError
+
+        args = self._chat_perform_args(stream, turns, tools, data_model, kwargs)
+        if stream:
+            # No retry here: `can_stream()` keeps unverified native attempts
+            # out of the streaming paths, so a structured stream only carries
+            # `output_config` once the model has accepted one (or in explicit
+            # "native" mode, whose errors the user asked for).
+            return self._client.messages.create(**args)  # type: ignore
+        try:
+            response = self._client.messages.create(**args)  # type: ignore
+        except BadRequestError as error:
+            retry = self._native_retry_args(
+                error, args, stream, turns, tools, data_model, kwargs
+            )
+            if retry is None:
+                raise
+            return self._client.messages.create(**retry)  # type: ignore
+        # A successful request that carried `output_config.format` proves the
+        # model accepts it, so "auto" mode may stream natively from now on
+        # (see `can_stream`).
+        if self._carries_native_format(args) and self._structured_output_mode == "auto":
+            self._native_verified_models.add(self.model)
+        return response
+
+    @overload
+    async def chat_perform_async(
+        self,
+        *,
+        stream: Literal[False],
+        turns: list["Turn"],
+        tools: dict[str, "Tool | ToolBuiltIn"],
+        data_model: Optional[type[BaseModel]] = None,
+        kwargs: Optional["AnthropicSubmitInputArgs"] = None,
+    ): ...
+
+    @overload
+    async def chat_perform_async(
+        self,
+        *,
+        stream: Literal[True],
+        turns: list["Turn"],
+        tools: dict[str, "Tool | ToolBuiltIn"],
+        data_model: Optional[type[BaseModel]] = None,
+        kwargs: Optional["AnthropicSubmitInputArgs"] = None,
+    ): ...
+
+    async def chat_perform_async(
+        self,
+        *,
+        stream: bool,
+        turns: list["Turn"],
+        tools: dict[str, "Tool | ToolBuiltIn"],
+        data_model: Optional[type[BaseModel]] = None,
+        kwargs: Optional["AnthropicSubmitInputArgs"] = None,
+    ):
+        from anthropic import BadRequestError
+
+        args = self._chat_perform_args(stream, turns, tools, data_model, kwargs)
+        if stream:
+            return await self._async_client.messages.create(**args)  # type: ignore
+        try:
+            response = await self._async_client.messages.create(**args)  # type: ignore
+        except BadRequestError as error:
+            retry = self._native_retry_args(
+                error, args, stream, turns, tools, data_model, kwargs
+            )
+            if retry is None:
+                raise
+            return await self._async_client.messages.create(**retry)  # type: ignore
+        if self._carries_native_format(args) and self._structured_output_mode == "auto":
+            self._native_verified_models.add(self.model)
+        return response
+
+    def _native_retry_args(
+        self,
+        error: "BadRequestError",
+        args: "AnthropicSubmitInputArgs",
+        stream: bool,
+        turns: list["Turn"],
+        tools: dict[str, "Tool | ToolBuiltIn"],
+        data_model: Optional[type[BaseModel]],
+        kwargs: Optional["AnthropicSubmitInputArgs"],
+    ) -> Optional["AnthropicSubmitInputArgs"]:
+        """Rebuild request args for tool-based extraction after a native 400.
+
+        Since mantle's `output_config` support can't be derived from the
+        model ID, "auto" mode is optimistic: on the specific rejection,
+        remember the model as unsupported and retry with the forced tool
+        call. Returns `None` (caller re-raises) when the failure wasn't a
+        native-mode attempt -- including explicit "native" mode, where the
+        user asked for `output_config` and gets its error. (Only called from
+        the non-streaming paths: `can_stream()` keeps unverified native
+        attempts out of the streaming paths, so a structured stream never
+        carries `output_config` until the model has accepted one.)
+
+        Retry eligibility comes from the failed request's own
+        `output_config.format`, not the unsupported-model cache: a concurrent
+        request may have populated the cache while this one was in flight,
+        and it still deserves its retry.
+        """
+        if (
+            data_model is None
+            or self._structured_output_mode != "auto"
+            or not self._carries_native_format(args)
+            or not self._is_native_rejection(error)
+        ):
+            return None
+        if self.model not in self._native_unsupported_models:
+            self._native_unsupported_models.add(self.model)
+            warnings.warn(
+                f"Bedrock model '{self.model}' rejected native structured "
+                "outputs (`output_config`); falling back to tool-based "
+                "extraction. This provider will use tool-based extraction "
+                "for the model from now on.",
+                stacklevel=caller_stacklevel(),
+            )
+        # `_use_native_structured_output()` is now False, so this rebuilds
+        # the args with the forced `_structured_tool_call` instead of
+        # `output_config`.
+        return self._chat_perform_args(stream, turns, tools, data_model, kwargs)
+
+    @staticmethod
+    def _carries_native_format(args: "AnthropicSubmitInputArgs") -> bool:
+        # `output_config` also carries adaptive-thinking effort (from the
+        # `reasoning` param), which proves nothing about `format` support.
+        output_config = args.get("output_config")
+        return isinstance(output_config, dict) and "format" in output_config
+
+    @staticmethod
+    def _is_native_rejection(error: "BadRequestError") -> bool:
+        # The specific 400 returned by mantle models that lack `output_config`
+        # support ("output_config.format: Extra inputs are not permitted").
+        # Other errors mentioning `output_config` -- notably schema-validation
+        # 400s, which imply the model *does* support native output -- must
+        # propagate rather than disable native mode.
+        message = str(error)
+        return (
+            "output_config" in message and "Extra inputs are not permitted" in message
+        )
+
+    def _use_native_structured_output(self) -> bool:
+        if self.model in self._native_unsupported_models:
+            return False
+        return super()._use_native_structured_output()
+
+    def can_stream(self, data_model: Optional[type[BaseModel]]) -> bool:
+        # Native structured outputs (`output_config`) stream as ordinary text
+        # deltas, so they honor the extracted-JSON contract. The tool-based
+        # strategy streams tool input in its own event type (and
+        # `{"data": ...}`-wrapped at that), so it can't -- `Chat` falls back
+        # to a single non-streaming request there.
+        if data_model is None:
+            return True
+        if self._structured_output_mode == "native":
+            return True
+        if not self._use_native_structured_output():
+            return False
+        # Mantle's `output_config` support can't be derived from the model
+        # ID, so "auto" proves it first: until a native request has
+        # succeeded, `Chat`'s non-streaming fallback doubles as the probe
+        # (and records the verdict either way).
+        return self.model in self._native_verified_models
 
 
 def bedrock_client_kwargs(

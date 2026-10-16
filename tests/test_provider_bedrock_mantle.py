@@ -2,6 +2,8 @@ import base64
 import json
 from datetime import date
 from importlib import resources
+from typing import Literal
+from unittest.mock import patch
 
 import httpx
 import httpx2
@@ -322,6 +324,317 @@ class TestMessagesProvider:
                 "created_at": date(1970, 1, 1),
             }
         ]
+
+
+class TestMessagesStructuredOutputMode:
+    """`structured_output_mode` on the mantle Messages API: native
+    `output_config` vs forced tool call, with "auto" probing per model.
+
+    Mantle's `output_config` support can't be derived from the model ID (and
+    differs from both the Anthropic API and Converse), so "auto" mirrors the
+    Converse provider's probe semantics: an optimistic first native attempt,
+    then a remembered fallback to the forced tool call on the specific 400.
+    """
+
+    @staticmethod
+    def provider(
+        model: str = "anthropic.claude-haiku-4-5",
+        mode: Literal["auto", "native", "tool"] = "auto",
+    ):
+        from chatlas._provider_bedrock import BedrockMessagesProvider
+
+        return BedrockMessagesProvider(
+            model=model,
+            aws_profile=None,
+            aws_region="us-east-1",
+            base_url=None,
+            structured_output_mode=mode,
+        )
+
+    @staticmethod
+    def _person():
+        from pydantic import BaseModel
+
+        class Person(BaseModel):
+            name: str
+            age: int
+
+        return Person
+
+    @staticmethod
+    def _fake_message():
+        from anthropic.types import Message, TextBlock, Usage
+
+        return Message.construct(
+            id="msg_1",
+            type="message",
+            role="assistant",
+            model="anthropic.claude-haiku-4-5",
+            stop_reason="end_turn",
+            stop_sequence=None,
+            content=[TextBlock(type="text", text='{"name": "John", "age": 15}')],
+            usage=Usage.construct(input_tokens=1, output_tokens=1),
+        )
+
+    @staticmethod
+    def _bad_request(message: str):
+        from anthropic import BadRequestError
+
+        request = httpx2.Request(
+            "POST", "https://bedrock-mantle.us-east-1.api.aws/anthropic/v1/messages"
+        )
+        return BadRequestError(
+            message,
+            response=httpx2.Response(400, request=request),
+            body=None,
+        )
+
+    @classmethod
+    def _native_rejection(cls):
+        # The specific 400 mantle returns for models without `output_config`
+        # support (verified live: haiku-4-5, opus-4-8).
+        return cls._bad_request(
+            "Error code: 400 - {'type': 'error', 'error': "
+            "{'type': 'invalid_request_error', 'message': "
+            "'output_config.format: Extra inputs are not permitted'}}"
+        )
+
+    def test_chat_bedrock_threads_the_mode_to_the_messages_provider(self):
+        chat = ChatBedrock(
+            model="anthropic.claude-haiku-4-5",
+            api="messages",
+            structured_output_mode="tool",
+            aws_region="us-east-1",
+        )
+        assert chat.provider._structured_output_mode == "tool"
+
+    def test_non_auto_mode_is_still_rejected_for_the_responses_api(self):
+        with pytest.raises(ValueError, match="structured_output_mode"):
+            ChatBedrock(
+                model="openai.gpt-5.6-sol",
+                structured_output_mode="native",
+                aws_region="us-east-1",
+            )
+
+    def test_can_stream_matrix(self):
+        Person = self._person()
+
+        # No data_model always streams.
+        assert self.provider().can_stream(None) is True
+        # "auto" on a regex-supported model probes first: it can't stream
+        # until a native request has succeeded ...
+        unverified = self.provider()
+        assert unverified.can_stream(Person) is False
+        # ... and streams natively once verified.
+        unverified._native_verified_models.add(unverified.model)
+        assert unverified.can_stream(Person) is True
+        # Models the regex doesn't match never probe ...
+        assert (
+            self.provider(model="anthropic.claude-sonnet-4").can_stream(Person) is False
+        )
+        # ... nor do models that already rejected `output_config`.
+        rejected = self.provider()
+        rejected._native_unsupported_models.add(rejected.model)
+        assert rejected.can_stream(Person) is False
+        # "native" forces streaming even on unsupported models ...
+        assert (
+            self.provider(model="anthropic.claude-sonnet-4", mode="native").can_stream(
+                Person
+            )
+            is True
+        )
+        # ... and "tool" never streams with a data_model.
+        assert self.provider(mode="tool").can_stream(Person) is False
+
+    def _perform_with_fake_create(self, provider, data_model, kwargs=None):
+        """Call `chat_perform` with a mocked client; return the captured calls."""
+        calls: list[dict] = []
+
+        def fake_create(**kw):
+            calls.append(kw)
+            return self._fake_message()
+
+        with patch.object(provider._client.messages, "create", side_effect=fake_create):
+            provider.chat_perform(
+                stream=False,
+                turns=[],
+                tools={},
+                data_model=data_model,
+                kwargs=kwargs,
+            )
+        return calls
+
+    def test_auto_mode_probes_with_output_config(self):
+        (request,) = self._perform_with_fake_create(self.provider(), self._person())
+        output_config = request["output_config"]
+        assert output_config["format"]["type"] == "json_schema"
+        assert "tool_choice" not in request
+
+    def test_tool_mode_forces_the_structured_tool_call(self):
+        (request,) = self._perform_with_fake_create(
+            self.provider(mode="tool"), self._person()
+        )
+        assert "output_config" not in request
+        assert request["tool_choice"] == {
+            "type": "tool",
+            "name": "_structured_tool_call",
+        }
+
+    def test_auto_mode_on_unmatched_model_uses_the_tool_call(self):
+        (request,) = self._perform_with_fake_create(
+            self.provider(model="anthropic.claude-sonnet-4"), self._person()
+        )
+        assert "output_config" not in request
+        assert request["tool_choice"]["name"] == "_structured_tool_call"
+
+    def test_successful_native_request_marks_the_model_verified(self):
+        provider = self.provider()
+        self._perform_with_fake_create(provider, self._person())
+        assert provider.model in provider._native_verified_models
+
+    def test_requests_without_native_format_dont_mark_verified(self):
+        provider = self.provider()
+        # No data_model: no `output_config.format`, nothing proven.
+        self._perform_with_fake_create(provider, None)
+        assert provider.model not in provider._native_verified_models
+        # An effort-only `output_config` (from `reasoning`) proves nothing
+        # about `format` support either.
+        self._perform_with_fake_create(
+            provider,
+            None,
+            kwargs={
+                "thinking": {"type": "adaptive"},
+                "output_config": {"effort": "high"},
+            },
+        )
+        assert provider.model not in provider._native_verified_models
+
+    def test_native_rejection_retries_with_the_forced_tool_call(self):
+        provider = self.provider()
+        calls: list[dict] = []
+
+        def fake_create(**kw):
+            calls.append(kw)
+            if len(calls) == 1:
+                raise self._native_rejection()
+            return self._fake_message()
+
+        with (
+            patch.object(provider._client.messages, "create", side_effect=fake_create),
+            pytest.warns(UserWarning, match="rejected native structured outputs"),
+        ):
+            provider.chat_perform(
+                stream=False, turns=[], tools={}, data_model=self._person()
+            )
+
+        assert len(calls) == 2
+        # The retry carries the forced tool call, not `output_config.format`.
+        retry = calls[1]
+        assert "format" not in retry.get("output_config", {})
+        assert retry["tool_choice"] == {
+            "type": "tool",
+            "name": "_structured_tool_call",
+        }
+        # The model is remembered as unsupported.
+        assert provider.model in provider._native_unsupported_models
+        assert provider.model not in provider._native_verified_models
+
+    def test_explicit_native_mode_propagates_the_rejection(self):
+        from anthropic import BadRequestError
+
+        provider = self.provider(mode="native")
+        with (
+            patch.object(
+                provider._client.messages,
+                "create",
+                side_effect=self._native_rejection(),
+            ),
+            pytest.raises(BadRequestError),
+        ):
+            provider.chat_perform(
+                stream=False, turns=[], tools={}, data_model=self._person()
+            )
+        assert provider.model not in provider._native_unsupported_models
+
+    def test_other_output_config_errors_propagate(self):
+        # A schema-validation 400 implies the model *does* support native
+        # output: it must surface, not disable native mode.
+        from anthropic import BadRequestError
+
+        provider = self.provider()
+        error = self._bad_request(
+            "Error code: 400 - {'type': 'error', 'error': "
+            "{'type': 'invalid_request_error', 'message': "
+            "'output_config.format.schema: invalid JSON schema'}}"
+        )
+        with (
+            patch.object(provider._client.messages, "create", side_effect=error),
+            pytest.raises(BadRequestError),
+        ):
+            provider.chat_perform(
+                stream=False, turns=[], tools={}, data_model=self._person()
+            )
+        assert provider.model not in provider._native_unsupported_models
+
+    def test_in_flight_native_request_still_retries_after_marking(self):
+        # A concurrent request can mark the model unsupported while another
+        # native request is in flight; that request's own 400 must still
+        # fall back (eligibility comes from its args, not the cache).
+        from chatlas import UserTurn
+
+        provider = self.provider()
+        Person = self._person()
+        turns = [UserTurn("John, age 15")]
+        args = provider._chat_perform_args(
+            stream=False, turns=turns, tools={}, data_model=Person
+        )
+        assert "format" in args["output_config"]
+
+        provider._native_unsupported_models.add(provider.model)
+        retry = provider._native_retry_args(
+            self._native_rejection(), args, False, turns, {}, Person, None
+        )
+        assert retry is not None
+        assert "format" not in retry.get("output_config", {})
+        assert retry["tool_choice"] == {
+            "type": "tool",
+            "name": "_structured_tool_call",
+        }
+
+    @pytest.mark.asyncio
+    async def test_native_rejection_retries_async(self):
+        provider = self.provider()
+        calls: list[dict] = []
+
+        async def fake_create(**kw):
+            calls.append(kw)
+            if len(calls) == 1:
+                raise self._native_rejection()
+            return self._fake_message()
+
+        with pytest.warns(UserWarning, match="rejected native structured outputs"):
+            with patch.object(
+                provider._async_client.messages, "create", side_effect=fake_create
+            ):
+                await provider.chat_perform_async(
+                    stream=False, turns=[], tools={}, data_model=self._person()
+                )
+
+        assert len(calls) == 2
+        assert "format" not in calls[1].get("output_config", {})
+        assert calls[1]["tool_choice"]["name"] == "_structured_tool_call"
+
+    def test_chat_structured_end_to_end(self):
+        provider = self.provider()
+        chat = Chat(provider=provider)
+        with patch.object(
+            provider._client.messages,
+            "create",
+            side_effect=lambda **kw: self._fake_message(),
+        ):
+            person = chat.chat_structured("John, age 15", data_model=self._person())
+        assert person.name == "John"
+        assert person.age == 15
 
 
 class TestUrlContentFallsBackToBytes:
@@ -670,6 +983,84 @@ class TestLiveMessages:
 
     def test_data_extraction(self):
         assert_data_extraction(chat_messages)
+
+    def test_data_extraction_native(self):
+        # claude-opus-5 accepts `output_config` on mantle (verified
+        # 2026-10-16); haiku-4-5 and opus-4-8 reject it.
+        from pydantic import BaseModel
+
+        class Person(BaseModel):
+            name: str
+            age: int
+
+        chat = ChatBedrock(
+            model="anthropic.claude-opus-5",
+            api="messages",
+            structured_output_mode="native",
+        )
+        person = chat.chat_structured("John is 15 years old.", data_model=Person)
+        assert person.name == "John"
+        assert person.age == 15
+
+    def test_stream_data_extraction_native(self):
+        # Native mode streams the JSON incrementally (no non-streaming
+        # fallback).
+        import warnings
+
+        from pydantic import BaseModel
+
+        class Person(BaseModel):
+            name: str
+            age: int
+
+        chat = ChatBedrock(
+            model="anthropic.claude-opus-5",
+            api="messages",
+            structured_output_mode="native",
+        )
+        with warnings.catch_warnings():
+            warnings.simplefilter("error")
+            chunks = list(chat.stream("John is 15 years old.", data_model=Person))
+        assert len(chunks) > 1
+        person = Person.model_validate_json("".join(chunks))
+        assert person.name == "John"
+        assert person.age == 15
+
+    def test_data_extraction_auto_falls_back_to_the_tool_call(self):
+        # haiku-4-5 rejects `output_config` on mantle, so "auto" warns,
+        # remembers, and falls back to the forced tool call.
+        from pydantic import BaseModel
+
+        class Person(BaseModel):
+            name: str
+            age: int
+
+        chat = chat_messages()
+        with pytest.warns(UserWarning, match="rejected native structured outputs"):
+            person = chat.chat_structured("John is 15 years old.", data_model=Person)
+        assert person.name == "John"
+        assert person.age == 15
+        provider = chat.provider
+        assert provider.model in provider._native_unsupported_models
+        # The next request goes straight to the tool call: no second warning.
+        import warnings
+
+        with warnings.catch_warnings():
+            warnings.simplefilter("error")
+            person2 = chat.chat_structured("Jane is 16 years old.", data_model=Person)
+        assert person2.name == "Jane"
+
+    def test_data_extraction_tool_mode(self):
+        from pydantic import BaseModel
+
+        class Person(BaseModel):
+            name: str
+            age: int
+
+        chat = chat_messages(structured_output_mode="tool")
+        person = chat.chat_structured("John is 15 years old.", data_model=Person)
+        assert person.name == "John"
+        assert person.age == 15
 
 
 @requires_mantle
