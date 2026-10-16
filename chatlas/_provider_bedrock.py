@@ -546,18 +546,39 @@ class BedrockMessagesProvider(AnthropicProvider):
     ) -> None:
         # `Chat` consults `can_stream()` -- keyed on the configured model,
         # since that hook can't see request kwargs -- before allowing a
-        # stream. A per-request `model` override can still select the
+        # stream. A per-request `model` override can still (a) select the
         # tool-based strategy, whose streamed tool-call input would
-        # silently violate the extracted-JSON contract, so fail loudly
-        # instead of sending the request.
-        if data_model is not None and not self._carries_native_format(args):
+        # silently violate the extracted-JSON contract, or (b) bypass the
+        # native probe, whose rejection would surface mid-stream where the
+        # fallback retry can't reach it. Fail loudly instead of sending
+        # the request.
+        if data_model is None:
+            return
+        model = cast(str, args.get("model")) or self.model
+        if not self._carries_native_format(args):
             raise ValueError(
                 "Can't stream structured data extraction: the request model "
-                f"'{args.get('model')}' uses tool-based extraction, which "
-                "can't stream (this stream was allowed based on the "
-                f"configured model '{self.model}'). Use a non-streaming "
-                "method (`.chat()`/`.chat_structured()`), or drop the "
-                "per-request `model` override."
+                f"'{model}' uses tool-based extraction, which can't stream "
+                "(this stream was allowed based on the configured model "
+                f"'{self.model}'). Use a non-streaming method "
+                "(`.chat()`/`.chat_structured()`), or drop the per-request "
+                "`model` override."
+            )
+        if (
+            self._structured_output_mode == "auto"
+            and model not in self._native_verified_models
+        ):
+            # The probe happens on non-streaming requests, so a stream can
+            # only go native for a model that has already accepted
+            # `output_config` -- otherwise the rejection would surface
+            # mid-stream, where the fallback retry can't reach it.
+            raise ValueError(
+                "Can't stream structured data extraction: the request model "
+                f"'{model}' hasn't completed the native-output probe, so it "
+                "can't stream yet (this stream was allowed based on the "
+                f"configured model '{self.model}'). Make one non-streaming "
+                "request with this model first (e.g. `.chat_structured()`), "
+                "or drop the per-request `model` override."
             )
 
     def _native_retry_args(

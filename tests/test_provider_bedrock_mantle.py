@@ -732,10 +732,41 @@ class TestMessagesStructuredOutputMode:
                 kwargs={"model": "anthropic.claude-haiku-4-5"},
             )
 
-    def test_stream_with_native_capable_model_override_streams(self):
-        # Overrides between native-capable models still stream fine.
+    def test_stream_with_unverified_model_override_errors_loudly(self):
+        # In "auto" mode a model must complete the (non-streaming) probe
+        # before streaming natively; a per-request override must not bypass
+        # that, or the stream would fail mid-flight with no fallback.
         provider = self.provider(model="anthropic.claude-opus-5")
         provider._native_verified_models.add(provider.model)
+
+        with pytest.raises(ValueError, match="can't stream"):
+            provider.chat_perform(
+                stream=True,
+                turns=[],
+                tools={},
+                data_model=self._person(),
+                kwargs={"model": "anthropic.claude-haiku-5-5"},
+            )
+
+    @pytest.mark.asyncio
+    async def test_stream_with_unverified_model_override_errors_loudly_async(self):
+        provider = self.provider(model="anthropic.claude-opus-5")
+        provider._native_verified_models.add(provider.model)
+
+        with pytest.raises(ValueError, match="can't stream"):
+            await provider.chat_perform_async(
+                stream=True,
+                turns=[],
+                tools={},
+                data_model=self._person(),
+                kwargs={"model": "anthropic.claude-haiku-5-5"},
+            )
+
+    def test_stream_with_verified_model_override_streams(self):
+        # Overrides to models that have completed the probe stream fine.
+        provider = self.provider(model="anthropic.claude-opus-5")
+        provider._native_verified_models.add(provider.model)
+        provider._native_verified_models.add("anthropic.claude-sonnet-4-6")
         requests: list[dict] = []
 
         def fake_create(**kw):
