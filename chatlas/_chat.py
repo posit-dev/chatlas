@@ -1660,6 +1660,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                 stream=stream,
                 kwargs=kwargs,
                 controller=StreamController(),
+                tools=self._tools_for_extraction(),
             )
         )
 
@@ -1763,6 +1764,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                 stream=stream,
                 kwargs=kwargs,
                 controller=StreamController(),
+                tools=self._tools_for_extraction(),
             )
         )
 
@@ -2911,6 +2913,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         *,
         controller: StreamController,
         _otel_parent: Optional[Span] = None,
+        tools: Optional[dict[str, Tool | ToolBuiltIn]] = None,
     ) -> Generator[str, None, None]: ...
 
     @overload
@@ -2925,6 +2928,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         content_mode: Literal["all"],
         controller: StreamController,
         _otel_parent: Optional[Span] = None,
+        tools: Optional[dict[str, Tool | ToolBuiltIn]] = None,
     ) -> Generator[str | Content, None, None]: ...
 
     def _submit_turns(
@@ -2938,8 +2942,10 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         _otel_parent: Optional[Span] = None,
         *,
         controller: StreamController,
+        tools: Optional[dict[str, Tool | ToolBuiltIn]] = None,
     ) -> Generator[str | Content, None, None]:
-        if any(isinstance(x, Tool) and x._is_async for x in self._tools.values()):
+        tools = self._tools if tools is None else tools
+        if any(isinstance(x, Tool) and x._is_async for x in tools.values()):
             raise ValueError("Cannot use async tools in a synchronous chat")
 
         request_turns = [*self._turns, user_turn]
@@ -2982,7 +2988,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                     response = self.provider.chat_perform(
                         stream=True,
                         turns=provider_turns,
-                        tools=self._tools,
+                        tools=tools,
                         data_model=data_model,
                         kwargs=all_kwargs,
                     )
@@ -3032,7 +3038,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                     response = self.provider.chat_perform(
                         stream=False,
                         turns=provider_turns,
-                        tools=self._tools,
+                        tools=tools,
                         data_model=data_model,
                         kwargs=all_kwargs,
                     )
@@ -3075,6 +3081,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         *,
         controller: StreamController,
         _otel_parent: Optional[Span] = None,
+        tools: Optional[dict[str, Tool | ToolBuiltIn]] = None,
     ) -> AsyncGenerator[str, None]: ...
 
     @overload
@@ -3089,6 +3096,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         content_mode: Literal["all"],
         controller: StreamController,
         _otel_parent: Optional[Span] = None,
+        tools: Optional[dict[str, Tool | ToolBuiltIn]] = None,
     ) -> AsyncGenerator[str | Content, None]: ...
 
     async def _submit_turns_async(
@@ -3102,7 +3110,9 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         _otel_parent: Optional[Span] = None,
         *,
         controller: StreamController,
+        tools: Optional[dict[str, Tool | ToolBuiltIn]] = None,
     ) -> AsyncGenerator[str | Content, None]:
+        tools = self._tools if tools is None else tools
         request_turns = [*self._turns, user_turn]
         provider_turns = normalize_turns_for_provider(request_turns)
         chat_span = start_chat_span(
@@ -3143,7 +3153,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                     response = await self.provider.chat_perform_async(
                         stream=True,
                         turns=provider_turns,
-                        tools=self._tools,
+                        tools=tools,
                         data_model=data_model,
                         kwargs=all_kwargs,
                     )
@@ -3195,7 +3205,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                     response = await self.provider.chat_perform_async(
                         stream=False,
                         turns=provider_turns,
-                        tools=self._tools,
+                        tools=tools,
                         data_model=data_model,
                         kwargs=all_kwargs,
                     )
@@ -3225,6 +3235,34 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             raise
         finally:
             end_span(chat_span)
+
+    def _tools_for_extraction(self) -> dict[str, Tool | ToolBuiltIn]:
+        """Tools to advertise for one-shot structured extraction (none).
+
+        `.chat_structured()` never executes tools, so an ordinary tool call
+        where JSON was required can only fail extraction. Multi-step
+        extraction (tools, then JSON) remains available via `.stream()` with
+        a `data_model`, which does run the tool loop.
+        """
+        if not self._tools:
+            return self._tools
+        if self.provider.tool_history_requires_config() and any(
+            isinstance(content, (ContentToolRequest, ContentToolResult))
+            for turn in self._turns
+            for content in turn.contents
+        ):
+            # The provider (e.g. Bedrock Converse) rejects requests with
+            # tool-call history but no tool specs, so extraction can't drop
+            # them here.
+            return self._tools
+        warnings.warn(
+            "Registered tools are not advertised during structured data "
+            "extraction (`.chat_structured()` never executes tools, so an "
+            "ordinary tool call would fail extraction). Use `.stream()` with "
+            "a `data_model` to combine tool use with extraction.",
+            stacklevel=caller_stacklevel(),
+        )
+        return {}
 
     def _resolve_stream(
         self,

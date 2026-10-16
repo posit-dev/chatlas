@@ -12,7 +12,7 @@ from ._chat import Chat
 from ._content_file import materialize_url_content
 from ._logging import log_model_default
 from ._provider import ModelInfo, no_file_management
-from ._provider_anthropic import AnthropicProvider
+from ._provider_anthropic import AnthropicProvider, StructuredOutputMode
 from ._provider_openai import OpenAIProvider
 from ._provider_openai_generic import openai_models_to_info
 from ._utils import MISSING, MISSING_TYPE, AnyTypeDict, split_http_client_kwargs
@@ -50,6 +50,7 @@ def ChatBedrock(
     base_url: Optional[str] = None,
     max_tokens: int | MISSING_TYPE = MISSING,
     cache: Literal["auto", "5m", "1h", "none"] = "auto",
+    structured_output_mode: StructuredOutputMode = "auto",
     kwargs: Optional[
         "OpenAIClientArgs | AnthropicClientArgs | ConverseClientArgs"
     ] = None,
@@ -131,6 +132,17 @@ def ChatBedrock(
         Prompt caching for `api="converse"` and `api="messages"`. The Responses
         API caches automatically, so this must be left at `"auto"` when
         `api="responses"`.
+    structured_output_mode
+        How to extract structured data when a `data_model` is given. `"auto"`
+        (default) uses Bedrock's native structured outputs API
+        (`outputConfig`) for models known to support it (currently Anthropic
+        Claude models), and a forced tool call otherwise; if a model rejects
+        `outputConfig`, chatlas warns, remembers, and falls back to the tool
+        call for subsequent requests. `"native"` forces the `outputConfig`
+        API; `"tool"` forces the tool call. Only applies when
+        `api="converse"`. Native mode streams structured output
+        incrementally; tool mode falls back to a single non-streaming
+        request (with a warning) from `.stream()`/`.stream_async()`.
     kwargs
         Additional client arguments. For `api="converse"`, these are raw
         `httpx.Client` arguments (except `auth` and `base_url`, which
@@ -166,6 +178,10 @@ def ChatBedrock(
         raise ValueError(
             f'Invalid `api` value "{api}". '
             'Must be one of "converse", "messages", or "responses".'
+        )
+    if structured_output_mode != "auto" and api != "converse":
+        raise ValueError(
+            '`structured_output_mode` is only supported when `api="converse"`.'
         )
 
     region = bedrock_region(aws_profile, aws_region)
@@ -214,6 +230,7 @@ def ChatBedrock(
                 base_url=base_url,
                 max_tokens=4096 if isinstance(max_tokens, MISSING_TYPE) else max_tokens,
                 cache=cache,
+                structured_output_mode=structured_output_mode,
                 kwargs=cast("Optional[ConverseClientArgs]", kwargs),
             ),
             system_prompt=system_prompt,

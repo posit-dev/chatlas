@@ -316,6 +316,18 @@ class Provider(
         kwargs: SubmitInputArgsT,
     ) -> AsyncIterable[ChatCompletionChunkT] | ChatCompletionT: ...
 
+    def tool_history_requires_config(self) -> bool:
+        """
+        Whether requests must include tool specs when conversation history
+        contains tool call/result blocks.
+
+        Bedrock Converse rejects such requests without a `toolConfig`; most
+        APIs don't care. [](`~chatlas.Chat`) uses this to decide whether
+        one-shot structured extraction can drop registered tools from the
+        request.
+        """
+        return False
+
     def can_stream(self, data_model: Optional[type[BaseModel]]) -> bool:
         """
         Whether a streaming request is supported for the given inputs.
