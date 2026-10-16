@@ -706,13 +706,37 @@ class TestStatelessRegistration:
             LegacyMCPServerError,
             MCPSessionManager,
         )
-
         manager = MCPSessionManager()
         async with http_mcp_server("http_legacy_stub.py"):
             info = HTTPSessionInfo(name="", url=SERVER_URL)
             with pytest.raises(LegacyMCPServerError, match="persistent session"):
                 await manager.register_stateless_tools(info)
             assert not manager.has_registrations
+
+    @pytest.mark.asyncio
+    async def test_stateless_registration_cancellation_propagates(self):
+        # Stateless registration runs inline in the caller's task, so
+        # cancelling it (e.g. via asyncio.wait_for) must surface as
+        # CancelledError/TimeoutError, not a wrapped RuntimeError
+        from chatlas._mcp_manager import HTTPSessionInfo, MCPSessionManager
+
+        manager = MCPSessionManager()
+        info = HTTPSessionInfo(name="x", url="http://localhost:1/mcp")
+
+        started = asyncio.Event()
+
+        async def hang(*args, **kwargs):
+            started.set()
+            await asyncio.Event().wait()  # hang until cancelled
+
+        info.register_stateless = hang  # type: ignore[method-assign]
+
+        task = asyncio.create_task(manager.register_stateless_tools(info))
+        await started.wait()
+        task.cancel()
+        with pytest.raises(asyncio.CancelledError):
+            await task
+        assert not manager.has_registrations
 
 
 class TestRegisterMCPToolsAsync:
@@ -893,16 +917,3 @@ def test_chat_sync_with_mcp_tools():
         chat.register_mcp_tools(url=SERVER_URL, name="test")
         response = chat.chat("What's the current date in YYYY-MM-DD format?")
         assert "2024-01-01" in response.get_content()
-
-    @pytest.mark.asyncio
-    async def test_stateless_registration_cancellation_propagates(self):
-        # Registration runs inline in the caller's task: cancelling it (e.g.
-        # via asyncio.wait_for) must surface as TimeoutError, not RuntimeError
-        from chatlas._mcp_manager import HTTPSessionInfo, MCPSessionManager
-
-        manager = MCPSessionManager()
-        async with http_mcp_server("http_add.py"):
-            info = HTTPSessionInfo(name="", url=SERVER_URL)
-            with pytest.raises(asyncio.TimeoutError):
-                await asyncio.wait_for(manager.register_stateless_tools(info), timeout=0)
-            assert not manager.has_registrations
