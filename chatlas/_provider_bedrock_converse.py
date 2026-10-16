@@ -94,6 +94,7 @@ if TYPE_CHECKING:
         ConverseResponseTypeDef,
         InferenceConfigurationTypeDef,
         MessageUnionTypeDef,
+        OutputConfigTypeDef,
         SystemContentBlockTypeDef,
         TokenUsageTypeDef,
         ToolChoiceTypeDef,
@@ -795,10 +796,13 @@ class BedrockConverseProvider(
             "inferenceConfig": inference_config,
         }
 
+        use_native_output = data_model is not None and (
+            self._use_native_structured_output()
+        )
         data_model_tool: Optional[Tool] = None
         tool_specs = [converse_tool_spec(tool) for tool in tools.values()]
         tool_config: Optional[ToolConfigurationTypeDef] = None
-        if data_model is not None:
+        if data_model is not None and not use_native_output:
             data_model_tool = AnthropicProvider.create_data_model_tool(data_model)
             tool_specs.append(converse_tool_spec(data_model_tool))
 
@@ -819,6 +823,27 @@ class BedrockConverseProvider(
         if extra_inference_config:
             inference_config.update(extra_inference_config)
         args.update(extra)
+
+        if data_model is not None and use_native_output:
+            from anthropic import transform_schema
+
+            # After `args.update(extra)`, so chatlas's `outputConfig` wins
+            # over a user-supplied one (mirroring `ChatAnthropic`).
+            args["outputConfig"] = cast(
+                "OutputConfigTypeDef",
+                {
+                    "textFormat": {
+                        "type": "json_schema",
+                        "structure": {
+                            "jsonSchema": {
+                                # The schema is a JSON *string* on the wire.
+                                "schema": json.dumps(transform_schema(data_model)),
+                                "name": data_model.__name__,
+                            }
+                        },
+                    }
+                },
+            )
 
         extra_system = extra.get("system")
         system = (

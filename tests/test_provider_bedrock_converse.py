@@ -1934,6 +1934,65 @@ class TestStructuredOutputMode:
         # ... and "tool" never streams with a data_model.
         assert self.provider(mode="tool").can_stream(Person) is False
 
+    @staticmethod
+    def _chat_with_fake_response(provider: BedrockConverseProvider) -> dict:
+        """Chat with a mocked `_converse`; return the captured request args."""
+        from unittest.mock import patch
+
+        from chatlas import Chat
+
+        request: dict = {}
+
+        def fake_converse(args):
+            request.update(args)
+            return _fake_data_model_converse_response()
+
+        chat = Chat(provider=provider)
+        with patch.object(provider, "_converse", side_effect=fake_converse):
+            from pydantic import BaseModel
+
+            class Person(BaseModel):
+                name: str
+                age: int
+
+            chat.chat_structured("John, age 15", data_model=Person)
+        return request
+
+    def test_native_mode_sends_output_config(self):
+        request = self._chat_with_fake_response(self.provider())
+        assert "toolConfig" not in request
+        output_config = request["outputConfig"]
+        text_format = output_config["textFormat"]
+        assert text_format["type"] == "json_schema"
+        json_schema = text_format["structure"]["jsonSchema"]
+        assert json_schema["name"] == "Person"
+        schema = json.loads(json_schema["schema"])
+        assert schema["type"] == "object"
+        assert set(schema["properties"]) == {"name", "age"}
+
+    def test_tool_mode_forces_tool_call(self):
+        request = self._chat_with_fake_response(self.provider(mode="tool"))
+        assert "outputConfig" not in request
+        assert request["toolConfig"]["toolChoice"] == {
+            "tool": {"name": "_structured_tool_call"}
+        }
+
+    def test_auto_mode_unsupported_model_uses_tool_call(self):
+        request = self._chat_with_fake_response(
+            self.provider(model="us.anthropic.claude-sonnet-4")
+        )
+        assert "outputConfig" not in request
+        assert request["toolConfig"]["toolChoice"] == {
+            "tool": {"name": "_structured_tool_call"}
+        }
+
+    def test_native_mode_forces_output_config_on_unsupported_model(self):
+        request = self._chat_with_fake_response(
+            self.provider(model="amazon.nova-lite-v1:0", mode="native")
+        )
+        assert "outputConfig" in request
+        assert "toolConfig" not in request
+
 
 def test_blocked_network_skips_live_converse_before_credential_probe(monkeypatch):
     class BlockedConfig:
