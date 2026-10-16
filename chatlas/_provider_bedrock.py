@@ -482,9 +482,10 @@ class BedrockMessagesProvider(AnthropicProvider):
             return self._client.messages.create(**retry)  # type: ignore
         # A successful request that carried `output_config.format` proves the
         # model accepts it, so "auto" mode may stream natively from now on
-        # (see `can_stream`).
+        # (see `can_stream`). The verdict belongs to the model that actually
+        # served the request, which `kwargs` may have overridden.
         if self._carries_native_format(args) and self._structured_output_mode == "auto":
-            self._native_verified_models.add(self.model)
+            self._native_verified_models.add(cast(str, args.get("model")) or self.model)
         return response
 
     @overload
@@ -533,7 +534,7 @@ class BedrockMessagesProvider(AnthropicProvider):
                 raise
             return await self._async_client.messages.create(**retry)  # type: ignore
         if self._carries_native_format(args) and self._structured_output_mode == "auto":
-            self._native_verified_models.add(self.model)
+            self._native_verified_models.add(cast(str, args.get("model")) or self.model)
         return response
 
     def _native_retry_args(
@@ -570,10 +571,13 @@ class BedrockMessagesProvider(AnthropicProvider):
             or not self._is_native_rejection(error)
         ):
             return None
-        if self.model not in self._native_unsupported_models:
-            self._native_unsupported_models.add(self.model)
+        # The verdict belongs to the model that actually served (and
+        # rejected) the request, which `kwargs` may have overridden.
+        model = cast(str, args.get("model")) or self.model
+        if model not in self._native_unsupported_models:
+            self._native_unsupported_models.add(model)
             warnings.warn(
-                f"Bedrock model '{self.model}' rejected native structured "
+                f"Bedrock model '{model}' rejected native structured "
                 "outputs (`output_config`); falling back to tool-based "
                 "extraction. This provider will use tool-based extraction "
                 "for the model from now on.",
@@ -597,13 +601,11 @@ class BedrockMessagesProvider(AnthropicProvider):
         # support ("output_config.format: Extra inputs are not permitted").
         # Other errors mentioning `output_config` must propagate rather than
         # disable native mode: schema-validation 400s (which imply the model
-        # *does* support native output), and rejections of unrelated
-        # `output_config` fields such as `effort`.
-        message = str(error)
-        return (
-            "output_config.format" in message
-            and "Extra inputs are not permitted" in message
-        )
+        # *does* support native output), and rejections of nested (`...format.schema`)
+        # or unrelated (`...effort`) fields. Match the complete diagnostic as
+        # observed live: if mantle ever phrases the top-level rejection
+        # differently, that fails loudly instead of silently disabling native.
+        return "output_config.format: Extra inputs are not permitted" in str(error)
 
     def _use_native_structured_output(self) -> bool:
         if self.model in self._native_unsupported_models:

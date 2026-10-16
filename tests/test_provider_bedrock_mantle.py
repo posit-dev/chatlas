@@ -647,6 +647,68 @@ class TestMessagesStructuredOutputMode:
         assert len(calls) == 1
         assert provider.model not in provider._native_unsupported_models
 
+    def test_verdicts_are_recorded_for_the_effective_request_model(self):
+        # `kwargs={"model": ...}` overrides the request model, so a verdict
+        # must not be recorded against `self.model`: a successful override
+        # that verified `self.model` would let a later stream bypass the
+        # probe and hit a native rejection with no fallback.
+        provider = self.provider(model="anthropic.claude-haiku-4-5")
+        override = {"model": "anthropic.claude-opus-5"}
+
+        self._perform_with_fake_create(provider, self._person(), kwargs=override)
+        assert "anthropic.claude-opus-5" in provider._native_verified_models
+        assert provider.model not in provider._native_verified_models
+
+        calls: list[dict] = []
+
+        def fake_create(**kw):
+            calls.append(kw)
+            if len(calls) == 1:
+                raise self._native_rejection()
+            return self._fake_message()
+
+        with (
+            patch.object(provider._client.messages, "create", side_effect=fake_create),
+            pytest.warns(UserWarning, match="rejected native structured outputs"),
+        ):
+            provider.chat_perform(
+                stream=False,
+                turns=[],
+                tools={},
+                data_model=self._person(),
+                kwargs={"model": "anthropic.claude-opus-4-8"},
+            )
+        assert "anthropic.claude-opus-4-8" in provider._native_unsupported_models
+        assert provider.model not in provider._native_unsupported_models
+
+    def test_nested_format_field_rejection_is_not_a_native_rejection(self):
+        # `output_config.format.schema` (or any nested field) rejected as
+        # extra says the model speaks `output_config` but not this shape --
+        # it must propagate, not disable native mode.
+        provider = self.provider()
+        error = self._bad_request(
+            "Error code: 400 - {'type': 'error', 'error': "
+            "{'type': 'invalid_request_error', 'message': "
+            "'output_config.format.schema: Extra inputs are not permitted'}}"
+        )
+        calls: list[dict] = []
+
+        def fake_create(**kw):
+            calls.append(kw)
+            raise error
+
+        from anthropic import BadRequestError
+
+        with (
+            patch.object(provider._client.messages, "create", side_effect=fake_create),
+            pytest.raises(BadRequestError),
+        ):
+            provider.chat_perform(
+                stream=False, turns=[], tools={}, data_model=self._person()
+            )
+        assert len(calls) == 1
+        assert provider.model not in provider._native_unsupported_models
+
     def test_in_flight_native_request_still_retries_after_marking(self):
         # A concurrent request can mark the model unsupported while another
         # native request is in flight; that request's own 400 must still
