@@ -672,7 +672,7 @@ class BedrockConverseProvider(
     ) -> AsyncIterator[dict]:
         try:
             events = self._converse_stream_async(args)
-            first = await anext(events)
+            first = await events.__anext__()
         except StopAsyncIteration:
             return
         except ValueError as error:

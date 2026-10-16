@@ -2405,6 +2405,21 @@ class TestLiveConverse:
     def test_data_extraction(self):
         assert_data_extraction(ChatBedrock)
 
+    def test_stream_data_extraction_native(self):
+        # claude-sonnet-4-6 supports native structured outputs, so this
+        # streams incrementally (no non-streaming fallback).
+        from pydantic import BaseModel
+
+        class Person(BaseModel):
+            name: str
+            age: int
+
+        chat = ChatBedrock(model="us.anthropic.claude-sonnet-4-6")
+        chunks = list(chat.stream("Extract: John is 15 years old.", data_model=Person))
+        person = Person.model_validate_json("".join(chunks))
+        assert person.name == "John"
+        assert person.age == 15
+
     def test_images(self):
         assert_images_inline(ChatBedrock)
         assert_images_remote_error(ChatBedrock)
