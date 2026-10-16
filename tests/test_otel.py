@@ -269,6 +269,59 @@ def test_streaming_span_lifecycle(otel_setup: InMemorySpanExporter):
     assert chat_span.status.status_code.name == "UNSET", (
         f"Successful chat span should be UNSET, got {chat_span.status.status_code.name}"
     )
+    # Time to first token is recorded on the streamed chat span.
+    attrs = chat_span.attributes or {}
+    ttft = attrs.get("gen_ai.response.time_to_first_chunk")
+    assert isinstance(ttft, float) and ttft > 0, (
+        f"Expected gen_ai.response.time_to_first_chunk > 0, got {ttft!r}"
+    )
+
+
+def test_ttft_recorded_at_first_non_empty_text_token(
+    otel_setup: InMemorySpanExporter,
+):
+    # TTFT must be recorded at the first non-empty text/thinking content, not
+    # merely the first chunk (which can carry an empty delta).
+    chat = ChatOpenAI(model="gpt-4o-mini")
+
+    def streaming_perform(*args, **kwargs):
+        def gen():
+            yield object()
+            yield object()
+            yield object()
+
+        return gen()
+
+    stream_contents = iter(
+        [
+            [ContentText.model_construct(text="")],
+            [ContentText(text="hi")],
+            [],
+        ]
+    )
+
+    chat.provider.chat_perform = streaming_perform  # type: ignore[method-assign]
+    chat.provider.stream_content = lambda chunk, completion, turns=(): next(  # type: ignore[method-assign]
+        stream_contents
+    )
+    chat.provider.stream_merge_chunks = (  # type: ignore[method-assign]
+        lambda result, chunk: chunk
+    )
+    chat.provider.stream_turn = (  # type: ignore[method-assign]
+        lambda completion, has_data_model, turns=(): AssistantTurn("hi")
+    )
+
+    list(chat.stream("Say hello."))
+
+    spans = otel_setup.get_finished_spans()
+    chat_spans = [s for s in spans if s.name.startswith("chat ")]
+    assert len(chat_spans) == 1
+    attrs = chat_spans[0].attributes or {}
+    ttft = attrs.get("gen_ai.response.time_to_first_chunk")
+    assert isinstance(ttft, float), (
+        f"Expected gen_ai.response.time_to_first_chunk to be recorded, got {ttft!r}"
+    )
+    assert ttft > 0
 
 
 def test_chat_error_recorded(otel_setup: InMemorySpanExporter):
@@ -533,6 +586,12 @@ async def test_async_stream_iteration_provider_span_nests_under_chat_span(
     assert chat_span.context is not None
     assert _parent_span_id(iter_span) == chat_span.context.span_id, (
         "provider span created while iterating the async stream should nest under the chat span"
+    )
+    # Time to first token is recorded on the async streamed chat span.
+    attrs = chat_span.attributes or {}
+    ttft = attrs.get("gen_ai.response.time_to_first_chunk")
+    assert isinstance(ttft, float) and ttft > 0, (
+        f"Expected gen_ai.response.time_to_first_chunk > 0, got {ttft!r}"
     )
 
 
