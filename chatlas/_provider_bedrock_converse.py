@@ -660,6 +660,14 @@ class BedrockConverseProvider(
         data_model: Optional[type[BaseModel]],
         kwargs: Optional[ConverseSubmitArgs],
     ) -> Iterator[dict]:
+        if data_model is not None and "outputConfig" not in args:
+            # A tool-based structured request can't stream (tool input
+            # arrives in its own event type, not as text), so serve it via
+            # the non-streaming endpoint. `Chat` normally downgrades these
+            # via `can_stream()`, but a concurrent request can mark the model
+            # unsupported after that check and before args were built.
+            yield from self._response_as_stream_events(self._converse(args))
+            return
         events: Optional[Iterator[dict]] = None
         try:
             try:
@@ -699,6 +707,14 @@ class BedrockConverseProvider(
         data_model: Optional[type[BaseModel]],
         kwargs: Optional[ConverseSubmitArgs],
     ) -> AsyncIterator[dict]:
+        if data_model is not None and "outputConfig" not in args:
+            # See the sync variant: tool-based structured requests can't
+            # stream, so serve them via the non-streaming endpoint.
+            for event in self._response_as_stream_events(
+                await self._converse_async(args)
+            ):
+                yield event
+            return
         events: Optional[AsyncIterator[dict]] = None
         try:
             try:
@@ -742,12 +758,25 @@ class BedrockConverseProvider(
         message = response["output"].get("message")
         yield {"messageStart": {"role": (message or {}).get("role", "assistant")}}
         if message is not None:
-            for index, block in enumerate(message["content"]):
+            blocks = message["content"]
+            has_structured_tool = any(
+                (cast(dict, block).get("toolUse") or {}).get("name")
+                == "_structured_tool_call"
+                for block in blocks
+            )
+            for index, block in enumerate(blocks):
                 block = cast(dict, block)
-                text = block.get("text")
                 tool_use = block.get("toolUse") or {}
                 if tool_use.get("name") == "_structured_tool_call":
-                    text = json.dumps(tool_use.get("input", {}).get("data"))
+                    text: Optional[str] = json.dumps(
+                        tool_use.get("input", {}).get("data")
+                    )
+                elif has_structured_tool:
+                    # Prose alongside the structured tool call would corrupt
+                    # the extracted-JSON stream; drop it from the events.
+                    continue
+                else:
+                    text = block.get("text")
                 if text is not None:
                     yield {
                         "contentBlockDelta": {
@@ -1016,6 +1045,13 @@ class BedrockConverseProvider(
         if extra_inference_config:
             inference_config.update(extra_inference_config)
         args.update(extra)
+
+        if data_model is not None and not use_native_output:
+            # A caller-supplied raw `outputConfig` can't be honored for a
+            # tool-based structured request (and would break the fallback in
+            # `_native_retry_args`, whose rebuild re-applies `kwargs`).
+            extra.pop("outputConfig", None)
+            args.pop("outputConfig", None)
 
         if data_model is not None and use_native_output:
             from anthropic import transform_schema

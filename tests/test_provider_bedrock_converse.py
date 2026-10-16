@@ -2129,6 +2129,167 @@ class TestStructuredOutputMode:
                 )
 
     @staticmethod
+    def _fake_mixed_converse_response():
+        # Prose alongside the structured tool call.
+        return cast(
+            "ConverseResponseTypeDef",
+            {
+                "output": {
+                    "message": {
+                        "role": "assistant",
+                        "content": [
+                            {"text": "Here is the extracted data:"},
+                            {
+                                "toolUse": {
+                                    "toolUseId": "toolu_x",
+                                    "name": "_structured_tool_call",
+                                    "input": {"data": {"name": "John", "age": 15}},
+                                }
+                            },
+                        ],
+                    }
+                },
+                "stopReason": "tool_use",
+                "usage": {"inputTokens": 1, "outputTokens": 1, "totalTokens": 2},
+            },
+        )
+
+    def test_stream_fallback_with_mixed_text_and_tool_response(self):
+        # The synthesized stream must carry only the extracted JSON -- the
+        # prose would corrupt `"".join(chunks)` and crash `_as_turn`.
+        from unittest.mock import patch
+
+        from chatlas import Chat
+        from chatlas._content import ContentJson
+        from pydantic import BaseModel
+
+        class Person(BaseModel):
+            name: str
+            age: int
+
+        provider = self.provider()
+        chat = Chat(provider=provider)
+
+        def fake_stream(args):
+            if "outputConfig" in args:
+                raise self._native_rejection()
+            raise AssertionError("stream retry must use the non-streaming endpoint")
+
+        with patch.object(provider, "_converse_stream", side_effect=fake_stream):
+            with patch.object(
+                provider,
+                "_converse",
+                return_value=self._fake_mixed_converse_response(),
+            ):
+                with pytest.warns(UserWarning, match="outputConfig"):
+                    chunks = list(chat.stream("John, age 15", data_model=Person))
+
+        person = Person.model_validate_json("".join(chunks))
+        assert person == Person(name="John", age=15)
+        turn = chat.get_last_turn()
+        assert turn is not None
+        assert isinstance(turn.contents[0], ContentJson)
+        assert turn.contents[0].value == {"name": "John", "age": 15}
+
+    @pytest.mark.asyncio
+    async def test_stream_async_fallback_with_mixed_response(self):
+        from unittest.mock import AsyncMock, patch
+
+        from chatlas import Chat
+        from pydantic import BaseModel
+
+        class Person(BaseModel):
+            name: str
+            age: int
+
+        provider = self.provider()
+        chat = Chat(provider=provider)
+
+        async def fake_stream(args):
+            if "outputConfig" in args:
+                raise self._native_rejection()
+            yield  # pragma: no cover
+
+        with patch.object(provider, "_converse_stream_async", fake_stream):
+            with patch.object(
+                provider,
+                "_converse_async",
+                new=AsyncMock(return_value=self._fake_mixed_converse_response()),
+            ):
+                with pytest.warns(UserWarning, match="outputConfig"):
+                    chunks = [
+                        chunk
+                        async for chunk in await chat.stream_async(
+                            "John, age 15", data_model=Person
+                        )
+                    ]
+
+        person = Person.model_validate_json("".join(chunks))
+        assert person == Person(name="John", age=15)
+
+    def test_tool_mode_args_served_via_non_streaming_in_stream_wrapper(self):
+        # Race: the model is marked unsupported after `can_stream()` returns
+        # True but before args are built, so tool-mode args reach the stream
+        # wrapper. It must serve them via the non-streaming endpoint (a
+        # tool-mode stream would yield zero chunks).
+        from unittest.mock import patch
+
+        from pydantic import BaseModel
+
+        class Person(BaseModel):
+            name: str
+            age: int
+
+        provider = self.provider(mode="tool")
+        turns = [UserTurn("John, age 15")]
+        args = provider._chat_perform_args(
+            stream=True, turns=turns, tools={}, data_model=Person
+        )
+        assert "outputConfig" not in args
+
+        def fail_stream(args):
+            raise AssertionError("must use the non-streaming endpoint")
+
+        with patch.object(provider, "_converse_stream", side_effect=fail_stream):
+            with patch.object(
+                provider,
+                "_converse",
+                return_value=_fake_data_model_converse_response(),
+            ):
+                events = list(
+                    provider._converse_stream_with_retry(
+                        args, True, turns, {}, Person, None
+                    )
+                )
+
+        text = "".join(
+            e["contentBlockDelta"]["delta"]["text"]
+            for e in events
+            if "contentBlockDelta" in e
+        )
+        assert Person.model_validate_json(text) == Person(name="John", age=15)
+
+    def test_tool_mode_drops_user_supplied_output_config(self):
+        from pydantic import BaseModel
+
+        class Person(BaseModel):
+            name: str
+            age: int
+
+        provider = self.provider(mode="tool")
+        args = provider._chat_perform_args(
+            stream=False,
+            turns=[UserTurn("John, age 15")],
+            tools={},
+            data_model=Person,
+            kwargs={"outputConfig": {"textFormat": {}}},  # type: ignore[typeddict-item]
+        )
+        assert "outputConfig" not in args
+        assert args["toolConfig"]["toolChoice"] == {
+            "tool": {"name": "_structured_tool_call"}
+        }
+
+    @staticmethod
     def _native_rejection() -> ValueError:
         return ValueError(
             "Bedrock Converse request failed with status 400: The model "
