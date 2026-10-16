@@ -1470,12 +1470,8 @@ class TestStructuredOutputAndCaching:
             if "toolSpec" in tool
         ]
 
-        # The structured tool is forced, and ordinary registered tools are
-        # not advertised at all (extraction is one-shot; `chat_structured()`
-        # never executes tools).
-        assert tool_name == "_structured_tool_call"
-        assert tool_names == ["_structured_tool_call"]
-        assert weather_tool.name not in tool_names
+        assert tool_name in tool_names
+        assert weather_tool.name in tool_names
 
     def test_data_model_tool_choice_overrides_request_tool_config(self):
         from pydantic import BaseModel
@@ -2203,9 +2199,10 @@ class TestStructuredOutputMode:
                     structured_output_mode="native",
                 )
 
-    def test_data_model_does_not_advertise_registered_tools(self):
-        # Extraction is one-shot (`chat_structured()` never executes tools),
-        # so an ordinary tool call where JSON was required can only fail.
+    def test_data_model_request_advertises_registered_tools(self):
+        # At the provider level, tools are advertised so multi-step
+        # extraction can work through the streaming tool loop; `Chat` decides
+        # what to send (see the chat_structured test below).
         from chatlas._tools import Tool
         from pydantic import BaseModel
 
@@ -2221,22 +2218,55 @@ class TestStructuredOutputMode:
         tools = {weather_tool.name: weather_tool}
         turns = [UserTurn("John, age 15")]
 
-        # Native mode: no tools advertised at all.
+        # Native mode: tools advertised alongside `outputConfig`.
         args = self.provider()._chat_perform_args(
             stream=False, turns=turns, tools=tools, data_model=Person
         )
         assert "outputConfig" in args
-        assert "toolConfig" not in args
+        tool_names = [t["toolSpec"]["name"] for t in args["toolConfig"]["tools"]]
+        assert weather_tool.name in tool_names
 
-        # Tool mode: only the structured tool, still forced.
+        # Tool mode: tools advertised, but the structured call is forced.
         args = self.provider(mode="tool")._chat_perform_args(
             stream=False, turns=turns, tools=tools, data_model=Person
         )
-        tool_names = [t["toolSpec"]["name"] for t in args["toolConfig"]["tools"]]
-        assert tool_names == ["_structured_tool_call"]
         assert args["toolConfig"]["toolChoice"] == {
             "tool": {"name": "_structured_tool_call"}
         }
+
+    def test_chat_structured_does_not_advertise_registered_tools(self):
+        # `chat_structured()` never executes tools, so `Chat` doesn't
+        # advertise them (with a warning); `.stream()` still does.
+        from unittest.mock import patch
+
+        from chatlas import Chat
+        from pydantic import BaseModel
+
+        class Person(BaseModel):
+            name: str
+            age: int
+
+        def get_weather(city: str) -> str:
+            """Get the weather for a city."""
+            return city
+
+        provider = self.provider()
+        chat = Chat(provider=provider)
+        chat.register_tool(get_weather)
+
+        request: dict = {}
+
+        def fake_converse(args):
+            request.update(args)
+            return self._fake_native_converse_response()
+
+        with patch.object(provider, "_converse", side_effect=fake_converse):
+            with pytest.warns(UserWarning, match="not advertised"):
+                result = chat.chat_structured("John, age 15", data_model=Person)
+
+        assert result == Person(name="John", age=15)
+        assert "outputConfig" in request
+        assert "toolConfig" not in request
 
     def test_data_model_drops_caller_supplied_tool_config(self):
         # An explicit toolChoice for an ordinary tool would make extraction
