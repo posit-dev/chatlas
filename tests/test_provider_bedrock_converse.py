@@ -2177,6 +2177,63 @@ class TestStructuredOutputMode:
         assert len(requests) == 3
         assert "outputConfig" not in requests[2]
 
+    def test_schema_validation_error_does_not_fall_back(self):
+        # A 400 mentioning `output_config` that isn't the "unsupported"
+        # rejection (e.g. the model rejecting the schema itself) means the
+        # model *does* support native output: propagate, don't fall back.
+        from unittest.mock import patch
+
+        from chatlas import Chat
+        from pydantic import BaseModel
+
+        class Person(BaseModel):
+            name: str
+            age: int
+
+        provider = self.provider()
+        chat = Chat(provider=provider)
+
+        def reject(args):
+            raise ValueError(
+                "Bedrock Converse request failed with status 400: The model "
+                "returned the following errors: output_config.format.schema: "
+                "value is not a valid JSON Schema"
+            )
+
+        with patch.object(provider, "_converse", side_effect=reject):
+            with pytest.raises(ValueError, match="not a valid JSON Schema"):
+                chat.chat_structured("John, age 15", data_model=Person)
+
+        # The model is not (wrongly) remembered as unsupported.
+        assert provider.can_stream(Person) is True
+
+    def test_in_flight_native_request_still_retries_after_marking(self):
+        # A concurrent request can mark the model unsupported while another
+        # native request is in flight; that request's own 400 must still
+        # fall back (eligibility comes from its args, not the cache).
+        from pydantic import BaseModel
+
+        class Person(BaseModel):
+            name: str
+            age: int
+
+        provider = self.provider()
+        turns = [UserTurn("John, age 15")]
+        args = provider._chat_perform_args(
+            stream=False, turns=turns, tools={}, data_model=Person
+        )
+        assert "outputConfig" in args
+
+        provider._native_unsupported_models.add(provider.model)
+        retry = provider._native_retry_args(
+            self._native_rejection(), args, False, turns, {}, Person, None
+        )
+        assert retry is not None
+        assert "outputConfig" not in retry
+        assert retry["toolConfig"]["toolChoice"] == {
+            "tool": {"name": "_structured_tool_call"}
+        }
+
     def test_native_mode_does_not_fall_back(self):
         from unittest.mock import patch
 

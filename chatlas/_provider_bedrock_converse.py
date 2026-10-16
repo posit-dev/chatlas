@@ -541,7 +541,7 @@ class BedrockConverseProvider(
             return self._converse(args)
         except ValueError as error:
             retry = self._native_retry_args(
-                error, stream, turns, tools, data_model, kwargs
+                error, args, stream, turns, tools, data_model, kwargs
             )
             if retry is None:
                 raise
@@ -587,7 +587,7 @@ class BedrockConverseProvider(
             return await self._converse_async(args)
         except ValueError as error:
             retry = self._native_retry_args(
-                error, stream, turns, tools, data_model, kwargs
+                error, args, stream, turns, tools, data_model, kwargs
             )
             if retry is None:
                 raise
@@ -596,6 +596,7 @@ class BedrockConverseProvider(
     def _native_retry_args(
         self,
         error: ValueError,
+        args: ConverseRequestTypeDef,
         stream: bool,
         turns: list[Turn],
         tools: dict[str, Tool | ToolBuiltIn],
@@ -611,25 +612,44 @@ class BedrockConverseProvider(
         the forced tool call. Returns `None` (caller re-raises) when the
         failure wasn't a native-mode attempt -- including explicit "native"
         mode, where the user asked for `outputConfig` and gets its error.
+
+        Retry eligibility comes from the failed request's own `outputConfig`,
+        not the unsupported-model cache: a concurrent request may have
+        populated the cache while this one was in flight, and it still
+        deserves its retry.
         """
         if (
             data_model is None
             or self._structured_output_mode != "auto"
-            or not self._use_native_structured_output()
-            or "output_config" not in str(error)
+            or "outputConfig" not in args
+            or not self._is_native_rejection(error)
         ):
             return None
-        self._native_unsupported_models.add(self.model)
-        warnings.warn(
-            f"Bedrock Converse model '{self.model}' rejected native structured "
-            "outputs (`outputConfig`); falling back to tool-based extraction. "
-            "This provider will use tool-based extraction for the model from "
-            "now on.",
-            stacklevel=caller_stacklevel(),
-        )
+        if self.model not in self._native_unsupported_models:
+            self._native_unsupported_models.add(self.model)
+            warnings.warn(
+                f"Bedrock Converse model '{self.model}' rejected native "
+                "structured outputs (`outputConfig`); falling back to "
+                "tool-based extraction. This provider will use tool-based "
+                "extraction for the model from now on.",
+                stacklevel=caller_stacklevel(),
+            )
         # `_use_native_structured_output()` is now False, so this rebuilds the
         # args with the forced `_structured_tool_call` instead of `outputConfig`.
         return self._chat_perform_args(stream, turns, tools, data_model, kwargs)
+
+    @staticmethod
+    def _is_native_rejection(error: ValueError) -> bool:
+        # The specific 400 returned by models that lack `outputConfig` support
+        # (e.g. "... status 400: ... output_config.format: Extra inputs are
+        # not permitted"). Other errors mentioning `output_config` -- notably
+        # schema-validation 400s, which imply the model *does* support native
+        # output -- must propagate rather than disable native mode.
+        message = str(error)
+        return (
+            "output_config" in message
+            and "Extra inputs are not permitted" in message
+        )
 
     def _converse_stream_with_retry(
         self,
@@ -640,26 +660,35 @@ class BedrockConverseProvider(
         data_model: Optional[type[BaseModel]],
         kwargs: Optional[ConverseSubmitArgs],
     ) -> Iterator[dict]:
+        events: Optional[Iterator[dict]] = None
         try:
-            # `_converse_stream` is a generator, so the request (and any
-            # error it fails with) doesn't fire until the first pull.
-            events = self._converse_stream(args)
-            first = next(events)
-        except StopIteration:
-            return
-        except ValueError as error:
-            retry = self._native_retry_args(
-                error, stream, turns, tools, data_model, kwargs
-            )
-            if retry is None:
-                raise
-            # A tool-mode stream retry would yield zero chunks (the bug #451
-            # fixed), so retry on the non-streaming endpoint and synthesize
-            # events that surface the extracted JSON as a single text chunk.
-            yield from self._response_as_stream_events(self._converse(retry))
-            return
-        yield first
-        yield from events
+            try:
+                # `_converse_stream` is a generator, so the request (and any
+                # error it fails with) doesn't fire until the first pull.
+                events = self._converse_stream(args)
+                first = next(events)
+            except StopIteration:
+                return
+            except ValueError as error:
+                retry = self._native_retry_args(
+                    error, args, stream, turns, tools, data_model, kwargs
+                )
+                if retry is None:
+                    raise
+                # A tool-mode stream retry would yield zero chunks (the bug
+                # #451 fixed), so retry on the non-streaming endpoint and
+                # synthesize events that surface the extracted JSON as a
+                # single text chunk.
+                yield from self._response_as_stream_events(self._converse(retry))
+                return
+            yield first
+            yield from events
+        finally:
+            # Closing this wrapper (e.g. on cancellation) must also close the
+            # inner generator, which owns the httpx streaming response.
+            close = getattr(events, "close", None)
+            if close is not None:
+                close()
 
     async def _converse_stream_async_with_retry(
         self,
@@ -670,25 +699,34 @@ class BedrockConverseProvider(
         data_model: Optional[type[BaseModel]],
         kwargs: Optional[ConverseSubmitArgs],
     ) -> AsyncIterator[dict]:
+        events: Optional[AsyncIterator[dict]] = None
         try:
-            events = self._converse_stream_async(args)
-            first = await events.__anext__()
-        except StopAsyncIteration:
-            return
-        except ValueError as error:
-            retry = self._native_retry_args(
-                error, stream, turns, tools, data_model, kwargs
-            )
-            if retry is None:
-                raise
-            for event in self._response_as_stream_events(
-                await self._converse_async(retry)
-            ):
+            try:
+                events = self._converse_stream_async(args)
+                first = await events.__anext__()
+            except StopAsyncIteration:
+                return
+            except ValueError as error:
+                retry = self._native_retry_args(
+                    error, args, stream, turns, tools, data_model, kwargs
+                )
+                if retry is None:
+                    raise
+                for event in self._response_as_stream_events(
+                    await self._converse_async(retry)
+                ):
+                    yield event
+                return
+            yield first
+            async for event in events:
                 yield event
-            return
-        yield first
-        async for event in events:
-            yield event
+        finally:
+            # `async for` doesn't forward `aclose()`, so closing this wrapper
+            # (e.g. on cancellation) would leave the inner generator -- and
+            # its httpx streaming response -- open until GC.
+            aclose = getattr(events, "aclose", None)
+            if aclose is not None:
+                await aclose()
 
     @staticmethod
     def _response_as_stream_events(
