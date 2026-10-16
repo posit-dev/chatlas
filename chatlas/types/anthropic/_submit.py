@@ -87,6 +87,7 @@ class SubmitInputArgs(TypedDict, total=False):
         anthropic.types.output_config_param.OutputConfigParam | anthropic.Omit
     )
     service_tier: Union[Literal["auto", "standard_only"], anthropic.Omit]
+    speed: Union[Literal["fast", "standard"], None, anthropic.Omit]
     stop_sequences: Union[Sequence[str], anthropic.Omit]
     stream: Union[Literal[False], Literal[True], anthropic.Omit]
     system: Union[
