@@ -231,7 +231,10 @@ class MCPSessionManager:
             await session_info.register_stateless(sync=sync)
         except LegacyMCPServerError:
             raise
-        except (asyncio.CancelledError, Exception) as err:
+        # Only Exception is wrapped: unlike the background-task session path,
+        # this runs inline in the caller's task, so CancelledError must
+        # propagate (e.g. for asyncio.wait_for() timeouts to work).
+        except Exception as err:
             raise RuntimeError(
                 f"Failed to register tools from MCP server '{session_info.name}'"
             ) from err

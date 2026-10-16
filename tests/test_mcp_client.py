@@ -893,3 +893,16 @@ def test_chat_sync_with_mcp_tools():
         chat.register_mcp_tools(url=SERVER_URL, name="test")
         response = chat.chat("What's the current date in YYYY-MM-DD format?")
         assert "2024-01-01" in response.get_content()
+
+    @pytest.mark.asyncio
+    async def test_stateless_registration_cancellation_propagates(self):
+        # Registration runs inline in the caller's task: cancelling it (e.g.
+        # via asyncio.wait_for) must surface as TimeoutError, not RuntimeError
+        from chatlas._mcp_manager import HTTPSessionInfo, MCPSessionManager
+
+        manager = MCPSessionManager()
+        async with http_mcp_server("http_add.py"):
+            info = HTTPSessionInfo(name="", url=SERVER_URL)
+            with pytest.raises(asyncio.TimeoutError):
+                await asyncio.wait_for(manager.register_stateless_tools(info), timeout=0)
+            assert not manager.has_registrations
