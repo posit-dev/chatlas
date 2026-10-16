@@ -576,6 +576,77 @@ class TestMessagesStructuredOutputMode:
             )
         assert provider.model not in provider._native_unsupported_models
 
+    def test_retry_strips_a_caller_supplied_output_config_format(self):
+        # A caller's own `output_config.format` contradicts extraction (the
+        # schema comes from `data_model`); left in place it would 400 the
+        # tool-call retry -- and every subsequent tool-mode request.
+        provider = self.provider()
+        calls: list[dict] = []
+
+        def fake_create(**kw):
+            calls.append(kw)
+            if len(calls) == 1:
+                raise self._native_rejection()
+            return self._fake_message()
+
+        kwargs = {
+            "output_config": {
+                "effort": "high",
+                "format": {"type": "json_schema", "schema": {}},
+            }
+        }
+        with (
+            patch.object(provider._client.messages, "create", side_effect=fake_create),
+            pytest.warns(UserWarning, match="rejected native structured outputs"),
+        ):
+            provider.chat_perform(
+                stream=False,
+                turns=[],
+                tools={},
+                data_model=self._person(),
+                kwargs=kwargs,
+            )
+
+        assert len(calls) == 2
+        # The retry carries the forced tool call and keeps the effort, but
+        # the contradictory format is gone ...
+        retry = calls[1]
+        assert retry["tool_choice"]["name"] == "_structured_tool_call"
+        assert retry.get("output_config") == {"effort": "high"}
+        # ... and so is any later tool-mode request with the same kwargs.
+        (later,) = self._perform_with_fake_create(provider, self._person(), kwargs)
+        assert later["tool_choice"]["name"] == "_structured_tool_call"
+        assert later.get("output_config") == {"effort": "high"}
+        # The caller's kwargs mapping is unchanged.
+        assert "format" in kwargs["output_config"]
+
+    def test_effort_rejection_is_not_a_native_format_rejection(self):
+        # A model rejecting `output_config.effort` says nothing about
+        # `format` support: the error must propagate, unmarked, unretried.
+        provider = self.provider()
+        error = self._bad_request(
+            "Error code: 400 - {'type': 'error', 'error': "
+            "{'type': 'invalid_request_error', 'message': "
+            "'output_config.effort: Extra inputs are not permitted'}}"
+        )
+        calls: list[dict] = []
+
+        def fake_create(**kw):
+            calls.append(kw)
+            raise error
+
+        from anthropic import BadRequestError
+
+        with (
+            patch.object(provider._client.messages, "create", side_effect=fake_create),
+            pytest.raises(BadRequestError),
+        ):
+            provider.chat_perform(
+                stream=False, turns=[], tools={}, data_model=self._person()
+            )
+        assert len(calls) == 1
+        assert provider.model not in provider._native_unsupported_models
+
     def test_in_flight_native_request_still_retries_after_marking(self):
         # A concurrent request can mark the model unsupported while another
         # native request is in flight; that request's own 400 must still

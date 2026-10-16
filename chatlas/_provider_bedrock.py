@@ -394,6 +394,32 @@ class BedrockMessagesProvider(AnthropicProvider):
     def _as_content_block(content: "Content") -> "ContentBlockParam":
         return AnthropicProvider._as_content_block(materialize_url_content(content))
 
+    def _chat_perform_args(
+        self,
+        stream: bool,
+        turns: list["Turn"],
+        tools: dict[str, "Tool | ToolBuiltIn"],
+        data_model: Optional[type[BaseModel]] = None,
+        kwargs: Optional["AnthropicSubmitInputArgs"] = None,
+    ) -> "AnthropicSubmitInputArgs":
+        if data_model is not None and kwargs:
+            output_config = kwargs.get("output_config")
+            if isinstance(output_config, dict) and "format" in output_config:
+                # A caller-supplied native format contradicts extraction:
+                # the schema comes from `data_model` (native mode rebuilds
+                # it; tool mode must not send one, or the tool-call request
+                # 400s too). Drop it, keeping independent settings like
+                # `effort`, without mutating the caller's kwargs.
+                new_kwargs = dict(kwargs)
+                new_output_config = cast(dict[str, Any], dict(output_config))
+                new_output_config.pop("format", None)
+                if new_output_config:
+                    new_kwargs["output_config"] = new_output_config
+                else:
+                    new_kwargs.pop("output_config")
+                kwargs = cast("AnthropicSubmitInputArgs", new_kwargs)
+        return super()._chat_perform_args(stream, turns, tools, data_model, kwargs)
+
     # -- Native structured-output probing ------------------------------------
     #
     # Mantle's `output_config` support is per-model in a way that can't be
@@ -569,12 +595,14 @@ class BedrockMessagesProvider(AnthropicProvider):
     def _is_native_rejection(error: "BadRequestError") -> bool:
         # The specific 400 returned by mantle models that lack `output_config`
         # support ("output_config.format: Extra inputs are not permitted").
-        # Other errors mentioning `output_config` -- notably schema-validation
-        # 400s, which imply the model *does* support native output -- must
-        # propagate rather than disable native mode.
+        # Other errors mentioning `output_config` must propagate rather than
+        # disable native mode: schema-validation 400s (which imply the model
+        # *does* support native output), and rejections of unrelated
+        # `output_config` fields such as `effort`.
         message = str(error)
         return (
-            "output_config" in message and "Extra inputs are not permitted" in message
+            "output_config.format" in message
+            and "Extra inputs are not permitted" in message
         )
 
     def _use_native_structured_output(self) -> bool:
