@@ -680,6 +680,24 @@ class TestMessagesStructuredOutputMode:
             )
         assert "anthropic.claude-opus-4-8" in provider._native_unsupported_models
         assert provider.model not in provider._native_unsupported_models
+        # The retry serves the overridden model, which is now known to reject
+        # native output: it must carry the forced tool call, not a second
+        # native attempt.
+        retry = calls[1]
+        assert retry["model"] == "anthropic.claude-opus-4-8"
+        assert "format" not in retry.get("output_config", {})
+        assert retry["tool_choice"]["name"] == "_structured_tool_call"
+        # Subsequent requests with the same override go straight to the tool
+        # call (no second probe, no second warning).
+        import warnings
+
+        with warnings.catch_warnings():
+            warnings.simplefilter("error")
+            (later,) = self._perform_with_fake_create(
+                provider, self._person(), kwargs={"model": "anthropic.claude-opus-4-8"}
+            )
+        assert "format" not in later.get("output_config", {})
+        assert later["tool_choice"]["name"] == "_structured_tool_call"
 
     def test_nested_format_field_rejection_is_not_a_native_rejection(self):
         # `output_config.format.schema` (or any nested field) rejected as

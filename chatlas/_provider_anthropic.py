@@ -520,10 +520,13 @@ class AnthropicProvider(
             return True
         return self._use_native_structured_output()
 
-    def _use_native_structured_output(self) -> bool:
+    def _use_native_structured_output(self, model: Optional[str] = None) -> bool:
+        # `model` is the effective request model, which request kwargs may
+        # have overridden; verdicts and support checks should reflect the
+        # model that will actually serve the request.
         mode = self._structured_output_mode
         return mode == "native" or (
-            mode == "auto" and supports_structured_outputs(self.model)
+            mode == "auto" and supports_structured_outputs(model or self.model)
         )
 
     def _chat_perform_args(
@@ -536,7 +539,9 @@ class AnthropicProvider(
     ) -> "SubmitInputArgs":
         tool_schemas = [self._anthropic_tool_schema(tool) for tool in tools.values()]
 
-        use_native = self._use_native_structured_output()
+        use_native = self._use_native_structured_output(
+            cast("Optional[str]", (kwargs or {}).get("model"))
+        )
 
         if data_model is not None and use_native:
             from anthropic import transform_schema

@@ -607,10 +607,17 @@ class BedrockMessagesProvider(AnthropicProvider):
         # differently, that fails loudly instead of silently disabling native.
         return "output_config.format: Extra inputs are not permitted" in str(error)
 
-    def _use_native_structured_output(self) -> bool:
-        if self.model in self._native_unsupported_models:
+    def _use_native_structured_output(self, model: Optional[str] = None) -> bool:
+        # The unsupported verdict is keyed on the model that actually
+        # rejected `output_config` (see `chat_perform`), so strategy
+        # selection must consult the effective request model too: after a
+        # `kwargs={"model": ...}` override is marked, its retry and later
+        # requests must not attempt native output again. (The read side
+        # that can't see request kwargs -- `can_stream()` -- keeps the
+        # `self.model` default, erring toward probing.)
+        if (model or self.model) in self._native_unsupported_models:
             return False
-        return super()._use_native_structured_output()
+        return super()._use_native_structured_output(model)
 
     def can_stream(self, data_model: Optional[type[BaseModel]]) -> bool:
         # Native structured outputs (`output_config`) stream as ordinary text
