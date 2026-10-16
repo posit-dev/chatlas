@@ -324,6 +324,10 @@ class TestMCPErrorHandling:
             tool_names = {tool.name for tool in tools}
             assert tool_names == {"add", "mcp.add"}
 
+            # The namespaced tool should still call the server's own tool name
+            res = await chat._tools["mcp.add"].func(x=1, y=2)
+            assert res.value == "3"
+
             await chat.cleanup_mcp_tools()
 
     @pytest.mark.asyncio

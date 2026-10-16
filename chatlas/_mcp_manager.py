@@ -78,11 +78,13 @@ class SessionInfo(ABC):
         for tool in response.tools:
             if tool.name not in tool_names:
                 continue
-            if self.namespace:
-                tool.name = f"{self.namespace}.{tool.name}"
-            self_tools[tool.name] = Tool.from_mcp(
+            # Only the chatlas-side name is namespaced: the server must still be
+            # called with its own tool name, so don't mutate the MCP tool object
+            name = f"{self.namespace}.{tool.name}" if self.namespace else tool.name
+            self_tools[name] = Tool.from_mcp(
                 session=self.session,
                 mcp_tool=tool,
+                name=name,
             )
 
         # Store the tools
