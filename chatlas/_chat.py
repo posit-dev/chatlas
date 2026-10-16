@@ -61,7 +61,13 @@ from ._display import (
     MockMarkdownDisplay,
 )
 from ._logging import log_tool_error
-from ._mcp_manager import MCPSessionManager
+from ._mcp_manager import (
+    HTTPSessionInfo,
+    LegacyMCPServerError,
+    MCPSessionManager,
+    SessionInfo,
+    STDIOSessionInfo,
+)
 from ._otel import (
     activate_span,
     end_span,
@@ -1893,6 +1899,191 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
         # Update the standard model parameters
         self._standard_model_params.update(params)
+
+    def _register_session_tools(self, session_info: "SessionInfo") -> None:
+        overlapping_tools = set(self._tools.keys()) & set(session_info.tools)
+        if overlapping_tools:
+            raise ValueError(
+                f"The following tools are already registered: {overlapping_tools}. "
+                "Consider providing a namespace when registering this MCP server "
+                "to avoid name collisions."
+            )
+        self._tools.update(session_info.tools)
+
+    @overload
+    async def register_mcp_tools_async(
+        self,
+        *,
+        url: str,
+        name: Optional[str] = None,
+        include_tools: Sequence[str] = (),
+        exclude_tools: Sequence[str] = (),
+        namespace: Optional[str] = None,
+        transport_kwargs: Optional[dict[str, Any]] = None,
+    ) -> None: ...
+
+    @overload
+    async def register_mcp_tools_async(
+        self,
+        *,
+        command: str,
+        args: list[str],
+        name: Optional[str] = None,
+        include_tools: Sequence[str] = (),
+        exclude_tools: Sequence[str] = (),
+        namespace: Optional[str] = None,
+        transport_kwargs: Optional[dict[str, Any]] = None,
+        persistent: bool = True,
+    ) -> None: ...
+
+    async def register_mcp_tools_async(
+        self,
+        *,
+        url: Optional[str] = None,
+        command: Optional[str] = None,
+        args: Optional[list[str]] = None,
+        name: Optional[str] = None,
+        include_tools: Sequence[str] = (),
+        exclude_tools: Sequence[str] = (),
+        namespace: Optional[str] = None,
+        transport_kwargs: Optional[dict[str, Any]] = None,
+        persistent: bool = True,
+    ):
+        """
+        Register tools from an MCP server (async).
+
+        Parameters
+        ----------
+        url
+            URL of an MCP streamable HTTP server (e.g.
+            `http://localhost:8000/mcp`). Mutually exclusive with `command`.
+        command
+            System command to start a stdio MCP server (e.g. `python`).
+            Mutually exclusive with `url`.
+        args
+            Arguments to pass to `command` (e.g. `["-m", "my_mcp_server"]`).
+            Required when `command` is provided.
+        name
+            A unique name for this MCP server registration (used for cleanup).
+            Defaults to the server's reported name, or "mcp".
+        include_tools
+            Only register these tools from the server.
+        exclude_tools
+            Register all tools except these.
+        namespace
+            Prefix tool names with `{namespace}.` to avoid collisions.
+        transport_kwargs
+            Extra keyword arguments for the transport constructor.
+        persistent
+            (stdio only.) If True (default), hold the server subprocess and
+            session open for the lifetime of the registration; close them
+            with `.cleanup_mcp_tools()`. If False, spawn a fresh subprocess
+            per tool call (only for servers speaking MCP revision
+            2026-07-28+). HTTP servers never hold a connection open on
+            2026-07-28+, regardless of this parameter.
+
+        Notes
+        -----
+        With servers that speak MCP protocol revision 2026-07-28, HTTP
+        registrations are fully stateless: no connection is held open and no
+        cleanup is required (each tool call uses a short-lived client).
+        Servers on older protocol revisions fall back to a persistent
+        session automatically.
+        """
+        if (url is None) == (command is None):
+            raise ValueError(
+                "Exactly one of `url` or `command` (with `args`) must be provided."
+            )
+        if command is not None and args is None:
+            raise ValueError("`args` is required when `command` is provided.")
+        await self._register_mcp_tools_async_impl(
+            url=url,
+            command=command,
+            args=args,
+            name=name,
+            include_tools=include_tools,
+            exclude_tools=exclude_tools,
+            namespace=namespace,
+            transport_kwargs=transport_kwargs,
+            persistent=persistent,
+        )
+
+    async def _register_mcp_tools_async_impl(
+        self,
+        *,
+        url: Optional[str],
+        command: Optional[str],
+        args: Optional[list[str]],
+        name: Optional[str],
+        include_tools: Sequence[str],
+        exclude_tools: Sequence[str],
+        namespace: Optional[str],
+        transport_kwargs: Optional[dict[str, Any]],
+        persistent: bool,
+    ) -> None:
+        if isinstance(include_tools, str):
+            include_tools = [include_tools]
+        if isinstance(exclude_tools, str):
+            exclude_tools = [exclude_tools]
+
+        if url is not None:
+            try:
+                session_info = await self._mcp_manager.register_stateless_tools(
+                    HTTPSessionInfo(
+                        name=name or "",
+                        url=url,
+                        include_tools=include_tools,
+                        exclude_tools=exclude_tools,
+                        namespace=namespace,
+                        transport_kwargs=transport_kwargs or {},
+                    )
+                )
+            except LegacyMCPServerError:
+                # Handshake-era servers need a held session
+                session_info = await self._mcp_manager.register_http_stream_tools(
+                    url=url,
+                    name=name,
+                    include_tools=include_tools,
+                    exclude_tools=exclude_tools,
+                    namespace=namespace,
+                    transport_kwargs=transport_kwargs or {},
+                )
+        elif persistent:
+            assert command is not None and args is not None
+            session_info = await self._mcp_manager.register_stdio_tools(
+                command=command,
+                args=args,
+                name=name,
+                include_tools=include_tools,
+                exclude_tools=exclude_tools,
+                namespace=namespace,
+                transport_kwargs=transport_kwargs or {},
+            )
+        else:
+            assert command is not None and args is not None
+            try:
+                session_info = await self._mcp_manager.register_stateless_tools(
+                    STDIOSessionInfo(
+                        name=name or "",
+                        command=command,
+                        args=args,
+                        include_tools=include_tools,
+                        exclude_tools=exclude_tools,
+                        namespace=namespace,
+                        transport_kwargs=transport_kwargs or {},
+                    )
+                )
+            except LegacyMCPServerError as err:
+                raise LegacyMCPServerError(
+                    f"{err} Use persistent=True (the default) to hold a "
+                    "persistent session instead."
+                ) from err
+
+        try:
+            self._register_session_tools(session_info)
+        except ValueError:
+            await self._mcp_manager.close_sessions([session_info.name])
+            raise
 
     async def register_mcp_tools_http_stream_async(
         self,

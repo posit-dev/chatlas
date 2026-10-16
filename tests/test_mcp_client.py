@@ -674,3 +674,96 @@ class TestStatelessRegistration:
             with pytest.raises(LegacyMCPServerError, match="persistent session"):
                 await manager.register_stateless_tools(info)
             assert not manager.has_registrations
+
+
+class TestRegisterMCPToolsAsync:
+    @pytest.mark.asyncio
+    async def test_http_stateless(self):
+        chat = ChatOpenAI()
+        async with http_mcp_server("http_add.py"):
+            await chat.register_mcp_tools_async(url=SERVER_URL)
+
+            assert not chat._mcp_manager.has_open_sessions
+            assert chat._mcp_manager.has_registrations
+            info = chat._mcp_manager._registrations["test"]
+            assert info.protocol_version == "2026-07-28"
+
+            res = await chat._tools["add"].func(x=1, y=2)
+            assert res.value == "3"
+
+            await chat.cleanup_mcp_tools()
+            assert "add" not in chat._tools
+            assert not chat._mcp_manager.has_registrations
+
+    @pytest.mark.asyncio
+    async def test_http_legacy_falls_back_to_persistent(self):
+        chat = ChatOpenAI()
+        async with http_mcp_server("http_legacy_stub.py"):
+            await chat.register_mcp_tools_async(url=SERVER_URL)
+
+            assert chat._mcp_manager.has_open_sessions
+            info = chat._mcp_manager._mcp_sessions["legacy_stub"]
+            assert info.session.protocol_version == "2025-11-25"
+
+            res = await chat._tools["echo"].func(text="hi")
+            assert res.value == "hi"
+            await chat.cleanup_mcp_tools()
+
+    @pytest.mark.asyncio
+    async def test_stdio_persistent_by_default(self):
+        chat = ChatOpenAI()
+        await chat.register_mcp_tools_async(
+            command=sys.executable,
+            args=[str(MCP_SERVER_DIR / "stdio_subtract_multiply.py")],
+        )
+        assert chat._mcp_manager.has_open_sessions
+        res = await chat._tools["multiply"].func(a=2, b=3)
+        assert res.value == "6"
+        await chat.cleanup_mcp_tools()
+
+    @pytest.mark.asyncio
+    async def test_stdio_per_call(self):
+        chat = ChatOpenAI()
+        await chat.register_mcp_tools_async(
+            command=sys.executable,
+            args=[str(MCP_SERVER_DIR / "stdio_subtract_multiply.py")],
+            persistent=False,
+        )
+        assert not chat._mcp_manager.has_open_sessions
+        res = await chat._tools["multiply"].func(a=2, b=3)
+        assert res.value == "6"
+        await chat.cleanup_mcp_tools()
+
+    @pytest.mark.asyncio
+    async def test_namespace_and_include(self):
+        chat = ChatOpenAI()
+        await chat.register_mcp_tools_async(
+            command=sys.executable,
+            args=[str(MCP_SERVER_DIR / "stdio_subtract_multiply.py")],
+            persistent=False,
+            namespace="ns",
+            include_tools=["multiply"],
+        )
+        assert set(chat._tools) == {"ns.multiply"}
+        res = await chat._tools["ns.multiply"].func(a=2, b=3)
+        assert res.value == "6"
+        await chat.cleanup_mcp_tools()
+
+    @pytest.mark.asyncio
+    async def test_overlapping_tools_rolls_back(self):
+        chat = ChatOpenAI()
+
+        def add(x: int, y: int) -> int:
+            return x + y
+
+        chat.register_tool(add)
+        async with http_mcp_server("http_add.py"):
+            with pytest.raises(ValueError, match="already registered"):
+                await chat.register_mcp_tools_async(url=SERVER_URL)
+            assert not chat._mcp_manager.has_registrations
+
+    @pytest.mark.asyncio
+    async def test_url_and_command_mutually_exclusive(self):
+        chat = ChatOpenAI()
+        with pytest.raises(ValueError, match="Exactly one"):
+            await chat.register_mcp_tools_async()
