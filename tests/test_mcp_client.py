@@ -659,3 +659,18 @@ class TestStatelessRegistration:
             res = await info.tools["add"].func(x=2, y=2)
             assert res.value == "4"
             await manager.close_sessions()
+
+    @pytest.mark.asyncio
+    async def test_stateless_registration_legacy_server_raises(self):
+        from chatlas._mcp_manager import (
+            HTTPSessionInfo,
+            LegacyMCPServerError,
+            MCPSessionManager,
+        )
+
+        manager = MCPSessionManager()
+        async with http_mcp_server("http_legacy_stub.py"):
+            info = HTTPSessionInfo(name="", url=SERVER_URL)
+            with pytest.raises(LegacyMCPServerError, match="persistent session"):
+                await manager.register_stateless_tools(info)
+            assert not manager.has_registrations
