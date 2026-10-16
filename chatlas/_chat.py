@@ -2319,6 +2319,13 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         )
         ```
         """
+        warnings.warn(
+            "`.register_mcp_tools_http_stream_async()` is deprecated and will "
+            "be removed in a future release. Use `.register_mcp_tools_async()` "
+            "(or the synchronous `.register_mcp_tools()`) instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
         if isinstance(exclude_tools, str):
             exclude_tools = [exclude_tools]
         if isinstance(include_tools, str):
@@ -2450,6 +2457,13 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         )
         ```
         """
+        warnings.warn(
+            "`.register_mcp_tools_stdio_async()` is deprecated and will be "
+            "removed in a future release. Use `.register_mcp_tools_async()` "
+            "(or the synchronous `.register_mcp_tools()`) instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
         if isinstance(exclude_tools, str):
             exclude_tools = [exclude_tools]
         if isinstance(include_tools, str):
@@ -2478,7 +2492,13 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
     async def cleanup_mcp_tools(self, names: Optional[Sequence[str]] = None):
         """
-        Close MCP server connections (and their corresponding tools).
+        Close MCP server connections (and remove their corresponding tools).
+
+        For stateless registrations (servers speaking MCP revision 2026-07-28,
+        registered via `.register_mcp_tools()` or `.register_mcp_tools_async()`)
+        nothing is held open, so this simply unregisters the tools. For
+        persistent sessions (legacy servers, or stdio registered with
+        `persistent=True`), this also closes the session/subprocess.
 
         This method closes the MCP client sessions and removes the tools registered
         from the MCP servers. If a specific `name` is provided, it will only clean

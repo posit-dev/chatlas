@@ -6,6 +6,7 @@ import sys
 import time
 import urllib.error
 import urllib.request
+import warnings
 from contextlib import asynccontextmanager
 from pathlib import Path
 
@@ -846,3 +847,36 @@ class TestRegisterMCPToolsSync:
         chat = ChatOpenAI()
         with pytest.raises(ValueError, match="Exactly one"):
             chat.register_mcp_tools()
+
+
+class TestMCPDeprecations:
+    @pytest.mark.asyncio
+    async def test_http_stream_async_deprecated(self):
+        chat = ChatOpenAI()
+        async with http_mcp_server("http_add.py"):
+            with pytest.warns(DeprecationWarning, match="deprecated"):
+                await chat.register_mcp_tools_http_stream_async(url=SERVER_URL)
+            # Behavior is unchanged: persistent session, tools work
+            assert chat._mcp_manager.has_open_sessions
+            res = await chat._tools["add"].func(x=1, y=1)
+            assert res.value == "2"
+            await chat.cleanup_mcp_tools()
+
+    @pytest.mark.asyncio
+    async def test_stdio_async_deprecated(self):
+        chat = ChatOpenAI()
+        with pytest.warns(DeprecationWarning, match="deprecated"):
+            await chat.register_mcp_tools_stdio_async(
+                command=sys.executable,
+                args=[str(MCP_SERVER_DIR / "stdio_subtract_multiply.py")],
+            )
+        await chat.cleanup_mcp_tools()
+
+    @pytest.mark.asyncio
+    async def test_close_no_warning_for_stateless_registrations(self):
+        chat = ChatOpenAI()
+        async with http_mcp_server("http_add.py"):
+            await chat.register_mcp_tools_async(url=SERVER_URL)
+            with warnings.catch_warnings():
+                warnings.simplefilter("error")
+                chat.close()
