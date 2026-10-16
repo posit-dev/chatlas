@@ -12,6 +12,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### New features
 
+* New `.register_mcp_tools()` and `.register_mcp_tools_async()` methods register tools from an MCP server by `url` or stdio `command`. With servers that speak MCP protocol revision `2026-07-28`, registrations are stateless: no connection is held open, no cleanup is required, and `.register_mcp_tools()` makes MCP tools usable from synchronous chats (e.g. `.chat()`) for the first time. On the async method, stdio servers are persistent by default; pass `persistent=False` for spawn-per-call. `.register_mcp_tools_http_stream_async()` and `.register_mcp_tools_stdio_async()` are deprecated.
+
 * The result of `chat.files.get()` (and elements of `chat.files.list()`) can now be passed straight to `.chat()` (and anywhere else content is accepted), so a file uploaded in an earlier session can be reused from its id alone: `chat.chat("Summarize this.", chat.files.get("file_011CRabc..."))`. When the provider doesn't report a MIME type (OpenAI's Files API never does), it's guessed from the filename. For when you want the underlying `ContentUploaded` reference itself (e.g. to build a `UserTurn` by hand), `FileMetadata` gains a `.to_content()` method. This works via a new general convention: any object implementing `to_content() -> Content` (see `chatlas.types.SupportsContent`) is accepted anywhere content is passed, so third-party packages can make their own objects usable as chat inputs. (#417)
 
 ### Changes
