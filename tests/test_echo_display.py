@@ -173,6 +173,50 @@ async def test_echo_output_async_includes_tool_content():
 
 
 @pytest.mark.asyncio
+async def test_progressive_results_echo_in_async_chat():
+    """A synchronous generator tool echoes each result as it arrives in an async chat."""
+    chat = make_chat(
+        [[tool_request(name="progress_tool", arguments={"count": 2})], [text("Done.")]]
+    )
+    chat.register_tool(progress_tool)
+    output = capture_echo(chat)
+    await chat.chat_async("go", echo="output")
+    res = output()
+    assert "🔧 tool request" in res
+    # Each yielded value echoes as its own tool result
+    assert res.count("✅ tool result") == 2
+    assert "step 1" in res
+    assert "step 2" in res
+    assert "Done." in res
+
+
+@pytest.mark.asyncio
+async def test_progressive_results_stream_async_and_combined_for_model():
+    """`stream_async(content="all")` surfaces each result; the model gets one combined result."""
+    provider = RecordingProvider(
+        [[tool_request(name="progress_tool", arguments={"count": 2})], [text("Done.")]]
+    )
+    chat = Chat(provider=provider)
+    chat.register_tool(progress_tool)
+
+    stream = await chat.stream_async("go", echo="none", content="all")
+    streamed = [x async for x in stream]
+    results = [x for x in streamed if isinstance(x, ContentToolResult)]
+    assert [r.value for r in results] == ["step 1", "step 2"]
+
+    # The follow-up request carries a single result combining the yielded values
+    assert len(provider.requests) == 2
+    tool_results = [
+        c
+        for turn in provider.requests[1]
+        for c in turn.contents
+        if isinstance(c, ContentToolResult)
+    ]
+    assert len(tool_results) == 1
+    assert tool_results[0].value == "step 1\nstep 2"
+
+
+@pytest.mark.asyncio
 async def test_echo_none_async_writes_nothing():
     chat = make_chat([[text("Hello there")]])
     output = capture_echo(chat)
@@ -1423,6 +1467,12 @@ def get_temperature(city: str) -> int:
     return 30
 
 
+def progress_tool(count: int):
+    "Report progress one step at a time."
+    for i in range(count):
+        yield f"step {i + 1}"
+
+
 def big_tool() -> list[dict[str, object]]:
     "A tool whose result is far too tall to show in full."
     return [{"i": i, "value": f"row-{i}"} for i in range(30)]
@@ -1571,6 +1621,20 @@ class EchoProvider(Provider[EchoCompletion, FakeChunk, dict[str, Any], AnyTypeDi
 
     def supported_model_params(self):
         return set()
+
+
+class RecordingProvider(EchoProvider):
+    """Captures the turns of each request, so a test can see what the model saw."""
+
+    def __init__(self, *args: Any, **kwargs: Any):
+        super().__init__(*args, **kwargs)
+        self.requests: list[list[Any]] = []
+
+    async def chat_perform_async(self, *, stream, turns, tools, data_model, kwargs):
+        self.requests.append(list(turns))
+        return await super().chat_perform_async(
+            stream=stream, turns=turns, tools=tools, data_model=data_model, kwargs=kwargs
+        )
 
 
 class RaisingProvider(EchoProvider):

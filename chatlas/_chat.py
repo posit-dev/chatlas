@@ -3337,7 +3337,8 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                 yield self._handle_tool_error_result(request, e)
                 return
 
-            if tool._is_async:
+            # Awaiting an async generator function's call fails, so it goes through wrap_async()
+            if tool._is_async and not inspect.isasyncgenfunction(tool.func):
                 func = tool.func
             else:
                 func = wrap_async(tool.func)
@@ -3349,6 +3350,10 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                         res = await func(**request.arguments)
                     else:
                         res = await func(request.arguments)
+
+                # A synchronous generator tool reports progress the same way as an async one
+                if inspect.isgenerator(res):
+                    res = _iterate_async(res)
 
                 if inspect.isasyncgen(res):
                     while True:
@@ -3843,3 +3848,9 @@ def is_positron_notebook():
         return mode == "notebook"
     except Exception:
         return False
+
+
+async def _iterate_async(gen: Iterator[Any]) -> AsyncGenerator[Any, None]:
+    """Iterate a synchronous generator as an async one, one value per `__anext__()`."""
+    for x in gen:
+        yield x

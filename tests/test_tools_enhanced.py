@@ -883,6 +883,78 @@ class TestToolYielding:
             assert result.request == request
             assert result.error is None
 
+    @pytest.mark.asyncio
+    async def test_sync_tool_yielding_multiple_results_in_async_chat(self):
+        """A synchronous generator tool also yields its results one by one in an async chat."""
+        chat = ChatOpenAI()
+
+        def multi_result_tool(count: int):
+            """Tool that yields multiple results."""
+            for i in range(count):
+                yield f"Result {i + 1}"
+
+        chat.register_tool(multi_result_tool)
+
+        tool = chat._tools["multi_result_tool"]
+        request = ContentToolRequest(
+            id="test-id",
+            name="multi_result_tool",
+            arguments={"count": 3},
+            tool=ToolInfo.from_tool(tool),
+        )
+
+        results = [result async for result in chat._invoke_tool_async(request)]
+
+        assert [result.value for result in results] == ["Result 1", "Result 2", "Result 3"]
+        for result in results:
+            assert result.request == request
+            assert result.error is None
+
+    @pytest.mark.asyncio
+    @pytest.mark.filterwarnings("ignore")
+    async def test_sync_tool_yielding_with_error_in_async_chat(self):
+        """An error raised mid-way through a synchronous generator tool is reported in an async chat."""
+        chat = ChatOpenAI()
+
+        def error_after_yield_tool(count: int):
+            """Tool that yields some results then raises an error."""
+            for i in range(count):
+                if i == 2:
+                    raise ValueError("Error after yielding 2 results")
+                yield f"Result {i + 1}"
+
+        chat.register_tool(error_after_yield_tool)
+
+        tool = chat._tools["error_after_yield_tool"]
+        request = ContentToolRequest(
+            id="test-id",
+            name="error_after_yield_tool",
+            arguments={"count": 5},
+            tool=ToolInfo.from_tool(tool),
+        )
+
+        results = [result async for result in chat._invoke_tool_async(request)]
+
+        assert [result.value for result in results[:2]] == ["Result 1", "Result 2"]
+        assert len(results) == 3
+        assert results[2].error is not None
+        assert "Error after yielding 2 results" in str(results[2].error)
+
+    def test_async_generator_tool_is_rejected_in_sync_chat(self):
+        """An async generator tool is an async tool, so a synchronous chat refuses it."""
+        chat = ChatOpenAI()
+
+        async def async_multi_tool(count: int):
+            """Async tool that yields multiple results."""
+            for i in range(count):
+                yield f"Async result {i + 1}"
+
+        chat.register_tool(async_multi_tool)
+
+        assert chat._tools["async_multi_tool"]._is_async
+        with pytest.raises(ValueError, match="Cannot use async tools in a synchronous chat"):
+            chat.chat("Run the tool", echo="none")
+
     @pytest.mark.filterwarnings("ignore")
     def test_tool_yielding_with_error(self):
         """Test tool that yields some results then encounters an error."""
