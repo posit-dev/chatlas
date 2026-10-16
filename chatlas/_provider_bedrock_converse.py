@@ -45,7 +45,11 @@ from ._provider import (
     StandardModelParamNames,
     StandardModelParams,
 )
-from ._provider_anthropic import AnthropicProvider
+from ._provider_anthropic import (
+    AnthropicProvider,
+    StructuredOutputMode,
+    supports_structured_outputs,
+)
 from ._provider_bedrock import (
     CROSS_REGION_PREFIX,
     bedrock_base_url,
@@ -420,6 +424,7 @@ class BedrockConverseProvider(
         base_url: Optional[str],
         max_tokens: int = 4096,
         cache: Literal["auto", "5m", "1h", "none"] = "auto",
+        structured_output_mode: StructuredOutputMode = "auto",
         name: str = "AWS/Bedrock",
         kwargs: Optional[ConverseClientArgs] = None,
     ):
@@ -428,6 +433,7 @@ class BedrockConverseProvider(
         self._aws_region = aws_region
         self._max_tokens = max_tokens
         self._cache: Literal["auto", "5m", "1h", "none"] = cache
+        self._structured_output_mode = structured_output_mode
 
         resolved_base_url = base_url or bedrock_base_url("converse", aws_region)
         # `LazyCredentials` defers the botocore credential chain to the first
@@ -562,12 +568,20 @@ class BedrockConverseProvider(
         return await self._converse_async(args)
 
     def can_stream(self, data_model: Optional[type[BaseModel]]) -> bool:
-        # Structured data extraction is tool-based (a forced `toolChoice` on a
-        # tool whose input is `{"data": ...}`-wrapped), and Converse streams
-        # tool input in its own event type rather than as text, so a streamed
-        # response can't honor the extracted-JSON contract (`"".join(chunks)`
-        # would be empty). Fall back to a single non-streaming request.
-        return data_model is None
+        # Native structured outputs (`outputConfig`) stream as ordinary text
+        # deltas, so they honor the extracted-JSON contract. The tool-based
+        # strategy streams tool input in its own event type (and
+        # `{"data": ...}`-wrapped at that), so it can't -- `Chat` falls back
+        # to a single non-streaming request there.
+        if data_model is None:
+            return True
+        return self._use_native_structured_output()
+
+    def _use_native_structured_output(self) -> bool:
+        mode = self._structured_output_mode
+        return mode == "native" or (
+            mode == "auto" and supports_structured_outputs(self.model)
+        )
 
     def stream_content(
         self,

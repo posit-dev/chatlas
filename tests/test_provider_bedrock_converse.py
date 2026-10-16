@@ -1891,6 +1891,50 @@ class TestStreamWithDataModel:
         assert turn.contents[0].value == {"name": "John", "age": 15}
 
 
+class TestStructuredOutputMode:
+    """`structured_output_mode` selects native `outputConfig` vs forced tool call."""
+
+    @staticmethod
+    def provider(
+        model: str = "us.anthropic.claude-sonnet-4-6",
+        mode: Literal["auto", "native", "tool"] = "auto",
+    ) -> BedrockConverseProvider:
+        return BedrockConverseProvider(
+            model=model,
+            aws_profile=None,
+            aws_region="us-east-1",
+            base_url=None,
+            structured_output_mode=mode,
+        )
+
+    def test_can_stream_matrix(self):
+        from pydantic import BaseModel
+
+        class Person(BaseModel):
+            name: str
+            age: int
+
+        # No data_model always streams.
+        assert self.provider().can_stream(None) is True
+        # "auto" streams on supported Anthropic models ...
+        assert self.provider().can_stream(Person) is True
+        # ... but not on unsupported ones.
+        assert (
+            self.provider(model="us.anthropic.claude-sonnet-4").can_stream(Person)
+            is False
+        )
+        assert self.provider(model="amazon.nova-lite-v1:0").can_stream(Person) is False
+        # "native" forces streaming even on unsupported models ...
+        assert (
+            self.provider(model="amazon.nova-lite-v1:0", mode="native").can_stream(
+                Person
+            )
+            is True
+        )
+        # ... and "tool" never streams with a data_model.
+        assert self.provider(mode="tool").can_stream(Person) is False
+
+
 def test_blocked_network_skips_live_converse_before_credential_probe(monkeypatch):
     class BlockedConfig:
         def getoption(self, option: str) -> bool:
