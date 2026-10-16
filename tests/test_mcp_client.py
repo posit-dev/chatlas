@@ -50,7 +50,9 @@ def sync_http_mcp_server(server_file: str):
             except urllib.error.HTTPError:
                 # Any HTTP response (even 404) means the server is up
                 break
-            except urllib.error.URLError:
+            # OSError: vcrpy's patched http.client lets connection errors
+            # escape urllib's URLError wrapping
+            except (urllib.error.URLError, OSError):
                 if time.time() - start > 10:
                     process.kill()
                     process.wait()
@@ -880,3 +882,14 @@ class TestMCPDeprecations:
             with warnings.catch_warnings():
                 warnings.simplefilter("error")
                 chat.close()
+
+
+@pytest.mark.vcr
+def test_chat_sync_with_mcp_tools():
+    chat = ChatOpenAI(
+        model="gpt-5.4", system_prompt="Be very terse, not even punctuation."
+    )
+    with sync_http_mcp_server("http_current_date.py"):
+        chat.register_mcp_tools(url=SERVER_URL, name="test")
+        response = chat.chat("What's the current date in YYYY-MM-DD format?")
+        assert "2024-01-01" in response.get_content()
