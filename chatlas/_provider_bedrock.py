@@ -403,21 +403,27 @@ class BedrockMessagesProvider(AnthropicProvider):
         kwargs: Optional["AnthropicSubmitInputArgs"] = None,
     ) -> "AnthropicSubmitInputArgs":
         if data_model is not None and kwargs:
-            output_config = kwargs.get("output_config")
+            # Caller kwargs that contradict extraction are dropped (from a
+            # copy; the caller's mapping is unchanged):
+            # - a native `format`, since the schema comes from `data_model`
+            #   (native mode rebuilds it; tool mode must not send one, or
+            #   the tool-call request 400s too). Independent settings like
+            #   `effort` are kept.
+            # - a raw `tools` list, which would replace the generated
+            #   schemas (the registered specs plus, in tool mode, the
+            #   extraction tool that `tool_choice` forces), invalidating
+            #   the request.
+            new_kwargs = dict(kwargs)
+            output_config = new_kwargs.get("output_config")
             if isinstance(output_config, dict) and "format" in output_config:
-                # A caller-supplied native format contradicts extraction:
-                # the schema comes from `data_model` (native mode rebuilds
-                # it; tool mode must not send one, or the tool-call request
-                # 400s too). Drop it, keeping independent settings like
-                # `effort`, without mutating the caller's kwargs.
-                new_kwargs = dict(kwargs)
                 new_output_config = cast(dict[str, Any], dict(output_config))
                 new_output_config.pop("format", None)
                 if new_output_config:
                     new_kwargs["output_config"] = new_output_config
                 else:
                     new_kwargs.pop("output_config")
-                kwargs = cast("AnthropicSubmitInputArgs", new_kwargs)
+            new_kwargs.pop("tools", None)
+            kwargs = cast("AnthropicSubmitInputArgs", new_kwargs)
         return super()._chat_perform_args(stream, turns, tools, data_model, kwargs)
 
     # -- Native structured-output probing ------------------------------------

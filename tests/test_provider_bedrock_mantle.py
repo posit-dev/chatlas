@@ -620,6 +620,43 @@ class TestMessagesStructuredOutputMode:
         # The caller's kwargs mapping is unchanged.
         assert "format" in kwargs["output_config"]
 
+    def test_caller_tools_kwarg_does_not_break_tool_mode_extraction(self):
+        # A raw caller `tools` list must not replace the generated schemas
+        # during extraction: tool mode forces `_structured_tool_call`, so
+        # dropping its declaration would invalidate the request (and the
+        # post-rejection retry).
+        provider = self.provider()
+        calls: list[dict] = []
+
+        def fake_create(**kw):
+            calls.append(kw)
+            if len(calls) == 1:
+                raise self._native_rejection()
+            return self._fake_message()
+
+        kwargs = {"tools": []}
+        with (
+            patch.object(provider._client.messages, "create", side_effect=fake_create),
+            pytest.warns(UserWarning, match="rejected native structured outputs"),
+        ):
+            provider.chat_perform(
+                stream=False,
+                turns=[],
+                tools={},
+                data_model=self._person(),
+                kwargs=kwargs,
+            )
+
+        assert len(calls) == 2
+        retry = calls[1]
+        assert retry["tool_choice"]["name"] == "_structured_tool_call"
+        assert [t["name"] for t in retry["tools"]] == ["_structured_tool_call"]
+        # Later tool-mode requests with the same kwargs declare it too ...
+        (later,) = self._perform_with_fake_create(provider, self._person(), kwargs)
+        assert [t["name"] for t in later["tools"]] == ["_structured_tool_call"]
+        # ... and the caller's mapping is unchanged.
+        assert kwargs == {"tools": []}
+
     def test_effort_rejection_is_not_a_native_format_rejection(self):
         # A model rejecting `output_config.effort` says nothing about
         # `format` support: the error must propagate, unmarked, unretried.
