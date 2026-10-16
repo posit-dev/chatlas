@@ -506,3 +506,87 @@ async def test_multi_part_mcp_result_is_one_list_valued_result():
 
     assert isinstance(result, ContentToolResult)
     assert result.value == ["stdout: rendering", "Done.", expected_image]
+
+
+class TestToolFromMCPClientFactory:
+    """Test Tool.from_mcp() with client_factory (ephemeral per-call clients)."""
+
+    def create_mock_mcp_tool(self):
+        tool = MagicMock()
+        tool.name = "add"
+        tool.description = "Add two numbers."
+        tool.input_schema = {
+            "type": "object",
+            "properties": {"x": {"type": "integer"}, "y": {"type": "integer"}},
+            "required": ["x", "y"],
+        }
+        tool.annotations = None
+        return tool
+
+    def create_mock_result(self, text: str):
+        content = MagicMock()
+        content.type = "text"
+        content.text = text
+        result = MagicMock()
+        result.is_error = False
+        result.content = [content]
+        return result
+
+    def create_mock_factory(self, text: str = "3"):
+        """Factory returning an async-CM mock client, tracking creations."""
+        creations = []
+
+        def factory():
+            client = AsyncMock()
+            client.call_tool = AsyncMock(return_value=self.create_mock_result(text))
+            cm = AsyncMock()
+            cm.__aenter__ = AsyncMock(return_value=client)
+            cm.__aexit__ = AsyncMock(return_value=None)
+            creations.append(cm)
+            return cm
+
+        return factory, creations
+
+    @pytest.mark.asyncio
+    async def test_client_factory_used_per_call(self):
+        factory, creations = self.create_mock_factory()
+        tool = Tool.from_mcp(mcp_tool=self.create_mock_mcp_tool(), client_factory=factory)
+
+        res1 = await tool.func(x=1, y=2)
+        res2 = await tool.func(x=3, y=4)
+
+        assert res1.value == "3"
+        assert res2.value == "3"
+        # A fresh client context is entered per call
+        assert len(creations) == 2
+        # The server is always called with its own tool name
+        client = await creations[0].__aenter__()
+        client.call_tool.assert_awaited_with("add", {"x": 1, "y": 2})
+
+    def test_sync_tool(self):
+        factory, _ = self.create_mock_factory()
+        tool = Tool.from_mcp(
+            mcp_tool=self.create_mock_mcp_tool(), client_factory=factory, sync=True
+        )
+        assert not tool._is_async
+        res = tool.func(x=1, y=2)
+        assert res.value == "3"
+
+    @pytest.mark.asyncio
+    async def test_sync_tool_errors_in_running_loop(self):
+        factory, _ = self.create_mock_factory()
+        tool = Tool.from_mcp(
+            mcp_tool=self.create_mock_mcp_tool(), client_factory=factory, sync=True
+        )
+        with pytest.raises(RuntimeError, match="running event loop"):
+            tool.func(x=1, y=2)
+
+    def test_requires_session_or_client_factory(self):
+        with pytest.raises(ValueError, match="Exactly one"):
+            Tool.from_mcp(mcp_tool=self.create_mock_mcp_tool())
+        with pytest.raises(ValueError, match="Exactly one"):
+            Tool.from_mcp(
+                session=AsyncMock(),
+                mcp_tool=self.create_mock_mcp_tool(),
+                client_factory=self.create_mock_factory()[0],
+            )
