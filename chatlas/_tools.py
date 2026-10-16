@@ -153,6 +153,8 @@ class Tool:
         cls: type["Tool"],
         session: "MCPClient | MCPClientSession",
         mcp_tool: "MCPTool",
+        *,
+        name: Optional[str] = None,
     ) -> "Tool":
         """
         Create a Tool from an MCP tool
@@ -163,6 +165,10 @@ class Tool:
             The MCP client (or client session) to use for calling the tool.
         mcp_tool
             The MCP tool to wrap.
+        name
+            The name of the tool as advertised to the LLM. Defaults to the MCP
+            tool's name. The MCP server is always called with the MCP tool's
+            own name, regardless of this value.
 
         Returns
         -------
@@ -217,7 +223,7 @@ class Tool:
 
         return cls(
             func=_utils.wrap_async(_call),
-            name=mcp_tool.name,
+            name=name or mcp_tool.name,
             description=mcp_tool.description or "",
             parameters=params,
             annotations=annotations,
