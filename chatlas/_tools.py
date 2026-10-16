@@ -251,14 +251,16 @@ class Tool:
 
         tool_name = name or mcp_tool.name
         async_func = _utils.wrap_async(_call)
+        func: Callable[..., Any]
         if sync:
 
-            def func(**args: Any) -> ContentToolResult:
+            def sync_func(**args: Any) -> ContentToolResult:
                 return _utils.run_coro_sync(
                     lambda: async_func(**args),
                     what=f"call MCP tool '{tool_name}'",
                 )
 
+            func = sync_func
         else:
             func = async_func
 
