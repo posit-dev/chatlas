@@ -34,6 +34,7 @@ __all__ = (
 )
 
 if TYPE_CHECKING:
+    from mcp import Client as MCPClient
     from mcp import ClientSession as MCPClientSession
     from mcp import Tool as MCPTool
     from mcp.types import ContentBlock as MCPContentBlock
@@ -150,7 +151,7 @@ class Tool:
     @classmethod
     def from_mcp(
         cls: type["Tool"],
-        session: "MCPClientSession",
+        session: "MCPClient | MCPClientSession",
         mcp_tool: "MCPTool",
         *,
         name: Optional[str] = None,
@@ -161,7 +162,7 @@ class Tool:
         Parameters
         ----------
         session
-            The MCP client session to use for calling the tool.
+            The MCP client (or client session) to use for calling the tool.
         mcp_tool
             The MCP tool to wrap.
         name
