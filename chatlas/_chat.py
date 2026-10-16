@@ -3246,6 +3246,15 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         """
         if not self._tools:
             return self._tools
+        if self.provider.tool_history_requires_config() and any(
+            isinstance(content, (ContentToolRequest, ContentToolResult))
+            for turn in self._turns
+            for content in turn.contents
+        ):
+            # The provider (e.g. Bedrock Converse) rejects requests with
+            # tool-call history but no tool specs, so extraction can't drop
+            # them here.
+            return self._tools
         warnings.warn(
             "Registered tools are not advertised during structured data "
             "extraction (`.chat_structured()` never executes tools, so an "

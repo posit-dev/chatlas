@@ -662,6 +662,12 @@ class BedrockConverseProvider(
             and "Extra inputs are not permitted" in message
         )
 
+    def tool_history_requires_config(self) -> bool:
+        # Converse 400s with "The toolConfig field must be defined when using
+        # toolUse and toolResult content blocks" (it doesn't check that the
+        # specs match the history's tool names).
+        return True
+
     def can_stream(self, data_model: Optional[type[BaseModel]]) -> bool:
         # Native structured outputs (`outputConfig`) stream as ordinary text
         # deltas, so they honor the extracted-JSON contract. The tool-based

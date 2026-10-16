@@ -2268,6 +2268,54 @@ class TestStructuredOutputMode:
         assert "outputConfig" in request
         assert "toolConfig" not in request
 
+    def test_chat_structured_after_tool_use_keeps_tool_config(self):
+        # Converse requires `toolConfig` when history contains toolUse/
+        # toolResult blocks, so extraction can't drop the registered specs
+        # there (and shouldn't warn).
+        import warnings
+        from unittest.mock import patch
+
+        from chatlas import Chat
+        from chatlas._content import ContentToolRequest, ContentToolResult
+        from chatlas._turn import AssistantTurn
+        from pydantic import BaseModel
+
+        class Person(BaseModel):
+            name: str
+            age: int
+
+        def get_weather(city: str) -> str:
+            """Get the weather for a city."""
+            return city
+
+        provider = self.provider()
+        chat = Chat(provider=provider)
+        chat.register_tool(get_weather)
+        tool_request = ContentToolRequest(
+            id="toolu_x", name="get_weather", arguments={"city": "Paris"}
+        )
+        chat.add_turn(UserTurn("What's the weather in Paris?"))
+        chat.add_turn(AssistantTurn([tool_request]))
+        chat.add_turn(
+            UserTurn([ContentToolResult(value="72F and sunny", request=tool_request)])
+        )
+
+        request: dict = {}
+
+        def fake_converse(args):
+            request.update(args)
+            return self._fake_native_converse_response()
+
+        with patch.object(provider, "_converse", side_effect=fake_converse):
+            with warnings.catch_warnings():
+                warnings.simplefilter("error")  # no "not advertised" warning
+                result = chat.chat_structured("Extract the weather.", data_model=Person)
+
+        assert isinstance(result, Person)
+        tool_names = [t["toolSpec"]["name"] for t in request["toolConfig"]["tools"]]
+        assert "get_weather" in tool_names
+        assert "outputConfig" in request
+
     def test_data_model_drops_caller_supplied_tool_config(self):
         # An explicit toolChoice for an ordinary tool would make extraction
         # fail deterministically; chatlas owns the request shape during
