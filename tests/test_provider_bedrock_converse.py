@@ -2101,6 +2101,33 @@ class TestStructuredOutputMode:
         assert isinstance(turn.contents[0], ContentJson)
         assert turn.contents[0].value == {"name": "John", "age": 15}
 
+    def test_chat_bedrock_forwards_mode_to_converse(self):
+        from pydantic import BaseModel
+
+        class Person(BaseModel):
+            name: str
+            age: int
+
+        # Default model (us.anthropic.claude-sonnet-5) matches the native
+        # support regex, so the mode alone decides can_stream here.
+        chat = ChatBedrock(
+            api="converse", aws_region="us-east-1", structured_output_mode="tool"
+        )
+        assert chat.provider.can_stream(Person) is False
+        chat = ChatBedrock(
+            api="converse", aws_region="us-east-1", structured_output_mode="native"
+        )
+        assert chat.provider.can_stream(Person) is True
+
+    def test_structured_output_mode_rejected_off_converse(self):
+        for api in ("messages", "responses"):
+            with pytest.raises(ValueError, match="structured_output_mode"):
+                ChatBedrock(
+                    api=api,  # type: ignore[arg-type]
+                    aws_region="us-east-1",
+                    structured_output_mode="native",
+                )
+
     @staticmethod
     def _native_rejection() -> ValueError:
         return ValueError(
