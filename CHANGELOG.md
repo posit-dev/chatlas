@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Bug fixes
 
+* A tool written as a generator (see "Progressive results" in the tool-calling docs) now reports each yielded value in `.chat_async()` and `.stream_async()`, as it does in `.chat()`. A synchronous generator tool used to send the generator object itself (`<generator object ...>`) as its result. An `async def` generator tool now counts as an async tool, so `.chat()` raises the usual "Cannot use async tools in a synchronous chat" error instead of sending `<async_generator object ...>` as the result.
 * MCP tools registered with a `namespace` (in `.register_mcp_tools_http_stream_async()` or `.register_mcp_tools_stdio_async()`) can be called successfully. `Tool.from_mcp()` gains a `name` argument for setting the tool's name independently of the MCP tool's name. (#458)
 * The MCP client used by `.register_mcp_tools_http_stream_async()` and `.register_mcp_tools_stdio_async()` negotiates MCP protocol revision `2026-07-28` with servers that support it. (#456)
 * `ChatCloudflare()` no longer errors when a response (or a streamed chunk of one) consists only of a number, which Cloudflare sends as a JSON number instead of a string (e.g. `"content": 2`). The content is now coerced to a string instead of breaking text display, chunk merging, and final-turn assembly.

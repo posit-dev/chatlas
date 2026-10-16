@@ -79,7 +79,9 @@ class Tool:
         self.name = name
         self.func = func
         self.annotations = annotations
-        self._is_async = _utils.is_async_callable(func)
+        # An async generator function isn't a coroutine function, but it is still async
+        is_async_gen = inspect.isasyncgenfunction(func)
+        self._is_async = _utils.is_async_callable(func) or is_async_gen
         schema: "ChatCompletionToolParam" = {
             "type": "function",
             "function": {
