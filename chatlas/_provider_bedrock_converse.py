@@ -4,6 +4,7 @@ import asyncio
 import base64
 import json
 import os
+import warnings
 from collections.abc import Mapping
 from functools import cache
 from typing import (
@@ -63,6 +64,7 @@ from ._turn import (
     SystemTurn,
     Turn,
     UserTurn,
+    caller_stacklevel,
     check_finish_reason,
 )
 from ._typing_extensions import NotRequired, TypedDict
@@ -435,6 +437,9 @@ class BedrockConverseProvider(
         self._max_tokens = max_tokens
         self._cache: Literal["auto", "5m", "1h", "none"] = cache
         self._structured_output_mode = structured_output_mode
+        # Models that have rejected `outputConfig` with a 400 (see
+        # `_native_retry_args`); only populated in "auto" mode.
+        self._native_unsupported_models: set[str] = set()
 
         resolved_base_url = base_url or bedrock_base_url("converse", aws_region)
         # `LazyCredentials` defers the botocore credential chain to the first
@@ -529,8 +534,18 @@ class BedrockConverseProvider(
     ) -> Iterable[dict] | ConverseResponseTypeDef:
         args = self._chat_perform_args(stream, turns, tools, data_model, kwargs)
         if stream:
-            return self._converse_stream(args)
-        return self._converse(args)
+            return self._converse_stream_with_retry(
+                args, stream, turns, tools, data_model, kwargs
+            )
+        try:
+            return self._converse(args)
+        except ValueError as error:
+            retry = self._native_retry_args(
+                error, stream, turns, tools, data_model, kwargs
+            )
+            if retry is None:
+                raise
+            return self._converse(retry)
 
     @overload
     async def chat_perform_async(
@@ -565,8 +580,146 @@ class BedrockConverseProvider(
     ) -> AsyncIterable[dict] | ConverseResponseTypeDef:
         args = self._chat_perform_args(stream, turns, tools, data_model, kwargs)
         if stream:
-            return self._converse_stream_async(args)
-        return await self._converse_async(args)
+            return self._converse_stream_async_with_retry(
+                args, stream, turns, tools, data_model, kwargs
+            )
+        try:
+            return await self._converse_async(args)
+        except ValueError as error:
+            retry = self._native_retry_args(
+                error, stream, turns, tools, data_model, kwargs
+            )
+            if retry is None:
+                raise
+            return await self._converse_async(retry)
+
+    def _native_retry_args(
+        self,
+        error: ValueError,
+        stream: bool,
+        turns: list[Turn],
+        tools: dict[str, Tool | ToolBuiltIn],
+        data_model: Optional[type[BaseModel]],
+        kwargs: Optional[ConverseSubmitArgs],
+    ) -> Optional[ConverseRequestTypeDef]:
+        """Rebuild request args for tool-based extraction after a native-mode 400.
+
+        Converse's `outputConfig` support is per-model in a way that can't be
+        derived from the model ID (e.g. `claude-sonnet-5` rejects it while
+        `claude-sonnet-4-6` accepts it), so "auto" mode is optimistic: on the
+        specific rejection, remember the model as unsupported and retry with
+        the forced tool call. Returns `None` (caller re-raises) when the
+        failure wasn't a native-mode attempt -- including explicit "native"
+        mode, where the user asked for `outputConfig` and gets its error.
+        """
+        if (
+            data_model is None
+            or self._structured_output_mode != "auto"
+            or not self._use_native_structured_output()
+            or "output_config" not in str(error)
+        ):
+            return None
+        self._native_unsupported_models.add(self.model)
+        warnings.warn(
+            f"Bedrock Converse model '{self.model}' rejected native structured "
+            "outputs (`outputConfig`); falling back to tool-based extraction. "
+            "This provider will use tool-based extraction for the model from "
+            "now on.",
+            stacklevel=caller_stacklevel(),
+        )
+        # `_use_native_structured_output()` is now False, so this rebuilds the
+        # args with the forced `_structured_tool_call` instead of `outputConfig`.
+        return self._chat_perform_args(stream, turns, tools, data_model, kwargs)
+
+    def _converse_stream_with_retry(
+        self,
+        args: ConverseRequestTypeDef,
+        stream: bool,
+        turns: list[Turn],
+        tools: dict[str, Tool | ToolBuiltIn],
+        data_model: Optional[type[BaseModel]],
+        kwargs: Optional[ConverseSubmitArgs],
+    ) -> Iterator[dict]:
+        try:
+            # `_converse_stream` is a generator, so the request (and any
+            # error it fails with) doesn't fire until the first pull.
+            events = self._converse_stream(args)
+            first = next(events)
+        except StopIteration:
+            return
+        except ValueError as error:
+            retry = self._native_retry_args(
+                error, stream, turns, tools, data_model, kwargs
+            )
+            if retry is None:
+                raise
+            # A tool-mode stream retry would yield zero chunks (the bug #451
+            # fixed), so retry on the non-streaming endpoint and synthesize
+            # events that surface the extracted JSON as a single text chunk.
+            yield from self._response_as_stream_events(self._converse(retry))
+            return
+        yield first
+        yield from events
+
+    async def _converse_stream_async_with_retry(
+        self,
+        args: ConverseRequestTypeDef,
+        stream: bool,
+        turns: list[Turn],
+        tools: dict[str, Tool | ToolBuiltIn],
+        data_model: Optional[type[BaseModel]],
+        kwargs: Optional[ConverseSubmitArgs],
+    ) -> AsyncIterator[dict]:
+        try:
+            events = self._converse_stream_async(args)
+            first = await anext(events)
+        except StopAsyncIteration:
+            return
+        except ValueError as error:
+            retry = self._native_retry_args(
+                error, stream, turns, tools, data_model, kwargs
+            )
+            if retry is None:
+                raise
+            for event in self._response_as_stream_events(
+                await self._converse_async(retry)
+            ):
+                yield event
+            return
+        yield first
+        async for event in events:
+            yield event
+
+    @staticmethod
+    def _response_as_stream_events(
+        response: ConverseResponseTypeDef,
+    ) -> Iterator[dict]:
+        """Replay a non-streaming response as a minimal Converse event stream.
+
+        Structured output is re-expressed as a text delta (rather than the
+        tool-use block it arrived as) so `stream_content()` yields the
+        extracted JSON as a single chunk and `_as_turn`'s native branch
+        records it as `ContentJson`.
+        """
+        message = response["output"].get("message")
+        yield {"messageStart": {"role": (message or {}).get("role", "assistant")}}
+        if message is not None:
+            for index, block in enumerate(message["content"]):
+                block = cast(dict, block)
+                text = block.get("text")
+                tool_use = block.get("toolUse") or {}
+                if tool_use.get("name") == "_structured_tool_call":
+                    text = json.dumps(tool_use.get("input", {}).get("data"))
+                if text is not None:
+                    yield {
+                        "contentBlockDelta": {
+                            "contentBlockIndex": index,
+                            "delta": {"text": text},
+                        }
+                    }
+                    yield {"contentBlockStop": {"contentBlockIndex": index}}
+        yield {"messageStop": {"stopReason": response["stopReason"]}}
+        yield {"metadata": {"usage": response["usage"]}}
 
     def can_stream(self, data_model: Optional[type[BaseModel]]) -> bool:
         # Native structured outputs (`outputConfig`) stream as ordinary text
@@ -579,6 +732,8 @@ class BedrockConverseProvider(
         return self._use_native_structured_output()
 
     def _use_native_structured_output(self) -> bool:
+        if self.model in self._native_unsupported_models:
+            return False
         mode = self._structured_output_mode
         return mode == "native" or (
             mode == "auto" and supports_structured_outputs(self.model)
@@ -949,10 +1104,19 @@ class BedrockConverseProvider(
         message = completion["output"].get("message")
         contents: list[Content] = []
         if message is not None:
+            # Structured output arrives in one of two forms, depending on
+            # `structured_output_mode`: a `_structured_tool_call` toolUse
+            # block (tool mode), or as ordinary text (native `outputConfig`
+            # mode) -- mirroring `AnthropicProvider._as_turn`.
+            uses_tool_approach = has_data_model and any(
+                (cast(dict, block).get("toolUse") or {}).get("name")
+                == "_structured_tool_call"
+                for block in message["content"]
+            )
             for block in message["content"]:
                 tool_use = cast(dict, block).get("toolUse")
                 if (
-                    has_data_model
+                    uses_tool_approach
                     and tool_use
                     and tool_use["name"] == "_structured_tool_call"
                 ):
@@ -967,6 +1131,12 @@ class BedrockConverseProvider(
                             "Expected data extraction tool to return a 'data' dictionary."
                         )
                     contents.append(ContentJson(value=data))
+                elif (
+                    has_data_model
+                    and not uses_tool_approach
+                    and (text := cast(dict, block).get("text")) is not None
+                ):
+                    contents.append(ContentJson(value=json.loads(text)))
                 elif (content := content_from_converse_block(block)) is not None:
                     contents.append(content)
         return AssistantTurn(

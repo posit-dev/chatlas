@@ -1426,12 +1426,16 @@ class TestStructuredOutputAndCaching:
         model: str = "us.anthropic.claude-sonnet-4-6",
         cache: Literal["auto", "5m", "1h", "none"] = "auto",
     ):
+        # These tests exercise the tool-based structured output strategy, so
+        # pin `structured_output_mode="tool"` (the default "auto" uses native
+        # `outputConfig` for this model).
         return BedrockConverseProvider(
             model=model,
             aws_profile=None,
             aws_region="us-east-1",
             base_url=None,
             cache=cache,
+            structured_output_mode="tool",
         )
 
     def test_data_model_forces_a_tool_choice(self):
@@ -1817,11 +1821,14 @@ class TestStreamWithDataModel:
     """
 
     def provider(self) -> BedrockConverseProvider:
+        # The downgrade only happens in tool mode; "auto" uses native
+        # `outputConfig` for this model, which streams for real.
         return BedrockConverseProvider(
             model="us.anthropic.claude-sonnet-4-6",
             aws_profile=None,
             aws_region="us-east-1",
             base_url=None,
+            structured_output_mode="tool",
         )
 
     def test_stream_with_data_model_downgrades_gracefully(self):
@@ -1992,6 +1999,280 @@ class TestStructuredOutputMode:
         )
         assert "outputConfig" in request
         assert "toolConfig" not in request
+
+    @staticmethod
+    def _fake_native_converse_response():
+        return cast(
+            "ConverseResponseTypeDef",
+            {
+                "output": {
+                    "message": {
+                        "role": "assistant",
+                        "content": [{"text": '{"name": "John", "age": 15}'}],
+                    }
+                },
+                "stopReason": "end_turn",
+                "usage": {"inputTokens": 1, "outputTokens": 1, "totalTokens": 2},
+            },
+        )
+
+    @staticmethod
+    def _fake_native_stream_events() -> list[dict]:
+        return [
+            {"messageStart": {"role": "assistant"}},
+            {
+                "contentBlockDelta": {
+                    "contentBlockIndex": 0,
+                    "delta": {"text": '{"name": "Joh'},
+                }
+            },
+            {
+                "contentBlockDelta": {
+                    "contentBlockIndex": 0,
+                    "delta": {"text": 'n", "age": 15}'},
+                }
+            },
+            {"contentBlockStop": {"contentBlockIndex": 0}},
+            {"messageStop": {"stopReason": "end_turn"}},
+            {
+                "metadata": {
+                    "usage": {"inputTokens": 1, "outputTokens": 1, "totalTokens": 2}
+                }
+            },
+        ]
+
+    def test_native_response_text_becomes_content_json(self):
+        from unittest.mock import patch
+
+        from chatlas import Chat
+        from chatlas._content import ContentJson
+        from pydantic import BaseModel
+
+        class Person(BaseModel):
+            name: str
+            age: int
+
+        provider = self.provider()
+        chat = Chat(provider=provider)
+        with patch.object(
+            provider,
+            "_converse",
+            return_value=self._fake_native_converse_response(),
+        ):
+            chat.chat_structured("John, age 15", data_model=Person)
+
+        turn = chat.get_last_turn()
+        assert turn is not None
+        assert len(turn.contents) == 1
+        assert isinstance(turn.contents[0], ContentJson)
+        assert turn.contents[0].value == {"name": "John", "age": 15}
+
+    def test_native_mode_streams_incrementally(self):
+        import warnings
+        from unittest.mock import patch
+
+        from chatlas import Chat
+        from chatlas._content import ContentJson
+        from pydantic import BaseModel
+
+        class Person(BaseModel):
+            name: str
+            age: int
+
+        provider = self.provider()
+        chat = Chat(provider=provider)
+        with patch.object(
+            provider,
+            "_converse_stream",
+            side_effect=lambda args: iter(self._fake_native_stream_events()),
+        ):
+            with warnings.catch_warnings():
+                # Native mode streams for real: no fallback warning.
+                warnings.simplefilter("error")
+                chunks = list(chat.stream("John, age 15", data_model=Person))
+
+        # Two text deltas arrive as two chunks, joining to the full JSON.
+        assert chunks == ['{"name": "Joh', 'n", "age": 15}']
+        person = Person.model_validate_json("".join(chunks))
+        assert person == Person(name="John", age=15)
+
+        turn = chat.get_last_turn()
+        assert turn is not None
+        assert isinstance(turn.contents[0], ContentJson)
+        assert turn.contents[0].value == {"name": "John", "age": 15}
+
+    @staticmethod
+    def _native_rejection() -> ValueError:
+        return ValueError(
+            "Bedrock Converse request failed with status 400: The model "
+            "returned the following errors: output_config.format: Extra "
+            "inputs are not permitted"
+        )
+
+    def test_auto_mode_falls_back_to_tool_on_native_rejection(self):
+        from unittest.mock import patch
+
+        from chatlas import Chat
+        from pydantic import BaseModel
+
+        class Person(BaseModel):
+            name: str
+            age: int
+
+        provider = self.provider()  # "auto" on a regex-supported model
+        chat = Chat(provider=provider)
+        requests: list[dict] = []
+
+        def fake_converse(args):
+            requests.append(args)
+            if "outputConfig" in args:
+                raise self._native_rejection()
+            return _fake_data_model_converse_response()
+
+        with patch.object(provider, "_converse", side_effect=fake_converse):
+            with pytest.warns(UserWarning, match="outputConfig"):
+                result = chat.chat_structured("John, age 15", data_model=Person)
+
+        assert result == Person(name="John", age=15)
+        # First attempt is native; the retry uses the forced tool call.
+        assert len(requests) == 2
+        assert "outputConfig" in requests[0]
+        assert "outputConfig" not in requests[1]
+        assert requests[1]["toolConfig"]["toolChoice"] == {
+            "tool": {"name": "_structured_tool_call"}
+        }
+
+        # The rejection is remembered: no more native attempts, and
+        # can_stream() now reflects tool mode.
+        assert provider.can_stream(Person) is False
+        with patch.object(provider, "_converse", side_effect=fake_converse):
+            chat.chat_structured("Jane, age 20", data_model=Person)
+        assert len(requests) == 3
+        assert "outputConfig" not in requests[2]
+
+    def test_native_mode_does_not_fall_back(self):
+        from unittest.mock import patch
+
+        from chatlas import Chat
+        from pydantic import BaseModel
+
+        class Person(BaseModel):
+            name: str
+            age: int
+
+        provider = self.provider(mode="native")
+        chat = Chat(provider=provider)
+
+        def reject(args):
+            raise self._native_rejection()
+
+        with patch.object(provider, "_converse", side_effect=reject):
+            with pytest.raises(ValueError, match="output_config"):
+                chat.chat_structured("John, age 15", data_model=Person)
+
+    def test_stream_falls_back_to_single_chunk_on_native_rejection(self):
+        from unittest.mock import patch
+
+        from chatlas import Chat
+        from chatlas._content import ContentJson
+        from pydantic import BaseModel
+
+        class Person(BaseModel):
+            name: str
+            age: int
+
+        provider = self.provider()
+        chat = Chat(provider=provider)
+
+        def fake_stream(args):
+            if "outputConfig" in args:
+                raise self._native_rejection()
+            raise AssertionError("stream retry must use the non-streaming endpoint")
+
+        with patch.object(provider, "_converse_stream", side_effect=fake_stream):
+            with patch.object(
+                provider,
+                "_converse",
+                return_value=_fake_data_model_converse_response(),
+            ):
+                with pytest.warns(UserWarning, match="outputConfig"):
+                    chunks = list(chat.stream("John, age 15", data_model=Person))
+
+        # #451's contract: the complete JSON as a single chunk.
+        person = Person.model_validate_json("".join(chunks))
+        assert person == Person(name="John", age=15)
+
+        turn = chat.get_last_turn()
+        assert turn is not None
+        assert isinstance(turn.contents[0], ContentJson)
+        assert turn.contents[0].value == {"name": "John", "age": 15}
+
+    @pytest.mark.asyncio
+    async def test_stream_async_falls_back_on_native_rejection(self):
+        from unittest.mock import AsyncMock, patch
+
+        from chatlas import Chat
+        from pydantic import BaseModel
+
+        class Person(BaseModel):
+            name: str
+            age: int
+
+        provider = self.provider()
+        chat = Chat(provider=provider)
+
+        async def fake_stream(args):
+            if "outputConfig" in args:
+                raise self._native_rejection()
+            yield  # pragma: no cover
+
+        with patch.object(provider, "_converse_stream_async", fake_stream):
+            with patch.object(
+                provider,
+                "_converse_async",
+                new=AsyncMock(return_value=_fake_data_model_converse_response()),
+            ):
+                with pytest.warns(UserWarning, match="outputConfig"):
+                    chunks = [
+                        chunk
+                        async for chunk in await chat.stream_async(
+                            "John, age 15", data_model=Person
+                        )
+                    ]
+
+        person = Person.model_validate_json("".join(chunks))
+        assert person == Person(name="John", age=15)
+
+    @pytest.mark.asyncio
+    async def test_native_mode_streams_incrementally_async(self):
+        from unittest.mock import patch
+
+        from chatlas import Chat
+        from pydantic import BaseModel
+
+        class Person(BaseModel):
+            name: str
+            age: int
+
+        provider = self.provider()
+        chat = Chat(provider=provider)
+
+        events = self._fake_native_stream_events()
+
+        async def fake_stream(args):
+            for event in events:
+                yield event
+
+        with patch.object(provider, "_converse_stream_async", fake_stream):
+            chunks = [
+                chunk
+                async for chunk in await chat.stream_async(
+                    "John, age 15", data_model=Person
+                )
+            ]
+
+        person = Person.model_validate_json("".join(chunks))
+        assert person == Person(name="John", age=15)
 
 
 def test_blocked_network_skips_live_converse_before_credential_probe(monkeypatch):
