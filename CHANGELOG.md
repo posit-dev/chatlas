@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Bug fixes
 
+* `ChatBedrockAnthropic()` now uses native structured outputs for `data_model` on Claude 4.5 and later, as `ChatAnthropic()` does. Its Bedrock model IDs (`anthropic.claude-...`, `us.anthropic.claude-...`) weren't recognized, so it fell back to forcing a tool call, which Claude Opus 5.5 and Sonnet 5.5 reject with a 400.
 * A tool written as a generator (see "Progressive results" in the tool-calling docs) now reports each yielded value in `.chat_async()` and `.stream_async()`, as it does in `.chat()`. A synchronous generator tool used to send the generator object itself (`<generator object ...>`) as its result. An `async def` generator tool now counts as an async tool, so `.chat()` raises the usual "Cannot use async tools in a synchronous chat" error instead of sending `<async_generator object ...>` as the result.
 * MCP tools registered with a `namespace` (in `.register_mcp_tools_http_stream_async()` or `.register_mcp_tools_stdio_async()`) can be called successfully. `Tool.from_mcp()` gains a `name` argument for setting the tool's name independently of the MCP tool's name. (#458)
 * The MCP client used by `.register_mcp_tools_http_stream_async()` and `.register_mcp_tools_stdio_async()` negotiates MCP protocol revision `2026-07-28` with servers that support it. (#456)

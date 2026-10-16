@@ -106,6 +106,12 @@ def test_normalize_finish_reason_handles_none():
         ("claude-opus-5", True),
         ("claude-haiku-10", True),
         ("claude-3-5-sonnet-20240620", False),
+        # Bedrock model IDs
+        ("anthropic.claude-sonnet-4-5-20250929-v1:0", True),
+        ("us.anthropic.claude-sonnet-5-5-v1:0", True),
+        ("global.anthropic.claude-opus-5-5-v1:0", True),
+        ("us-gov.anthropic.claude-sonnet-4-5-20250929-v1:0", True),
+        ("anthropic.claude-3-5-sonnet-20240620-v1:0", False),
     ],
 )
 def test_supports_structured_outputs_for_supported_model_names(model, expected):
