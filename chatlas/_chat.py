@@ -97,6 +97,7 @@ from ._utils import (
     MISSING_TYPE,
     default_if_missing,
     html_escape,
+    run_coro_sync,
     wrap_async,
 )
 
@@ -2007,6 +2008,134 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             transport_kwargs=transport_kwargs,
             persistent=persistent,
         )
+
+    @overload
+    def register_mcp_tools(
+        self,
+        *,
+        url: str,
+        name: Optional[str] = None,
+        include_tools: Sequence[str] = (),
+        exclude_tools: Sequence[str] = (),
+        namespace: Optional[str] = None,
+        transport_kwargs: Optional[dict[str, Any]] = None,
+    ) -> None: ...
+
+    @overload
+    def register_mcp_tools(
+        self,
+        *,
+        command: str,
+        args: list[str],
+        name: Optional[str] = None,
+        include_tools: Sequence[str] = (),
+        exclude_tools: Sequence[str] = (),
+        namespace: Optional[str] = None,
+        transport_kwargs: Optional[dict[str, Any]] = None,
+    ) -> None: ...
+
+    def register_mcp_tools(
+        self,
+        *,
+        url: Optional[str] = None,
+        command: Optional[str] = None,
+        args: Optional[list[str]] = None,
+        name: Optional[str] = None,
+        include_tools: Sequence[str] = (),
+        exclude_tools: Sequence[str] = (),
+        namespace: Optional[str] = None,
+        transport_kwargs: Optional[dict[str, Any]] = None,
+    ):
+        """
+        Register tools from an MCP server (synchronous).
+
+        Accepts the same parameters as `.register_mcp_tools_async()`, minus
+        `persistent`. Every tool call is self-contained: HTTP servers use a
+        short-lived connection per call, and stdio servers spawn a fresh
+        subprocess per call. Nothing is held open, so no cleanup is required.
+
+        Raises
+        ------
+        RuntimeError
+            If called from within a running event loop (use
+            `.register_mcp_tools_async()` instead), or if the server only
+            speaks a legacy (pre-2026-07-28) MCP protocol revision, which
+            requires a persistent session (use
+            `.register_mcp_tools_async()` instead).
+        """
+        if (url is None) == (command is None):
+            raise ValueError(
+                "Exactly one of `url` or `command` (with `args`) must be provided."
+            )
+        if command is not None and args is None:
+            raise ValueError("`args` is required when `command` is provided.")
+        run_coro_sync(
+            lambda: self._register_mcp_tools_sync_impl(
+                url=url,
+                command=command,
+                args=args,
+                name=name,
+                include_tools=include_tools,
+                exclude_tools=exclude_tools,
+                namespace=namespace,
+                transport_kwargs=transport_kwargs,
+            ),
+            what="register MCP tools",
+        )
+
+    async def _register_mcp_tools_sync_impl(
+        self,
+        *,
+        url: Optional[str],
+        command: Optional[str],
+        args: Optional[list[str]],
+        name: Optional[str],
+        include_tools: Sequence[str],
+        exclude_tools: Sequence[str],
+        namespace: Optional[str],
+        transport_kwargs: Optional[dict[str, Any]],
+    ) -> None:
+        if isinstance(include_tools, str):
+            include_tools = [include_tools]
+        if isinstance(exclude_tools, str):
+            exclude_tools = [exclude_tools]
+
+        if url is not None:
+            info: SessionInfo = HTTPSessionInfo(
+                name=name or "",
+                url=url,
+                include_tools=include_tools,
+                exclude_tools=exclude_tools,
+                namespace=namespace,
+                transport_kwargs=transport_kwargs or {},
+            )
+        else:
+            assert command is not None and args is not None
+            info = STDIOSessionInfo(
+                name=name or "",
+                command=command,
+                args=args,
+                include_tools=include_tools,
+                exclude_tools=exclude_tools,
+                namespace=namespace,
+                transport_kwargs=transport_kwargs or {},
+            )
+
+        try:
+            session_info = await self._mcp_manager.register_stateless_tools(
+                info, sync=True
+            )
+        except LegacyMCPServerError as err:
+            raise LegacyMCPServerError(
+                f"{err} Use `await chat.register_mcp_tools_async()` instead, "
+                "which can hold a persistent session for legacy servers."
+            ) from err
+
+        try:
+            self._register_session_tools(session_info)
+        except ValueError:
+            await self._mcp_manager.close_sessions([session_info.name])
+            raise
 
     async def _register_mcp_tools_async_impl(
         self,

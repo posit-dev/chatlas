@@ -1,7 +1,11 @@
 import asyncio
+import contextlib
 import os
 import subprocess
 import sys
+import time
+import urllib.error
+import urllib.request
 from contextlib import asynccontextmanager
 from pathlib import Path
 
@@ -23,6 +27,38 @@ MCP_SERVER_DIR = Path(__file__).parent / "mcp_servers"
 ENV_VARS = os.environ.copy()
 ENV_VARS["MCP_PORT"] = "8081"
 SERVER_URL = f"http://localhost:{ENV_VARS['MCP_PORT']}/mcp"
+
+
+@contextlib.contextmanager
+def sync_http_mcp_server(server_file: str):
+    """Synchronous variant of http_mcp_server for testing the sync API."""
+    full_path = str(MCP_SERVER_DIR / server_file)
+    process = subprocess.Popen(
+        args=[sys.executable, full_path],
+        stdout=subprocess.DEVNULL,
+        env=ENV_VARS,
+    )
+    try:
+        start = time.time()
+        while True:
+            try:
+                urllib.request.urlopen(
+                    f"http://localhost:{ENV_VARS['MCP_PORT']}", timeout=1
+                )
+                break
+            except urllib.error.HTTPError:
+                # Any HTTP response (even 404) means the server is up
+                break
+            except urllib.error.URLError:
+                if time.time() - start > 10:
+                    process.kill()
+                    process.wait()
+                    raise TimeoutError("Failed to connect to MCP server")
+                time.sleep(0.1)
+        yield
+    finally:
+        process.kill()
+        process.wait()
 
 
 @asynccontextmanager
@@ -767,3 +803,46 @@ class TestRegisterMCPToolsAsync:
         chat = ChatOpenAI()
         with pytest.raises(ValueError, match="Exactly one"):
             await chat.register_mcp_tools_async()
+
+
+class TestRegisterMCPToolsSync:
+    def test_http_stateless(self):
+        chat = ChatOpenAI()
+        with sync_http_mcp_server("http_add.py"):
+            chat.register_mcp_tools(url=SERVER_URL)
+
+            assert not chat._mcp_manager.has_open_sessions
+            assert chat._mcp_manager.has_registrations
+
+            tool = chat._tools["add"]
+            assert not tool._is_async
+            res = tool.func(x=1, y=2)
+            assert res.value == "3"
+
+    def test_stdio_spawn_per_call(self):
+        chat = ChatOpenAI()
+        chat.register_mcp_tools(
+            command=sys.executable,
+            args=[str(MCP_SERVER_DIR / "stdio_subtract_multiply.py")],
+        )
+        assert not chat._mcp_manager.has_open_sessions
+        res = chat._tools["multiply"].func(a=2, b=3)
+        assert res.value == "6"
+
+    def test_legacy_server_errors(self):
+        chat = ChatOpenAI()
+        with sync_http_mcp_server("http_legacy_stub.py"):
+            with pytest.raises(RuntimeError, match="register_mcp_tools_async"):
+                chat.register_mcp_tools(url=SERVER_URL)
+        assert not chat._mcp_manager.has_registrations
+
+    @pytest.mark.asyncio
+    async def test_registration_in_running_loop_errors(self):
+        chat = ChatOpenAI()
+        with pytest.raises(RuntimeError, match="running event loop"):
+            chat.register_mcp_tools(url="http://localhost:1/mcp")
+
+    def test_url_and_command_mutually_exclusive(self):
+        chat = ChatOpenAI()
+        with pytest.raises(ValueError, match="Exactly one"):
+            chat.register_mcp_tools()
