@@ -437,9 +437,11 @@ class BedrockConverseProvider(
         self._max_tokens = max_tokens
         self._cache: Literal["auto", "5m", "1h", "none"] = cache
         self._structured_output_mode = structured_output_mode
-        # Models that have rejected `outputConfig` with a 400 (see
-        # `_native_retry_args`); only populated in "auto" mode.
+        # Models that have rejected `outputConfig` with a 400, and models
+        # that have accepted it (see `_native_retry_args`/`can_stream`);
+        # only populated in "auto" mode.
         self._native_unsupported_models: set[str] = set()
+        self._native_verified_models: set[str] = set()
 
         resolved_base_url = base_url or bedrock_base_url("converse", aws_region)
         # `LazyCredentials` defers the botocore credential chain to the first
@@ -534,11 +536,9 @@ class BedrockConverseProvider(
     ) -> Iterable[dict] | ConverseResponseTypeDef:
         args = self._chat_perform_args(stream, turns, tools, data_model, kwargs)
         if stream:
-            return self._converse_stream_with_retry(
-                args, stream, turns, tools, data_model, kwargs
-            )
+            return self._converse_stream(args)
         try:
-            return self._converse(args)
+            response = self._converse(args)
         except ValueError as error:
             retry = self._native_retry_args(
                 error, args, stream, turns, tools, data_model, kwargs
@@ -546,6 +546,12 @@ class BedrockConverseProvider(
             if retry is None:
                 raise
             return self._converse(retry)
+        # A successful request that carried `outputConfig` proves the model
+        # accepts it, so "auto" mode may stream natively from now on (see
+        # `can_stream`).
+        if "outputConfig" in args and self._structured_output_mode == "auto":
+            self._native_verified_models.add(self.model)
+        return response
 
     @overload
     async def chat_perform_async(
@@ -580,11 +586,9 @@ class BedrockConverseProvider(
     ) -> AsyncIterable[dict] | ConverseResponseTypeDef:
         args = self._chat_perform_args(stream, turns, tools, data_model, kwargs)
         if stream:
-            return self._converse_stream_async_with_retry(
-                args, stream, turns, tools, data_model, kwargs
-            )
+            return self._converse_stream_async(args)
         try:
-            return await self._converse_async(args)
+            response = await self._converse_async(args)
         except ValueError as error:
             retry = self._native_retry_args(
                 error, args, stream, turns, tools, data_model, kwargs
@@ -592,6 +596,9 @@ class BedrockConverseProvider(
             if retry is None:
                 raise
             return await self._converse_async(retry)
+        if "outputConfig" in args and self._structured_output_mode == "auto":
+            self._native_verified_models.add(self.model)
+        return response
 
     def _native_retry_args(
         self,
@@ -605,13 +612,17 @@ class BedrockConverseProvider(
     ) -> Optional[ConverseRequestTypeDef]:
         """Rebuild request args for tool-based extraction after a native-mode 400.
 
-        Converse's `outputConfig` support is per-model in a way that can't be
-        derived from the model ID (e.g. `claude-sonnet-5` rejects it while
-        `claude-sonnet-4-6` accepts it), so "auto" mode is optimistic: on the
-        specific rejection, remember the model as unsupported and retry with
-        the forced tool call. Returns `None` (caller re-raises) when the
-        failure wasn't a native-mode attempt -- including explicit "native"
-        mode, where the user asked for `outputConfig` and gets its error.
+        Converse's `outputConfig` support is per-model in a way that can't
+        be derived from the model ID (e.g. `claude-sonnet-5` rejects it
+        while `claude-sonnet-4-6` accepts it), so "auto" mode is optimistic:
+        on the specific rejection, remember the model as unsupported and
+        retry with the forced tool call. Returns `None` (caller re-raises)
+        when the failure wasn't a native-mode attempt -- including explicit
+        "native" mode, where the user asked for `outputConfig` and gets its
+        error. (Only called from the non-streaming paths: `can_stream()`
+        keeps unverified native attempts out of the streaming paths, so a
+        structured stream never carries `outputConfig` until the model has
+        accepted one.)
 
         Retry eligibility comes from the failed request's own `outputConfig`,
         not the unsupported-model cache: a concurrent request may have
@@ -651,143 +662,6 @@ class BedrockConverseProvider(
             and "Extra inputs are not permitted" in message
         )
 
-    def _converse_stream_with_retry(
-        self,
-        args: ConverseRequestTypeDef,
-        stream: bool,
-        turns: list[Turn],
-        tools: dict[str, Tool | ToolBuiltIn],
-        data_model: Optional[type[BaseModel]],
-        kwargs: Optional[ConverseSubmitArgs],
-    ) -> Iterator[dict]:
-        if data_model is not None and "outputConfig" not in args:
-            # A tool-based structured request can't stream (tool input
-            # arrives in its own event type, not as text), so serve it via
-            # the non-streaming endpoint. `Chat` normally downgrades these
-            # via `can_stream()`, but a concurrent request can mark the model
-            # unsupported after that check and before args were built.
-            yield from self._response_as_stream_events(self._converse(args))
-            return
-        events: Optional[Iterator[dict]] = None
-        try:
-            try:
-                # `_converse_stream` is a generator, so the request (and any
-                # error it fails with) doesn't fire until the first pull.
-                events = self._converse_stream(args)
-                first = next(events)
-            except StopIteration:
-                return
-            except ValueError as error:
-                retry = self._native_retry_args(
-                    error, args, stream, turns, tools, data_model, kwargs
-                )
-                if retry is None:
-                    raise
-                # A tool-mode stream retry would yield zero chunks (the bug
-                # #451 fixed), so retry on the non-streaming endpoint and
-                # synthesize events that surface the extracted JSON as a
-                # single text chunk.
-                yield from self._response_as_stream_events(self._converse(retry))
-                return
-            yield first
-            yield from events
-        finally:
-            # Closing this wrapper (e.g. on cancellation) must also close the
-            # inner generator, which owns the httpx streaming response.
-            close = getattr(events, "close", None)
-            if close is not None:
-                close()
-
-    async def _converse_stream_async_with_retry(
-        self,
-        args: ConverseRequestTypeDef,
-        stream: bool,
-        turns: list[Turn],
-        tools: dict[str, Tool | ToolBuiltIn],
-        data_model: Optional[type[BaseModel]],
-        kwargs: Optional[ConverseSubmitArgs],
-    ) -> AsyncIterator[dict]:
-        if data_model is not None and "outputConfig" not in args:
-            # See the sync variant: tool-based structured requests can't
-            # stream, so serve them via the non-streaming endpoint.
-            for event in self._response_as_stream_events(
-                await self._converse_async(args)
-            ):
-                yield event
-            return
-        events: Optional[AsyncIterator[dict]] = None
-        try:
-            try:
-                events = self._converse_stream_async(args)
-                first = await events.__anext__()
-            except StopAsyncIteration:
-                return
-            except ValueError as error:
-                retry = self._native_retry_args(
-                    error, args, stream, turns, tools, data_model, kwargs
-                )
-                if retry is None:
-                    raise
-                for event in self._response_as_stream_events(
-                    await self._converse_async(retry)
-                ):
-                    yield event
-                return
-            yield first
-            async for event in events:
-                yield event
-        finally:
-            # `async for` doesn't forward `aclose()`, so closing this wrapper
-            # (e.g. on cancellation) would leave the inner generator -- and
-            # its httpx streaming response -- open until GC.
-            aclose = getattr(events, "aclose", None)
-            if aclose is not None:
-                await aclose()
-
-    @staticmethod
-    def _response_as_stream_events(
-        response: ConverseResponseTypeDef,
-    ) -> Iterator[dict]:
-        """Replay a non-streaming response as a minimal Converse event stream.
-
-        Structured output is re-expressed as a text delta (rather than the
-        tool-use block it arrived as) so `stream_content()` yields the
-        extracted JSON as a single chunk and `_as_turn`'s native branch
-        records it as `ContentJson`.
-        """
-        message = response["output"].get("message")
-        yield {"messageStart": {"role": (message or {}).get("role", "assistant")}}
-        if message is not None:
-            blocks = message["content"]
-            has_structured_tool = any(
-                (cast(dict, block).get("toolUse") or {}).get("name")
-                == "_structured_tool_call"
-                for block in blocks
-            )
-            for index, block in enumerate(blocks):
-                block = cast(dict, block)
-                tool_use = block.get("toolUse") or {}
-                if tool_use.get("name") == "_structured_tool_call":
-                    text: Optional[str] = json.dumps(
-                        tool_use.get("input", {}).get("data")
-                    )
-                elif has_structured_tool:
-                    # Prose alongside the structured tool call would corrupt
-                    # the extracted-JSON stream; drop it from the events.
-                    continue
-                else:
-                    text = block.get("text")
-                if text is not None:
-                    yield {
-                        "contentBlockDelta": {
-                            "contentBlockIndex": index,
-                            "delta": {"text": text},
-                        }
-                    }
-                    yield {"contentBlockStop": {"contentBlockIndex": index}}
-        yield {"messageStop": {"stopReason": response["stopReason"]}}
-        yield {"metadata": {"usage": response["usage"]}}
-
     def can_stream(self, data_model: Optional[type[BaseModel]]) -> bool:
         # Native structured outputs (`outputConfig`) stream as ordinary text
         # deltas, so they honor the extracted-JSON contract. The tool-based
@@ -796,7 +670,15 @@ class BedrockConverseProvider(
         # to a single non-streaming request there.
         if data_model is None:
             return True
-        return self._use_native_structured_output()
+        if self._structured_output_mode == "native":
+            return True
+        if not self._use_native_structured_output():
+            return False
+        # Converse's `outputConfig` support can't be derived from the model
+        # ID, so "auto" proves it first: until a native request has
+        # succeeded, `Chat`'s non-streaming fallback doubles as the probe
+        # (and records the verdict either way).
+        return self.model in self._native_verified_models
 
     def _use_native_structured_output(self) -> bool:
         if self.model in self._native_unsupported_models:
