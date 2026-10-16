@@ -34,6 +34,7 @@ __all__ = (
 )
 
 if TYPE_CHECKING:
+    from mcp import Client as MCPClient
     from mcp import ClientSession as MCPClientSession
     from mcp import Tool as MCPTool
     from mcp.types import ContentBlock as MCPContentBlock
@@ -152,8 +153,10 @@ class Tool:
     @classmethod
     def from_mcp(
         cls: type["Tool"],
-        session: "MCPClientSession",
+        session: "MCPClient | MCPClientSession",
         mcp_tool: "MCPTool",
+        *,
+        name: Optional[str] = None,
     ) -> "Tool":
         """
         Create a Tool from an MCP tool
@@ -161,9 +164,13 @@ class Tool:
         Parameters
         ----------
         session
-            The MCP client session to use for calling the tool.
+            The MCP client (or client session) to use for calling the tool.
         mcp_tool
             The MCP tool to wrap.
+        name
+            The name of the tool as advertised to the LLM. Defaults to the MCP
+            tool's name. The MCP server is always called with the MCP tool's
+            own name, regardless of this value.
 
         Returns
         -------
@@ -218,7 +225,7 @@ class Tool:
 
         return cls(
             func=_utils.wrap_async(_call),
-            name=mcp_tool.name,
+            name=name or mcp_tool.name,
             description=mcp_tool.description or "",
             parameters=params,
             annotations=annotations,
