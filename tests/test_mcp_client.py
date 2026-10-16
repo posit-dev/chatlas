@@ -596,3 +596,66 @@ class TestMCPTransportKwargs:
                 assert len(tools) == 1
 
                 await chat.cleanup_mcp_tools()
+
+
+class TestStatelessRegistration:
+    """Manager-level tests for stateless (per-call) MCP registrations."""
+
+    @pytest.mark.asyncio
+    async def test_stateless_http_registration(self):
+        from chatlas._mcp_manager import HTTPSessionInfo, MCPSessionManager
+
+        manager = MCPSessionManager()
+        async with http_mcp_server("http_add.py"):
+            info = HTTPSessionInfo(name="", url=SERVER_URL)
+            await manager.register_stateless_tools(info)
+
+            assert info.name == "test"
+            assert info.protocol_version == "2026-07-28"
+            assert info.discover_result is not None
+            assert not manager.has_open_sessions
+            assert manager.has_registrations
+
+            res = await info.tools["add"].func(x=1, y=2)
+            assert res.value == "3"
+
+            closed = await manager.close_sessions()
+            assert [s.name for s in closed] == ["test"]
+            assert not manager.has_registrations
+
+    @pytest.mark.asyncio
+    async def test_stateless_stdio_registration_sync_tools(self):
+        from chatlas._mcp_manager import MCPSessionManager, STDIOSessionInfo
+
+        manager = MCPSessionManager()
+        info = STDIOSessionInfo(
+            name="",
+            command=sys.executable,
+            args=[str(MCP_SERVER_DIR / "stdio_subtract_multiply.py")],
+        )
+        await manager.register_stateless_tools(info, sync=True)
+
+        assert info.protocol_version == "2026-07-28"
+        tool = info.tools["multiply"]
+        assert not tool._is_async
+        await manager.close_sessions()
+
+    @pytest.mark.asyncio
+    async def test_persistent_sessions_still_work(self):
+        # Regression: the existing background-session path is untouched
+        from chatlas._mcp_manager import MCPSessionManager
+
+        manager = MCPSessionManager()
+        async with http_mcp_server("http_add.py"):
+            info = await manager.register_http_stream_tools(
+                url=SERVER_URL,
+                name=None,
+                include_tools=(),
+                exclude_tools=(),
+                namespace=None,
+                transport_kwargs={},
+            )
+            assert manager.has_open_sessions
+            res = await info.tools["add"].func(x=2, y=2)
+            assert res.value == "4"
+            await manager.close_sessions()

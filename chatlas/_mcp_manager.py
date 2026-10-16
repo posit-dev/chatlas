@@ -12,6 +12,13 @@ from ._tools import Tool, ToolBuiltIn
 if TYPE_CHECKING:
     from mcp import Client, ClientSession
 
+    from ._tools import MCPClientFactory
+
+
+class LegacyMCPServerError(RuntimeError):
+    """Raised when an MCP server only speaks a handshake-era (<=2025-11-25)
+    protocol revision, which requires a persistent session."""
+
 
 @dataclass
 class SessionInfo(ABC):
@@ -26,6 +33,10 @@ class SessionInfo(ABC):
     session: ClientSession | None = None
     tools: dict[str, Tool | ToolBuiltIn] = field(default_factory=dict)
 
+    # Stateless registration state (modern, per-request protocol revisions)
+    protocol_version: str | None = None
+    discover_result: Any | None = None
+
     # Background task management
     ready_event: asyncio.Event = field(default_factory=asyncio.Event)
     shutdown_event: asyncio.Event = field(default_factory=asyncio.Event)
@@ -34,7 +45,56 @@ class SessionInfo(ABC):
     error: asyncio.CancelledError | Exception | None = None
 
     @abstractmethod
-    async def open_session(self) -> None: ...
+    def make_transport(self) -> Any:
+        """Create a fresh (un-entered) transport for a new client connection."""
+        ...
+
+    async def open_session(self) -> None:
+        await self._connect(self.make_transport())
+
+    async def register_stateless(self, *, sync: bool = False) -> None:
+        """Negotiate era and list tools with a short-lived client.
+
+        Nothing is held open on return. Tools call the server through
+        ephemeral per-call clients. Raises `LegacyMCPServerError` if the
+        server only speaks a handshake-era protocol revision.
+        """
+        mcp = try_import_mcp()
+        async with AsyncExitStack() as stack:
+            client = await stack.enter_async_context(
+                mcp.Client(self.make_transport(), mode="auto")
+            )
+            if not self.name:
+                server_info = client.server_info
+                self.name = (server_info.name if server_info else None) or "mcp"
+            self.protocol_version = client.session.protocol_version
+            self.discover_result = client.session.discover_result
+            await self.request_tools(
+                client, client_factory=self.client_factory(), sync=sync
+            )
+        if self.discover_result is None:
+            raise LegacyMCPServerError(
+                f"MCP server '{self.name}' only speaks the legacy MCP protocol "
+                f"(revision {self.protocol_version}), which requires a "
+                "persistent session."
+            )
+
+    def client_factory(self) -> "MCPClientFactory":
+        """A factory of fresh clients pinned to the negotiated modern revision."""
+
+        def factory() -> "Client":
+            mcp = try_import_mcp()
+            if self.protocol_version is None or self.discover_result is None:
+                raise RuntimeError(
+                    "MCP server registration is incomplete; cannot create a client."
+                )
+            return mcp.Client(
+                self.make_transport(),
+                mode=self.protocol_version,
+                prior_discover=self.discover_result,
+            )
+
+        return factory
 
     async def close_session(self) -> None:
         await self.exit_stack.aclose()
@@ -53,15 +113,22 @@ class SessionInfo(ABC):
             server_info = client.server_info
             self.name = (server_info.name if server_info else None) or "mcp"
 
-    async def request_tools(self) -> None:
-        if self.client is None:
+    async def request_tools(
+        self,
+        client: "Client | None" = None,
+        *,
+        client_factory: "MCPClientFactory | None" = None,
+        sync: bool = False,
+    ) -> None:
+        client = client or self.client
+        if client is None:
             raise ValueError("Session must be opened before requesting tools.")
 
         if self.include_tools and self.exclude_tools:
             raise ValueError("Cannot specify both include_tools and exclude_tools.")
 
         # Request the MCP tools available
-        response = await self.client.list_tools()
+        response = await client.list_tools()
         tool_names = set(x.name for x in response.tools)
 
         # Warn if tools are mis-specified
@@ -97,9 +164,11 @@ class SessionInfo(ABC):
             # called with its own tool name, so don't mutate the MCP tool object
             name = f"{self.namespace}.{tool.name}" if self.namespace else tool.name
             self_tools[name] = Tool.from_mcp(
-                session=self.client,
+                session=client if client_factory is None else None,
                 mcp_tool=tool,
                 name=name,
+                client_factory=client_factory,
+                sync=sync,
             )
 
         # Store the tools
@@ -111,12 +180,11 @@ class HTTPSessionInfo(SessionInfo):
     url: str = ""
     transport_kwargs: dict[str, Any] = field(default_factory=dict)
 
-    async def open_session(self):
+    def make_transport(self):
         try_import_mcp()
         from mcp.client.streamable_http import streamable_http_client
 
-        transport = streamable_http_client(self.url, **self.transport_kwargs)
-        await self._connect(transport)
+        return streamable_http_client(self.url, **self.transport_kwargs)
 
 
 @dataclass
@@ -125,7 +193,7 @@ class STDIOSessionInfo(SessionInfo):
     args: list[str] = field(default_factory=list)
     transport_kwargs: dict[str, Any] = field(default_factory=dict)
 
-    async def open_session(self):
+    def make_transport(self):
         mcp = try_import_mcp()
         from mcp.client.stdio import stdio_client
 
@@ -134,20 +202,56 @@ class STDIOSessionInfo(SessionInfo):
             args=self.args,
             **self.transport_kwargs,
         )
-
-        await self._connect(stdio_client(server_params))
+        return stdio_client(server_params)
 
 
 class MCPSessionManager:
     """Manages MCP (Model Context Protocol) server connections and tools."""
 
     def __init__(self):
+        # Held (persistent) sessions: legacy servers and persistent stdio
         self._mcp_sessions: dict[str, SessionInfo] = {}
+        # Stateless registrations: nothing held open; tools call per-request
+        self._registrations: dict[str, SessionInfo] = {}
 
     @property
     def has_open_sessions(self) -> bool:
-        """Whether any MCP server sessions are currently registered."""
+        """Whether any MCP server sessions with held resources exist."""
         return bool(self._mcp_sessions)
+
+    @property
+    def has_registrations(self) -> bool:
+        """Whether any MCP servers (persistent or stateless) are registered."""
+        return bool(self._mcp_sessions or self._registrations)
+
+    async def register_stateless_tools(
+        self, session_info: "SessionInfo", *, sync: bool = False
+    ) -> "SessionInfo":
+        try:
+            await session_info.register_stateless(sync=sync)
+        except LegacyMCPServerError:
+            raise
+        except (asyncio.CancelledError, Exception) as err:
+            raise RuntimeError(
+                f"Failed to register tools from MCP server '{session_info.name}'"
+            ) from err
+        self.add_registration(session_info)
+        return session_info
+
+    def add_registration(self, session_info: "SessionInfo") -> None:
+        name = session_info.name
+        if name in self._mcp_sessions or name in self._registrations:
+            raise ValueError(f"Already connected to an MCP server named: '{name}'.")
+        self._registrations[name] = session_info
+
+    def remove_registration(self, name: str) -> "SessionInfo | None":
+        if name not in self._registrations:
+            warnings.warn(
+                f"Cannot remove MCP registration named '{name}' since it was not found.",
+                stacklevel=2,
+            )
+            return None
+        return self._registrations.pop(name)
 
     async def register_http_stream_tools(
         self,
@@ -257,13 +361,18 @@ class MCPSessionManager:
 
     async def close_sessions(self, names: Optional[Sequence[str]] = None):
         if names is None:
-            names = list(self._mcp_sessions.keys())
+            names = [*self._mcp_sessions.keys(), *self._registrations.keys()]
 
         if isinstance(names, str):
             names = [names]
 
         closed_sessions: list[SessionInfo] = []
         for x in names:
+            if x in self._registrations:
+                removed = self.remove_registration(x)
+                if removed is not None:
+                    closed_sessions.append(removed)
+                continue
             session = await self.close_background_session(x)
             if session is None:
                 continue
@@ -285,7 +394,7 @@ class MCPSessionManager:
 
     def add_session(self, session_info: SessionInfo) -> None:
         name = session_info.name
-        if name in self._mcp_sessions:
+        if name in self._mcp_sessions or name in self._registrations:
             raise ValueError(f"Already connected to an MCP server named: '{name}'.")
         self._mcp_sessions[name] = session_info
 
