@@ -7,6 +7,7 @@ ChatPortkey(
     api_key=None,
     virtual_key=None,
     base_url='https://api.portkey.ai/v1',
+    strict=False,
     kwargs=None,
 )
 ```
@@ -40,6 +41,7 @@ chat.chat("What is the capital of France?")
 | api_key | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\[[str](https://docs.python.org/3/builtins/stdtypes.html#str)\] | The API key to use for authentication. You generally should not supply this directly, but instead set the `PORTKEY_API_KEY` environment variable. | `None` |
 | virtual_key | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\[[str](https://docs.python.org/3/builtins/stdtypes.html#str)\] | An (optional) virtual identifier, storing the LLM provider’s API key. See [documentation](https://portkey.ai/docs/product/ai-gateway/virtual-keys). You generally should not supply this directly, but instead set the `PORTKEY_VIRTUAL_KEY` environment variable. | `None` |
 | base_url | [str](https://docs.python.org/3/builtins/stdtypes.html#str) | The base URL for the Portkey API. The default is suitable for most users. | `'https://api.portkey.ai/v1'` |
+| strict | [bool](https://docs.python.org/3/builtins/functions.html#bool) | Whether to use OpenAI’s strict mode for structured outputs (`response_format`). Only enable this if the underlying provider supports it. | `False` |
 | kwargs | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\['ChatClientArgs'\] | Additional arguments to pass to the OpenAIProvider, such as headers or other client configuration options. | `None` |
 
 ## Returns

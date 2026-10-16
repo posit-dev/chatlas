@@ -846,8 +846,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    api_key<span class="op">=</span><span class="va">None</span>,</span>
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    seed<span class="op">=</span>MISSING,</span>
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    preserve_thinking<span class="op">=</span><span class="va">False</span>,</span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    kwargs<span class="op">=</span><span class="va">None</span>,</span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    strict<span class="op">=</span><span class="va">None</span>,</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    kwargs<span class="op">=</span><span class="va">None</span>,</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Chat with an OpenAI-compatible model (via the Chat Completions API).</p>
 <p>Use this function to connect to any OpenAI-compatible backend, including third-party inference engines like vLLM, Ollama, LiteLLM, and others. The Chat Completions API (<code>/v1/chat/completions</code>) is the universally adopted standard across the open-source ecosystem.</p>
 <p>For the OpenAI-specific Responses API, use <a href="https://posit-dev.github.io/chatlas/reference/ChatOpenAI.html#chatlas.ChatOpenAI"><code>ChatOpenAI</code></a> instead.</p>
@@ -898,6 +899,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td><a href="https://docs.python.org/3/builtins/functions.html#bool">bool</a></td>
 <td>If True, reasoning content returned by the model is included when sending conversation history back to the API. If False (the default), reasoning content is still captured in the turn but dropped from subsequent requests. Set to True if your provider requires or benefits from seeing prior reasoning in multi-turn conversations.</td>
 <td><code>False</code></td>
+</tr>
+<tr class="odd">
+<td>strict</td>
+<td><a href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>[<a href="https://docs.python.org/3/builtins/functions.html#bool">bool</a>]</td>
+<td>Whether to use OpenAI’s strict mode for structured outputs (<code>response_format</code>). Strict mode guarantees the response adheres to the supplied JSON schema, but it’s an OpenAI implementation detail that many OpenAI-compatible backends don’t support. If <code>None</code> (the default), strict mode is enabled when <code>base_url</code> points at OpenAI’s API and disabled otherwise.</td>
+<td><code>None</code></td>
 </tr>
 </tbody>
 </table>

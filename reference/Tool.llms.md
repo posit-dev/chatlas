@@ -58,7 +58,7 @@ Create a Tool from a Python function
 ### from_mcp
 
 ``` python
-Tool.from_mcp(session, mcp_tool)
+Tool.from_mcp(session, mcp_tool, *, name=None)
 ```
 
 Create a Tool from an MCP tool
@@ -67,8 +67,9 @@ Create a Tool from an MCP tool
 
 | Name | Type | Description | Default |
 |----|----|----|----|
-| session | 'MCPClientSession' | The MCP client session to use for calling the tool. | *required* |
+| session | 'MCPClient \| MCPClientSession' | The MCP client (or client session) to use for calling the tool. | *required* |
 | mcp_tool | 'MCPTool' | The MCP tool to wrap. | *required* |
+| name | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\[[str](https://docs.python.org/3/builtins/stdtypes.html#str)\] | The name of the tool as advertised to the LLM. Defaults to the MCP tool’s name. The MCP server is always called with the MCP tool’s own name, regardless of this value. | `None` |
 
 #### Returns
 

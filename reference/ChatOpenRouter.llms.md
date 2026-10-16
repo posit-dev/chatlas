@@ -7,6 +7,7 @@ ChatOpenRouter(
     api_key=None,
     base_url='https://openrouter.ai/api/v1',
     seed=MISSING,
+    strict=False,
     kwargs=None,
 )
 ```
@@ -40,6 +41,7 @@ chat.chat("What is the capital of France?")
 | api_key | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\[[str](https://docs.python.org/3/builtins/stdtypes.html#str)\] | The API key to use for authentication. You generally should not supply this directly, but instead set the `OPENROUTER_API_KEY` environment variable. | `None` |
 | base_url | [str](https://docs.python.org/3/builtins/stdtypes.html#str) | The base URL to the endpoint; the default uses OpenRouter’s API. | `'https://openrouter.ai/api/v1'` |
 | seed | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\[[int](https://docs.python.org/3/builtins/functions.html#int)\] \| [MISSING_TYPE](https://posit-dev.github.io/chatlas/reference/types.MISSING_TYPE.html#chatlas.types.MISSING_TYPE) | Optional integer seed that the model uses to try and make output more reproducible. | `MISSING` |
+| strict | [bool](https://docs.python.org/3/builtins/functions.html#bool) | Whether to use OpenAI’s strict mode for structured outputs (`response_format`). Only enable this if the underlying model’s provider supports it. | `False` |
 | kwargs | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\['ChatClientArgs'\] | Additional arguments to pass to the `openai.OpenAI()` client constructor. | `None` |
 
 ## Returns

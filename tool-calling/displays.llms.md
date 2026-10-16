@@ -105,7 +105,7 @@ Screenshot of a tool result as an interactive map
 
 ### Progressive results
 
-A tool can report progress as it works by making it a generator and yielding more than once. Each yielded value is echoed, passed to [`.on_tool_result()`](../reference/Chat.llms.md#on_tool_result) callbacks, and included in `content="all"` streams as soon as it arrives, so a chatbot can show output before the tool has finished.
+A tool can report progress as it works by making it a generator and yielding more than once. Each yielded value is echoed, passed to [`.on_tool_result()`](../reference/Chat.llms.md#on_tool_result) callbacks, and included in `content="all"` streams as soon as it arrives, so a chatbot can show output before the tool has finished. This works the same in async chats: `.chat_async()` and `.stream_async()` iterate a synchronous generator one value at a time, and an `async def` generator works there as well (like any async tool, it can’t be used in a synchronous chat).
 
 ``` python
 def summarize_files(paths: list[str]):

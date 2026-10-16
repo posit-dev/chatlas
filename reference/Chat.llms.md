@@ -463,7 +463,7 @@ Get the tokens for each turn in the chat.
 
 | Name | Type | Description |
 |----|----|----|
-|  | [ValueError](https://docs.python.org/3/builtins/exceptions.html#ValueError) | If the chat’s turns (i.e., `.get_turns()`) are not in an expected format. This may happen if the chat history is manually set (i.e., `.set_turns()`). In this case, you can inspect the “raw” token values via the `.get_turns()` method (each turn has a `.tokens` attribute). |
+|  | [ValueError](https://docs.python.org/3/builtins/exceptions.html#ValueError) | If an assistant turn doesn’t contain token counts. This may happen if the chat history is manually set (i.e., `.set_turns()`). In this case, you can inspect the “raw” token values via the `.get_turns()` method (each turn has a `.tokens` attribute). |
 
 ### get_tools
 

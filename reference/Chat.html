@@ -1893,7 +1893,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tr class="odd">
 <td></td>
 <td><a href="https://docs.python.org/3/builtins/exceptions.html#ValueError">ValueError</a></td>
-<td>If the chat’s turns (i.e., <code>.get_turns()</code>) are not in an expected format. This may happen if the chat history is manually set (i.e., <code>.set_turns()</code>). In this case, you can inspect the “raw” token values via the <code>.get_turns()</code> method (each turn has a <code>.tokens</code> attribute).</td>
+<td>If an assistant turn doesn’t contain token counts. This may happen if the chat history is manually set (i.e., <code>.set_turns()</code>). In this case, you can inspect the “raw” token values via the <code>.get_turns()</code> method (each turn has a <code>.tokens</code> attribute).</td>
 </tr>
 </tbody>
 </table>

@@ -8,6 +8,7 @@ ChatOpenAICompletions(
     api_key=None,
     seed=MISSING,
     preserve_thinking=False,
+    strict=None,
     kwargs=None,
 )
 ```
@@ -28,3 +29,4 @@ For the OpenAI-specific Responses API, use [`ChatOpenAI`](https://posit-dev.gith
 | api_key | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\[[str](https://docs.python.org/3/builtins/stdtypes.html#str)\] | The API key to use for authentication. You generally should not supply this directly, but instead set the `OPENAI_API_KEY` environment variable. | `None` |
 | seed | [int](https://docs.python.org/3/builtins/functions.html#int) \| None \| [MISSING_TYPE](https://posit-dev.github.io/chatlas/reference/types.MISSING_TYPE.html#chatlas.types.MISSING_TYPE) | Optional seed for reproducible output. | `MISSING` |
 | preserve_thinking | [bool](https://docs.python.org/3/builtins/functions.html#bool) | If True, reasoning content returned by the model is included when sending conversation history back to the API. If False (the default), reasoning content is still captured in the turn but dropped from subsequent requests. Set to True if your provider requires or benefits from seeing prior reasoning in multi-turn conversations. | `False` |
+| strict | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\[[bool](https://docs.python.org/3/builtins/functions.html#bool)\] | Whether to use OpenAI’s strict mode for structured outputs (`response_format`). Strict mode guarantees the response adheres to the supplied JSON schema, but it’s an OpenAI implementation detail that many OpenAI-compatible backends don’t support. If `None` (the default), strict mode is enabled when `base_url` points at OpenAI’s API and disabled otherwise. | `None` |

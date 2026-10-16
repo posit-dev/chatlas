@@ -850,8 +850,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    api_key<span class="op">=</span><span class="va">None</span>,</span>
 <span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    base_url<span class="op">=</span><span class="st">'https://openrouter.ai/api/v1'</span>,</span>
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    seed<span class="op">=</span>MISSING,</span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    kwargs<span class="op">=</span><span class="va">None</span>,</span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    strict<span class="op">=</span><span class="va">False</span>,</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    kwargs<span class="op">=</span><span class="va">None</span>,</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Chat with one of the many models hosted on OpenRouter.</p>
 <p>OpenRouter provides access to a wide variety of language models from different providers through a unified API. Support for features depends on the underlying model that you use.</p>
 <section id="prerequisites" class="level2 doc-section doc-section-prerequisites">
@@ -921,6 +922,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td><code>MISSING</code></td>
 </tr>
 <tr class="even">
+<td>strict</td>
+<td><a href="https://docs.python.org/3/builtins/functions.html#bool">bool</a></td>
+<td>Whether to use OpenAI’s strict mode for structured outputs (<code>response_format</code>). Only enable this if the underlying model’s provider supports it.</td>
+<td><code>False</code></td>
+</tr>
+<tr class="odd">
 <td>kwargs</td>
 <td><a href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>['ChatClientArgs']</td>
 <td>Additional arguments to pass to the <code>openai.OpenAI()</code> client constructor.</td>
