@@ -413,6 +413,9 @@ class BedrockMessagesProvider(AnthropicProvider):
             #   schemas (the registered specs plus, in tool mode, the
             #   extraction tool that `tool_choice` forces), invalidating
             #   the request.
+            # - a `tool_choice`, which either forces an ordinary tool where
+            #   extraction needs JSON (native mode) or is overridden anyway
+            #   (tool mode) -- and can dangle once `tools` is dropped.
             new_kwargs = dict(kwargs)
             output_config = new_kwargs.get("output_config")
             if isinstance(output_config, dict) and "format" in output_config:
@@ -423,6 +426,7 @@ class BedrockMessagesProvider(AnthropicProvider):
                 else:
                     new_kwargs.pop("output_config")
             new_kwargs.pop("tools", None)
+            new_kwargs.pop("tool_choice", None)
             kwargs = cast("AnthropicSubmitInputArgs", new_kwargs)
         return super()._chat_perform_args(stream, turns, tools, data_model, kwargs)
 

@@ -657,6 +657,23 @@ class TestMessagesStructuredOutputMode:
         # ... and the caller's mapping is unchanged.
         assert kwargs == {"tools": []}
 
+    def test_caller_tool_choice_is_dropped_during_extraction(self):
+        # A caller `tool_choice` forcing an ordinary tool contradicts
+        # extraction (native mode needs JSON; tool mode forces its own
+        # choice) -- and once a caller `tools` list is dropped, it can
+        # dangle. It must not reach the request.
+        provider = self.provider()
+        (request,) = self._perform_with_fake_create(
+            provider,
+            self._person(),
+            kwargs={
+                "tools": [],
+                "tool_choice": {"type": "tool", "name": "get_weather"},
+            },
+        )
+        assert "tool_choice" not in request
+        assert "format" in request["output_config"]
+
     def test_effort_rejection_is_not_a_native_format_rejection(self):
         # A model rejecting `output_config.effort` says nothing about
         # `format` support: the error must propagate, unmarked, unretried.
