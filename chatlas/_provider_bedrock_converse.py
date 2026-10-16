@@ -904,11 +904,18 @@ class BedrockConverseProvider(
             self._use_native_structured_output()
         )
         data_model_tool: Optional[Tool] = None
-        tool_specs = [converse_tool_spec(tool) for tool in tools.values()]
+        if data_model is None:
+            tool_specs = [converse_tool_spec(tool) for tool in tools.values()]
+        else:
+            # Extraction is one-shot: `chat_structured()` never executes
+            # tools (and tool mode forces the structured call up front), so
+            # advertising ordinary tools can only produce an ordinary tool
+            # call where JSON was required.
+            tool_specs = []
+            if not use_native_output:
+                data_model_tool = AnthropicProvider.create_data_model_tool(data_model)
+                tool_specs.append(converse_tool_spec(data_model_tool))
         tool_config: Optional[ToolConfigurationTypeDef] = None
-        if data_model is not None and not use_native_output:
-            data_model_tool = AnthropicProvider.create_data_model_tool(data_model)
-            tool_specs.append(converse_tool_spec(data_model_tool))
 
         if tool_specs:
             tool_config = {"tools": tool_specs}
@@ -928,6 +935,14 @@ class BedrockConverseProvider(
             inference_config.update(extra_inference_config)
         args.update(extra)
 
+        if data_model is not None:
+            # chatlas owns the request shape during extraction: a
+            # caller-supplied `toolConfig` (e.g. a toolChoice forcing an
+            # ordinary tool) contradicts one-shot extraction just as much as
+            # registered tools would. (Tool mode's own forced choice is
+            # re-asserted later in this method.)
+            extra.pop("toolConfig", None)
+            args.pop("toolConfig", None)
         if data_model is not None and not use_native_output:
             # A caller-supplied raw `outputConfig` can't be honored for a
             # tool-based structured request (and would break the fallback in

@@ -1470,8 +1470,12 @@ class TestStructuredOutputAndCaching:
             if "toolSpec" in tool
         ]
 
-        assert tool_name in tool_names
-        assert weather_tool.name in tool_names
+        # The structured tool is forced, and ordinary registered tools are
+        # not advertised at all (extraction is one-shot; `chat_structured()`
+        # never executes tools).
+        assert tool_name == "_structured_tool_call"
+        assert tool_names == ["_structured_tool_call"]
+        assert weather_tool.name not in tool_names
 
     def test_data_model_tool_choice_overrides_request_tool_config(self):
         from pydantic import BaseModel
@@ -2198,6 +2202,73 @@ class TestStructuredOutputMode:
                     aws_region="us-east-1",
                     structured_output_mode="native",
                 )
+
+    def test_data_model_does_not_advertise_registered_tools(self):
+        # Extraction is one-shot (`chat_structured()` never executes tools),
+        # so an ordinary tool call where JSON was required can only fail.
+        from chatlas._tools import Tool
+        from pydantic import BaseModel
+
+        class Person(BaseModel):
+            name: str
+            age: int
+
+        def get_weather(city: str) -> str:
+            """Get the weather for a city."""
+            return city
+
+        weather_tool = Tool.from_func(get_weather)
+        tools = {weather_tool.name: weather_tool}
+        turns = [UserTurn("John, age 15")]
+
+        # Native mode: no tools advertised at all.
+        args = self.provider()._chat_perform_args(
+            stream=False, turns=turns, tools=tools, data_model=Person
+        )
+        assert "outputConfig" in args
+        assert "toolConfig" not in args
+
+        # Tool mode: only the structured tool, still forced.
+        args = self.provider(mode="tool")._chat_perform_args(
+            stream=False, turns=turns, tools=tools, data_model=Person
+        )
+        tool_names = [t["toolSpec"]["name"] for t in args["toolConfig"]["tools"]]
+        assert tool_names == ["_structured_tool_call"]
+        assert args["toolConfig"]["toolChoice"] == {
+            "tool": {"name": "_structured_tool_call"}
+        }
+
+    def test_data_model_drops_caller_supplied_tool_config(self):
+        # An explicit toolChoice for an ordinary tool would make extraction
+        # fail deterministically; chatlas owns the request shape during
+        # extraction.
+        from pydantic import BaseModel
+
+        class Person(BaseModel):
+            name: str
+            age: int
+
+        tool_config = {
+            "tools": [
+                {
+                    "toolSpec": {
+                        "name": "get_weather",
+                        "description": "Get the weather.",
+                        "inputSchema": {"json": {"type": "object"}},
+                    }
+                }
+            ],
+            "toolChoice": {"tool": {"name": "get_weather"}},
+        }
+        args = self.provider()._chat_perform_args(
+            stream=False,
+            turns=[UserTurn("John, age 15")],
+            tools={},
+            data_model=Person,
+            kwargs={"toolConfig": tool_config},  # type: ignore[typeddict-item]
+        )
+        assert "outputConfig" in args
+        assert "toolConfig" not in args
 
     def test_tool_mode_drops_user_supplied_output_config(self):
         from pydantic import BaseModel
