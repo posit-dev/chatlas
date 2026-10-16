@@ -874,6 +874,15 @@ class TestRegisterMCPToolsSync:
         with pytest.raises(ValueError, match="Exactly one"):
             chat.register_mcp_tools()
 
+    def test_sync_rejects_shared_http_client(self):
+        # A shared httpx.AsyncClient is bound to the loop that created it,
+        # but the sync API runs each call in a fresh loop
+        chat = ChatOpenAI()
+        with pytest.raises(ValueError, match="register_mcp_tools_async"):
+            chat.register_mcp_tools(
+                url=SERVER_URL, transport_kwargs={"http_client": object()}
+            )
+
 
 class TestMCPDeprecations:
     @pytest.mark.asyncio

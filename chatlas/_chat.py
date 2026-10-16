@@ -2101,6 +2101,15 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             exclude_tools = [exclude_tools]
 
         if url is not None:
+            if transport_kwargs and "http_client" in transport_kwargs:
+                raise ValueError(
+                    "`transport_kwargs['http_client']` is not supported by "
+                    "`.register_mcp_tools()`: a shared async HTTP client is "
+                    "bound to the event loop that created it, but the sync API "
+                    "runs each call in a fresh loop. Use "
+                    "`.register_mcp_tools_async()` to provide a custom HTTP "
+                    "client."
+                )
             info: SessionInfo = HTTPSessionInfo(
                 name=name or "",
                 url=url,

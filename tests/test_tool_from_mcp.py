@@ -590,3 +590,9 @@ class TestToolFromMCPClientFactory:
                 mcp_tool=self.create_mock_mcp_tool(),
                 client_factory=self.create_mock_factory()[0],
             )
+
+    def test_sync_requires_client_factory(self):
+        with pytest.raises(ValueError, match="`sync=True` requires `client_factory`"):
+            Tool.from_mcp(
+                session=AsyncMock(), mcp_tool=self.create_mock_mcp_tool(), sync=True
+            )

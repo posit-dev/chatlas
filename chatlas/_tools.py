@@ -198,6 +198,12 @@ class Tool:
             raise ValueError(
                 "Exactly one of `session` or `client_factory` must be provided."
             )
+        if sync and client_factory is None:
+            raise ValueError(
+                "`sync=True` requires `client_factory`: a `session` belongs to "
+                "the event loop that created it, but a synchronous tool runs "
+                "each call in a fresh event loop."
+            )
 
         async def _call(**args: Any) -> ContentToolResult:
             if client_factory is not None:
