@@ -520,6 +520,21 @@ class AnthropicProvider(
             return True
         return self._use_native_structured_output()
 
+    def _structured_output_model(
+        self, kwargs: Optional["SubmitInputArgs"]
+    ) -> Optional[str]:
+        """The model whose capabilities decide the structured-output strategy.
+
+        `None` (the default) keys the strategy on the provider's configured
+        model, which is also what `can_stream()` sees (request kwargs aren't
+        available to that hook), keeping the two consistent. Providers whose
+        native support is tracked per serving model (Bedrock's mantle
+        endpoint) override this to honor a per-request `model` override,
+        paired with a loud stream-time guard for the case `can_stream()`
+        can't see.
+        """
+        return None
+
     def _use_native_structured_output(self, model: Optional[str] = None) -> bool:
         # `model` is the effective request model, which request kwargs may
         # have overridden; verdicts and support checks should reflect the
@@ -540,7 +555,7 @@ class AnthropicProvider(
         tool_schemas = [self._anthropic_tool_schema(tool) for tool in tools.values()]
 
         use_native = self._use_native_structured_output(
-            cast("Optional[str]", (kwargs or {}).get("model"))
+            self._structured_output_model(kwargs)
         )
 
         if data_model is not None and use_native:

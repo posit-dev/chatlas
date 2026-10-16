@@ -470,6 +470,7 @@ class BedrockMessagesProvider(AnthropicProvider):
             # out of the streaming paths, so a structured stream only carries
             # `output_config` once the model has accepted one (or in explicit
             # "native" mode, whose errors the user asked for).
+            self._check_streamable_strategy(args, data_model)
             return self._client.messages.create(**args)  # type: ignore
         try:
             response = self._client.messages.create(**args)  # type: ignore
@@ -523,6 +524,7 @@ class BedrockMessagesProvider(AnthropicProvider):
 
         args = self._chat_perform_args(stream, turns, tools, data_model, kwargs)
         if stream:
+            self._check_streamable_strategy(args, data_model)
             return await self._async_client.messages.create(**args)  # type: ignore
         try:
             response = await self._async_client.messages.create(**args)  # type: ignore
@@ -536,6 +538,27 @@ class BedrockMessagesProvider(AnthropicProvider):
         if self._carries_native_format(args) and self._structured_output_mode == "auto":
             self._native_verified_models.add(cast(str, args.get("model")) or self.model)
         return response
+
+    def _check_streamable_strategy(
+        self,
+        args: "AnthropicSubmitInputArgs",
+        data_model: Optional[type[BaseModel]],
+    ) -> None:
+        # `Chat` consults `can_stream()` -- keyed on the configured model,
+        # since that hook can't see request kwargs -- before allowing a
+        # stream. A per-request `model` override can still select the
+        # tool-based strategy, whose streamed tool-call input would
+        # silently violate the extracted-JSON contract, so fail loudly
+        # instead of sending the request.
+        if data_model is not None and not self._carries_native_format(args):
+            raise ValueError(
+                "Can't stream structured data extraction: the request model "
+                f"'{args.get('model')}' uses tool-based extraction, which "
+                "can't stream (this stream was allowed based on the "
+                f"configured model '{self.model}'). Use a non-streaming "
+                "method (`.chat()`/`.chat_structured()`), or drop the "
+                "per-request `model` override."
+            )
 
     def _native_retry_args(
         self,
@@ -606,6 +629,16 @@ class BedrockMessagesProvider(AnthropicProvider):
         # observed live: if mantle ever phrases the top-level rejection
         # differently, that fails loudly instead of silently disabling native.
         return "output_config.format: Extra inputs are not permitted" in str(error)
+
+    def _structured_output_model(
+        self, kwargs: Optional["AnthropicSubmitInputArgs"]
+    ) -> Optional[str]:
+        # A per-request `model` override changes which model's native
+        # support verdict applies (the caches are keyed on the serving
+        # model). When this makes the strategy unstreamable while
+        # `can_stream()` allowed a stream, `chat_perform`'s stream branch
+        # raises rather than silently streaming tool-call input.
+        return cast("Optional[str]", (kwargs or {}).get("model"))
 
     def _use_native_structured_output(self, model: Optional[str] = None) -> bool:
         # The unsupported verdict is keyed on the model that actually

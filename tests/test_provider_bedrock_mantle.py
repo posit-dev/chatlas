@@ -699,6 +699,59 @@ class TestMessagesStructuredOutputMode:
         assert "format" not in later.get("output_config", {})
         assert later["tool_choice"]["name"] == "_structured_tool_call"
 
+    def test_stream_with_tool_mode_model_override_errors_loudly(self):
+        # `can_stream()` (a kwargs-less hook) allowed streaming based on the
+        # verified constructor model; a per-request override to a model whose
+        # strategy is the forced tool call can't stream. That must be a
+        # clear error, not a silently broken stream of tool-call input.
+        provider = self.provider(model="anthropic.claude-opus-5")
+        provider._native_verified_models.add(provider.model)
+        provider._native_unsupported_models.add("anthropic.claude-haiku-4-5")
+
+        with pytest.raises(ValueError, match="can't stream"):
+            provider.chat_perform(
+                stream=True,
+                turns=[],
+                tools={},
+                data_model=self._person(),
+                kwargs={"model": "anthropic.claude-haiku-4-5"},
+            )
+
+    @pytest.mark.asyncio
+    async def test_stream_with_tool_mode_model_override_errors_loudly_async(self):
+        provider = self.provider(model="anthropic.claude-opus-5")
+        provider._native_verified_models.add(provider.model)
+        provider._native_unsupported_models.add("anthropic.claude-haiku-4-5")
+
+        with pytest.raises(ValueError, match="can't stream"):
+            await provider.chat_perform_async(
+                stream=True,
+                turns=[],
+                tools={},
+                data_model=self._person(),
+                kwargs={"model": "anthropic.claude-haiku-4-5"},
+            )
+
+    def test_stream_with_native_capable_model_override_streams(self):
+        # Overrides between native-capable models still stream fine.
+        provider = self.provider(model="anthropic.claude-opus-5")
+        provider._native_verified_models.add(provider.model)
+        requests: list[dict] = []
+
+        def fake_create(**kw):
+            requests.append(kw)
+            return object()
+
+        with patch.object(provider._client.messages, "create", side_effect=fake_create):
+            provider.chat_perform(
+                stream=True,
+                turns=[],
+                tools={},
+                data_model=self._person(),
+                kwargs={"model": "anthropic.claude-sonnet-4-6"},
+            )
+        assert "format" in requests[0]["output_config"]
+
     def test_nested_format_field_rejection_is_not_a_native_rejection(self):
         # `output_config.format.schema` (or any nested field) rejected as
         # extra says the model speaks `output_config` but not this shape --

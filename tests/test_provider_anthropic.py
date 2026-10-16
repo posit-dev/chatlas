@@ -1167,6 +1167,28 @@ def test_anthropic_reasoning_effort_string():
     }
 
 
+def test_anthropic_strategy_ignores_per_request_model_override():
+    # The structured-output strategy is a property of the configured model,
+    # not a per-request `model` override: `can_stream()` (which Chat consults
+    # before allowing a stream) can't see request kwargs, so honoring an
+    # override here could silently stream tool-call input where JSON was
+    # promised. (Bedrock's mantle endpoint overrides this via
+    # `_structured_output_model`, paired with a loud stream-time guard.)
+    class Person(BaseModel):
+        name: str
+
+    provider = AnthropicProvider(model="claude-sonnet-4-6", api_key="x")
+    args = provider._chat_perform_args(
+        stream=False,
+        turns=[],
+        tools={},
+        data_model=Person,
+        kwargs={"model": "claude-sonnet-4"},
+    )
+    assert args["model"] == "claude-sonnet-4"
+    assert args["output_config"]["format"]["type"] == "json_schema"
+
+
 def test_anthropic_adaptive_effort_merges_with_structured_output():
     """When extracting data, adaptive effort merges into the native output_config."""
 
