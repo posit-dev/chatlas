@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Bug fixes
 
+* The MCP client used by `.register_mcp_tools_http_stream_async()` and `.register_mcp_tools_stdio_async()` negotiates MCP protocol revision `2026-07-28` with servers that support it. (#456)
 * `ChatCloudflare()` no longer errors when a response (or a streamed chunk of one) consists only of a number, which Cloudflare sends as a JSON number instead of a string (e.g. `"content": 2`). The content is now coerced to a string instead of breaking text display, chunk merging, and final-turn assembly.
 * Structured-output requests to most OpenAI-compatible providers no longer include OpenAI's `strict` flag, which causes some backends to reject the request. Requests to OpenAI, `ChatGroq()`, `ChatAzureOpenAICompletions()`, and `ChatPosit()` models with an `openai/` prefix are unchanged. If structured output becomes less reliable for your provider (for example, OpenAI models behind a proxy), pass the new `strict=True` argument to `ChatOpenAICompletions()`, `ChatOpenRouter()`, `ChatPortkey()`, or `ChatHuggingFace()`.
 * `Chat.get_tokens()` no longer errors when the conversation ends with a user turn that has no completed assistant response yet (e.g. after a failed request or `add_turn()`), when assistant turns don't strictly alternate with user turns, or when the history holds a single user turn (which now returns an empty list). Token accounting is now driven off complete assistant turns instead of assuming strict user/assistant alternation.

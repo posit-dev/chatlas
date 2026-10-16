@@ -123,6 +123,46 @@ async def test_register_stdio_mcp_server():
 
 
 @pytest.mark.asyncio
+async def test_mcp_negotiates_modern_protocol_http():
+    chat = ChatOpenAI()
+
+    async with http_mcp_server("http_add.py"):
+        await chat.register_mcp_tools_http_stream_async(url=SERVER_URL)
+
+        info = chat._mcp_manager._mcp_sessions["test"]
+        assert info.session is not None
+        assert info.session.protocol_version == "2026-07-28"
+
+        tool = chat._tools["add"]
+        assert isinstance(tool, Tool)
+        res = await tool.func(x=1, y=2)
+        assert res.value == "3"
+
+        await chat.cleanup_mcp_tools()
+
+
+@pytest.mark.asyncio
+async def test_mcp_negotiates_modern_protocol_stdio():
+    chat = ChatOpenAI()
+
+    await chat.register_mcp_tools_stdio_async(
+        command=sys.executable,
+        args=[str(MCP_SERVER_DIR / "stdio_subtract_multiply.py")],
+    )
+
+    info = chat._mcp_manager._mcp_sessions["test"]
+    assert info.session is not None
+    assert info.session.protocol_version == "2026-07-28"
+
+    tool = chat._tools["multiply"]
+    assert isinstance(tool, Tool)
+    res = await tool.func(a=2, b=3)
+    assert res.value == "6"
+
+    await chat.cleanup_mcp_tools()
+
+
+@pytest.mark.asyncio
 async def test_register_multiple_mcp_servers():
     chat = ChatOpenAI()
 
