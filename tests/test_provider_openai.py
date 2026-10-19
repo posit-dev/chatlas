@@ -180,6 +180,16 @@ def test_openai_document_with_data_uses_file_data():
     )
 
 
+@pytest.mark.parametrize("detail", ["low", "high", "auto"])
+def test_openai_inline_image_forwards_detail(detail):
+    c = ContentImageInline(image_content_type="image/png", data="abcd", detail=detail)
+    param = as_input_param(c, role="user")
+    part = param["content"][0]
+    assert part["type"] == "input_image"
+    assert part["image_url"] == "data:image/png;base64,abcd"
+    assert part["detail"] == detail
+
+
 def test_openai_rejects_heic_images():
     c = ContentImageInline(image_content_type="image/heic", data="abcd")
     with pytest.raises(ValueError, match="image/heic"):
