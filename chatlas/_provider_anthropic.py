@@ -411,6 +411,7 @@ class AnthropicProvider(
         # TODO: worth bringing in sync types?
         self._client = Anthropic(**sync_kwargs)  # type: ignore
         self._async_client = AsyncAnthropic(**async_kwargs)
+        self._base_url = str(self._client.base_url)
 
     def close(self) -> None:
         self._client.close()

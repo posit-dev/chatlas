@@ -278,6 +278,7 @@ class BedrockResponsesProvider(OpenAIProvider):
         )
         self._client = BedrockOpenAI(**sync_kwargs)
         self._async_client = AsyncBedrockOpenAI(**async_kwargs)
+        self._base_url = resolved_base_url
         self._models_base_url = bedrock_models_base_url(resolved_base_url)
 
     def list_models(self) -> list[ModelInfo]:
@@ -335,6 +336,7 @@ class BedrockMessagesProvider(AnthropicProvider):
             )
         )
         self._client = AnthropicBedrockMantle(**sync_kwargs)
+        self._base_url = str(self._client.base_url)
         # Signing here runs on the event loop: the mantle client's async
         # _prepare_request() calls botocore synchronously, where the openai SDK
         # offloads it to a thread. Left alone deliberately -- signing a request
