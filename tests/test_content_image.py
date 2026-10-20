@@ -19,6 +19,17 @@ def test_can_create_inline_image_from_data_url():
     assert isinstance(obj, ContentImageInline)
     assert obj.image_content_type == "image/png"
     assert obj.data == "abcd"
+    assert obj.detail == "auto"
+
+
+def test_data_url_preserves_detail():
+    obj = content_image_url("data:image/png;base64,abcd", detail="high")
+    assert isinstance(obj, ContentImageInline)
+    assert obj.detail == "high"
+
+    obj = content_image_url("data:image/png;base64,abcd", detail="low")
+    assert isinstance(obj, ContentImageInline)
+    assert obj.detail == "low"
 
 
 def test_errors_with_invalid_data_urls():
