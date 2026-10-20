@@ -38,12 +38,13 @@ def test_google_base_url():
 
 
 def test_bedrock_converse_base_url(monkeypatch: pytest.MonkeyPatch):
+    # Construction is offline-safe by design (credentials resolve lazily),
+    # but the region must be supplied explicitly in a config-less environment.
     monkeypatch.setenv("AWS_ACCESS_KEY_ID", "dummy")
     monkeypatch.setenv("AWS_SECRET_ACCESS_KEY", "dummy")
-    monkeypatch.setenv("AWS_REGION", "us-east-1")
     from chatlas import ChatBedrock
 
     assert (
-        ChatBedrock().provider.base_url
+        ChatBedrock(aws_region="us-east-1").provider.base_url
         == "https://bedrock-runtime.us-east-1.amazonaws.com"
     )
