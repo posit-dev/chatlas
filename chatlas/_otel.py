@@ -416,6 +416,9 @@ def _reasoning_level(kwargs: Optional[Mapping[str, Any]]) -> Optional[str]:
 # response id may be known), but is reported with an error status and
 # `error_type = "cancelled"` on the span and the duration metric, matching
 # the `cancelled` finish reason set on the partial turn.
+#
+# A successful request's OK status is deliberately NOT set here: it is
+# stamped later, via `record_chat_span_ok()`, once nothing more can fail.
 def record_chat_span_status(
     span: Span,
     provider: Provider[Any, Any, Any, Any],
@@ -478,11 +481,20 @@ def record_chat_span_status(
     if reasoning > 0:
         span.set_attribute("gen_ai.usage.reasoning.output_tokens", reasoning)
 
-    if error_type is None:
-        span.set_status(StatusCode.OK)
-    else:
+    if error_type is not None:
         span.set_status(StatusCode.ERROR)
         span.set_attribute("error.type", error_type)
+
+
+# Marks a successfully completed request OK. Set last -- once the whole
+# request path (turn assembly, structured-output parsing, response cleanup)
+# has finished -- because the SDK treats Ok as final: it overrides any prior
+# Error and ignores any later one (the spec's `Ok > Error > Unset` total
+# order), so stamping it earlier could mask a late failure.
+def record_chat_span_ok(span: Span) -> None:
+    if not span.is_recording():
+        return
+    span.set_status(StatusCode.OK)
 
 
 def _safe_value_tokens(

@@ -70,6 +70,7 @@ from ._otel import (
     record_chat_chunk,
     record_chat_span_error,
     record_chat_span_interrupted,
+    record_chat_span_ok,
     record_chat_span_output,
     record_chat_span_status,
     record_chat_ttft,
@@ -2979,6 +2980,9 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         # Measured from request issuance; the finally covers unwinds that no
         # handler sees (e.g. a keyboard interrupt or an abandoned stream).
         request_start: Optional[float] = time.monotonic()
+        # Set once the whole request path has completed; gates the OK stamp in
+        # the finally (stamped last since the SDK treats Ok as final).
+        succeeded = False
         try:
 
             def emit(x: str | Content):
@@ -3099,6 +3103,9 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                     acc.finalize_turn()
                     close_response(response)
 
+                if not controller.cancelled:
+                    succeeded = True
+
             else:
                 with activate_span(chat_span):
                     response = self.provider.chat_perform(
@@ -3134,6 +3141,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                 turn = finalize_assistant_turn(self.provider, turn)
                 record_chat_span_output(chat_span, turn)
                 self._turns.extend([user_turn, turn])
+                succeeded = True
         except Exception as e:
             record_chat_span_error(chat_span, self.provider, e, request_start)
             # Duration recorded (or nothing to record); the finally must not
@@ -3141,6 +3149,8 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             request_start = None
             raise
         finally:
+            if succeeded:
+                record_chat_span_ok(chat_span)
             if request_start is not None:
                 record_chat_span_interrupted(chat_span, self.provider, request_start)
             end_span(chat_span)
@@ -3199,6 +3209,9 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         # Measured from request issuance; the finally covers unwinds that no
         # handler sees (e.g. a keyboard interrupt or an abandoned stream).
         request_start: Optional[float] = time.monotonic()
+        # Set once the whole request path has completed; gates the OK stamp in
+        # the finally (stamped last since the SDK treats Ok as final).
+        succeeded = False
         try:
 
             def emit(x: str | Content):
@@ -3321,6 +3334,9 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                     acc.finalize_turn()
                     await aclose_response(response)
 
+                if not controller.cancelled:
+                    succeeded = True
+
             else:
                 with activate_span(chat_span):
                     response = await self.provider.chat_perform_async(
@@ -3356,6 +3372,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                 turn = finalize_assistant_turn(self.provider, turn)
                 record_chat_span_output(chat_span, turn)
                 self._turns.extend([user_turn, turn])
+                succeeded = True
         except Exception as e:
             record_chat_span_error(chat_span, self.provider, e, request_start)
             # Duration recorded (or nothing to record); the finally must not
@@ -3363,6 +3380,8 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             request_start = None
             raise
         finally:
+            if succeeded:
+                record_chat_span_ok(chat_span)
             if request_start is not None:
                 record_chat_span_interrupted(chat_span, self.provider, request_start)
             end_span(chat_span)

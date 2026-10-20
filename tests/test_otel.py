@@ -1277,3 +1277,53 @@ def test_content_tool_result_value_becomes_otel_part():
         {"type": "text", "content": "a"},
         {"type": "text", "content": "b"},
     ]
+
+
+def test_error_during_turn_build_not_masked_by_ok_status(
+    otel_setup: InMemorySpanExporter,
+):
+    # The request itself succeeds, but building the turn from the response
+    # fails (e.g. a truncated data_model response raising in the provider).
+    # The span must report the error, not the OK that was nearly stamped:
+    # the SDK treats Ok as final and would otherwise mask the late failure.
+    chat = ChatOpenAI(model="gpt-4o-mini")
+    _mock_completion(chat)
+
+    def bad_value_turn(completion, has_data_model, turns=()):
+        raise ValueError("response cannot be parsed")
+
+    chat.provider.value_turn = bad_value_turn  # type: ignore[method-assign]
+
+    with pytest.raises(ValueError, match="cannot be parsed"):
+        chat.chat("Say hello.", stream=False)
+
+    chat_span = _finished_span(otel_setup, "chat ")
+    assert chat_span.status.status_code.name == "ERROR"
+    attrs = chat_span.attributes or {}
+    assert attrs.get("error.type") == "ValueError"
+    assert tuple(attrs.get("gen_ai.response.finish_reasons") or ()) == ("error",)
+    # Usage from the completed request is still recorded
+    assert attrs.get("gen_ai.usage.input_tokens") == 13
+    exc_events = [e for e in chat_span.events if e.name == "exception"]
+    assert len(exc_events) == 1
+
+
+def test_error_during_stream_turn_build_not_masked_by_ok_status(
+    otel_setup: InMemorySpanExporter,
+):
+    chat = ChatOpenAI(model="gpt-4o-mini")
+    _mock_streaming_provider(chat, n_chunks=2)
+
+    def bad_stream_turn(completion, has_data_model, turns=()):
+        raise ValueError("response cannot be parsed")
+
+    chat.provider.stream_turn = bad_stream_turn  # type: ignore[method-assign]
+
+    with pytest.raises(ValueError, match="cannot be parsed"):
+        list(chat.stream("Say hello."))
+
+    chat_span = _finished_span(otel_setup, "chat ")
+    assert chat_span.status.status_code.name == "ERROR"
+    attrs = chat_span.attributes or {}
+    assert attrs.get("error.type") == "ValueError"
+    assert tuple(attrs.get("gen_ai.response.finish_reasons") or ()) == ("error",)
