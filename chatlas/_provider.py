@@ -386,6 +386,30 @@ class Provider(
         completion: ChatCompletionT,
     ) -> tuple[int, int, int] | None: ...
 
+    def value_reasoning_tokens(
+        self,
+        completion: ChatCompletionT,
+    ) -> int | None:
+        """
+        Number of reasoning tokens in the completion, or None if the provider
+        does not report them separately. Used for the
+        `gen_ai.usage.reasoning.output_tokens` span attribute and usage counter.
+        """
+        return None
+
+    def structured_output_tool(
+        self,
+        data_model: type[BaseModel],
+    ) -> "Tool | None":
+        """
+        The private tool added to the request to implement structured output,
+        if this provider implements `data_model` via tool calling. Returns
+        None for providers with native structured output support. Used to
+        record the tool definition on the OpenTelemetry chat span so the span
+        matches what the request contains.
+        """
+        return None
+
     def value_cost(
         self,
         completion: ChatCompletionT,

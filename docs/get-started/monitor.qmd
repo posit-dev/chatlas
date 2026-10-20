@@ -149,19 +149,44 @@ Some platforms also emit their own OpenTelemetry data. Posit Connect (2026.02.0+
 
 Chatlas follows the [OpenTelemetry GenAI semantic conventions](https://opentelemetry.io/docs/specs/semconv/gen-ai/), so attribute names (`gen_ai.*`) are consistent with other GenAI-instrumented libraries and are understood by OTel-aware backends out of the box. The lists below are representative rather than exhaustive — see the spec for the full set.
 
-The **agent span** (`invoke_agent`) brackets the whole chat loop and records the provider and requested model (`gen_ai.provider.name`, `gen_ai.request.model`).
+The **agent span** (`invoke_agent`) brackets the whole chat loop and records:
+
+- Provider and requested model (`gen_ai.provider.name`, `gen_ai.request.model`)
+- How the invocation went: end-to-end duration, inference call and tool call counts (`gen_ai.invoke_agent.duration`, `gen_ai.invoke_agent.inference_calls`, `gen_ai.invoke_agent.tool_calls`), and total token usage (`gen_ai.usage.input_tokens`, `gen_ai.usage.output_tokens`)
+- An error status and `error.type` if the invocation failed, was cancelled, or was interrupted
 
 Each **chat span** (one per model API call) records:
 
 - Provider and requested model (`gen_ai.provider.name`, `gen_ai.request.model`)
-- Token usage (`gen_ai.usage.input_tokens`, `gen_ai.usage.output_tokens`)
-- Response model and ID (`gen_ai.response.model`, `gen_ai.response.id`)
+- Server address and port (`server.address`, `server.port`)
+- Request parameters that were actually sent (`gen_ai.request.max_tokens`, `gen_ai.request.temperature`, `gen_ai.request.reasoning.level`, etc.), plus `gen_ai.request.stream` for streamed requests and `gen_ai.output.type` when structured output is requested
+- Token usage (`gen_ai.usage.input_tokens`, `gen_ai.usage.output_tokens`), including cache-read and reasoning tokens when the provider reports them (`gen_ai.usage.cache_read.input_tokens`, `gen_ai.usage.reasoning.output_tokens`)
+- Response model and ID (`gen_ai.response.model`, `gen_ai.response.id`), the finish reason (`gen_ai.response.finish_reasons`), and — for streamed responses — the time to first chunk (`gen_ai.response.time_to_first_chunk`)
+- Tool definitions sent with the request (`gen_ai.tool.definitions`, when content capture is enabled)
+- An `OK` status on success, or an error status and `error.type` for failed (`RuntimeError`, etc.), `cancelled`, and `interrupted` requests
 - Optionally, the message content itself (system prompt, input messages, output messages) — see [Content Capture](#content-capture) below
 
 Each **tool span** (`execute_tool`, one per tool invocation) records:
 
 - Tool name, description, and call ID (`gen_ai.tool.name`, `gen_ai.tool.description`, `gen_ai.tool.call.id`)
 - Errors, if the tool raises (`error.type`, plus the exception is recorded on the span)
+
+### Metrics
+
+Alongside spans, chatlas emits the metrics defined by the [GenAI semantic conventions](https://opentelemetry.io/docs/specs/semconv/gen-ai/gen-ai-metrics/), so latency and token-usage dashboards work out of the box. Where spans describe individual requests, metrics are aggregated by the OTel SDK and exported periodically — cheap enough for always-on monitoring and alerting. They flow through the same SDK configuration as traces, so once a backend is set up (as above) there's nothing more to do.
+
+For each model API call:
+
+- `gen_ai.client.inference.duration` (histogram) — end-to-end request duration, tagged with `error.type` for failed, `cancelled`, or `interrupted` requests
+- `gen_ai.client.inference.operation.input_tokens` / `gen_ai.client.inference.operation.output_tokens` (histograms) — token usage per call
+- `gen_ai.client.inference.usage.input_tokens` / `gen_ai.client.inference.usage.output_tokens` / `gen_ai.client.inference.usage.cache_read.input_tokens` / `gen_ai.client.inference.usage.reasoning.output_tokens` (counters) — cumulative token usage, broken down by `gen_ai.token.modality` (currently always `unknown`, since providers only report totals)
+- For streamed responses, `gen_ai.client.inference.time_to_first_chunk` and `gen_ai.client.inference.time_per_output_chunk` (histograms)
+
+For each tool invocation, `gen_ai.execute_tool.duration` (histogram), tagged with `error.type` when the tool fails or is interrupted.
+
+For each agent-loop invocation (one `chat()`/`stream()` call), `gen_ai.invoke_agent.duration`, `gen_ai.invoke_agent.inference_calls`, and `gen_ai.invoke_agent.tool_calls` (histograms).
+
+All instruments carry the provider, requested model, and server attributes (`gen_ai.provider.name`, `gen_ai.request.model`, `server.address`, `server.port`), so metrics can be broken down by model or endpoint.
 
 ### Content Capture
 
