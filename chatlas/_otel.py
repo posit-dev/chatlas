@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import inspect
 import os
 import time
 from contextlib import AbstractContextManager, nullcontext
@@ -30,46 +31,75 @@ meter = metrics.get_meter("co.posit.python-package.chatlas")
 # See: https://github.com/open-telemetry/semantic-conventions-genai/blob/main/docs/gen-ai/client-inference.md
 # See: https://opentelemetry.io/docs/specs/semconv/gen-ai/gen-ai-metrics/
 #
-# The conventions also advise explicit bucket boundaries (e.g. 0.01 to 81.92 s
-# for durations, 1 to 67,108,864 for token counts). They aren't set here, so
-# the SDK's default buckets are used; users can configure views in their SDK
-# or collector to apply the advised boundaries.
-OTEL_HISTOGRAM_SPECS: dict[str, tuple[str, str]] = {
+# The conventions advise explicit bucket boundaries for each histogram. They
+# are passed as advisory parameters when the installed opentelemetry-api
+# supports them (it is optional at runtime); otherwise the SDK's default
+# buckets are used and users can configure views to apply these boundaries.
+_DURATION_BUCKETS: list[float] = [
+    0.01, 0.02, 0.04, 0.08, 0.16, 0.32, 0.64,
+    1.28, 2.56, 5.12, 10.24, 20.48, 40.96, 81.92,
+]
+_AGENT_DURATION_BUCKETS: list[float] = [
+    0.1, 0.2, 0.4, 0.8, 1.6, 3.2, 6.4,
+    12.8, 25.6, 51.2, 102.4, 204.8, 409.6,
+]
+_TOKEN_BUCKETS: list[float] = [
+    1, 4, 16, 64, 256, 1024, 4096, 16384,
+    65536, 262144, 1048576, 4194304, 16777216, 67108864,
+]
+_COUNT_BUCKETS: list[float] = [1, 2, 4, 8, 16, 32, 64, 128]
+
+_HISTOGRAM_SUPPORTS_ADVISORY = (
+    "explicit_bucket_boundaries_advisory"
+    in inspect.signature(metrics.Meter.create_histogram).parameters
+)
+
+# name -> (description, unit, advised bucket boundaries)
+OTEL_HISTOGRAM_SPECS: dict[str, tuple[str, str, list[float]]] = {
     "gen_ai.client.inference.duration": (
         "GenAI client inference operation duration",
         "s",
+        _DURATION_BUCKETS,
     ),
     "gen_ai.client.inference.operation.input_tokens": (
         "Number of input tokens used per inference operation",
         "{token}",
+        _TOKEN_BUCKETS,
     ),
     "gen_ai.client.inference.operation.output_tokens": (
         "Number of output tokens used per inference operation",
         "{token}",
+        _TOKEN_BUCKETS,
     ),
     "gen_ai.client.inference.time_to_first_chunk": (
         "Time to receive the first chunk of a streamed response",
         "s",
+        _DURATION_BUCKETS,
     ),
     "gen_ai.client.inference.time_per_output_chunk": (
         "Time per output chunk, for each chunk after the first",
         "s",
+        _DURATION_BUCKETS,
     ),
     "gen_ai.execute_tool.duration": (
         "The duration of a single tool execution",
         "s",
+        _DURATION_BUCKETS,
     ),
     "gen_ai.invoke_agent.duration": (
         "The end-to-end duration of a single agent invocation",
         "s",
+        _AGENT_DURATION_BUCKETS,
     ),
     "gen_ai.invoke_agent.inference_calls": (
         "The number of inference calls made during an agent invocation",
         "{inference_call}",
+        _COUNT_BUCKETS,
     ),
     "gen_ai.invoke_agent.tool_calls": (
         "The number of tool calls made during an agent invocation",
         "{tool_call}",
+        _COUNT_BUCKETS,
     ),
 }
 
@@ -105,8 +135,13 @@ _counters: dict[str, metrics.Counter] = {}
 def _get_histogram(name: str) -> metrics.Histogram:
     histogram = _histograms.get(name)
     if histogram is None:
-        description, unit = OTEL_HISTOGRAM_SPECS[name]
-        histogram = meter.create_histogram(name, description=description, unit=unit)
+        description, unit, boundaries = OTEL_HISTOGRAM_SPECS[name]
+        kwargs: dict[str, Any] = {}
+        if _HISTOGRAM_SUPPORTS_ADVISORY:
+            kwargs["explicit_bucket_boundaries_advisory"] = boundaries
+        histogram = meter.create_histogram(
+            name, description=description, unit=unit, **kwargs
+        )
         _histograms[name] = histogram
     return histogram
 
@@ -159,12 +194,10 @@ def otel_server_attributes(provider: Provider[Any, Any, Any, Any]) -> dict[str, 
     """`server.address` and `server.port` from the provider's base URL.
 
     The port falls back to the scheme default since semconv requires it when
-    the address is set. Best-effort: providers that don't expose a base URL
-    (directly or via their SDK client) report nothing.
+    the address is set. Providers that can't determine their endpoint
+    (`provider.base_url is None`) report nothing.
     """
-    base_url = getattr(provider, "base_url", None)
-    if base_url is None:
-        base_url = getattr(getattr(provider, "_client", None), "base_url", None)
+    base_url = provider.base_url
     if base_url is None:
         return {}
     parsed = urlparse(str(base_url))
@@ -397,7 +430,8 @@ def _reasoning_level(kwargs: Optional[Mapping[str, Any]]) -> Optional[str]:
     # Reasoning effort isn't a standard chatlas param; each provider threads it
     # through its own kwargs shape. Best-effort across the known ones
     # (OpenAI's `reasoning={"effort": ...}`, Anthropic's
-    # `output_config={"effort": ...}`, the completions API's `reasoning_effort`).
+    # `output_config={"effort": ...}`, the completions API's `reasoning_effort`,
+    # Google's `config={"thinking_config": {"thinking_level": ...}}`).
     if not kwargs:
         return None
     for key in ("reasoning", "output_config"):
@@ -406,6 +440,16 @@ def _reasoning_level(kwargs: Optional[Mapping[str, Any]]) -> Optional[str]:
             effort = value.get("effort")
             if isinstance(effort, str):
                 return effort
+    config = kwargs.get("config")
+    if isinstance(config, Mapping):
+        thinking = config.get("thinking_config")
+        if isinstance(thinking, Mapping):
+            level = thinking.get("thinking_level")
+            if level is not None:
+                # google-genai's ThinkingLevel enum (e.g. ThinkingLevel.LOW)
+                value = getattr(level, "value", level)
+                if isinstance(value, str):
+                    return value.lower()
     effort = kwargs.get("reasoning_effort")
     return effort if isinstance(effort, str) else None
 

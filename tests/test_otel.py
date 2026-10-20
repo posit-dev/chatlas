@@ -9,7 +9,7 @@ import pytest
 
 pytest.importorskip("opentelemetry.sdk")
 
-from chatlas import ChatAnthropic, ChatOpenAI, _chat, _otel
+from chatlas import ChatAnthropic, ChatGoogle, ChatOpenAI, _chat, _otel
 from chatlas._content import (
     Content,
     ContentImageInline,
@@ -1327,3 +1327,49 @@ def test_error_during_stream_turn_build_not_masked_by_ok_status(
     attrs = chat_span.attributes or {}
     assert attrs.get("error.type") == "ValueError"
     assert tuple(attrs.get("gen_ai.response.finish_reasons") or ()) == ("error",)
+
+
+def test_server_attributes_google(otel_setup: InMemorySpanExporter):
+    chat = ChatGoogle(model="gemini-2.5-flash")
+    completion = SimpleNamespace(model="gemini-2.5-flash", id="resp_123")
+    chat.provider.chat_perform = lambda *args, **kwargs: completion  # type: ignore[method-assign]
+    chat.provider.value_turn = lambda *args, **kwargs: AssistantTurn("hi")  # type: ignore[method-assign]
+
+    chat.chat("Say hello.", stream=False)
+
+    chat_span = _finished_span(otel_setup, "chat ")
+    attrs = chat_span.attributes or {}
+    assert attrs.get("server.address") == "generativelanguage.googleapis.com"
+    assert attrs.get("server.port") == 443
+
+
+def test_reasoning_level_recorded_for_google(otel_setup: InMemorySpanExporter):
+    chat = ChatGoogle(model="gemini-3-flash", reasoning="low")
+    completion = SimpleNamespace(model="gemini-3-flash", id="resp_123")
+    chat.provider.chat_perform = lambda *args, **kwargs: completion  # type: ignore[method-assign]
+    chat.provider.value_turn = lambda *args, **kwargs: AssistantTurn("hi")  # type: ignore[method-assign]
+
+    chat.chat("Say hello.", stream=False)
+
+    chat_span = _finished_span(otel_setup, "chat ")
+    attrs = chat_span.attributes or {}
+    assert attrs.get("gen_ai.request.reasoning.level") == "low"
+
+
+def test_histogram_buckets_follow_semconv_advisory(
+    otel_metrics: InMemoryMetricReader,
+):
+    if not _otel._HISTOGRAM_SUPPORTS_ADVISORY:
+        pytest.skip("opentelemetry-api lacks explicit_bucket_boundaries_advisory")
+
+    chat = ChatOpenAI(model="gpt-4o-mini")
+    _mock_completion(chat)
+    chat.chat("Say hello.", stream=False)
+
+    points = _metric_points(otel_metrics)
+    bounds = list(points["gen_ai.client.inference.duration"][0].explicit_bounds)
+    assert bounds == _otel._DURATION_BUCKETS
+    token_bounds = list(
+        points["gen_ai.client.inference.operation.input_tokens"][0].explicit_bounds
+    )
+    assert token_bounds == _otel._TOKEN_BUCKETS

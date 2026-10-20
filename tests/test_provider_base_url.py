@@ -1,5 +1,6 @@
 """Tests for the `Provider.base_url` attribute used by telemetry."""
 
+import pytest
 from chatlas import ChatAnthropic, ChatGoogle, ChatGroq, ChatOpenAI
 from chatlas._provider import Provider
 
@@ -33,4 +34,16 @@ def test_google_base_url():
     assert (
         ChatGoogle().provider.base_url
         == "https://generativelanguage.googleapis.com/"
+    )
+
+
+def test_bedrock_converse_base_url(monkeypatch: pytest.MonkeyPatch):
+    monkeypatch.setenv("AWS_ACCESS_KEY_ID", "dummy")
+    monkeypatch.setenv("AWS_SECRET_ACCESS_KEY", "dummy")
+    monkeypatch.setenv("AWS_REGION", "us-east-1")
+    from chatlas import ChatBedrock
+
+    assert (
+        ChatBedrock().provider.base_url
+        == "https://bedrock-runtime.us-east-1.amazonaws.com"
     )
