@@ -154,6 +154,8 @@ class OllamaProvider(OpenAICompletionsProvider):
         self.base_url = base_url
 
     def list_models(self):
+        # Always set from the constructor's (required) base_url argument
+        assert self.base_url is not None
         return ollama_model_info(self.base_url)
 
     def _chat_perform_args(self, *args, **kwargs):
