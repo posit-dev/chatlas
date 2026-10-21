@@ -39,6 +39,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * `params(top_k=)` is no longer sent as `top_logprobs` for OpenAI-based providers (the two are unrelated; OpenAI has no `top_k` sampling parameter). `top_k` is now dropped with the standard unsupported-parameter warning. (#412)
 * `Chat.export()` and `interpolate_file()` now always read and write files as UTF-8. Previously they relied on the platform's default locale encoding, so on a non-UTF-8 locale `export()` could raise `UnicodeEncodeError` and `interpolate_file()` could silently return a corrupted (mojibake) prompt instead of the file's contents. (#437)
 * `ChatAnthropic()` no longer drops assistant turns that have no content; doing so could produce two consecutive user messages, violating the API's user/assistant alternation requirement. A `"[empty string]"` placeholder is sent instead, matching how empty text content is already normalized. (#416)
+* `ChatMistral()` now reports `"context_window"` as the finish reason when a response stops with Mistral's `model_length` (the request reached the model's context length), instead of passing the raw string through. As for other providers, this makes chatlas warn about the truncated response (or raise an error when a data model was requested).
 
 
 ## [0.23.0] - 2026-09-04
