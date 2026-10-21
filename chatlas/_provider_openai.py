@@ -758,7 +758,7 @@ def as_input_param(content: Content, role: Role) -> "ResponseInputItemParam":
             {
                 "type": "input_image",
                 "image_url": f"data:{content.image_content_type};base64,{content.data}",
-                "detail": "auto",
+                "detail": content.detail,
             },
             role,
         )

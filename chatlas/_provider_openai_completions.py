@@ -15,6 +15,7 @@ from openai.types.chat import (
     ChatCompletionToolMessageParam,
     ChatCompletionUserMessageParam,
 )
+from openai.types.chat.chat_completion_content_part_image_param import ImageURL
 from pydantic import BaseModel
 
 from ._chat import Chat
@@ -449,14 +450,13 @@ class OpenAICompletionsProvider(
                         check_image_content_type_supported(
                             "The Chat Completions API", x.image_content_type
                         )
-                        contents.append(
-                            {
-                                "type": "image_url",
-                                "image_url": {
-                                    "url": f"data:{x.image_content_type};base64,{x.data}"
-                                },
-                            }
+                        image_url = ImageURL(
+                            url=f"data:{x.image_content_type};base64,{x.data}"
                         )
+                        # "auto" is the API default; omit it from the request
+                        if x.detail != "auto":
+                            image_url["detail"] = x.detail
+                        contents.append({"type": "image_url", "image_url": image_url})
                     elif isinstance(x, ContentUploaded):
                         if x.provider != "openai":
                             raise ValueError(

@@ -339,6 +339,31 @@ def test_turns_as_inputs_drops_empty_content_text():
     assert result[0]["content"] == [{"type": "text", "text": "Hello"}]
 
 
+@pytest.mark.parametrize("detail", ["low", "high"])
+def test_turns_as_inputs_inline_image_includes_non_default_detail(detail):
+    provider = OpenAICompletionsProvider(model="test")
+    turn = UserTurn(
+        [ContentImageInline(image_content_type="image/png", data="abcd", detail=detail)]
+    )
+    result = provider._turns_as_inputs([turn])
+    part = result[0]["content"][0]
+    assert part == {
+        "type": "image_url",
+        "image_url": {"url": "data:image/png;base64,abcd", "detail": detail},
+    }
+
+
+def test_turns_as_inputs_inline_image_omits_default_detail():
+    provider = OpenAICompletionsProvider(model="test")
+    turn = UserTurn([ContentImageInline(image_content_type="image/png", data="abcd")])
+    result = provider._turns_as_inputs([turn])
+    part = result[0]["content"][0]
+    assert part == {
+        "type": "image_url",
+        "image_url": {"url": "data:image/png;base64,abcd"},
+    }
+
+
 def test_completions_uploaded_document_serializes():
     provider = OpenAICompletionsProvider(model="gpt-4o")
     turn = UserTurn(
