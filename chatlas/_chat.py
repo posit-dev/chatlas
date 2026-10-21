@@ -155,6 +155,28 @@ def display_text(content: "Content") -> "Optional[str]":
     return None
 
 
+class _TextSeparator:
+    """
+    Decides when to put a blank line between streamed text from different rounds.
+
+    A round that ends in tool calls is followed by another round. When both have
+    text, the text is separated by a blank line. Text only gets separated from
+    text that was already emitted, so a response never starts with a blank line.
+    """
+
+    def __init__(self) -> None:
+        self.emitted_text = False
+        self.after_tool_results = False
+
+    def needed_before(self, chunk: object) -> bool:
+        if not isinstance(chunk, str) or not chunk:
+            return False
+        needed = self.emitted_text and self.after_tool_results
+        self.emitted_text = True
+        self.after_tool_results = False
+        return needed
+
+
 class Chat(Generic[SubmitInputArgsT, CompletionT]):
     """
     A chat object that can be used to interact with a language model.
@@ -2750,6 +2772,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         agent_span = start_agent_span(self.provider, self._conversation_id)
         try:
             user_turn_result: UserTurn | None = user_turn
+            separator = _TextSeparator()
             while user_turn_result is not None:
                 for chunk in self._submit_turns(
                     user_turn_result,
@@ -2761,6 +2784,8 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                     controller=controller,
                     _otel_parent=agent_span,
                 ):
+                    if separator.needed_before(chunk):
+                        yield "\n\n"
                     yield chunk
 
                 turn = self.get_last_turn(role="assistant")
@@ -2790,6 +2815,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                             all_results.append(res)
 
                 if all_results:
+                    separator.after_tool_results = True
                     user_turn_result = UserTurn(all_results)
         except Exception as e:
             record_error(agent_span, e)
@@ -2837,6 +2863,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         agent_span = start_agent_span(self.provider, self._conversation_id)
         try:
             user_turn_result: UserTurn | None = user_turn
+            separator = _TextSeparator()
             while user_turn_result is not None:
                 turn_generator = self._submit_turns_async(
                     user_turn_result,
@@ -2850,6 +2877,8 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                 )
                 try:
                     async for chunk in turn_generator:
+                        if separator.needed_before(chunk):
+                            yield "\n\n"
                         yield chunk
                 finally:
                     await turn_generator.aclose()
@@ -2878,11 +2907,10 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                                 self._echo_content(res)
                             if content == "all":
                                 yield res
-                            else:
-                                yield "\n\n"
                             all_results.append(res)
 
                 if all_results:
+                    separator.after_tool_results = True
                     user_turn_result = UserTurn(all_results)
         except Exception as e:
             record_error(agent_span, e)
