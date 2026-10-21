@@ -78,3 +78,18 @@ def test_data_extraction():
 @pytest.mark.vcr
 def test_mistral_model_list():
     assert_list_models(ChatMistral)
+
+
+def test_mistral_seed_zero_is_sent_as_random_seed():
+    chat = ChatMistral(api_key="key", seed=0)
+    args = chat.provider._chat_perform_args(False, [], {})
+    assert "seed" not in args
+    assert args["extra_body"] == {"random_seed": 0}
+
+
+def test_mistral_seed_keeps_user_extra_body():
+    chat = ChatMistral(api_key="key", seed=7)
+    args = chat.provider._chat_perform_args(
+        False, [], {}, kwargs={"extra_body": {"safe_prompt": True}}
+    )
+    assert args["extra_body"] == {"safe_prompt": True, "random_seed": 7}

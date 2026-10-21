@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import os
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Any, Optional, cast
 
 from ._chat import Chat
 from ._logging import log_model_default
@@ -170,12 +170,16 @@ class MistralProvider(OpenAICompletionsProvider):
             del kwargs2["stream_options"]
 
         # Mistral wants random_seed, not seed
-        if seed := kwargs2.pop("seed", None):
-            if isinstance(seed, int):
-                kwargs2["extra_body"] = {"random_seed": seed}
-            elif seed is not None:
+        seed = kwargs2.pop("seed", None)
+        if seed is not None:
+            if not isinstance(seed, int):
                 raise ValueError(
                     "MistralProvider only accepts an integer seed, or None."
                 )
+            extra_body: dict[str, Any] = dict(
+                cast("dict[str, Any]", kwargs2.get("extra_body") or {})
+            )
+            extra_body["random_seed"] = seed
+            kwargs2["extra_body"] = extra_body
 
         return kwargs2
