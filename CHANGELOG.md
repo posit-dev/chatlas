@@ -24,6 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Bug fixes
 
+* Streaming from `ChatOpenAICompletions()` (and the providers built on it, such as `ChatOpenRouter()` and `ChatGroq()`) no longer drops a chunk's text when the same chunk carries an empty `reasoning` or `reasoning_content` field, as some OpenAI-compatible servers send.
 * `ChatOllama()` can now be created without a `model`, so `ChatOllama().list_models()` works. Sending a message without a model still raises an error that lists the available models. (#166)
 * `ChatGoogle()` now reports `finish_reason == "content_filter"` for Gemini's `IMAGE_SAFETY`, `IMAGE_PROHIBITED_CONTENT`, `IMAGE_RECITATION` and `LANGUAGE` finish reasons, instead of passing the raw Gemini string through, and reports `"tool_use"` (rather than `"success"`) when a turn ends with a tool request, as `ChatOpenAI()` does. (#473)
 * The error raised for a tool request with invalid JSON arguments from `ChatOpenAI()` and `ChatOpenAICompletions()` (and the providers built on them) now shows the offending arguments, instead of the literal text `{args}`.

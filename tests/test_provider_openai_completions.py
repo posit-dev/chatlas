@@ -206,6 +206,33 @@ def test_stream_content_extracts_reasoning_content():
     assert result == [ContentText(text="hello")]
 
 
+def test_stream_content_empty_reasoning_keeps_text():
+    """Some backends send `reasoning_content: ""` alongside the text of a chunk."""
+    from openai.types.chat import ChatCompletionChunk
+
+    provider = OpenAICompletionsProvider(model="test")
+
+    def chunk(**delta):
+        return ChatCompletionChunk.model_validate(
+            {
+                "id": "1",
+                "object": "chat.completion.chunk",
+                "created": 0,
+                "model": "test",
+                "choices": [{"index": 0, "delta": delta, "finish_reason": None}],
+            }
+        )
+
+    result = provider.stream_content(chunk(content="Hello", reasoning_content=""), None)
+    assert result == [ContentText(text="Hello")]
+
+    result = provider.stream_content(chunk(content="Hello", reasoning=""), None)
+    assert result == [ContentText(text="Hello")]
+
+    # A chunk with neither reasoning nor text adds nothing.
+    assert provider.stream_content(chunk(reasoning_content=""), None) == []
+
+
 def test_response_as_turn_extracts_reasoning_content():
     from unittest.mock import Mock
 
