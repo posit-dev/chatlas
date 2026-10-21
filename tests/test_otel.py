@@ -1395,9 +1395,6 @@ def test_reasoning_level_recorded_for_google(otel_setup: InMemorySpanExporter):
 def test_histogram_buckets_follow_semconv_advisory(
     otel_metrics: InMemoryMetricReader,
 ):
-    if not _otel._HISTOGRAM_SUPPORTS_ADVISORY:
-        pytest.skip("opentelemetry-api lacks explicit_bucket_boundaries_advisory")
-
     chat = ChatOpenAI(model="gpt-4o-mini")
     _mock_completion(chat)
     chat.chat("Say hello.", stream=False)

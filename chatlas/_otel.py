@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import inspect
 import os
 import time
 from contextlib import AbstractContextManager, nullcontext
@@ -31,10 +30,9 @@ meter = metrics.get_meter("co.posit.python-package.chatlas")
 # See: https://github.com/open-telemetry/semantic-conventions-genai/blob/main/docs/gen-ai/client-inference.md
 # See: https://opentelemetry.io/docs/specs/semconv/gen-ai/gen-ai-metrics/
 #
-# The conventions advise explicit bucket boundaries for each histogram. They
-# are passed as advisory parameters when the installed opentelemetry-api
-# supports them (it is optional at runtime); otherwise the SDK's default
-# buckets are used and users can configure views to apply these boundaries.
+# The conventions advise explicit bucket boundaries for each histogram; they
+# are passed as advisory parameters (the SDK, or user-configured views, may
+# still override them).
 _DURATION_BUCKETS: list[float] = [
     0.01, 0.02, 0.04, 0.08, 0.16, 0.32, 0.64,
     1.28, 2.56, 5.12, 10.24, 20.48, 40.96, 81.92,
@@ -48,11 +46,6 @@ _TOKEN_BUCKETS: list[float] = [
     65536, 262144, 1048576, 4194304, 16777216, 67108864,
 ]
 _COUNT_BUCKETS: list[float] = [1, 2, 4, 8, 16, 32, 64, 128]
-
-_HISTOGRAM_SUPPORTS_ADVISORY = (
-    "explicit_bucket_boundaries_advisory"
-    in inspect.signature(metrics.Meter.create_histogram).parameters
-)
 
 # name -> (description, unit, advised bucket boundaries)
 OTEL_HISTOGRAM_SPECS: dict[str, tuple[str, str, list[float]]] = {
@@ -136,11 +129,11 @@ def _get_histogram(name: str) -> metrics.Histogram:
     histogram = _histograms.get(name)
     if histogram is None:
         description, unit, boundaries = OTEL_HISTOGRAM_SPECS[name]
-        kwargs: dict[str, Any] = {}
-        if _HISTOGRAM_SUPPORTS_ADVISORY:
-            kwargs["explicit_bucket_boundaries_advisory"] = boundaries
         histogram = meter.create_histogram(
-            name, description=description, unit=unit, **kwargs
+            name,
+            description=description,
+            unit=unit,
+            explicit_bucket_boundaries_advisory=boundaries,
         )
         _histograms[name] = histogram
     return histogram
