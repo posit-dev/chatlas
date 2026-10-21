@@ -46,9 +46,11 @@ from chatlas._provider_anthropic import (
 from chatlas.types import (
     ContentCitation,
     ContentText,
+    ContentToolRequest,
     ContentToolRequestSearch,
     ContentToolResponseFetch,
     ContentToolResponseSearch,
+    ContentToolResult,
 )
 from pydantic import BaseModel, Field
 
@@ -586,6 +588,104 @@ def test_anthropic_web_fetch_citation_uses_pdf_url_when_present():
 
     assert citation.source is not None
     assert citation.source.url == "https://docs.example/report.pdf"
+
+
+def test_anthropic_web_fetch_citation_accounts_for_tool_result_documents():
+    provider = AnthropicProvider(
+        model="claude-sonnet-4-5", api_key="dummy", kwargs=None
+    )
+
+    request = ContentToolRequest(id="call-1", name="lookup", arguments={})
+    prior_turns = [
+        UserTurn("Compare the handbook with https://site.example"),
+        AssistantTurn([request], finish_reason="tool_use"),
+        UserTurn(
+            [
+                ContentToolResult(
+                    value=[
+                        {
+                            "type": "document",
+                            "source": {
+                                "type": "url",
+                                "url": "https://docs.example/handbook.pdf",
+                            },
+                        },
+                        # Search results are cited by `search_result_index`, so
+                        # they don't take a `document_index` slot.
+                        {
+                            "type": "search_result",
+                            "source": "https://kb.example/entry",
+                            "title": "KB entry",
+                            "content": [{"type": "text", "text": "Entry"}],
+                        },
+                        {
+                            "type": "document",
+                            "source": {
+                                "type": "text",
+                                "media_type": "text/plain",
+                                "data": "Internal notes",
+                            },
+                        },
+                    ],
+                    model_format="as_is",
+                    request=request,
+                ),
+            ]
+        ),
+    ]
+
+    completion = Message(
+        id="msg",
+        type="message",
+        role="assistant",
+        model="claude-sonnet-4-5",
+        content=[
+            web_fetch_result("https://site.example", "Site page"),
+            TextBlock(
+                type="text",
+                text="The handbook, the notes and the site disagree",
+                citations=[
+                    CitationCharLocation(
+                        type="char_location",
+                        cited_text="claim from the handbook",
+                        document_index=0,
+                        document_title=None,
+                        start_char_index=0,
+                        end_char_index=23,
+                    ),
+                    CitationCharLocation(
+                        type="char_location",
+                        cited_text="claim from the notes",
+                        document_index=1,
+                        document_title=None,
+                        start_char_index=24,
+                        end_char_index=44,
+                    ),
+                    CitationCharLocation(
+                        type="char_location",
+                        cited_text="claim from the site",
+                        document_index=2,
+                        document_title="Site page",
+                        start_char_index=45,
+                        end_char_index=64,
+                    ),
+                ],
+            ),
+        ],
+        stop_reason="end_turn",
+        stop_sequence=None,
+        usage=Usage(input_tokens=1, output_tokens=1),
+    )
+
+    turn = provider._as_turn(completion, turns=prior_turns)
+    citations = [c for c in turn.contents if isinstance(c, ContentCitation)]
+
+    assert citations[0].source is not None
+    assert citations[0].source.url == "https://docs.example/handbook.pdf"
+    # A text document has no URL to attribute.
+    assert citations[1].source is None
+    assert citations[2].source is not None
+    assert citations[2].source.url == "https://site.example"
 
 
 def web_fetch_result(url: str, title: str) -> WebFetchToolResultBlock:

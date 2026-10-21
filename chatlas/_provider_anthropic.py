@@ -1685,6 +1685,8 @@ def anthropic_document_sources(
             elif isinstance(content, ContentUploaded):
                 if not content.mime_type.startswith("image/"):
                     sources.append(None)
+            elif isinstance(content, ContentToolResult):
+                sources.extend(anthropic_tool_result_document_sources(content))
 
     for block in contents:
         if block.type != "web_fetch_tool_result":
@@ -1693,6 +1695,31 @@ def anthropic_document_sources(
         if isinstance(result, WebFetchBlock):
             sources.append(WebSource(url=result.url))
 
+    return sources
+
+
+def anthropic_tool_result_document_sources(
+    content: ContentToolResult,
+) -> list[Optional[WebSource]]:
+    """Document slots taken by raw `document` blocks in a tool result.
+
+    A tool can return Anthropic blocks as-is (`model_format="as_is"`), and
+    any `document` block among them is sent inside the `tool_result` and
+    counts toward `document_index`. (`search_result` blocks have their own
+    `search_result_index`, so they don't take a slot.)
+    """
+    value = content.get_model_value()
+    if not isinstance(value, list):
+        return []
+    sources: list[Optional[WebSource]] = []
+    for block in value:
+        if not isinstance(block, dict) or block.get("type") != "document":
+            continue
+        source = block.get("source")
+        url = None
+        if isinstance(source, dict) and source.get("type") == "url":
+            url = source.get("url")
+        sources.append(WebSource(url=url) if url else None)
     return sources
 
 
