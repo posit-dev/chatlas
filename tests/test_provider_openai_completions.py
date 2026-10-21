@@ -55,6 +55,79 @@ def test_normalize_finish_reason_handles_none():
     assert completions_normalize_finish_reason(None) is None
 
 
+def _refusal_completion():
+    return ChatCompletion.model_validate(
+        {
+            "id": "chatcmpl-1",
+            "object": "chat.completion",
+            "created": 0,
+            "model": "test-model",
+            "choices": [
+                {
+                    "index": 0,
+                    "finish_reason": "stop",
+                    "message": {
+                        "role": "assistant",
+                        "content": None,
+                        "refusal": "I'm sorry, I can't help with that.",
+                    },
+                }
+            ],
+        }
+    )
+
+
+def test_refusal_is_kept_as_text_and_reported_as_content_filter():
+    turn = OpenAICompletionsProvider._response_as_turn(
+        _refusal_completion(), has_data_model=False
+    )
+    assert turn.text == "I'm sorry, I can't help with that."
+    assert turn.finish_reason == "content_filter"
+
+
+def test_refusal_with_a_data_model_reports_the_content_filter():
+    with pytest.raises(Exception, match="content moderation"):
+        OpenAICompletionsProvider._response_as_turn(
+            _refusal_completion(), has_data_model=True
+        )
+
+
+def test_streamed_refusal_is_yielded_and_ends_the_turn():
+    from openai.types.chat import ChatCompletionChunk
+
+    def chunk(delta, finish_reason=None):
+        return ChatCompletionChunk.model_validate(
+            {
+                "id": "chatcmpl-1",
+                "object": "chat.completion.chunk",
+                "created": 0,
+                "model": "test-model",
+                "choices": [
+                    {"index": 0, "delta": delta, "finish_reason": finish_reason}
+                ],
+            }
+        )
+
+    provider = OpenAICompletionsProvider(model="test-model", api_key="test-key")
+    chunks = [
+        chunk({"role": "assistant", "content": None}),
+        chunk({"refusal": "I'm sorry, "}),
+        chunk({"refusal": "I can't help with that."}),
+        chunk({}, finish_reason="stop"),
+    ]
+
+    completion = None
+    streamed = []
+    for c in chunks:
+        completion = provider.stream_merge_chunks(completion, c)
+        streamed += [x.text for x in provider.stream_content(c, completion)]
+    turn = provider.stream_turn(completion, has_data_model=False)
+
+    assert "".join(streamed) == "I'm sorry, I can't help with that."
+    assert turn.text == "I'm sorry, I can't help with that."
+    assert turn.finish_reason == "content_filter"
+
+
 @pytest.mark.vcr
 def test_openai_simple_request():
     chat = ChatOpenAICompletions(
