@@ -710,7 +710,15 @@ class BedrockConverseProvider(
         self,
         completion: ConverseResponseTypeDef,
     ) -> tuple[int, int, int] | None:
-        return converse_tokens(completion["usage"])
+        # Cache writes are billed above the regular input rate on Anthropic
+        # models (125% for 5m, 200% for 1h) and at it elsewhere, so fold them
+        # into the input count the same way the Anthropic provider does.
+        model_id = CROSS_REGION_PREFIX.sub("", self.model)
+        if not model_id.startswith("anthropic."):
+            cache_write_mult = 1.0
+        else:
+            cache_write_mult = 2.0 if self._cache == "1h" else 1.25
+        return converse_tokens(completion["usage"], cache_write_mult)
 
     def token_count(
         self,
@@ -988,9 +996,12 @@ def converse_stop_reason(reason: str) -> str:
     return CONVERSE_FINISH_REASONS.get(reason, reason)
 
 
-def converse_tokens(usage: TokenUsageTypeDef) -> tuple[int, int, int]:
+def converse_tokens(
+    usage: TokenUsageTypeDef, cache_write_mult: float = 1.0
+) -> tuple[int, int, int]:
+    cache_write = usage.get("cacheWriteInputTokens", 0)
     return (
-        usage["inputTokens"],
+        usage["inputTokens"] + int(cache_write * cache_write_mult),
         usage["outputTokens"],
         usage.get("cacheReadInputTokens", 0),
     )
