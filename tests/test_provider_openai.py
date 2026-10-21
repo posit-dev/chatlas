@@ -703,7 +703,9 @@ def test_openai_value_tokens_bills_cache_writes_above_the_input_rate():
     # 1000 ordinary. Writes cost 125% of the input rate.
     completion = _usage_completion()
     completion.usage.input_tokens_details = _Details(
-        cached_tokens=4000, cache_write_tokens=7000
+        cached_tokens=4000,
+        cache_write_tokens=7000,
+        cache_write_tokens_details=_Details(ttl_30m_tokens=7000, ttl_12h_tokens=0),
     )
 
     assert provider.value_tokens(completion) == (
@@ -739,5 +741,12 @@ def test_openai_value_tokens_without_cache_writes_is_unchanged():
 
     completion.usage.input_tokens_details = _Details(
         cached_tokens=4000, cache_write_tokens=0
+    )
+    assert provider.value_tokens(completion) == (8000, 100, 4000)
+
+    # Writes reported without the per-lifetime breakdown are not billed above the
+    # input rate (models before GPT-5.6), so no premium is added.
+    completion.usage.input_tokens_details = _Details(
+        cached_tokens=4000, cache_write_tokens=7000
     )
     assert provider.value_tokens(completion) == (8000, 100, 4000)
