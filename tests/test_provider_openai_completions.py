@@ -12,6 +12,7 @@ from chatlas._content import (
     ContentThinking,
     ContentThinkingDelta,
     ContentToolRequest,
+    ContentToolResult,
     ContentUploaded,
 )
 from chatlas._provider_openai_completions import OpenAICompletionsProvider
@@ -564,3 +565,23 @@ def test_azure_completions_opts_into_strict():
         api_version="2024-10-21",
     )
     assert provider._strict is True
+
+
+def test_tool_results_come_before_the_user_text_of_the_same_turn():
+    provider = OpenAICompletionsProvider(api_key="key", model="m")
+    request = ContentToolRequest(id="call_1", name="get_date", arguments={})
+    turns = [
+        UserTurn("What year is it?"),
+        AssistantTurn([request]),
+        UserTurn(
+            [
+                ContentToolResult(value="2001", request=request),
+                ContentText(text="try again"),
+            ]
+        ),
+    ]
+
+    inputs = provider._turns_as_inputs(turns)
+
+    assert [x["role"] for x in inputs] == ["user", "assistant", "tool", "user"]
+    assert inputs[2]["tool_call_id"] == "call_1"
