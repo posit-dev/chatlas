@@ -653,3 +653,25 @@ def test_chat_posit_set_model_within_family_does_not_close_provider():
     chat.model = "claude-opus-4-1"
 
     assert not chat.provider._client.is_closed()
+
+
+def test_posit_openai_provider_strict_keys_off_openai_prefix():
+    # Only OpenAI's own models behind the gateway can be counted on to
+    # enforce strict mode for structured outputs (ellmer#1135)
+    openai_provider = PositOpenAIProvider(
+        base_url="https://gateway.posit.ai",
+        model="openai/gpt-5",
+        credentials=lambda: "test-token",
+    )
+    assert openai_provider._strict is True
+
+    other_provider = PositOpenAIProvider(
+        base_url="https://gateway.posit.ai",
+        model="qwen3-8b",
+        credentials=lambda: "test-token",
+    )
+    assert other_provider._strict is False
+
+    # Switching models within the OpenAI family keeps the flag in sync
+    assert openai_provider.set_model("qwen3-8b")._strict is False
+    assert other_provider.set_model("openai/gpt-5")._strict is True

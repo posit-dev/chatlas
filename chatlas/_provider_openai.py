@@ -581,8 +581,17 @@ class OpenAIProvider(
                     x
                 ):
                     continue
-                res.append(as_input_param(x, turn.role))
+                res.append(self._as_input_param(x, turn.role))
         return res
+
+    @staticmethod
+    def _as_input_param(content: Content, role: Role) -> "ResponseInputItemParam":
+        """Serialize one piece of turn content.
+
+        A thin hook around `as_input_param()` so subclasses (e.g. Bedrock)
+        can adjust content per item instead of overriding `_turns_as_inputs`.
+        """
+        return as_input_param(content, role)
 
     def translate_model_params(self, params: StandardModelParams) -> "SubmitInputArgs":
         res: "SubmitInputArgs" = {}
@@ -600,16 +609,12 @@ class OpenAIProvider(
             # determine whether to include `message.output_text.logprobs`
             res["log_probs"] = params["log_probs"]  # type: ignore
 
-        if "top_k" in params:
-            res["top_logprobs"] = params["top_k"]
-
         return res
 
     def supported_model_params(self) -> set[StandardModelParamNames]:
         return {
             "temperature",
             "top_p",
-            "top_k",
             "max_tokens",
             "log_probs",
         }
@@ -753,7 +758,7 @@ def as_input_param(content: Content, role: Role) -> "ResponseInputItemParam":
             {
                 "type": "input_image",
                 "image_url": f"data:{content.image_content_type};base64,{content.data}",
-                "detail": "auto",
+                "detail": content.detail,
             },
             role,
         )
@@ -801,7 +806,11 @@ def as_input_param(content: Content, role: Role) -> "ResponseInputItemParam":
 
 
 def as_message(x: "ResponseInputContentParam", role: Role) -> "EasyInputMessageParam":
-    return {"role": role, "content": [x]}
+    # `type` is optional in the published schema and OpenAI infers it, but
+    # some OpenAI-compatible servers (e.g. llama.cpp) only infer it for
+    # system/developer/user items and reject assistant items without it.
+    # Setting it explicitly is a no-op against OpenAI itself.
+    return {"type": "message", "role": role, "content": [x]}
 
 
 def as_input_file_param(

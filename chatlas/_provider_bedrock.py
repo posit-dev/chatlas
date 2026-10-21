@@ -9,6 +9,7 @@ from typing import TYPE_CHECKING, Any, Literal, Optional, cast
 import httpx
 
 from ._chat import Chat
+from ._content_file import materialize_url_content
 from ._logging import log_model_default
 from ._provider import ModelInfo, no_file_management
 from ._provider_anthropic import AnthropicProvider
@@ -20,13 +21,17 @@ if TYPE_CHECKING:
     from botocore.credentials import Credentials
     from botocore.session import Session
 
+    from ._content import Content
+    from ._provider_anthropic import ContentBlockParam
+    from ._provider_openai import ResponseInputItemParam
+    from ._turn import Role
     from .types.anthropic import ChatClientArgs as AnthropicClientArgs
     from .types.bedrock import ChatClientArgs as ConverseClientArgs
     from .types.openai import ChatClientArgs as OpenAIClientArgs
 
 BedrockAPI = Literal["converse", "messages", "responses"]
 
-DEFAULT_MODEL = "us.anthropic.claude-sonnet-4-6"
+DEFAULT_MODEL = "us.anthropic.claude-sonnet-5"
 
 MANTLE_HOST = "https://bedrock-mantle.{region}.api.aws"
 
@@ -98,7 +103,7 @@ def ChatBedrock(
         A system prompt to set the behavior of the assistant.
     model
         The model to use for the chat. Defaults to
-        `"us.anthropic.claude-sonnet-4-6"`.
+        `"us.anthropic.claude-sonnet-5"`.
     api
         Which Bedrock API to use. The default, `None`, picks the API from
         `model`.
@@ -109,7 +114,8 @@ def ChatBedrock(
     base_url
         Override the endpoint URL. The default is the standard endpoint for
         the selected `api` and your region, honoring the official AWS SDKs'
-        endpoint override environment variables:
+        endpoint override environment variables (a service-specific variable
+        outranks the generic `AWS_ENDPOINT_URL`):
         `AWS_ENDPOINT_URL_BEDROCK_RUNTIME` for `"converse"`, and
         `AWS_ENDPOINT_URL_BEDROCK_MANTLE` for `"messages"` and `"responses"`
         (which append their API-specific path to the override). For the
@@ -183,7 +189,7 @@ def ChatBedrock(
             )
         return Chat(
             provider=BedrockResponsesProvider(
-                model=model,
+                model=bedrock_strip_region_prefix(model),
                 aws_profile=aws_profile,
                 aws_region=region,
                 base_url=base_url,
@@ -215,7 +221,7 @@ def ChatBedrock(
 
     return Chat(
         provider=BedrockMessagesProvider(
-            model=model,
+            model=bedrock_strip_region_prefix(model),
             aws_profile=aws_profile,
             aws_region=region,
             base_url=base_url,
@@ -277,6 +283,11 @@ class BedrockResponsesProvider(OpenAIProvider):
     def list_models(self) -> list[ModelInfo]:
         models_client = self._client.with_options(base_url=self._models_base_url)
         return openai_models_to_info(models_client.models.list(), self.name)
+
+    @staticmethod
+    def _as_input_param(content: "Content", role: "Role") -> "ResponseInputItemParam":
+        content = materialize_url_content(content)
+        return OpenAIProvider._as_input_param(content, role)
 
 
 @no_file_management
@@ -346,6 +357,10 @@ class BedrockMessagesProvider(AnthropicProvider):
 
     def list_models(self) -> list[ModelInfo]:
         return openai_models_to_info(self._models_client.models.list(), self.name)
+
+    @staticmethod
+    def _as_content_block(content: "Content") -> "ContentBlockParam":
+        return AnthropicProvider._as_content_block(materialize_url_content(content))
 
 
 def bedrock_client_kwargs(
@@ -457,6 +472,19 @@ def bedrock_api_for_model(model: Optional[str]) -> BedrockAPI:
     return MODEL_APIS.get(CROSS_REGION_PREFIX.sub("", model), "converse")
 
 
+def bedrock_strip_region_prefix(model: str) -> str:
+    """
+    Strip a cross-region inference prefix (e.g. `"us."`) from `model`.
+
+    Converse needs the prefix on the model id it's sent, since that's how it
+    picks the inference profile. Mantle's Anthropic and OpenAI-compatible
+    endpoints have no such concept and 404 if the prefix is included, so it
+    must be stripped from the model id used in requests to `"messages"` and
+    `"responses"`.
+    """
+    return CROSS_REGION_PREFIX.sub("", model)
+
+
 def aws_endpoint_url(var: str, default: str) -> str:
     """An AWS service endpoint override env var, or `default` when unset."""
     url = os.environ.get(var, "")
@@ -464,17 +492,23 @@ def aws_endpoint_url(var: str, default: str) -> str:
 
 
 def bedrock_base_url(api: BedrockAPI, region: str) -> str:
-    # Match the official AWS SDKs, which read service-specific endpoint
-    # overrides: AWS_ENDPOINT_URL_BEDROCK_RUNTIME for the runtime (converse)
-    # service and AWS_ENDPOINT_URL_BEDROCK_MANTLE for mantle.
+    # Match the official AWS SDKs' endpoint resolution precedence: the
+    # service-specific override (AWS_ENDPOINT_URL_BEDROCK_RUNTIME for the
+    # runtime (converse) service, AWS_ENDPOINT_URL_BEDROCK_MANTLE for mantle)
+    # outranks the generic AWS_ENDPOINT_URL, which outranks the regional
+    # endpoint computed from `region`.
     if api == "converse":
         return aws_endpoint_url(
             "AWS_ENDPOINT_URL_BEDROCK_RUNTIME",
-            f"https://bedrock-runtime.{region}.amazonaws.com",
+            aws_endpoint_url(
+                "AWS_ENDPOINT_URL",
+                f"https://bedrock-runtime.{region}.amazonaws.com",
+            ),
         )
 
     host = aws_endpoint_url(
-        "AWS_ENDPOINT_URL_BEDROCK_MANTLE", MANTLE_HOST.format(region=region)
+        "AWS_ENDPOINT_URL_BEDROCK_MANTLE",
+        aws_endpoint_url("AWS_ENDPOINT_URL", MANTLE_HOST.format(region=region)),
     )
     if api == "messages":
         # The Anthropic SDK appends "/v1/messages" itself, so the "/v1" is

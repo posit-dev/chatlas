@@ -180,6 +180,16 @@ def test_openai_document_with_data_uses_file_data():
     )
 
 
+@pytest.mark.parametrize("detail", ["low", "high", "auto"])
+def test_openai_inline_image_forwards_detail(detail):
+    c = ContentImageInline(image_content_type="image/png", data="abcd", detail=detail)
+    param = as_input_param(c, role="user")
+    part = param["content"][0]
+    assert part["type"] == "input_image"
+    assert part["image_url"] == "data:image/png;base64,abcd"
+    assert part["detail"] == detail
+
+
 def test_openai_rejects_heic_images():
     c = ContentImageInline(image_content_type="image/heic", data="abcd")
     with pytest.raises(ValueError, match="image/heic"):
@@ -190,6 +200,30 @@ def test_openai_rejects_heif_images():
     c = ContentImageInline(image_content_type="image/heif", data="abcd")
     with pytest.raises(ValueError, match="image/heif"):
         as_input_param(c, role="user")
+
+
+def test_all_message_input_items_carry_type_message():
+    # `type` is optional in the Responses schema and OpenAI infers it, but
+    # some OpenAI-compatible servers (e.g. llama.cpp) only infer it for
+    # system/developer/user items and reject assistant items without it,
+    # which is terminal for any multi-turn conversation. Setting it
+    # explicitly is a no-op against OpenAI (ellmer#1153).
+    chat = ChatOpenAI()
+    turns = [
+        UserTurn(
+            [
+                ContentText(text="hi"),
+                ContentPDF(filename="a.pdf", url="https://example.com/a.pdf"),
+            ]
+        ),
+        AssistantTurn("hello"),
+        UserTurn("again"),
+    ]
+    inputs = chat.provider._turns_as_inputs(turns)
+
+    messages = [item for item in inputs if item.get("role") is not None]
+    assert len(messages) == 4
+    assert all(item["type"] == "message" for item in messages)
 
 
 def test_replayed_assistant_messages_carry_no_id():

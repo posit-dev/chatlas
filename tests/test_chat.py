@@ -161,6 +161,39 @@ def test_basic_export(snapshot):
             assert snapshot == f.read()
 
 
+def test_export_writes_utf8(monkeypatch):
+    # `Chat.export()` must write the transcript as UTF-8 regardless of the
+    # platform's default locale encoding, otherwise non-ASCII turn content
+    # raises UnicodeEncodeError instead of exporting successfully.
+    text = "Wie heißt die Hauptstadt? 中文测试 café"
+    chat = ChatOpenAI(
+        system_prompt="You're a helpful assistant that returns very minimal output",
+    )
+    chat.set_turns(
+        [
+            UserTurn(text),
+            AssistantTurn(text, tokens=(15, 5, 0)),
+        ]
+    )
+
+    real_open = open
+
+    def open_using_locale_default(file, mode="r", *args, encoding=None, **kwargs):
+        # Simulate a non-UTF-8 preferred locale encoding by falling back to
+        # latin-1 whenever the caller doesn't pass an explicit encoding.
+        if "b" not in mode and encoding is None:
+            encoding = "latin-1"
+        return real_open(file, mode, *args, encoding=encoding, **kwargs)
+
+    monkeypatch.setattr("chatlas._chat.open", open_using_locale_default, raising=False)
+
+    with tempfile.TemporaryDirectory() as tmpdir:
+        tmpfile = tmpdir + "/chat.md"
+        chat.export(tmpfile)
+        with open(tmpfile, "r", encoding="utf-8") as f:
+            assert text in f.read()
+
+
 @pytest.mark.vcr
 def test_chat_structured():
     chat = ChatOpenAI(model="gpt-5.4")

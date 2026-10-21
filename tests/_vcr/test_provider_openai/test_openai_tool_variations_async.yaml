@@ -1,12 +1,13 @@
 interactions:
 - request:
-    body: '{"include": ["reasoning.encrypted_content"], "input": [{"role": "system",
-      "content": [{"type": "input_text", "text": "Be very terse, not even punctuation."}]},
-      {"role": "user", "content": [{"type": "input_text", "text": "What''s the current
-      date in YYYY-MM-DD format?"}]}], "model": "gpt-5.4", "store": false, "stream":
-      true, "tools": [{"type": "function", "name": "get_current_date", "description":
-      "Gets the current date", "parameters": {"properties": {}, "type": "object",
-      "additionalProperties": false, "required": []}, "strict": true}]}'
+    body: '{"include": ["reasoning.encrypted_content"], "input": [{"type": "message",
+      "role": "system", "content": [{"type": "input_text", "text": "Be very terse,
+      not even punctuation."}]}, {"type": "message", "role": "user", "content": [{"type":
+      "input_text", "text": "What''s the current date in YYYY-MM-DD format?"}]}],
+      "model": "gpt-5.4", "store": false, "stream": true, "tools": [{"type": "function",
+      "name": "get_current_date", "description": "Gets the current date", "parameters":
+      {"properties": {}, "type": "object", "additionalProperties": false, "required":
+      []}, "strict": true}]}'
     headers:
       Accept:
       - application/json
@@ -108,10 +109,11 @@ interactions:
       code: 200
       message: OK
 - request:
-    body: '{"include": ["reasoning.encrypted_content"], "input": [{"role": "system",
-      "content": [{"type": "input_text", "text": "Be very terse, not even punctuation."}]},
-      {"role": "user", "content": [{"type": "input_text", "text": "What''s the current
-      date in YYYY-MM-DD format?"}]}, {"type": "function_call", "call_id": "fc_08c22fe6489c25d80169fb7c5189d4819c8efae513674c2b21",
+    body: '{"include": ["reasoning.encrypted_content"], "input": [{"type": "message",
+      "role": "system", "content": [{"type": "input_text", "text": "Be very terse,
+      not even punctuation."}]}, {"type": "message", "role": "user", "content": [{"type":
+      "input_text", "text": "What''s the current date in YYYY-MM-DD format?"}]}, {"type":
+      "function_call", "call_id": "fc_08c22fe6489c25d80169fb7c5189d4819c8efae513674c2b21",
       "name": "get_current_date", "arguments": "{}"}, {"type": "function_call_output",
       "call_id": "fc_08c22fe6489c25d80169fb7c5189d4819c8efae513674c2b21", "output":
       "2024-01-01"}], "model": "gpt-5.4", "store": false, "stream": true, "tools":
@@ -256,13 +258,14 @@ interactions:
       code: 200
       message: OK
 - request:
-    body: '{"include": ["reasoning.encrypted_content"], "input": [{"role": "system",
-      "content": [{"type": "input_text", "text": "Be very terse, not even punctuation."}]},
-      {"role": "user", "content": [{"type": "input_text", "text": "What''s the current
-      date in YYYY-MM-DD format?"}]}], "model": "gpt-5.4", "store": false, "stream":
-      true, "tools": [{"type": "function", "name": "get_current_date2", "description":
-      "Gets the current date", "parameters": {"properties": {}, "type": "object",
-      "additionalProperties": false, "required": []}, "strict": true}]}'
+    body: '{"include": ["reasoning.encrypted_content"], "input": [{"type": "message",
+      "role": "system", "content": [{"type": "input_text", "text": "Be very terse,
+      not even punctuation."}]}, {"type": "message", "role": "user", "content": [{"type":
+      "input_text", "text": "What''s the current date in YYYY-MM-DD format?"}]}],
+      "model": "gpt-5.4", "store": false, "stream": true, "tools": [{"type": "function",
+      "name": "get_current_date2", "description": "Gets the current date", "parameters":
+      {"properties": {}, "type": "object", "additionalProperties": false, "required":
+      []}, "strict": true}]}'
     headers:
       Accept:
       - application/json
@@ -364,10 +367,11 @@ interactions:
       code: 200
       message: OK
 - request:
-    body: '{"include": ["reasoning.encrypted_content"], "input": [{"role": "system",
-      "content": [{"type": "input_text", "text": "Be very terse, not even punctuation."}]},
-      {"role": "user", "content": [{"type": "input_text", "text": "What''s the current
-      date in YYYY-MM-DD format?"}]}, {"type": "function_call", "call_id": "fc_06cde73d75e4d0280169fb7c53770c819fb17907e7f62bf662",
+    body: '{"include": ["reasoning.encrypted_content"], "input": [{"type": "message",
+      "role": "system", "content": [{"type": "input_text", "text": "Be very terse,
+      not even punctuation."}]}, {"type": "message", "role": "user", "content": [{"type":
+      "input_text", "text": "What''s the current date in YYYY-MM-DD format?"}]}, {"type":
+      "function_call", "call_id": "fc_06cde73d75e4d0280169fb7c53770c819fb17907e7f62bf662",
       "name": "get_current_date2", "arguments": "{}"}, {"type": "function_call_output",
       "call_id": "fc_06cde73d75e4d0280169fb7c53770c819fb17907e7f62bf662", "output":
       "2024-01-01"}], "model": "gpt-5.4", "store": false, "stream": true, "tools":

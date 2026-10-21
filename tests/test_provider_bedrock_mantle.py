@@ -1,3 +1,4 @@
+import base64
 import json
 from datetime import date
 from importlib import resources
@@ -5,7 +6,8 @@ from importlib import resources
 import httpx
 import httpx2
 import pytest
-from chatlas import Chat, ChatBedrock
+from chatlas import Chat, ChatBedrock, UserTurn
+from chatlas._content import ContentDocument, ContentImageRemote, ContentPDF
 from chatlas._provider_bedrock import (
     bedrock_api_for_model,
     bedrock_base_url,
@@ -103,6 +105,25 @@ class TestBaseUrl:
             "https://bedrock-runtime.us-west-2.amazonaws.com"
         )
 
+    def test_generic_endpoint_url_applies_to_converse(self, monkeypatch):
+        monkeypatch.delenv("AWS_ENDPOINT_URL_BEDROCK_RUNTIME", raising=False)
+        monkeypatch.setenv("AWS_ENDPOINT_URL", "https://proxy.example")
+        assert bedrock_base_url("converse", "us-west-2") == "https://proxy.example"
+
+    def test_generic_endpoint_url_applies_to_mantle(self, monkeypatch):
+        monkeypatch.delenv("AWS_ENDPOINT_URL_BEDROCK_MANTLE", raising=False)
+        monkeypatch.setenv("AWS_ENDPOINT_URL", "https://proxy.example")
+        assert bedrock_base_url("messages", "us-west-2") == (
+            "https://proxy.example/anthropic"
+        )
+
+    def test_service_specific_var_outranks_generic(self, monkeypatch):
+        monkeypatch.setenv("AWS_ENDPOINT_URL", "https://generic.example")
+        monkeypatch.setenv(
+            "AWS_ENDPOINT_URL_BEDROCK_RUNTIME", "https://specific.example"
+        )
+        assert bedrock_base_url("converse", "us-west-2") == "https://specific.example"
+
 
 class TestChatBedrockDispatch:
     def test_responses_model_builds_an_openai_backed_provider(self):
@@ -119,6 +140,10 @@ class TestChatBedrockDispatch:
         assert base_url.rstrip("/") == (
             "https://bedrock-mantle.us-west-2.api.aws/openai/v1"
         )
+
+    def test_cross_region_prefix_is_stripped_from_the_responses_model(self):
+        chat = ChatBedrock(model="us.openai.gpt-5.6-sol", aws_region="us-east-1")
+        assert chat.provider.model == "openai.gpt-5.6-sol"
 
     def test_list_models_uses_the_v1_mantle_path(self):
         # Mantle serves model listings at /v1/models; /openai/v1/models 404s,
@@ -204,6 +229,17 @@ class TestMessagesProvider:
             "https://bedrock-mantle.us-east-1.api.aws/anthropic"
         )
 
+    def test_default_model_is_served_by_mantle(self):
+        from chatlas._provider_bedrock import DEFAULT_MODEL
+
+        chat = ChatBedrock(api="messages", aws_region="us-east-1")
+        assert chat.provider.model == "anthropic.claude-sonnet-5"
+        assert DEFAULT_MODEL == "us.anthropic.claude-sonnet-5"
+
+    def test_cross_region_prefix_is_stripped_from_the_messages_model(self):
+        chat = ChatBedrock(model="us.anthropic.claude-mythos-5", aws_region="us-east-1")
+        assert chat.provider.model == "anthropic.claude-mythos-5"
+
     def test_cache_auto_becomes_a_5m_ttl(self):
         chat = ChatBedrock(
             model="anthropic.claude-haiku-4-5", api="messages", aws_region="us-east-1"
@@ -286,6 +322,110 @@ class TestMessagesProvider:
                 "created_at": date(1970, 1, 1),
             }
         ]
+
+
+class TestUrlContentFallsBackToBytes:
+    """Mantle can't fetch URLs, so PDF/document content built with a URL must
+    be sent as bytes instead (https://github.com/posit-dev/chatlas/issues/410).
+    """
+
+    def test_messages_pdf_url_downloads_bytes_instead(self, monkeypatch):
+        from chatlas._provider_bedrock import BedrockMessagesProvider
+
+        monkeypatch.setattr(
+            "chatlas._content_file.download_bytes", lambda url: b"%PDF-1.4 fake"
+        )
+        c = ContentPDF(filename="a.pdf", url="https://example.com/a.pdf")
+
+        block = BedrockMessagesProvider._as_content_block(c)
+
+        assert block["source"] == {
+            "type": "base64",
+            "media_type": "application/pdf",
+            "data": base64.b64encode(b"%PDF-1.4 fake").decode("utf-8"),
+        }
+        # The downloaded bytes are cached back onto the original content.
+        assert c.data == b"%PDF-1.4 fake"
+
+    def test_messages_pdf_with_data_ignores_url_without_downloading(self, monkeypatch):
+        from chatlas._provider_bedrock import BedrockMessagesProvider
+
+        def fail_download(url):
+            raise AssertionError("shouldn't download when data is already present")
+
+        monkeypatch.setattr("chatlas._content_file.download_bytes", fail_download)
+        c = ContentPDF(
+            data=b"%PDF-1.4", filename="a.pdf", url="https://example.com/a.pdf"
+        )
+
+        block = BedrockMessagesProvider._as_content_block(c)
+
+        assert block["source"]["type"] == "base64"
+        assert block["source"]["data"] == base64.b64encode(b"%PDF-1.4").decode("utf-8")
+
+    def test_responses_pdf_and_document_urls_download_bytes_instead(self, monkeypatch):
+        monkeypatch.setattr(
+            "chatlas._content_file.download_bytes", lambda url: b"downloaded"
+        )
+        chat = ChatBedrock(model="openai.gpt-5.6-sol", aws_region="us-east-1")
+        pdf = ContentPDF(filename="a.pdf", url="https://example.com/a.pdf")
+        doc = ContentDocument(
+            filename="notes.txt",
+            mime_type="text/plain",
+            url="https://example.com/notes.txt",
+        )
+        turn = UserTurn([pdf, doc])
+
+        inputs = chat.provider._turns_as_inputs([turn])
+
+        expected_data = (
+            f"data:application/pdf;base64,"
+            f"{base64.b64encode(b'downloaded').decode('utf-8')}"
+        )
+        for item in inputs:
+            part = item["content"][0]
+            assert part["type"] == "input_file"
+            assert "file_url" not in part
+            assert part["file_data"].startswith("data:")
+        assert inputs[0]["content"][0]["file_data"] == expected_data
+        # Downloaded bytes are cached back onto the original content objects.
+        assert pdf.data == b"downloaded"
+        assert doc.data == b"downloaded"
+
+    def test_responses_pdf_with_data_ignores_url_without_downloading(self, monkeypatch):
+        def fail_download(url):
+            raise AssertionError("shouldn't download when data is already present")
+
+        monkeypatch.setattr("chatlas._content_file.download_bytes", fail_download)
+        chat = ChatBedrock(model="openai.gpt-5.6-sol", aws_region="us-east-1")
+        pdf = ContentPDF(
+            data=b"%PDF-1.4", filename="a.pdf", url="https://example.com/a.pdf"
+        )
+        turn = UserTurn([pdf])
+
+        inputs = chat.provider._turns_as_inputs([turn])
+
+        part = inputs[0]["content"][0]
+        assert part["type"] == "input_file"
+        assert "file_url" not in part
+        assert part["file_data"] == (
+            f"data:application/pdf;base64,{base64.b64encode(b'%PDF-1.4').decode('utf-8')}"
+        )
+
+    def test_messages_remote_image_raises(self):
+        from chatlas._provider_bedrock import BedrockMessagesProvider
+
+        with pytest.raises(ValueError, match="Remote images aren't supported"):
+            BedrockMessagesProvider._as_content_block(
+                ContentImageRemote(url="https://example.com/i.png")
+            )
+
+    def test_responses_remote_image_raises(self):
+        chat = ChatBedrock(model="openai.gpt-5.6-sol", aws_region="us-east-1")
+        turn = UserTurn([ContentImageRemote(url="https://example.com/i.png")])
+
+        with pytest.raises(ValueError, match="Remote images aren't supported"):
+            chat.provider._turns_as_inputs([turn])
 
 
 class TestNativeSdkClients:

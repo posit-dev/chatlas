@@ -1,8 +1,9 @@
 interactions:
 - request:
-    body: '{"input": [{"role": "system", "content": [{"type": "input_text", "text":
-      "Be terse."}]}, {"role": "user", "content": [{"type": "input_text", "text":
-      "Say hello."}]}], "model": "gpt-4o-mini", "store": false, "stream": true}'
+    body: '{"input": [{"type": "message", "role": "system", "content": [{"type": "input_text",
+      "text": "Be terse."}]}, {"type": "message", "role": "user", "content": [{"type":
+      "input_text", "text": "Say hello."}]}], "model": "gpt-4o-mini", "store": false,
+      "stream": true}'
     headers:
       Accept:
       - application/json

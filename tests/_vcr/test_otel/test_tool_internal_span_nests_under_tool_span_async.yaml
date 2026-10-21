@@ -1,12 +1,12 @@
 interactions:
 - request:
-    body: '{"input": [{"role": "system", "content": [{"type": "input_text", "text":
-      "Always use the get_date tool to answer questions about the date."}]}, {"role":
-      "user", "content": [{"type": "input_text", "text": "What is today''s date?"}]}],
-      "model": "gpt-4o-mini", "store": false, "stream": true, "tools": [{"type": "function",
-      "name": "get_date", "description": "Return the current date", "parameters":
-      {"properties": {}, "type": "object", "additionalProperties": false, "required":
-      []}, "strict": true}]}'
+    body: '{"input": [{"type": "message", "role": "system", "content": [{"type": "input_text",
+      "text": "Always use the get_date tool to answer questions about the date."}]},
+      {"type": "message", "role": "user", "content": [{"type": "input_text", "text":
+      "What is today''s date?"}]}], "model": "gpt-4o-mini", "store": false, "stream":
+      true, "tools": [{"type": "function", "name": "get_date", "description": "Return
+      the current date", "parameters": {"properties": {}, "type": "object", "additionalProperties":
+      false, "required": []}, "strict": true}]}'
     headers:
       Accept:
       - application/json
@@ -101,10 +101,10 @@ interactions:
       code: 200
       message: OK
 - request:
-    body: '{"input": [{"role": "system", "content": [{"type": "input_text", "text":
-      "Always use the get_date tool to answer questions about the date."}]}, {"role":
-      "user", "content": [{"type": "input_text", "text": "What is today''s date?"}]},
-      {"type": "function_call", "call_id": "fc_06e5fbc763ca68e1016a1f59689c5c8195b22997e6ddcdd777",
+    body: '{"input": [{"type": "message", "role": "system", "content": [{"type": "input_text",
+      "text": "Always use the get_date tool to answer questions about the date."}]},
+      {"type": "message", "role": "user", "content": [{"type": "input_text", "text":
+      "What is today''s date?"}]}, {"type": "function_call", "call_id": "fc_06e5fbc763ca68e1016a1f59689c5c8195b22997e6ddcdd777",
       "name": "get_date", "arguments": "{}"}, {"type": "function_call_output", "call_id":
       "fc_06e5fbc763ca68e1016a1f59689c5c8195b22997e6ddcdd777", "output": "2026-05-12"}],
       "model": "gpt-4o-mini", "store": false, "stream": true, "tools": [{"type": "function",

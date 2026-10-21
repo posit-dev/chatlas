@@ -106,6 +106,12 @@ def test_normalize_finish_reason_handles_none():
         ("claude-opus-5", True),
         ("claude-haiku-10", True),
         ("claude-3-5-sonnet-20240620", False),
+        # Bedrock model IDs
+        ("anthropic.claude-sonnet-4-5-20250929-v1:0", True),
+        ("us.anthropic.claude-sonnet-5-5-v1:0", True),
+        ("global.anthropic.claude-opus-5-5-v1:0", True),
+        ("us-gov.anthropic.claude-sonnet-4-5-20250929-v1:0", True),
+        ("anthropic.claude-3-5-sonnet-20240620-v1:0", False),
     ],
 )
 def test_supports_structured_outputs_for_supported_model_names(model, expected):
@@ -928,13 +934,18 @@ def test_anthropic_list_models():
     assert_list_models(chat_func)
 
 
-def test_anthropic_removes_empty_assistant_turns():
-    """Test that empty assistant turns are dropped to avoid API errors."""
+def test_anthropic_empty_assistant_turn_placeholder():
+    """Empty assistant turns get a placeholder instead of being dropped (#416).
+
+    Dropping the turn could produce two consecutive user messages, violating
+    the API's user/assistant alternation requirement.
+    """
     chat = chat_func()
     chat.set_turns(
         [
             UserTurn("Don't say anything"),
             AssistantTurn([]),
+            UserTurn("What did I just say?"),
         ]
     )
 
@@ -942,10 +953,11 @@ def test_anthropic_removes_empty_assistant_turns():
     provider = cast(AnthropicProvider, chat.provider)
     turns_json = provider._as_message_params(chat.get_turns())
 
-    # Should only have the user turn, not the empty assistant turn
-    assert len(turns_json) == 1
-    assert turns_json[0]["role"] == "user"
-    assert turns_json[0]["content"][0]["text"] == "Don't say anything"  # type: ignore
+    # The empty assistant turn is kept (with placeholder content), so
+    # user/assistant roles still alternate as the API requires
+    assert [m["role"] for m in turns_json] == ["user", "assistant", "user"]
+    assert turns_json[1]["content"] == [{"type": "text", "text": "[empty string]"}]
+    assert turns_json[2]["content"][0]["text"] == "What did I just say?"  # type: ignore
 
 
 @pytest.mark.vcr

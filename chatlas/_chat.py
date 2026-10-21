@@ -35,6 +35,7 @@ from ._content import (
     Content,
     ContentCitation,
     ContentImageInline,
+    ContentInput,
     ContentJson,
     ContentText,
     ContentThinking,
@@ -484,17 +485,6 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             t for t in self._turns if isinstance(t, AssistantTurn) and not t.is_partial
         ]
 
-    def _complete_turn_pairs(self) -> list[Turn]:
-        """Return turns with partial assistant turns (and their user turns) removed."""
-        turns = self.get_turns(include_system_prompt=False)
-        partial_indices: set[int] = set()
-        for i, t in enumerate(turns):
-            if isinstance(t, AssistantTurn) and t.is_partial:
-                partial_indices.add(i)
-                if i > 0:
-                    partial_indices.add(i - 1)
-        return [t for i, t in enumerate(turns) if i not in partial_indices]
-
     @property
     def system_prompt(self) -> str | None:
         """
@@ -596,16 +586,22 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         Raises
         ------
         ValueError
-            If the chat's turns (i.e., `.get_turns()`) are not in an expected
-            format. This may happen if the chat history is manually set (i.e.,
-            `.set_turns()`). In this case, you can inspect the "raw" token
-            values via the `.get_turns()` method (each turn has a `.tokens`
-            attribute).
+            If an assistant turn doesn't contain token counts. This may happen
+            if the chat history is manually set (i.e., `.set_turns()`). In
+            this case, you can inspect the "raw" token values via the
+            `.get_turns()` method (each turn has a `.tokens` attribute).
         """
 
-        turns = self._complete_turn_pairs()
+        # Only complete assistant turns carry token counts, and each one's
+        # input count is cumulative over everything sent so far, so the
+        # implied user tokens for a round trip is the difference between
+        # consecutive requests. Driving the computation off assistant turns
+        # (rather than assuming strict user/assistant alternation) means
+        # trailing user turns, consecutive assistant turns, and partial
+        # (interrupted) assistant turns don't trip it up.
+        assistants = self._complete_assistant_turns()
 
-        if len(turns) == 0:
+        if len(assistants) == 0:
             return []
 
         err_info = (
@@ -614,84 +610,41 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             "(each turn has a `.tokens` attribute)."
         )
 
-        # Sanity checks for the assumptions made to figure out user token counts
-        if len(turns) == 1:
-            raise ValueError(
-                "Expected at least two turns in the chat history. " + err_info
-            )
-
-        if len(turns) % 2 != 0:
-            raise ValueError(
-                "Expected an even number of turns in the chat history. " + err_info
-            )
-
-        if turns[0].role != "user":
-            raise ValueError(
-                "Expected the 1st non-system turn to have role='user'. " + err_info
-            )
-
-        if not isinstance(turns[1], AssistantTurn):
-            raise ValueError(
-                "Expected the 2nd turn non-system to have role='assistant'. " + err_info
-            )
-
-        if turns[1].tokens is None:
-            raise ValueError(
-                "Expected the 1st assistant turn to contain token counts. " + err_info
-            )
-
-        res: list[TokensDict] = [
-            # Implied token count for the 1st user input
-            {
-                "role": "user",
-                "tokens": turns[1].tokens[0],
-                # Number of tokens currently cached (reduces input token usage)
-                "tokens_cached": turns[1].tokens[2],
-                "tokens_total": turns[1].tokens[0],
-            },
-            # The token count for the 1st assistant response
-            {
-                "role": "assistant",
-                "tokens": turns[1].tokens[1],
-                "tokens_cached": 0,
-                "tokens_total": turns[1].tokens[1],
-            },
-        ]
-
-        for i in range(1, len(turns) - 1, 2):
-            ti = turns[i]
-            tj = turns[i + 2]
-            if not isinstance(ti, AssistantTurn) or not isinstance(tj, AssistantTurn):
+        res: list[TokensDict] = []
+        prev: AssistantTurn | None = None
+        for curr in assistants:
+            if curr.tokens is None:
                 raise ValueError(
-                    "Expected even turns to have role='assistant'." + err_info
+                    "Expected assistant turns to contain token counts. " + err_info
                 )
-            if ti.tokens is None or tj.tokens is None:
-                raise ValueError(
-                    "Expected role='assistant' turns to contain token counts."
-                    + err_info
-                )
-            res.extend(
-                [
-                    {
-                        "role": "user",
-                        # Implied new token count for the user input (input tokens - context - cached reads)
-                        # Cached reads are only subtracted for particular providers
-                        "tokens": tj.tokens[0] - sum(ti.tokens),
-                        # Number of tokens currently cached (reduces input token usage depending on provider's API)
-                        "tokens_cached": tj.tokens[2],
-                        # Total tokens = Total User Tokens for the Turn = Distinct new tokens + context sent
-                        "tokens_total": tj.tokens[0],
-                    },
-                    {
-                        "role": "assistant",
-                        # The token count for the assistant response
-                        "tokens": tj.tokens[1],
-                        # Total tokens = Total Assistant tokens used in the turn
-                        "tokens_cached": 0,
-                        "tokens_total": tj.tokens[1],
-                    },
-                ]
+            input_tokens, output_tokens, cached_tokens = curr.tokens
+            # Implied new token count for the user input (input tokens -
+            # context - cached reads). Cached reads are only subtracted for
+            # particular providers.
+            implied_input = input_tokens
+            if prev is not None and prev.tokens is not None:
+                implied_input -= sum(prev.tokens)
+            res.append(
+                {
+                    "role": "user",
+                    "tokens": implied_input,
+                    # Number of tokens currently cached (reduces input token usage depending on provider's API)
+                    "tokens_cached": cached_tokens,
+                    # Total tokens = Total User Tokens for the Turn = Distinct new tokens + context sent
+                    "tokens_total": input_tokens,
+                }
             )
+            res.append(
+                {
+                    "role": "assistant",
+                    # The token count for the assistant response
+                    "tokens": output_tokens,
+                    "tokens_cached": 0,
+                    # Total tokens = Total Assistant tokens used in the turn
+                    "tokens_total": output_tokens,
+                }
+            )
+            prev = curr
 
         return res
 
@@ -785,7 +738,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
     def token_count(
         self,
-        *args: Content | str,
+        *args: ContentInput,
         include: Literal["new", "complete"] = "new",
         data_model: Optional[type[BaseModel]] = None,
     ) -> int:
@@ -856,7 +809,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
     async def token_count_async(
         self,
-        *args: Content | str,
+        *args: ContentInput,
         include: Literal["new", "complete"] = "new",
         data_model: Optional[type[BaseModel]] = None,
     ) -> int:
@@ -911,7 +864,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         )
 
     def _token_count_turns(
-        self, include: Literal["new", "complete"], *args: Content | str
+        self, include: Literal["new", "complete"], *args: ContentInput
     ) -> list[Turn]:
         if include not in ("new", "complete"):
             raise ValueError(
@@ -1271,7 +1224,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
     def chat(
         self,
-        *args: Content | str,
+        *args: ContentInput,
         echo: EchoOptions = "output",
         stream: bool = True,
         kwargs: Optional[SubmitInputArgsT] = None,
@@ -1282,7 +1235,9 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         Parameters
         ----------
         args
-            The user input(s) to generate a response from.
+            The user input(s) to generate a response from. Each may be a
+            string, a `Content` object, or any object implementing
+            `.to_content()` (e.g. `FileMetadata` from `chat.files.get()`).
         echo
             One of the following (default is "output"):
               - `"text"`: Echo just the text content of the response.
@@ -1326,7 +1281,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
     async def chat_async(
         self,
-        *args: Content | str,
+        *args: ContentInput,
         echo: EchoOptions = "output",
         stream: bool = True,
         kwargs: Optional[SubmitInputArgsT] = None,
@@ -1337,7 +1292,9 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         Parameters
         ----------
         args
-            The user input(s) to generate a response from.
+            The user input(s) to generate a response from. Each may be a
+            string, a `Content` object, or any object implementing
+            `.to_content()` (e.g. `FileMetadata` from `chat.files.get()`).
         echo
             One of the following (default is "output"):
               - `"text"`: Echo just the text content of the response.
@@ -1382,7 +1339,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
     @overload
     def stream(
         self,
-        *args: Content | str,
+        *args: ContentInput,
         content: Literal["text"] = "text",
         echo: EchoOptions = "none",
         data_model: Optional[type[BaseModel]] = None,
@@ -1393,7 +1350,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
     @overload
     def stream(
         self,
-        *args: Content | str,
+        *args: ContentInput,
         content: Literal["all"],
         echo: EchoOptions = "none",
         data_model: Optional[type[BaseModel]] = None,
@@ -1403,7 +1360,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
     def stream(
         self,
-        *args: Content | str,
+        *args: ContentInput,
         content: Literal["text", "all"] = "text",
         echo: EchoOptions = "none",
         data_model: Optional[type[BaseModel]] = None,
@@ -1416,7 +1373,9 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         Parameters
         ----------
         args
-            The user input(s) to generate a response from.
+            The user input(s) to generate a response from. Each may be a
+            string, a `Content` object, or any object implementing
+            `.to_content()` (e.g. `FileMetadata` from `chat.files.get()`).
         content
             Whether to yield just text content or include rich content objects
             (e.g., tool calls) when relevant.
@@ -1493,7 +1452,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
     @overload
     async def stream_async(
         self,
-        *args: Content | str,
+        *args: ContentInput,
         content: Literal["text"] = "text",
         echo: EchoOptions = "none",
         data_model: Optional[type[BaseModel]] = None,
@@ -1504,7 +1463,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
     @overload
     async def stream_async(
         self,
-        *args: Content | str,
+        *args: ContentInput,
         content: Literal["all"],
         echo: EchoOptions = "none",
         data_model: Optional[type[BaseModel]] = None,
@@ -1514,7 +1473,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
     async def stream_async(
         self,
-        *args: Content | str,
+        *args: ContentInput,
         content: Literal["text", "all"] = "text",
         echo: EchoOptions = "none",
         data_model: Optional[type[BaseModel]] = None,
@@ -1527,7 +1486,9 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         Parameters
         ----------
         args
-            The user input(s) to generate a response from.
+            The user input(s) to generate a response from. Each may be a
+            string, a `Content` object, or any object implementing
+            `.to_content()` (e.g. `FileMetadata` from `chat.files.get()`).
         content
             Whether to yield just text content or include rich content objects
             (e.g., tool calls) when relevant.
@@ -1611,7 +1572,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
     def chat_structured(
         self,
-        *args: Content | str,
+        *args: ContentInput,
         data_model: type[BaseModelT],
         echo: EchoOptions = "none",
         stream: bool = False,
@@ -1656,7 +1617,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
     def extract_data(
         self,
-        *args: Content | str,
+        *args: ContentInput,
         data_model: type[BaseModel],
         echo: EchoOptions = "none",
         stream: bool = False,
@@ -1679,7 +1640,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
     def _submit_and_extract_data(
         self,
-        *args: Content | str,
+        *args: ContentInput,
         data_model: type[BaseModel],
         echo: EchoOptions = "none",
         stream: bool = False,
@@ -1709,7 +1670,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
     async def chat_structured_async(
         self,
-        *args: Content | str,
+        *args: ContentInput,
         data_model: type[BaseModelT],
         echo: EchoOptions = "none",
         stream: bool = False,
@@ -1755,7 +1716,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
     async def extract_data_async(
         self,
-        *args: Content | str,
+        *args: ContentInput,
         data_model: type[BaseModel],
         echo: EchoOptions = "none",
         stream: bool = False,
@@ -1780,7 +1741,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
     async def _submit_and_extract_data_async(
         self,
-        *args: Content | str,
+        *args: ContentInput,
         data_model: type[BaseModel],
         echo: EchoOptions = "none",
         stream: bool = False,
@@ -2584,7 +2545,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         if is_html:
             contents = self._html_template(contents)
 
-        with open(filename, "w") as f:
+        with open(filename, "w", encoding="utf-8") as f:
             f.write(contents)
 
         return filename
@@ -3376,7 +3337,8 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                 yield self._handle_tool_error_result(request, e)
                 return
 
-            if tool._is_async:
+            # Awaiting an async generator function's call fails, so it goes through wrap_async()
+            if tool._is_async and not inspect.isasyncgenfunction(tool.func):
                 func = tool.func
             else:
                 func = wrap_async(tool.func)
@@ -3388,6 +3350,10 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                         res = await func(**request.arguments)
                     else:
                         res = await func(request.arguments)
+
+                # A synchronous generator tool reports progress the same way as an async one
+                if inspect.isgenerator(res):
+                    res = _iterate_async(res)
 
                 if inspect.isasyncgen(res):
                     while True:
@@ -3882,3 +3848,9 @@ def is_positron_notebook():
         return mode == "notebook"
     except Exception:
         return False
+
+
+async def _iterate_async(gen: Iterator[Any]) -> AsyncGenerator[Any, None]:
+    """Iterate a synchronous generator as an async one, one value per `__anext__()`."""
+    for x in gen:
+        yield x
