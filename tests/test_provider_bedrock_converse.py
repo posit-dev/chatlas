@@ -1426,12 +1426,16 @@ class TestStructuredOutputAndCaching:
         model: str = "us.anthropic.claude-sonnet-4-6",
         cache: Literal["auto", "5m", "1h", "none"] = "auto",
     ):
+        # These tests exercise the tool-based structured output strategy, so
+        # pin `structured_output_mode="tool"` (the default "auto" uses native
+        # `outputConfig` for this model).
         return BedrockConverseProvider(
             model=model,
             aws_profile=None,
             aws_region="us-east-1",
             base_url=None,
             cache=cache,
+            structured_output_mode="tool",
         )
 
     def test_data_model_forces_a_tool_choice(self):
@@ -1817,11 +1821,14 @@ class TestStreamWithDataModel:
     """
 
     def provider(self) -> BedrockConverseProvider:
+        # The downgrade only happens in tool mode; "auto" uses native
+        # `outputConfig` for this model, which streams for real.
         return BedrockConverseProvider(
             model="us.anthropic.claude-sonnet-4-6",
             aws_profile=None,
             aws_region="us-east-1",
             base_url=None,
+            structured_output_mode="tool",
         )
 
     def test_stream_with_data_model_downgrades_gracefully(self):
@@ -1889,6 +1896,634 @@ class TestStreamWithDataModel:
         assert len(turn.contents) == 1
         assert isinstance(turn.contents[0], ContentJson)
         assert turn.contents[0].value == {"name": "John", "age": 15}
+
+
+class TestStructuredOutputMode:
+    """`structured_output_mode` selects native `outputConfig` vs forced tool call."""
+
+    @staticmethod
+    def provider(
+        model: str = "us.anthropic.claude-sonnet-4-6",
+        mode: Literal["auto", "native", "tool"] = "auto",
+    ) -> BedrockConverseProvider:
+        return BedrockConverseProvider(
+            model=model,
+            aws_profile=None,
+            aws_region="us-east-1",
+            base_url=None,
+            structured_output_mode=mode,
+        )
+
+    def test_can_stream_matrix(self):
+        from pydantic import BaseModel
+
+        class Person(BaseModel):
+            name: str
+            age: int
+
+        # No data_model always streams.
+        assert self.provider().can_stream(None) is True
+        # "auto" on a regex-supported model probes first: it can't stream
+        # until a native request has succeeded ...
+        unverified = self.provider()
+        assert unverified.can_stream(Person) is False
+        # ... and streams natively once verified.
+        unverified._native_verified_models.add(unverified.model)
+        assert unverified.can_stream(Person) is True
+        # Models the regex doesn't match never probe ...
+        assert (
+            self.provider(model="us.anthropic.claude-sonnet-4").can_stream(Person)
+            is False
+        )
+        assert self.provider(model="amazon.nova-lite-v1:0").can_stream(Person) is False
+        # ... nor do models that already rejected `outputConfig`.
+        rejected = self.provider()
+        rejected._native_unsupported_models.add(rejected.model)
+        assert rejected.can_stream(Person) is False
+        # "native" forces streaming even on unsupported models ...
+        assert (
+            self.provider(model="amazon.nova-lite-v1:0", mode="native").can_stream(
+                Person
+            )
+            is True
+        )
+        # ... and "tool" never streams with a data_model.
+        assert self.provider(mode="tool").can_stream(Person) is False
+
+    @staticmethod
+    def _chat_with_fake_response(provider: BedrockConverseProvider) -> dict:
+        """Chat with a mocked `_converse`; return the captured request args."""
+        from unittest.mock import patch
+
+        from chatlas import Chat
+
+        request: dict = {}
+
+        def fake_converse(args):
+            request.update(args)
+            return _fake_data_model_converse_response()
+
+        chat = Chat(provider=provider)
+        with patch.object(provider, "_converse", side_effect=fake_converse):
+            from pydantic import BaseModel
+
+            class Person(BaseModel):
+                name: str
+                age: int
+
+            chat.chat_structured("John, age 15", data_model=Person)
+        return request
+
+    def test_native_mode_sends_output_config(self):
+        request = self._chat_with_fake_response(self.provider())
+        assert "toolConfig" not in request
+        output_config = request["outputConfig"]
+        text_format = output_config["textFormat"]
+        assert text_format["type"] == "json_schema"
+        json_schema = text_format["structure"]["jsonSchema"]
+        assert json_schema["name"] == "Person"
+        schema = json.loads(json_schema["schema"])
+        assert schema["type"] == "object"
+        assert set(schema["properties"]) == {"name", "age"}
+
+    def test_tool_mode_forces_tool_call(self):
+        request = self._chat_with_fake_response(self.provider(mode="tool"))
+        assert "outputConfig" not in request
+        assert request["toolConfig"]["toolChoice"] == {
+            "tool": {"name": "_structured_tool_call"}
+        }
+
+    def test_auto_mode_unsupported_model_uses_tool_call(self):
+        request = self._chat_with_fake_response(
+            self.provider(model="us.anthropic.claude-sonnet-4")
+        )
+        assert "outputConfig" not in request
+        assert request["toolConfig"]["toolChoice"] == {
+            "tool": {"name": "_structured_tool_call"}
+        }
+
+    def test_native_mode_forces_output_config_on_unsupported_model(self):
+        request = self._chat_with_fake_response(
+            self.provider(model="amazon.nova-lite-v1:0", mode="native")
+        )
+        assert "outputConfig" in request
+        assert "toolConfig" not in request
+
+    @staticmethod
+    def _fake_native_converse_response():
+        return cast(
+            "ConverseResponseTypeDef",
+            {
+                "output": {
+                    "message": {
+                        "role": "assistant",
+                        "content": [{"text": '{"name": "John", "age": 15}'}],
+                    }
+                },
+                "stopReason": "end_turn",
+                "usage": {"inputTokens": 1, "outputTokens": 1, "totalTokens": 2},
+            },
+        )
+
+    @staticmethod
+    def _fake_native_stream_events() -> list[dict]:
+        return [
+            {"messageStart": {"role": "assistant"}},
+            {
+                "contentBlockDelta": {
+                    "contentBlockIndex": 0,
+                    "delta": {"text": '{"name": "Joh'},
+                }
+            },
+            {
+                "contentBlockDelta": {
+                    "contentBlockIndex": 0,
+                    "delta": {"text": 'n", "age": 15}'},
+                }
+            },
+            {"contentBlockStop": {"contentBlockIndex": 0}},
+            {"messageStop": {"stopReason": "end_turn"}},
+            {
+                "metadata": {
+                    "usage": {"inputTokens": 1, "outputTokens": 1, "totalTokens": 2}
+                }
+            },
+        ]
+
+    def test_native_response_text_becomes_content_json(self):
+        from unittest.mock import patch
+
+        from chatlas import Chat
+        from chatlas._content import ContentJson
+        from pydantic import BaseModel
+
+        class Person(BaseModel):
+            name: str
+            age: int
+
+        provider = self.provider()
+        chat = Chat(provider=provider)
+        with patch.object(
+            provider,
+            "_converse",
+            return_value=self._fake_native_converse_response(),
+        ):
+            chat.chat_structured("John, age 15", data_model=Person)
+
+        turn = chat.get_last_turn()
+        assert turn is not None
+        assert len(turn.contents) == 1
+        assert isinstance(turn.contents[0], ContentJson)
+        assert turn.contents[0].value == {"name": "John", "age": 15}
+
+    def test_native_mode_streams_incrementally(self):
+        import warnings
+        from unittest.mock import patch
+
+        from chatlas import Chat
+        from chatlas._content import ContentJson
+        from pydantic import BaseModel
+
+        class Person(BaseModel):
+            name: str
+            age: int
+
+        provider = self.provider(mode="native")
+        chat = Chat(provider=provider)
+        with patch.object(
+            provider,
+            "_converse_stream",
+            side_effect=lambda args: iter(self._fake_native_stream_events()),
+        ):
+            with warnings.catch_warnings():
+                # Native mode streams for real: no fallback warning.
+                warnings.simplefilter("error")
+                chunks = list(chat.stream("John, age 15", data_model=Person))
+
+        # Two text deltas arrive as two chunks, joining to the full JSON.
+        assert chunks == ['{"name": "Joh', 'n", "age": 15}']
+        person = Person.model_validate_json("".join(chunks))
+        assert person == Person(name="John", age=15)
+
+        turn = chat.get_last_turn()
+        assert turn is not None
+        assert isinstance(turn.contents[0], ContentJson)
+        assert turn.contents[0].value == {"name": "John", "age": 15}
+
+    def test_auto_mode_first_request_probes_native_support(self):
+        from unittest.mock import patch
+
+        from chatlas import Chat
+        from pydantic import BaseModel
+
+        class Person(BaseModel):
+            name: str
+            age: int
+
+        provider = self.provider()
+        chat = Chat(provider=provider)
+
+        # Unverified: the first structured stream downgrades to a
+        # non-streaming request, which doubles as the native probe.
+        with patch.object(
+            provider,
+            "_converse",
+            return_value=self._fake_native_converse_response(),
+        ):
+            with pytest.warns(UserWarning, match="streaming"):
+                chunks = list(chat.stream("John, age 15", data_model=Person))
+        person = Person.model_validate_json("".join(chunks))
+        assert person == Person(name="John", age=15)
+
+        # Verified: subsequent streams go native and stream incrementally.
+        assert provider.can_stream(Person) is True
+        with patch.object(
+            provider,
+            "_converse_stream",
+            side_effect=lambda args: iter(self._fake_native_stream_events()),
+        ):
+            chunks = list(chat.stream("John, age 15", data_model=Person))
+        assert chunks == ['{"name": "Joh', 'n", "age": 15}']
+
+    def test_auto_mode_probe_rejection_turns_off_native(self):
+        from unittest.mock import patch
+
+        from chatlas import Chat
+        from pydantic import BaseModel
+
+        class Person(BaseModel):
+            name: str
+            age: int
+
+        provider = self.provider()
+        chat = Chat(provider=provider)
+
+        def fake_converse(args):
+            if "outputConfig" in args:
+                raise self._native_rejection()
+            return _fake_data_model_converse_response()
+
+        with patch.object(provider, "_converse", side_effect=fake_converse):
+            # Downgrade warning (the probe) + rejection warning (the retry).
+            with pytest.warns(UserWarning):
+                chunks = list(chat.stream("John, age 15", data_model=Person))
+
+        person = Person.model_validate_json("".join(chunks))
+        assert person == Person(name="John", age=15)
+        assert provider.can_stream(Person) is False
+
+    def test_chat_bedrock_forwards_mode_to_converse(self):
+        from pydantic import BaseModel
+
+        class Person(BaseModel):
+            name: str
+            age: int
+
+        # Default model (us.anthropic.claude-sonnet-5) matches the native
+        # support regex, so the mode alone decides can_stream here.
+        chat = ChatBedrock(
+            api="converse", aws_region="us-east-1", structured_output_mode="tool"
+        )
+        assert chat.provider.can_stream(Person) is False
+        chat = ChatBedrock(
+            api="converse", aws_region="us-east-1", structured_output_mode="native"
+        )
+        assert chat.provider.can_stream(Person) is True
+
+    def test_structured_output_mode_rejected_off_converse(self):
+        for api in ("messages", "responses"):
+            with pytest.raises(ValueError, match="structured_output_mode"):
+                ChatBedrock(
+                    api=api,  # type: ignore[arg-type]
+                    aws_region="us-east-1",
+                    structured_output_mode="native",
+                )
+
+    def test_data_model_request_advertises_registered_tools(self):
+        # At the provider level, tools are advertised so multi-step
+        # extraction can work through the streaming tool loop; `Chat` decides
+        # what to send (see the chat_structured test below).
+        from chatlas._tools import Tool
+        from pydantic import BaseModel
+
+        class Person(BaseModel):
+            name: str
+            age: int
+
+        def get_weather(city: str) -> str:
+            """Get the weather for a city."""
+            return city
+
+        weather_tool = Tool.from_func(get_weather)
+        tools = {weather_tool.name: weather_tool}
+        turns = [UserTurn("John, age 15")]
+
+        # Native mode: tools advertised alongside `outputConfig`.
+        args = self.provider()._chat_perform_args(
+            stream=False, turns=turns, tools=tools, data_model=Person
+        )
+        assert "outputConfig" in args
+        tool_names = [t["toolSpec"]["name"] for t in args["toolConfig"]["tools"]]
+        assert weather_tool.name in tool_names
+
+        # Tool mode: tools advertised, but the structured call is forced.
+        args = self.provider(mode="tool")._chat_perform_args(
+            stream=False, turns=turns, tools=tools, data_model=Person
+        )
+        assert args["toolConfig"]["toolChoice"] == {
+            "tool": {"name": "_structured_tool_call"}
+        }
+
+    def test_chat_structured_does_not_advertise_registered_tools(self):
+        # `chat_structured()` never executes tools, so `Chat` doesn't
+        # advertise them (with a warning); `.stream()` still does.
+        from unittest.mock import patch
+
+        from chatlas import Chat
+        from pydantic import BaseModel
+
+        class Person(BaseModel):
+            name: str
+            age: int
+
+        def get_weather(city: str) -> str:
+            """Get the weather for a city."""
+            return city
+
+        provider = self.provider()
+        chat = Chat(provider=provider)
+        chat.register_tool(get_weather)
+
+        request: dict = {}
+
+        def fake_converse(args):
+            request.update(args)
+            return self._fake_native_converse_response()
+
+        with patch.object(provider, "_converse", side_effect=fake_converse):
+            with pytest.warns(UserWarning, match="not advertised"):
+                result = chat.chat_structured("John, age 15", data_model=Person)
+
+        assert result == Person(name="John", age=15)
+        assert "outputConfig" in request
+        assert "toolConfig" not in request
+
+    def test_chat_structured_after_tool_use_keeps_tool_config(self):
+        # Converse requires `toolConfig` when history contains toolUse/
+        # toolResult blocks, so extraction can't drop the registered specs
+        # there (and shouldn't warn).
+        import warnings
+        from unittest.mock import patch
+
+        from chatlas import Chat
+        from chatlas._content import ContentToolRequest, ContentToolResult
+        from chatlas._turn import AssistantTurn
+        from pydantic import BaseModel
+
+        class Person(BaseModel):
+            name: str
+            age: int
+
+        def get_weather(city: str) -> str:
+            """Get the weather for a city."""
+            return city
+
+        provider = self.provider()
+        chat = Chat(provider=provider)
+        chat.register_tool(get_weather)
+        tool_request = ContentToolRequest(
+            id="toolu_x", name="get_weather", arguments={"city": "Paris"}
+        )
+        chat.add_turn(UserTurn("What's the weather in Paris?"))
+        chat.add_turn(AssistantTurn([tool_request]))
+        chat.add_turn(
+            UserTurn([ContentToolResult(value="72F and sunny", request=tool_request)])
+        )
+
+        request: dict = {}
+
+        def fake_converse(args):
+            request.update(args)
+            return self._fake_native_converse_response()
+
+        with patch.object(provider, "_converse", side_effect=fake_converse):
+            with warnings.catch_warnings():
+                warnings.simplefilter("error")  # no "not advertised" warning
+                result = chat.chat_structured("Extract the weather.", data_model=Person)
+
+        assert isinstance(result, Person)
+        tool_names = [t["toolSpec"]["name"] for t in request["toolConfig"]["tools"]]
+        assert "get_weather" in tool_names
+        assert "outputConfig" in request
+
+    def test_data_model_drops_caller_supplied_tool_config(self):
+        # An explicit toolChoice for an ordinary tool would make extraction
+        # fail deterministically; chatlas owns the request shape during
+        # extraction.
+        from pydantic import BaseModel
+
+        class Person(BaseModel):
+            name: str
+            age: int
+
+        tool_config = {
+            "tools": [
+                {
+                    "toolSpec": {
+                        "name": "get_weather",
+                        "description": "Get the weather.",
+                        "inputSchema": {"json": {"type": "object"}},
+                    }
+                }
+            ],
+            "toolChoice": {"tool": {"name": "get_weather"}},
+        }
+        args = self.provider()._chat_perform_args(
+            stream=False,
+            turns=[UserTurn("John, age 15")],
+            tools={},
+            data_model=Person,
+            kwargs={"toolConfig": tool_config},  # type: ignore[typeddict-item]
+        )
+        assert "outputConfig" in args
+        assert "toolConfig" not in args
+
+    def test_tool_mode_drops_user_supplied_output_config(self):
+        from pydantic import BaseModel
+
+        class Person(BaseModel):
+            name: str
+            age: int
+
+        provider = self.provider(mode="tool")
+        args = provider._chat_perform_args(
+            stream=False,
+            turns=[UserTurn("John, age 15")],
+            tools={},
+            data_model=Person,
+            kwargs={"outputConfig": {"textFormat": {}}},  # type: ignore[typeddict-item]
+        )
+        assert "outputConfig" not in args
+        assert args["toolConfig"]["toolChoice"] == {
+            "tool": {"name": "_structured_tool_call"}
+        }
+
+    @staticmethod
+    def _native_rejection() -> ValueError:
+        return ValueError(
+            "Bedrock Converse request failed with status 400: The model "
+            "returned the following errors: output_config.format: Extra "
+            "inputs are not permitted"
+        )
+
+    def test_auto_mode_falls_back_to_tool_on_native_rejection(self):
+        from unittest.mock import patch
+
+        from chatlas import Chat
+        from pydantic import BaseModel
+
+        class Person(BaseModel):
+            name: str
+            age: int
+
+        provider = self.provider()  # "auto" on a regex-supported model
+        chat = Chat(provider=provider)
+        requests: list[dict] = []
+
+        def fake_converse(args):
+            requests.append(args)
+            if "outputConfig" in args:
+                raise self._native_rejection()
+            return _fake_data_model_converse_response()
+
+        with patch.object(provider, "_converse", side_effect=fake_converse):
+            with pytest.warns(UserWarning, match="outputConfig"):
+                result = chat.chat_structured("John, age 15", data_model=Person)
+
+        assert result == Person(name="John", age=15)
+        # First attempt is native; the retry uses the forced tool call.
+        assert len(requests) == 2
+        assert "outputConfig" in requests[0]
+        assert "outputConfig" not in requests[1]
+        assert requests[1]["toolConfig"]["toolChoice"] == {
+            "tool": {"name": "_structured_tool_call"}
+        }
+
+        # The rejection is remembered: no more native attempts, and
+        # can_stream() now reflects tool mode.
+        assert provider.can_stream(Person) is False
+        with patch.object(provider, "_converse", side_effect=fake_converse):
+            chat.chat_structured("Jane, age 20", data_model=Person)
+        assert len(requests) == 3
+        assert "outputConfig" not in requests[2]
+
+    def test_schema_validation_error_does_not_fall_back(self):
+        # A 400 mentioning `output_config` that isn't the "unsupported"
+        # rejection (e.g. the model rejecting the schema itself) means the
+        # model *does* support native output: propagate, don't fall back.
+        from unittest.mock import patch
+
+        from chatlas import Chat
+        from pydantic import BaseModel
+
+        class Person(BaseModel):
+            name: str
+            age: int
+
+        provider = self.provider()
+        chat = Chat(provider=provider)
+
+        def reject(args):
+            raise ValueError(
+                "Bedrock Converse request failed with status 400: The model "
+                "returned the following errors: output_config.format.schema: "
+                "value is not a valid JSON Schema"
+            )
+
+        with patch.object(provider, "_converse", side_effect=reject):
+            with pytest.raises(ValueError, match="not a valid JSON Schema"):
+                chat.chat_structured("John, age 15", data_model=Person)
+
+        # The model is not (wrongly) remembered as unsupported.
+        assert provider.model not in provider._native_unsupported_models
+
+    def test_in_flight_native_request_still_retries_after_marking(self):
+        # A concurrent request can mark the model unsupported while another
+        # native request is in flight; that request's own 400 must still
+        # fall back (eligibility comes from its args, not the cache).
+        from pydantic import BaseModel
+
+        class Person(BaseModel):
+            name: str
+            age: int
+
+        provider = self.provider()
+        turns = [UserTurn("John, age 15")]
+        args = provider._chat_perform_args(
+            stream=False, turns=turns, tools={}, data_model=Person
+        )
+        assert "outputConfig" in args
+
+        provider._native_unsupported_models.add(provider.model)
+        retry = provider._native_retry_args(
+            self._native_rejection(), args, False, turns, {}, Person, None
+        )
+        assert retry is not None
+        assert "outputConfig" not in retry
+        assert retry["toolConfig"]["toolChoice"] == {
+            "tool": {"name": "_structured_tool_call"}
+        }
+
+    def test_native_mode_does_not_fall_back(self):
+        from unittest.mock import patch
+
+        from chatlas import Chat
+        from pydantic import BaseModel
+
+        class Person(BaseModel):
+            name: str
+            age: int
+
+        provider = self.provider(mode="native")
+        chat = Chat(provider=provider)
+
+        def reject(args):
+            raise self._native_rejection()
+
+        with patch.object(provider, "_converse", side_effect=reject):
+            with pytest.raises(ValueError, match="output_config"):
+                chat.chat_structured("John, age 15", data_model=Person)
+
+    @pytest.mark.asyncio
+    async def test_native_mode_streams_incrementally_async(self):
+        from unittest.mock import patch
+
+        from chatlas import Chat
+        from pydantic import BaseModel
+
+        class Person(BaseModel):
+            name: str
+            age: int
+
+        provider = self.provider(mode="native")
+        chat = Chat(provider=provider)
+
+        events = self._fake_native_stream_events()
+
+        async def fake_stream(args):
+            for event in events:
+                yield event
+
+        with patch.object(provider, "_converse_stream_async", fake_stream):
+            chunks = [
+                chunk
+                async for chunk in await chat.stream_async(
+                    "John, age 15", data_model=Person
+                )
+            ]
+
+        person = Person.model_validate_json("".join(chunks))
+        assert person == Person(name="John", age=15)
 
 
 def test_blocked_network_skips_live_converse_before_credential_probe(monkeypatch):
@@ -1993,6 +2628,23 @@ class TestLiveConverse:
 
     def test_data_extraction(self):
         assert_data_extraction(ChatBedrock)
+
+    def test_stream_data_extraction_native(self):
+        # claude-sonnet-4-6 supports native structured outputs, so this
+        # streams incrementally (no non-streaming fallback).
+        from pydantic import BaseModel
+
+        class Person(BaseModel):
+            name: str
+            age: int
+
+        chat = ChatBedrock(
+            model="us.anthropic.claude-sonnet-4-6", structured_output_mode="native"
+        )
+        chunks = list(chat.stream("Extract: John is 15 years old.", data_model=Person))
+        person = Person.model_validate_json("".join(chunks))
+        assert person.name == "John"
+        assert person.age == 15
 
     def test_images(self):
         assert_images_inline(ChatBedrock)

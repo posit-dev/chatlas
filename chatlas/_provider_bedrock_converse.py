@@ -4,6 +4,7 @@ import asyncio
 import base64
 import json
 import os
+import warnings
 from collections.abc import Mapping
 from functools import cache
 from typing import (
@@ -45,7 +46,11 @@ from ._provider import (
     StandardModelParamNames,
     StandardModelParams,
 )
-from ._provider_anthropic import AnthropicProvider
+from ._provider_anthropic import (
+    AnthropicProvider,
+    StructuredOutputMode,
+    supports_structured_outputs,
+)
 from ._provider_bedrock import (
     CROSS_REGION_PREFIX,
     bedrock_base_url,
@@ -59,6 +64,7 @@ from ._turn import (
     SystemTurn,
     Turn,
     UserTurn,
+    caller_stacklevel,
     check_finish_reason,
 )
 from ._typing_extensions import NotRequired, TypedDict
@@ -90,6 +96,7 @@ if TYPE_CHECKING:
         ConverseResponseTypeDef,
         InferenceConfigurationTypeDef,
         MessageUnionTypeDef,
+        OutputConfigTypeDef,
         SystemContentBlockTypeDef,
         TokenUsageTypeDef,
         ToolChoiceTypeDef,
@@ -420,6 +427,7 @@ class BedrockConverseProvider(
         base_url: Optional[str],
         max_tokens: int = 4096,
         cache: Literal["auto", "5m", "1h", "none"] = "auto",
+        structured_output_mode: StructuredOutputMode = "auto",
         name: str = "AWS/Bedrock",
         kwargs: Optional[ConverseClientArgs] = None,
     ):
@@ -428,6 +436,12 @@ class BedrockConverseProvider(
         self._aws_region = aws_region
         self._max_tokens = max_tokens
         self._cache: Literal["auto", "5m", "1h", "none"] = cache
+        self._structured_output_mode = structured_output_mode
+        # Models that have rejected `outputConfig` with a 400, and models
+        # that have accepted it (see `_native_retry_args`/`can_stream`);
+        # only populated in "auto" mode.
+        self._native_unsupported_models: set[str] = set()
+        self._native_verified_models: set[str] = set()
 
         resolved_base_url = base_url or bedrock_base_url("converse", aws_region)
         # `LazyCredentials` defers the botocore credential chain to the first
@@ -523,7 +537,21 @@ class BedrockConverseProvider(
         args = self._chat_perform_args(stream, turns, tools, data_model, kwargs)
         if stream:
             return self._converse_stream(args)
-        return self._converse(args)
+        try:
+            response = self._converse(args)
+        except ValueError as error:
+            retry = self._native_retry_args(
+                error, args, stream, turns, tools, data_model, kwargs
+            )
+            if retry is None:
+                raise
+            return self._converse(retry)
+        # A successful request that carried `outputConfig` proves the model
+        # accepts it, so "auto" mode may stream natively from now on (see
+        # `can_stream`).
+        if "outputConfig" in args and self._structured_output_mode == "auto":
+            self._native_verified_models.add(self.model)
+        return response
 
     @overload
     async def chat_perform_async(
@@ -559,15 +587,112 @@ class BedrockConverseProvider(
         args = self._chat_perform_args(stream, turns, tools, data_model, kwargs)
         if stream:
             return self._converse_stream_async(args)
-        return await self._converse_async(args)
+        try:
+            response = await self._converse_async(args)
+        except ValueError as error:
+            retry = self._native_retry_args(
+                error, args, stream, turns, tools, data_model, kwargs
+            )
+            if retry is None:
+                raise
+            return await self._converse_async(retry)
+        if "outputConfig" in args and self._structured_output_mode == "auto":
+            self._native_verified_models.add(self.model)
+        return response
+
+    def _native_retry_args(
+        self,
+        error: ValueError,
+        args: ConverseRequestTypeDef,
+        stream: bool,
+        turns: list[Turn],
+        tools: dict[str, Tool | ToolBuiltIn],
+        data_model: Optional[type[BaseModel]],
+        kwargs: Optional[ConverseSubmitArgs],
+    ) -> Optional[ConverseRequestTypeDef]:
+        """Rebuild request args for tool-based extraction after a native-mode 400.
+
+        Converse's `outputConfig` support is per-model in a way that can't
+        be derived from the model ID (e.g. `claude-sonnet-5` rejects it
+        while `claude-sonnet-4-6` accepts it), so "auto" mode is optimistic:
+        on the specific rejection, remember the model as unsupported and
+        retry with the forced tool call. Returns `None` (caller re-raises)
+        when the failure wasn't a native-mode attempt -- including explicit
+        "native" mode, where the user asked for `outputConfig` and gets its
+        error. (Only called from the non-streaming paths: `can_stream()`
+        keeps unverified native attempts out of the streaming paths, so a
+        structured stream never carries `outputConfig` until the model has
+        accepted one.)
+
+        Retry eligibility comes from the failed request's own `outputConfig`,
+        not the unsupported-model cache: a concurrent request may have
+        populated the cache while this one was in flight, and it still
+        deserves its retry.
+        """
+        if (
+            data_model is None
+            or self._structured_output_mode != "auto"
+            or "outputConfig" not in args
+            or not self._is_native_rejection(error)
+        ):
+            return None
+        if self.model not in self._native_unsupported_models:
+            self._native_unsupported_models.add(self.model)
+            warnings.warn(
+                f"Bedrock Converse model '{self.model}' rejected native "
+                "structured outputs (`outputConfig`); falling back to "
+                "tool-based extraction. This provider will use tool-based "
+                "extraction for the model from now on.",
+                stacklevel=caller_stacklevel(),
+            )
+        # `_use_native_structured_output()` is now False, so this rebuilds the
+        # args with the forced `_structured_tool_call` instead of `outputConfig`.
+        return self._chat_perform_args(stream, turns, tools, data_model, kwargs)
+
+    @staticmethod
+    def _is_native_rejection(error: ValueError) -> bool:
+        # The specific 400 returned by models that lack `outputConfig` support
+        # (e.g. "... status 400: ... output_config.format: Extra inputs are
+        # not permitted"). Other errors mentioning `output_config` -- notably
+        # schema-validation 400s, which imply the model *does* support native
+        # output -- must propagate rather than disable native mode.
+        message = str(error)
+        return (
+            "output_config" in message
+            and "Extra inputs are not permitted" in message
+        )
+
+    def tool_history_requires_config(self) -> bool:
+        # Converse 400s with "The toolConfig field must be defined when using
+        # toolUse and toolResult content blocks" (it doesn't check that the
+        # specs match the history's tool names).
+        return True
 
     def can_stream(self, data_model: Optional[type[BaseModel]]) -> bool:
-        # Structured data extraction is tool-based (a forced `toolChoice` on a
-        # tool whose input is `{"data": ...}`-wrapped), and Converse streams
-        # tool input in its own event type rather than as text, so a streamed
-        # response can't honor the extracted-JSON contract (`"".join(chunks)`
-        # would be empty). Fall back to a single non-streaming request.
-        return data_model is None
+        # Native structured outputs (`outputConfig`) stream as ordinary text
+        # deltas, so they honor the extracted-JSON contract. The tool-based
+        # strategy streams tool input in its own event type (and
+        # `{"data": ...}`-wrapped at that), so it can't -- `Chat` falls back
+        # to a single non-streaming request there.
+        if data_model is None:
+            return True
+        if self._structured_output_mode == "native":
+            return True
+        if not self._use_native_structured_output():
+            return False
+        # Converse's `outputConfig` support can't be derived from the model
+        # ID, so "auto" proves it first: until a native request has
+        # succeeded, `Chat`'s non-streaming fallback doubles as the probe
+        # (and records the verdict either way).
+        return self.model in self._native_verified_models
+
+    def _use_native_structured_output(self) -> bool:
+        if self.model in self._native_unsupported_models:
+            return False
+        mode = self._structured_output_mode
+        return mode == "native" or (
+            mode == "auto" and supports_structured_outputs(self.model)
+        )
 
     def stream_content(
         self,
@@ -781,10 +906,13 @@ class BedrockConverseProvider(
             "inferenceConfig": inference_config,
         }
 
+        use_native_output = data_model is not None and (
+            self._use_native_structured_output()
+        )
         data_model_tool: Optional[Tool] = None
         tool_specs = [converse_tool_spec(tool) for tool in tools.values()]
         tool_config: Optional[ToolConfigurationTypeDef] = None
-        if data_model is not None:
+        if data_model is not None and not use_native_output:
             data_model_tool = AnthropicProvider.create_data_model_tool(data_model)
             tool_specs.append(converse_tool_spec(data_model_tool))
 
@@ -798,6 +926,18 @@ class BedrockConverseProvider(
             args["toolConfig"] = tool_config
 
         extra = dict(cast(dict, kwargs or {}))
+        if data_model is not None:
+            # A caller-supplied `toolConfig` (e.g. a toolChoice forcing an
+            # ordinary tool) contradicts extraction: `chat_structured()`
+            # never executes tools, and in the streaming tool loop a forced
+            # choice would re-fire on every submission. (Tool mode's own
+            # forced choice is re-asserted later in this method.)
+            extra.pop("toolConfig", None)
+        if data_model is not None and not use_native_output:
+            # A caller-supplied raw `outputConfig` can't be honored for a
+            # tool-based structured request (and would break the fallback in
+            # `_native_retry_args`, whose rebuild re-applies `kwargs`).
+            extra.pop("outputConfig", None)
         # Merge inferenceConfig rather than replacing it outright, so a
         # per-request override (e.g. from `set_model_params(temperature=...)`)
         # doesn't silently drop `maxTokens`.
@@ -805,6 +945,27 @@ class BedrockConverseProvider(
         if extra_inference_config:
             inference_config.update(extra_inference_config)
         args.update(extra)
+
+        if data_model is not None and use_native_output:
+            from anthropic import transform_schema
+
+            # After `args.update(extra)`, so chatlas's `outputConfig` wins
+            # over a user-supplied one (mirroring `ChatAnthropic`).
+            args["outputConfig"] = cast(
+                "OutputConfigTypeDef",
+                {
+                    "textFormat": {
+                        "type": "json_schema",
+                        "structure": {
+                            "jsonSchema": {
+                                # The schema is a JSON *string* on the wire.
+                                "schema": json.dumps(transform_schema(data_model)),
+                                "name": data_model.__name__,
+                            }
+                        },
+                    }
+                },
+            )
 
         extra_system = extra.get("system")
         system = (
@@ -910,10 +1071,19 @@ class BedrockConverseProvider(
         message = completion["output"].get("message")
         contents: list[Content] = []
         if message is not None:
+            # Structured output arrives in one of two forms, depending on
+            # `structured_output_mode`: a `_structured_tool_call` toolUse
+            # block (tool mode), or as ordinary text (native `outputConfig`
+            # mode) -- mirroring `AnthropicProvider._as_turn`.
+            uses_tool_approach = has_data_model and any(
+                (cast(dict, block).get("toolUse") or {}).get("name")
+                == "_structured_tool_call"
+                for block in message["content"]
+            )
             for block in message["content"]:
                 tool_use = cast(dict, block).get("toolUse")
                 if (
-                    has_data_model
+                    uses_tool_approach
                     and tool_use
                     and tool_use["name"] == "_structured_tool_call"
                 ):
@@ -928,6 +1098,12 @@ class BedrockConverseProvider(
                             "Expected data extraction tool to return a 'data' dictionary."
                         )
                     contents.append(ContentJson(value=data))
+                elif (
+                    has_data_model
+                    and not uses_tool_approach
+                    and (text := cast(dict, block).get("text")) is not None
+                ):
+                    contents.append(ContentJson(value=json.loads(text)))
                 elif (content := content_from_converse_block(block)) is not None:
                     contents.append(content)
         return AssistantTurn(
