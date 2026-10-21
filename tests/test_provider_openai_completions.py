@@ -585,3 +585,16 @@ def test_tool_results_come_before_the_user_text_of_the_same_turn():
 
     assert [x["role"] for x in inputs] == ["user", "assistant", "tool", "user"]
     assert inputs[2]["tool_call_id"] == "call_1"
+
+
+def test_load_tool_request_args_error_names_the_arguments():
+    from chatlas._provider_openai_completions import load_tool_request_args
+
+    with pytest.raises(ValueError) as excinfo:
+        load_tool_request_args('{"city": "Paris"', "get_weather")
+
+    message = str(excinfo.value)
+    assert "(get_weather)" in message
+    assert '\'{"city": "Paris"\'' in message
+    assert "{args}" not in message
+    assert 'input arguments: \'{"city": "Paris"\'. This can happen' in message
