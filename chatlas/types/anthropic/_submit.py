@@ -6,6 +6,7 @@
 from typing import Iterable, Literal, Mapping, Optional, Sequence, TypedDict, Union
 
 import anthropic
+import anthropic.types.assistant_message_param
 import anthropic.types.browser_toolset_20260801_param
 import anthropic.types.cache_control_ephemeral_param
 import anthropic.types.code_execution_tool_20250522_param
@@ -16,8 +17,8 @@ import anthropic.types.computer_toolset_20260801_param
 import anthropic.types.container_params
 import anthropic.types.diagnostics_param
 import anthropic.types.memory_tool_20250818_param
-import anthropic.types.message_param
 import anthropic.types.output_config_param
+import anthropic.types.system_message_param
 import anthropic.types.text_block_param
 import anthropic.types.thinking_config_adaptive_param
 import anthropic.types.thinking_config_between_tools_param
@@ -34,6 +35,7 @@ import anthropic.types.tool_search_tool_regex_20251119_param
 import anthropic.types.tool_text_editor_20250124_param
 import anthropic.types.tool_text_editor_20250429_param
 import anthropic.types.tool_text_editor_20250728_param
+import anthropic.types.user_message_param
 import anthropic.types.web_fetch_tool_20250910_param
 import anthropic.types.web_fetch_tool_20260209_param
 import anthropic.types.web_fetch_tool_20260309_param
@@ -45,7 +47,13 @@ import anthropic.types.web_search_tool_20260318_param
 
 class SubmitInputArgs(TypedDict, total=False):
     max_tokens: int
-    messages: Iterable[anthropic.types.message_param.MessageParam]
+    messages: Iterable[
+        Union[
+            anthropic.types.user_message_param.UserMessageParam,
+            anthropic.types.assistant_message_param.AssistantMessageParam,
+            anthropic.types.system_message_param.SystemMessageParam,
+        ]
+    ]
     model: Union[
         Literal[
             "claude-haiku-5-5",
