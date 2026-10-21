@@ -160,6 +160,7 @@ class OllamaProvider(OpenAICompletionsProvider):
 
     def _chat_perform_args(self, *args, **kwargs):
         if not self.model:
+            assert self.base_url is not None
             model_ids = ", ".join(m["id"] for m in ollama_model_info(self.base_url))
             raise ValueError(f"Must specify model. Available models: {model_ids}")
         return super()._chat_perform_args(*args, **kwargs)
