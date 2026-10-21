@@ -151,6 +151,7 @@ class DatabricksProvider(OpenAICompletionsProvider):
         client = workspace_client.serving_endpoints.get_open_ai_client()
 
         self._client = client
+        self._base_url = str(client.base_url)
 
         # The databricks sdk does currently expose an async client, but we can
         # effectively mirror what .get_open_ai_client() does internally.

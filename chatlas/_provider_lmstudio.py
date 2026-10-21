@@ -142,6 +142,8 @@ class LMStudioProvider(OpenAICompletionsProvider):
         self.base_url = base_url
 
     def list_models(self):
+        # Always set from the constructor's (required) base_url argument
+        assert self.base_url is not None
         return lmstudio_model_info(self.base_url, api_key=self._client.api_key or "")
 
 

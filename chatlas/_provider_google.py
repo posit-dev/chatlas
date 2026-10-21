@@ -283,6 +283,15 @@ class GoogleProvider(
 
         self._client = genai.Client(**kwargs_full)
 
+        # The resolved endpoint (Gemini API or Vertex) lives in the client's
+        # private HTTP options; best-effort, for telemetry.
+        api_client = getattr(self._client, "_api_client", None)
+        http_options = getattr(api_client, "_http_options", None)
+        if isinstance(http_options, dict):
+            self._base_url = http_options.get("base_url")
+        else:
+            self._base_url = getattr(http_options, "base_url", None)
+
     def close(self) -> None:
         self._client.close()
 
