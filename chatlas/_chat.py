@@ -2904,14 +2904,17 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                         if content == "all":
                             yield x
                         results = self._invoke_tool_async(x, _otel_parent=agent_span)
-                        async for res in results:
-                            if echo == "output":
-                                self._echo_content(res)
-                            if content == "all":
-                                yield res
-                            else:
-                                yield "\n\n"
-                            all_results.append(res)
+                        try:
+                            async for res in results:
+                                if echo == "output":
+                                    self._echo_content(res)
+                                if content == "all":
+                                    yield res
+                                else:
+                                    yield "\n\n"
+                                all_results.append(res)
+                        finally:
+                            await results.aclose()
 
                 if all_results:
                     user_turn_result = UserTurn(all_results)

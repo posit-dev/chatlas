@@ -1261,6 +1261,42 @@ def test_abandoned_stream_recorded_as_interrupted(
     assert agent_duration.attributes["error.type"] == "interrupted"
 
 
+@pytest.mark.vcr("test_span_hierarchy_with_tools.yaml")
+@pytest.mark.asyncio
+async def test_closing_async_stream_finishes_tool_before_agent(
+    otel_setup: InMemorySpanExporter, otel_metrics: InMemoryMetricReader
+) -> None:
+    chat = ChatOpenAI(
+        model="gpt-4o-mini",
+        system_prompt="Always use the get_date tool to answer questions about the date.",
+    )
+
+    def get_date() -> str:
+        "Return the current date"
+        return "2026-05-12"
+
+    chat.register_tool(get_date)
+    stream = await chat.stream_async("What is today's date?", content="all")
+    try:
+        request = await stream.__anext__()
+        result = await stream.__anext__()
+    finally:
+        await stream.aclose()
+
+    assert isinstance(request, ContentToolRequest)
+    assert isinstance(result, ContentToolResult)
+    assert result.value == "2026-05-12"
+    assert [span.name for span in otel_setup.get_finished_spans()] == [
+        "chat gpt-4o-mini",
+        "execute_tool get_date",
+        "invoke_agent",
+    ]
+    tool_duration = _metric_points(otel_metrics)["gen_ai.execute_tool.duration"]
+    assert len(tool_duration) == 1
+    assert tool_duration[0].count == 1
+    assert tool_duration[0].attributes["error.type"] == "interrupted"
+
+
 def test_content_tool_result_value_becomes_otel_part():
     # A `Content` tool-result value (e.g. an image) converts to an otel part
     # rather than stringifying or dropping the message.

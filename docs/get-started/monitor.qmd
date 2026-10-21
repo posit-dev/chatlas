@@ -173,7 +173,29 @@ Each **tool span** (`execute_tool`, one per tool invocation) records:
 
 ### Metrics
 
-Alongside spans, chatlas emits the metrics defined by the [GenAI semantic conventions](https://opentelemetry.io/docs/specs/semconv/gen-ai/gen-ai-metrics/), so latency and token-usage dashboards work out of the box. Where spans describe individual requests, metrics are aggregated by the OTel SDK and exported periodically — cheap enough for always-on monitoring and alerting. They flow through the same SDK configuration as traces, so once a backend is set up (as above) there's nothing more to do.
+Chatlas emits metrics defined by the [GenAI semantic conventions](https://opentelemetry.io/docs/specs/semconv/gen-ai/gen-ai-metrics/). The OpenTelemetry SDK aggregates these measurements and exports them to your backend.
+
+Metrics require a `MeterProvider` with a reader and exporter. The `TracerProvider` in the console example enables only traces. If your backend already configures a meter provider, use that configuration.
+
+To print metrics to the console, configure their exporter before creating chats:
+
+```python
+from opentelemetry import metrics
+from opentelemetry.sdk.metrics import MeterProvider
+from opentelemetry.sdk.metrics.export import (
+    ConsoleMetricExporter,
+    PeriodicExportingMetricReader,
+)
+
+reader = PeriodicExportingMetricReader(
+    ConsoleMetricExporter(),
+    export_interval_millis=5000,
+)
+meter_provider = MeterProvider(metric_readers=[reader])
+metrics.set_meter_provider(meter_provider)
+```
+
+The reader exports metrics every five seconds. For other backends, use their metric exporter instead of `ConsoleMetricExporter`.
 
 For each model API call:
 
@@ -186,7 +208,7 @@ For each tool invocation, `gen_ai.execute_tool.duration` (histogram), tagged wit
 
 For each agent-loop invocation (one `chat()`/`stream()` call), `gen_ai.invoke_agent.duration`, `gen_ai.invoke_agent.inference_calls`, and `gen_ai.invoke_agent.tool_calls` (histograms).
 
-All instruments carry the provider, requested model, and server attributes (`gen_ai.provider.name`, `gen_ai.request.model`, `server.address`, `server.port`), so metrics can be broken down by model or endpoint.
+Model and agent metrics carry `gen_ai.provider.name`, `gen_ai.request.model`, `server.address`, and `server.port`, so you can group measurements by model or endpoint. Tool metrics carry `gen_ai.tool.name` and `gen_ai.tool.type`.
 
 ### Content Capture
 
