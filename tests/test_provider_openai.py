@@ -671,3 +671,73 @@ def test_openai_truncated_plain_text_still_returns_a_turn():
 
     assert turn.text == '{"comments": [{"body": "trunc'
     assert turn.finish_reason == "max_tokens"
+
+
+def _usage_completion(**details):
+    from openai.types.responses import ResponseUsage
+
+    return Response.construct(
+        id="resp_1",
+        model="gpt-5.6-sol",
+        status="completed",
+        service_tier="default",
+        output=[],
+        usage=ResponseUsage.construct(
+            input_tokens=12000,
+            output_tokens=100,
+            total_tokens=12100,
+            input_tokens_details=details,
+        ),
+    )
+
+
+class _Details:
+    def __init__(self, **kwargs):
+        self.__dict__.update(kwargs)
+
+
+def test_openai_value_tokens_bills_cache_writes_above_the_input_rate():
+    provider = OpenAIProvider(model="gpt-5.6-sol", api_key="dummy")
+
+    # 12000 input tokens: 4000 read from the cache, 7000 written for 30 minutes,
+    # 1000 ordinary. Writes cost 125% of the input rate.
+    completion = _usage_completion()
+    completion.usage.input_tokens_details = _Details(
+        cached_tokens=4000, cache_write_tokens=7000
+    )
+
+    assert provider.value_tokens(completion) == (
+        12000 - 4000 + int(0.25 * 7000),
+        100,
+        4000,
+    )
+
+
+def test_openai_value_tokens_bills_12h_cache_writes_at_250_percent():
+    provider = OpenAIProvider(model="gpt-5.6-sol", api_key="dummy")
+
+    completion = _usage_completion()
+    completion.usage.input_tokens_details = _Details(
+        cached_tokens=4000,
+        cache_write_tokens=7000,
+        cache_write_tokens_details=_Details(ttl_30m_tokens=3000, ttl_12h_tokens=4000),
+    )
+
+    assert provider.value_tokens(completion) == (
+        12000 - 4000 + int(0.25 * 3000 + 1.5 * 4000),
+        100,
+        4000,
+    )
+
+
+def test_openai_value_tokens_without_cache_writes_is_unchanged():
+    provider = OpenAIProvider(model="gpt-5.6-sol", api_key="dummy")
+
+    completion = _usage_completion()
+    completion.usage.input_tokens_details = _Details(cached_tokens=4000)
+    assert provider.value_tokens(completion) == (8000, 100, 4000)
+
+    completion.usage.input_tokens_details = _Details(
+        cached_tokens=4000, cache_write_tokens=0
+    )
+    assert provider.value_tokens(completion) == (8000, 100, 4000)

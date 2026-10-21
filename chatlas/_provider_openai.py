@@ -449,9 +449,23 @@ class OpenAIProvider(
         usage = completion.usage
         if usage is None:
             return None
-        cached_tokens = usage.input_tokens_details.cached_tokens
+        details = usage.input_tokens_details
+        cached_tokens = details.cached_tokens
+
+        # `input_tokens` includes the tokens written to the prompt cache, which
+        # GPT-5.6 and later bill at 125% of the input rate for the default
+        # 30-minute lifetime and at 250% for the 12-hour one, so add the premium.
+        # https://developers.openai.com/api/docs/guides/prompt-caching
+        write_tokens = getattr(details, "cache_write_tokens", None) or 0
+        write_details = getattr(details, "cache_write_tokens_details", None)
+        if isinstance(write_details, dict):
+            write_12h = write_details.get("ttl_12h_tokens") or 0
+        else:
+            write_12h = getattr(write_details, "ttl_12h_tokens", None) or 0
+        write_premium = int(0.25 * (write_tokens - write_12h) + 1.5 * write_12h)
+
         return (
-            usage.input_tokens - cached_tokens,
+            usage.input_tokens - cached_tokens + write_premium,
             usage.output_tokens,
             cached_tokens,
         )
