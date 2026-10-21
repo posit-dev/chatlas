@@ -20,7 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Bug fixes
 
-* `ChatMistral(seed=0)` now sends `random_seed: 0` instead of silently dropping the seed, and a seed no longer replaces an `extra_body` passed through `kwargs`: Mistral's `random_seed` is merged into it.
+* `ChatMistral(seed=0)` now sends `random_seed: 0` instead of silently dropping the seed, and a seed no longer replaces an `extra_body` passed through `kwargs`: Mistral's `random_seed` is merged into it. (#475)
 * `content_image_url()` with a `data:` URL no longer silently drops the `detail` argument: the setting is now carried by inline image content and forwarded to OpenAI's Responses and Chat Completions APIs (regular image URLs already forwarded it). Other providers continue to ignore `detail`. (#467)
 * `ChatBedrockAnthropic()` now uses native structured outputs for `data_model` on Claude 4.5 and later, as `ChatAnthropic()` does. Its Bedrock model IDs (`anthropic.claude-...`, `us.anthropic.claude-...`) weren't recognized, so it fell back to forcing a tool call, which Claude Opus 5.5 and Sonnet 5.5 reject with a 400.
 * A tool written as a generator (see "Progressive results" in the tool-calling docs) now reports each yielded value in `.chat_async()` and `.stream_async()`, as it does in `.chat()`. A synchronous generator tool used to send the generator object itself (`<generator object ...>`) as its result. An `async def` generator tool now counts as an async tool, so `.chat()` raises the usual "Cannot use async tools in a synchronous chat" error instead of sending `<async_generator object ...>` as the result.
