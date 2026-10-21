@@ -1,16 +1,25 @@
 from __future__ import annotations
 
 import json
-from typing import Any, cast
+from collections.abc import AsyncIterator, Iterator, Sequence
+from types import SimpleNamespace
+from typing import cast
 
 import pytest
 
 pytest.importorskip("opentelemetry.sdk")
 
-from chatlas import ChatOpenAI, _otel
-from chatlas._content import ContentText, ContentToolRequest, ContentToolResult, ToolInfo
-from chatlas._turn import AssistantTurn
+from chatlas import ChatOpenAI, _chat, _otel
+from chatlas._content import (
+    Content,
+    ContentText,
+    ContentThinkingDelta,
+    ContentToolRequest,
+    ContentToolResult,
+    ToolInfo,
+)
 from chatlas._tools import ToolBuiltIn
+from chatlas._turn import AssistantTurn, Turn
 from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import SimpleSpanProcessor
 from opentelemetry.sdk.trace.export.in_memory_span_exporter import InMemorySpanExporter
@@ -277,51 +286,85 @@ def test_streaming_span_lifecycle(otel_setup: InMemorySpanExporter):
     )
 
 
-def test_ttft_recorded_at_first_non_empty_text_token(
+@pytest.mark.asyncio
+@pytest.mark.parametrize("async_mode", [False, True], ids=["sync", "async"])
+@pytest.mark.parametrize(
+    "first_content",
+    [ContentText(text="hi"), ContentThinkingDelta(thinking="hmm")],
+    ids=["text", "thinking"],
+)
+async def test_ttft_recorded_at_first_non_empty_token(
     otel_setup: InMemorySpanExporter,
-):
-    # TTFT must be recorded at the first non-empty text/thinking content, not
-    # merely the first chunk (which can carry an empty delta).
+    monkeypatch: pytest.MonkeyPatch,
+    async_mode: bool,
+    first_content: ContentText | ContentThinkingDelta,
+) -> None:
     chat = ChatOpenAI(model="gpt-4o-mini")
+    now = 0.0
+    clock = SimpleNamespace(monotonic=lambda: now)
+    monkeypatch.setattr(_chat, "time", clock)
+    monkeypatch.setattr(_otel, "time", clock)
 
-    def streaming_perform(*args, **kwargs):
-        def gen():
+    def chunks() -> Iterator[object]:
+        nonlocal now
+        for timestamp in (2.0, 5.0, 9.0):
+            now = timestamp
             yield object()
-            yield object()
-            yield object()
+
+    def streaming_perform(*args: object, **kwargs: object) -> Iterator[object]:
+        nonlocal now
+        now = 1.0
+        return chunks()
+
+    async def streaming_perform_async(
+        *args: object, **kwargs: object
+    ) -> AsyncIterator[object]:
+        nonlocal now
+        now = 1.0
+
+        async def gen() -> AsyncIterator[object]:
+            for chunk in chunks():
+                yield chunk
 
         return gen()
 
-    stream_contents = iter(
-        [
-            [ContentText.model_construct(text="")],
-            [ContentText(text="hi")],
-            [],
-        ]
-    )
+    content_chunks: list[list[Content]] = [
+        [ContentText.model_construct(text="")],
+        [first_content],
+        [ContentText(text="there")],
+    ]
+    stream_contents = iter(content_chunks)
 
-    chat.provider.chat_perform = streaming_perform  # type: ignore[method-assign]
-    chat.provider.stream_content = lambda chunk, completion, turns=(): next(  # type: ignore[method-assign]
-        stream_contents
-    )
-    chat.provider.stream_merge_chunks = (  # type: ignore[method-assign]
-        lambda result, chunk: chunk
-    )
-    chat.provider.stream_turn = (  # type: ignore[method-assign]
-        lambda completion, has_data_model, turns=(): AssistantTurn("hi")
-    )
+    def stream_content(
+        chunk: object, completion: object, turns: Sequence[Turn] = ()
+    ) -> list[Content]:
+        return next(stream_contents)
 
-    list(chat.stream("Say hello."))
+    def stream_merge_chunks(result: object, chunk: object) -> object:
+        return chunk
+
+    def stream_turn(
+        completion: object, has_data_model: bool, turns: Sequence[Turn] = ()
+    ) -> AssistantTurn[object]:
+        return AssistantTurn("hi there")
+
+    monkeypatch.setattr(chat.provider, "chat_perform", streaming_perform)
+    monkeypatch.setattr(chat.provider, "chat_perform_async", streaming_perform_async)
+    monkeypatch.setattr(chat.provider, "stream_content", stream_content)
+    monkeypatch.setattr(chat.provider, "stream_merge_chunks", stream_merge_chunks)
+    monkeypatch.setattr(chat.provider, "stream_turn", stream_turn)
+
+    if async_mode:
+        async for _ in await chat.stream_async("Say hello."):
+            pass
+    else:
+        list(chat.stream("Say hello."))
 
     spans = otel_setup.get_finished_spans()
     chat_spans = [s for s in spans if s.name.startswith("chat ")]
     assert len(chat_spans) == 1
     attrs = chat_spans[0].attributes or {}
-    ttft = attrs.get("gen_ai.response.time_to_first_chunk")
-    assert isinstance(ttft, float), (
-        f"Expected gen_ai.response.time_to_first_chunk to be recorded, got {ttft!r}"
-    )
-    assert ttft > 0
+    assert attrs.get("gen_ai.response.time_to_first_chunk") == 5.0
 
 
 def test_chat_error_recorded(otel_setup: InMemorySpanExporter):
