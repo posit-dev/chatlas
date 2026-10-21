@@ -24,6 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Bug fixes
 
+* The deprecation warning for `temperature`, `top_p` and `top_k` on `ChatAnthropic()` no longer says these parameters have no effect on current models. Anthropic's deprecation page says Claude 4.7 and later models return a 400 error when they are set to a non-default value, and that API version 2026-10-21 removes them for every model; the warning now says so. What is forwarded is unchanged.
 * `ChatOllama()` can now be created without a `model`, so `ChatOllama().list_models()` works. Sending a message without a model still raises an error that lists the available models. (#166)
 * `ChatGoogle()` now reports `finish_reason == "content_filter"` for Gemini's `IMAGE_SAFETY`, `IMAGE_PROHIBITED_CONTENT`, `IMAGE_RECITATION` and `LANGUAGE` finish reasons, instead of passing the raw Gemini string through, and reports `"tool_use"` (rather than `"success"`) when a turn ends with a tool request, as `ChatOpenAI()` does. (#473)
 * The error raised for a tool request with invalid JSON arguments from `ChatOpenAI()` and `ChatOpenAICompletions()` (and the providers built on them) now shows the offending arguments, instead of the literal text `{args}`.
