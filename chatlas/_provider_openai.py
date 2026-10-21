@@ -458,16 +458,14 @@ class OpenAIProvider(
         # Only the models that bill writes report the per-lifetime breakdown, so
         # a response without it (earlier models: no write charge) adds nothing.
         # https://developers.openai.com/api/docs/guides/prompt-caching
-        write_details = getattr(details, "cache_write_tokens_details", None)
+        # The SDK doesn't type `cache_write_tokens_details` (it keeps it as an extra
+        # field, a plain dict), and chatlas doesn't pin a minimum `openai` version.
+        write_details = (details.model_extra or {}).get("cache_write_tokens_details")
         if write_details is None:
             write_premium = 0
         else:
-            if isinstance(write_details, dict):
-                write_30m = write_details.get("ttl_30m_tokens") or 0
-                write_12h = write_details.get("ttl_12h_tokens") or 0
-            else:
-                write_30m = getattr(write_details, "ttl_30m_tokens", None) or 0
-                write_12h = getattr(write_details, "ttl_12h_tokens", None) or 0
+            write_30m = write_details.get("ttl_30m_tokens") or 0
+            write_12h = write_details.get("ttl_12h_tokens") or 0
             write_premium = int(0.25 * write_30m + 1.5 * write_12h)
 
         return (
