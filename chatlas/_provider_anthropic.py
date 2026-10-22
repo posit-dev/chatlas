@@ -704,6 +704,18 @@ class AnthropicProvider(
             completion.stop_reason = chunk.delta.stop_reason
             completion.stop_sequence = chunk.delta.stop_sequence
             completion.usage.output_tokens = chunk.usage.output_tokens
+            # Usage on message_delta is cumulative and, with server tools, can
+            # exceed message_start's input and cache counts. Fields are omitted
+            # when not applicable, in which case message_start's value stands.
+            for field in (
+                "input_tokens",
+                "cache_creation_input_tokens",
+                "cache_read_input_tokens",
+                "server_tool_use",
+            ):
+                value = getattr(chunk.usage, field, None)
+                if value is not None:
+                    setattr(completion.usage, field, value)
 
         return completion
 
