@@ -485,11 +485,13 @@ class OpenAICompletionsProvider(
                             f"Don't know how to handle content type {type(x)} for role='user'."
                         )
 
+                # Tool messages must directly follow the assistant message that
+                # requested them, so they go ahead of any other user content.
+                res.extend(tool_results)
                 if contents:
                     res.append(
                         ChatCompletionUserMessageParam(content=contents, role="user")
                     )
-                res.extend(tool_results)
 
             else:
                 raise ValueError(f"Unknown role: {turn.role}")
@@ -612,7 +614,7 @@ def load_tool_request_args(args: str, name: str) -> dict[str, Any]:
     except orjson.JSONDecodeError:
         raise ValueError(
             f"The model's completion included a tool request ({name}) "
-            "with invalid JSON for input arguments: '{args}'"
+            f"with invalid JSON for input arguments: '{args}'. "
             "This can happen if the model hallucinates parameters not defined by "
             "your function schema. Try revising your tool description and system "
             "prompt to be more specific about the expected input arguments to this function."
