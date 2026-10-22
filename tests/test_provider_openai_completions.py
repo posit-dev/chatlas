@@ -45,6 +45,7 @@ def test_normalize_finish_reason_maps_known_reasons():
     assert completions_normalize_finish_reason("length") == "max_tokens"
     assert completions_normalize_finish_reason("content_filter") == "content_filter"
     assert completions_normalize_finish_reason("tool_calls") == "tool_use"
+    assert completions_normalize_finish_reason("model_length") == "context_window"
 
 
 def test_normalize_finish_reason_passes_through_unknown():
@@ -598,3 +599,23 @@ def test_load_tool_request_args_error_names_the_arguments():
     assert '\'{"city": "Paris"\'' in message
     assert "{args}" not in message
     assert 'input arguments: \'{"city": "Paris"\'. This can happen' in message
+
+
+def test_model_length_finish_reason_warns_about_the_context_window():
+    completion = ChatCompletion.construct(
+        id="x",
+        choices=[
+            {
+                "index": 0,
+                "finish_reason": "model_length",
+                "message": {"role": "assistant", "content": "partial"},
+            }
+        ],
+    )
+    provider = OpenAICompletionsProvider(api_key="key", model="m")
+
+    turn = provider.value_turn(completion, has_data_model=False)
+    assert turn.finish_reason == "context_window"
+
+    with pytest.raises(ValueError, match="context window"):
+        provider.value_turn(completion, has_data_model=True)
