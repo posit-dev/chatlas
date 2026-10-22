@@ -18,9 +18,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * The `snowflake` extra (i.e., `pip install "chatlas[snowflake]"`) no longer installs `snowflake-ml-python`, which pulled in the heavy torch ecosystem and blocked installation on Python 3.13+. `ChatSnowflake()` has used the Cortex REST API (`snowflake.core`) since v0.11.0, so it only needs `snowflake-core` and `snowflake-snowpark-python`.
 
+### New features
+
+* Streamed responses now record the time to first token (in seconds) as the `gen_ai.response.time_to_first_chunk` attribute on the OpenTelemetry `chat` span.
+
 ### Bug fixes
 
+* `ChatOllama()` can now be created without a `model`, so `ChatOllama().list_models()` works. Sending a message without a model still raises an error that lists the available models. (#166)
+* `ChatGoogle()` now reports `finish_reason == "content_filter"` for Gemini's `IMAGE_SAFETY`, `IMAGE_PROHIBITED_CONTENT`, `IMAGE_RECITATION` and `LANGUAGE` finish reasons, instead of passing the raw Gemini string through, and reports `"tool_use"` (rather than `"success"`) when a turn ends with a tool request, as `ChatOpenAI()` does. (#473)
+* The error raised for a tool request with invalid JSON arguments from `ChatOpenAI()` and `ChatOpenAICompletions()` (and the providers built on them) now shows the offending arguments, instead of the literal text `{args}`.
 * `content_image_url()` with a `data:` URL no longer silently drops the `detail` argument: the setting is now carried by inline image content and forwarded to OpenAI's Responses and Chat Completions APIs (regular image URLs already forwarded it). Other providers continue to ignore `detail`. (#467)
+* `ChatBedrock()` on a Converse model no longer drops redacted reasoning blocks when streaming. They were discarded as they arrived, so a streamed turn lost them, while a non-streamed one kept them. (#468)
 * `ChatBedrockAnthropic()` now uses native structured outputs for `data_model` on Claude 4.5 and later, as `ChatAnthropic()` does. Its Bedrock model IDs (`anthropic.claude-...`, `us.anthropic.claude-...`) weren't recognized, so it fell back to forcing a tool call, which Claude Opus 5.5 and Sonnet 5.5 reject with a 400.
 * A tool written as a generator (see "Progressive results" in the tool-calling docs) now reports each yielded value in `.chat_async()` and `.stream_async()`, as it does in `.chat()`. A synchronous generator tool used to send the generator object itself (`<generator object ...>`) as its result. An `async def` generator tool now counts as an async tool, so `.chat()` raises the usual "Cannot use async tools in a synchronous chat" error instead of sending `<async_generator object ...>` as the result.
 * MCP tools registered with a `namespace` (in `.register_mcp_tools_http_stream_async()` or `.register_mcp_tools_stdio_async()`) can be called successfully. `Tool.from_mcp()` gains a `name` argument for setting the tool's name independently of the MCP tool's name. (#458)
@@ -39,6 +47,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * `params(top_k=)` is no longer sent as `top_logprobs` for OpenAI-based providers (the two are unrelated; OpenAI has no `top_k` sampling parameter). `top_k` is now dropped with the standard unsupported-parameter warning. (#412)
 * `Chat.export()` and `interpolate_file()` now always read and write files as UTF-8. Previously they relied on the platform's default locale encoding, so on a non-UTF-8 locale `export()` could raise `UnicodeEncodeError` and `interpolate_file()` could silently return a corrupted (mojibake) prompt instead of the file's contents. (#437)
 * `ChatAnthropic()` no longer drops assistant turns that have no content; doing so could produce two consecutive user messages, violating the API's user/assistant alternation requirement. A `"[empty string]"` placeholder is sent instead, matching how empty text content is already normalized. (#416)
+* Providers built on the Chat Completions API (`ChatOpenAICompletions()`, `ChatGroq()`, `ChatOpenRouter()`, `ChatDeepSeek()`, etc.) now put the tool results of a turn ahead of the user's text in the same turn, as the API requires. Resuming a chat that ended with an unanswered tool request (or any turn that mixes tool results and new text) sent the user message first, which these APIs reject because a tool message must directly follow the assistant message that requested it. (#476)
 * `ChatMistral()` now reports `"context_window"` as the finish reason when a response stops with Mistral's `model_length` (the request reached the model's context length), instead of passing the raw string through. As for other providers, this makes chatlas warn about the truncated response (or raise an error when a data model was requested). (#477)
 
 
