@@ -28,46 +28,52 @@ invoke_agent                      # wraps the full chat loop
 └── ...
 ```
 
-These spans are always emitted, but they go nowhere until you configure a backend to receive them. That's because chatlas depends only on the lightweight `opentelemetry-api` package, which defines spans without recording them. To actually capture and export traces, you install the OpenTelemetry **SDK** and point it at a destination — which is exactly what the next section does.
+Chatlas records telemetry through the lightweight `opentelemetry-api` package.
+The OpenTelemetry **SDK** collects and exports this data after you configure a destination.
+The `opentelemetry-instrument` CLI can configure the SDK for you.
 
 ### Quick Start: Console Output
 
-The simplest way to see chatlas spans is to print them to the console. Install the OTel SDK via the `otel` extra:
+To print traces and metrics to the console, install the OTel SDK and its CLI:
 
 ```bash
-pip install "chatlas[otel]"
+pip install "chatlas[otel]" opentelemetry-distro
 ```
 
-Then configure a console exporter before creating any chats:
+Save your chat code in `app.py`.
+Run the app with `opentelemetry-instrument`:
 
-```python
-from opentelemetry import trace
-from opentelemetry.sdk.trace import TracerProvider
-from opentelemetry.sdk.trace.export import ConsoleSpanExporter, SimpleSpanProcessor
-
-provider = TracerProvider()
-provider.add_span_processor(SimpleSpanProcessor(ConsoleSpanExporter()))
-trace.set_tracer_provider(provider)
+```bash
+opentelemetry-instrument \
+  --traces_exporter console \
+  --metrics_exporter console \
+  --logs_exporter none \
+  python app.py
 ```
 
-That's it — chatlas will automatically emit spans for every `chat()`, `stream()`, and tool invocation.
+The CLI configures both tracing and metrics before the app starts.
+Chatlas then emits telemetry for every `chat()`, `stream()`, and tool invocation.
+Metrics export periodically and at shutdown.
+Your app does not need provider or exporter setup code.
 
 ### A worked example
 
-Here's a small travel assistant with a `get_weather` tool. The tool opens its own span (`fetch_forecast`) to represent the work it does, and we instrument [`httpx`](https://github.com/encode/httpx) — the HTTP library the provider SDKs use — so the underlying API request shows up too:
+Here is a travel assistant with a `get_weather` tool.
+The tool opens a span (`fetch_forecast`) for its own work.
+Save the Python example as `app.py`, then run it with the console command.
+
+To include the underlying HTTP requests, install the [`httpx`](https://github.com/encode/httpx) instrumentor:
 
 ```bash
 pip install opentelemetry-instrumentation-httpx
 ```
 
+The CLI automatically enables installed instrumentors.
+
 ```python
 import time
 from opentelemetry import trace
-from opentelemetry.instrumentation.httpx import HTTPXClientInstrumentor
 from chatlas import ChatOpenAI
-
-# Optional: nests the underlying HTTP call under each `chat` span
-HTTPXClientInstrumentor().instrument()
 
 tracer = trace.get_tracer("travel_assistant")
 
@@ -93,7 +99,14 @@ Sent to a backend with a timeline view, the resulting trace looks like this:
 <!-- otel-trace.svg is generated from a live run of this example by scripts/gen_otel_trace_svg.py -->
 ![A trace waterfall showing the `invoke_agent` span over the full request, two `chat gpt-4o` spans for the model calls, an `execute_tool get_weather` span, and the nested `POST` and `fetch_forecast` spans underneath them.](/images/otel-trace.svg){class="rounded shadow mt-3" fig-alt="OpenTelemetry trace waterfall for a chatlas conversation with a tool call"}
 
-Read top to bottom, this is the whole agent loop in one connected trace: the model decides to call the tool, the tool runs (with its own `fetch_forecast` work nested inside `execute_tool`), and a follow-up model call produces the answer. The two `POST` rows are the real HTTP requests, nested under their `chat` spans because chatlas keeps each span active while the provider call is in flight. Drop the `HTTPXClientInstrumentor` line and you'd still get the `invoke_agent`, `chat`, and `execute_tool` spans — just without the HTTP detail.
+The trace shows the whole agent loop.
+The model requests a tool, the tool runs, and a follow-up model call produces the answer.
+The tool's `fetch_forecast` span captures its own work.
+
+The two `POST` spans represent HTTP requests inside the chat spans.
+Chatlas keeps each chat span active while the provider call runs.
+The HTTP instrumentor adds the `POST` spans.
+Chatlas emits the agent, chat, and tool spans itself.
 
 By default the trace captures this *structure* but not the *message text* — the prompts and responses are omitted unless you opt in (see [Content Capture](#content-capture)). Instrumenting `httpx` is the simplest way to add lower-level HTTP detail; [Lower-level instrumentation](#lower-level-instrumentation) covers the full range of options.
 
@@ -112,11 +125,14 @@ import logfire
 logfire.configure()
 ```
 
-Other OpenTelemetry-compatible backends (Datadog, Honeycomb, Jaeger, etc.) work too — just configure the appropriate exporter via the standard `opentelemetry-sdk` and `opentelemetry-exporter-*` packages.
+This call configures both tracing and metrics.
+A separate `MeterProvider` setup is not necessary.
+
+For other backends, use the [environment-based configuration](#environment-based-configuration) with `opentelemetry-instrument`.
 
 ### Configuration Module Pattern
 
-For apps (especially Shiny apps), extract OTel setup into a dedicated module that runs before any other imports:
+If your hosting platform starts the app directly, configure Logfire in a module that you import before the app code:
 
 ```python
 # otel_config.py
@@ -133,15 +149,30 @@ from chatlas import ChatOpenAI
 
 ### Environment-based configuration
 
-The OpenTelemetry SDK can read its exporter settings from [standard environment variables](https://opentelemetry.io/docs/specs/otel/configuration/sdk-environment-variables/), so you can point chatlas's traces at a backend without changing code — and without hard-coding the endpoint or its credentials in your app:
+The CLI reads [standard environment variables](https://opentelemetry.io/docs/specs/otel/configuration/sdk-environment-variables/) to configure exporters.
+To send traces and metrics to an OTLP-compatible collector or backend, install the OTLP exporters:
 
 ```bash
-OTEL_EXPORTER_OTLP_ENDPOINT="https://logfire-eu.pydantic.dev"
-OTEL_EXPORTER_OTLP_HEADERS="Authorization=<your-write-token>"
-OTEL_SERVICE_NAME="my-chatlas-app"
+pip install "opentelemetry-distro[otlp]"
+
+export OTEL_TRACES_EXPORTER=otlp
+export OTEL_METRICS_EXPORTER=otlp
+export OTEL_LOGS_EXPORTER=none
+export OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf
+export OTEL_EXPORTER_OTLP_ENDPOINT="http://localhost:4318"
+export OTEL_SERVICE_NAME="my-chatlas-app"
+
+opentelemetry-instrument python app.py
 ```
 
-These are read when the SDK is configured from the environment — for example, the zero-code `opentelemetry-instrument` approach [described below](#lower-level-instrumentation) — so the same app can run locally and in production with only its environment changed. Most hosting platforms let you set these per deployment; on [Posit Connect](https://posit.co/products/enterprise/connect/), for instance, you set them as [content environment variables](https://docs.posit.co/connect/user/content-settings/#setting-env-vars).
+Replace the endpoint with your collector or backend address.
+If the backend requires authentication, set `OTEL_EXPORTER_OTLP_HEADERS` to its required headers.
+The CLI creates the tracing and metrics providers and their exporters before it starts the app.
+Setting these variables alone does not configure the SDK in an app started with plain `python`.
+
+You can use the same app locally and in production with different environment variables.
+Most hosting platforms let you set these per deployment.
+On [Posit Connect](https://posit.co/products/enterprise/connect/), set them as [content environment variables](https://docs.posit.co/connect/user/content-settings/#setting-env-vars).
 
 Some platforms also emit their own OpenTelemetry data. Posit Connect (2026.02.0+) traces the *platform* — request latency, job queues, content execution and deployment — which administrators can export to the same backend. That's separate from the spans your app emits (Connect doesn't collect your application's traces for you), but sending both to one tool puts your chatlas traces alongside the platform activity around them. See Connect's [OpenTelemetry guide](https://docs.posit.co/connect/admin/opentelemetry/).
 
@@ -149,19 +180,60 @@ Some platforms also emit their own OpenTelemetry data. Posit Connect (2026.02.0+
 
 Chatlas follows the [OpenTelemetry GenAI semantic conventions](https://opentelemetry.io/docs/specs/semconv/gen-ai/), so attribute names (`gen_ai.*`) are consistent with other GenAI-instrumented libraries and are understood by OTel-aware backends out of the box. The lists below are representative rather than exhaustive — see the spec for the full set.
 
-The **agent span** (`invoke_agent`) brackets the whole chat loop and records the provider and requested model (`gen_ai.provider.name`, `gen_ai.request.model`).
+The **agent span** (`invoke_agent`) brackets the whole chat loop and records:
+
+- Provider and requested model (`gen_ai.provider.name`, `gen_ai.request.model`)
+- How the invocation went: end-to-end duration, inference call and tool call counts (`gen_ai.invoke_agent.duration`, `gen_ai.invoke_agent.inference_calls`, `gen_ai.invoke_agent.tool_calls`), and total token usage (`gen_ai.usage.input_tokens`, `gen_ai.usage.output_tokens`)
+- An error status and `error.type` if the invocation failed, was cancelled, or was interrupted
 
 Each **chat span** (one per model API call) records:
 
 - Provider and requested model (`gen_ai.provider.name`, `gen_ai.request.model`)
-- Token usage (`gen_ai.usage.input_tokens`, `gen_ai.usage.output_tokens`)
-- Response model and ID (`gen_ai.response.model`, `gen_ai.response.id`)
+- Server address and port (`server.address`, `server.port`)
+- Request parameters that were actually sent (`gen_ai.request.max_tokens`, `gen_ai.request.temperature`, `gen_ai.request.reasoning.level`, etc.), plus `gen_ai.request.stream` for streamed requests and `gen_ai.output.type` when structured output is requested
+- Token usage (`gen_ai.usage.input_tokens`, `gen_ai.usage.output_tokens`), including cache-read and reasoning tokens when the provider reports them (`gen_ai.usage.cache_read.input_tokens`, `gen_ai.usage.reasoning.output_tokens`)
+- Response model and ID (`gen_ai.response.model`, `gen_ai.response.id`), plus the finish reason (`gen_ai.response.finish_reasons`)
+- For streamed responses, time to first non-empty text or thinking token (`gen_ai.response.time_to_first_chunk`)
+- Tool definitions sent with the request (`gen_ai.tool.definitions`, when content capture is enabled)
+- An `OK` status on success, or an error status and `error.type` for failed (`RuntimeError`, etc.), `cancelled`, and `interrupted` requests
 - Optionally, the message content itself (system prompt, input messages, output messages) — see [Content Capture](#content-capture) below
 
 Each **tool span** (`execute_tool`, one per tool invocation) records:
 
 - Tool name, description, and call ID (`gen_ai.tool.name`, `gen_ai.tool.description`, `gen_ai.tool.call.id`)
 - Errors, if the tool raises (`error.type`, plus the exception is recorded on the span)
+
+### Metrics
+
+Chatlas emits metrics defined by the [GenAI semantic conventions](https://opentelemetry.io/docs/specs/semconv/gen-ai/gen-ai-metrics/). The OpenTelemetry SDK aggregates these measurements and exports them to your backend.
+
+The console and OTLP examples export both traces and metrics.
+`logfire.configure()` also enables both by default.
+
+The SDK uses separate providers for tracing and metrics.
+The metrics provider aggregates measurements and uses a metric reader to export them.
+The CLI or Logfire supplies this configuration for your app.
+
+To export metrics every five seconds, set the interval before you start the app:
+
+```bash
+export OTEL_METRIC_EXPORT_INTERVAL=5000
+```
+
+The interval is in milliseconds.
+
+For each model API call:
+
+- `gen_ai.client.inference.duration` (histogram) — end-to-end request duration, tagged with `error.type` for failed, `cancelled`, or `interrupted` requests
+- `gen_ai.client.inference.operation.input_tokens` / `gen_ai.client.inference.operation.output_tokens` (histograms) — token usage per call
+- `gen_ai.client.inference.usage.input_tokens` / `gen_ai.client.inference.usage.output_tokens` / `gen_ai.client.inference.usage.cache_read.input_tokens` / `gen_ai.client.inference.usage.reasoning.output_tokens` (counters) — cumulative token usage, broken down by `gen_ai.token.modality` (currently always `unknown`, since providers only report totals)
+- For streamed responses, `gen_ai.client.inference.time_to_first_chunk` and `gen_ai.client.inference.time_per_output_chunk` (histograms)
+
+For each tool invocation, `gen_ai.execute_tool.duration` (histogram), tagged with `error.type` when the tool fails or is interrupted.
+
+For each agent-loop invocation (one `chat()`/`stream()` call), `gen_ai.invoke_agent.duration`, `gen_ai.invoke_agent.inference_calls`, and `gen_ai.invoke_agent.tool_calls` (histograms).
+
+Model and agent metrics carry `gen_ai.provider.name`, `gen_ai.request.model`, `server.address`, and `server.port`, so you can group measurements by model or endpoint. Tool metrics carry `gen_ai.tool.name` and `gen_ai.tool.type`.
 
 ### Content Capture
 
@@ -261,12 +333,8 @@ To do this, you'll need to install the package:
 pip install opentelemetry-instrumentation-anthropic
 ```
 
-Then, add the following instrumentation code to your app:
-
-```python
-from opentelemetry.instrumentation.anthropic import AnthropicInstrumentor
-AnthropicInstrumentor().instrument()
-```
+Run your app with `opentelemetry-instrument`, as in the console quick start.
+The CLI enables the installed Anthropic instrumentor automatically.
 
 
 ### Google
