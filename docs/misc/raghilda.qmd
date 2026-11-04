@@ -125,7 +125,7 @@ Either build the store in a separate script (or restart your Python session befo
 
 By default, `retrieve()` runs a hybrid search that combines semantic similarity with BM25 keyword matching.
 Semantic search finds passages that mean the same thing as the query even when they use different words, while keyword search catches exact terms (like function names or error messages) that embeddings can miss.
-The `top_k` limit applies to each kind of search before the results are combined, so you may get back a slightly different number of chunks than you asked for.
+The `top_k` limit applies to each kind of search separately before the results are combined, so you may get back more (or fewer) chunks than `top_k`.
 Overlapping chunks from the same document are also merged into one passage, so the model doesn't see the same text twice.
 
 ## Basic retrieval {#basic-retrieval}
