@@ -160,8 +160,12 @@ raghilda's [chunking](https://posit-dev.github.io/raghilda/user-guide/chunking.h
 :::
 
 ::: callout-tip
+### Other storage backends
 
-### Chunking defaults
+`DuckDBStore` is a good default, but raghilda also provides stores backed by [ChromaDB](https://www.trychroma.com/), OpenAI vector stores, and PostgreSQL.
+The retrieval code in the rest of this article works the same way with any of them.
+:::
+
 
 If your documents are large (e.g., long articles or books), it's a good idea to split them into smaller chunks to improve retrieval performance.
 This is important since, if the content relevant to a user query is only a small part of a larger document, retrieving the entire document probably won't be efficient or effective.
