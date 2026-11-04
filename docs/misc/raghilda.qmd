@@ -8,6 +8,21 @@ It takes care of the preparation side of [RAG](RAG.qmd): reading documents, spli
 chatlas takes care of the conversation side.
 To connect the two, you write a Python function that searches the raghilda store and returns the matching passages, which you then either add to the chat input yourself or register as a tool that the model can call.
 
+In this article, you'll implement the [basic](RAG.qmd#basic-retrieval) and [dynamic](RAG.qmd#dynamic-retrieval) retrieval patterns from the [RAG](RAG.qmd) article, this time with raghilda providing the knowledge store.
+If you haven't read that article yet, it's worth doing so first, since it covers when RAG is worth the effort and how the two patterns differ.
+
+::: callout-note
+## Prerequisites
+
+Install raghilda alongside chatlas:
+
+```bash
+pip install raghilda chatlas
+```
+
+The examples here use OpenAI for both embeddings and chat, so you'll also need an OpenAI API key set in the `OPENAI_API_KEY` environment variable.
+:::
+
 ## Create store {#create-store}
 
 A raghilda store is a database that holds your document chunks along with their embeddings.
