@@ -235,7 +235,8 @@ def search_knowledge_store(
     return [{"text": chunk.text, "source": chunk.origin} for chunk in chunks]
 ```
 
-The `Literal` type hint limits the model to the two valid sections, so the filter it builds always refers to a real section.
+Register this tool with `chat.register_tool()`, just as in the [dynamic retrieval](#dynamic-retrieval) example.
+The `Literal` type hint tells the model which sections exist, and because your function builds the filter, the model only has to pick a section name rather than write filter syntax.
 raghilda's [attribute filters](https://posit-dev.github.io/raghilda/user-guide/attribute-filters.html) article covers more complex schemas and filter expressions.
 
 ## Learn more
