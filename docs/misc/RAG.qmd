@@ -67,21 +67,22 @@ It splits documents at headings and paragraphs, searches by both meaning and key
 Nothing in this article depends on raghilda, though.
 You can follow the same steps with `llama-index` or another library, and the tip at the end of [Retrieve content](#retrieve-content) shows what that looks like.
 
-::: callout-tip
-### Using raghilda
+::: callout-note
+### Prerequisites
 
-[raghilda](https://posit-dev.github.io/raghilda/) is a Posit package for building knowledge stores, designed to pair with chatlas.
-See [RAG with raghilda](raghilda.qmd) for a version of this article that uses it in place of `llama-index`.
-:::
+Install raghilda alongside chatlas:
 
 ```bash
-pip install llama-index
+pip install raghilda chatlas
 ```
 
-With `llama-index`, it's easy to create a knowledge store from a wide variety of input formats, such as text files, [web pages](https://developers.llamaindex.ai/python/examples/data_connectors/webpagedemo/), and [much more](https://pypi.org/project/llama-index-readers-markitdown/).
-That said, for this example, I'll assume you have a directory (`data`) with some text files that you want to use as trusted content.
-This snippet will ingest the files, embed them, and create a vector store `index` that is ready for [retrieval](#retrieve-content).
+The examples here use OpenAI for both embeddings and chat, so you'll also need an OpenAI API key set in the `OPENAI_API_KEY` environment variable (or see the "Free, local embeddings" tip below).
+:::
 
+A raghilda store is a database that holds your document chunks along with their embeddings.
+The `DuckDBStore` backend keeps everything in a single local file, so there's no server to run.
+For this example, let's assume you have a directory (`data`) of Markdown (`.md`) files that you want to use as trusted content.
+This snippet reads each file, chunks it, embeds the chunks, and writes them to a store on disk:
 
 ```python
 from llama_index.core import SimpleDirectoryReader, VectorStoreIndex
