@@ -13,6 +13,8 @@ try:
 except ImportError:
     pytest.skip("MCP package not available", allow_module_level=True)
 
+from mcp.types import CallToolResult, TextContent
+
 
 class TestToolFromMCP:
     """Test Tool.from_mcp() class method."""
@@ -506,3 +508,82 @@ async def test_multi_part_mcp_result_is_one_list_valued_result():
 
     assert isinstance(result, ContentToolResult)
     assert result.value == ["stdout: rendering", "Done.", expected_image]
+
+
+def tool_returning(result: CallToolResult) -> Tool:
+    """A Tool whose MCP session returns the given (real) CallToolResult."""
+    helper = TestToolFromMCP()
+    mcp_tool = helper.create_mock_mcp_tool(
+        name="tool",
+        description="A tool",
+        input_schema={"type": "object", "properties": {}},
+    )
+    session = helper.create_mock_session()
+    session.call_tool.return_value = result
+    return Tool.from_mcp(session, mcp_tool)
+
+
+class TestToolFromMCPResultMetadata:
+    """_meta passthrough in Tool.from_mcp()."""
+
+    @pytest.mark.asyncio
+    async def test_meta_passed_through_to_extra(self):
+        result = CallToolResult(
+            content=[TextContent(type="text", text="Hello")],
+            _meta={"display": {"open": True}},
+        )
+
+        res = await tool_returning(result).func()
+
+        assert isinstance(res, ContentToolResult)
+        assert res.extra == {"display": {"open": True}}
+        assert res.value == "Hello"
+
+    @pytest.mark.asyncio
+    async def test_no_meta_means_no_extra(self):
+        result = CallToolResult(content=[TextContent(type="text", text="Hello")])
+
+        res = await tool_returning(result).func()
+
+        assert isinstance(res, ContentToolResult)
+        assert res.extra is None
+
+    @pytest.mark.asyncio
+    async def test_empty_meta_means_no_extra(self):
+        result = CallToolResult(
+            content=[TextContent(type="text", text="Hello")],
+            _meta={},
+        )
+
+        res = await tool_returning(result).func()
+
+        assert isinstance(res, ContentToolResult)
+        assert res.extra is None
+
+    @pytest.mark.asyncio
+    async def test_error_result_never_surfaces_meta(self):
+        sentinel = "SENTINEL_meta_value_9f3b2c"
+        result = CallToolResult(
+            content=[TextContent(type="text", text="Error executing tool tool: boom")],
+            isError=True,
+            _meta={"display": {"open": sentinel}},
+        )
+
+        with pytest.raises(RuntimeError) as excinfo:
+            await tool_returning(result).func()
+
+        assert sentinel not in str(excinfo.value)
+
+    @pytest.mark.asyncio
+    async def test_extra_is_a_copy_of_meta(self):
+        result = CallToolResult(
+            content=[TextContent(type="text", text="Hello")],
+            _meta={"display": {"open": True}},
+        )
+
+        res = await tool_returning(result).func()
+
+        assert isinstance(res, ContentToolResult)
+        res.extra["display"] = None
+        res.extra["added"] = 1
+        assert result.meta == {"display": {"open": True}}
