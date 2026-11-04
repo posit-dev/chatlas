@@ -134,12 +134,17 @@ This way, you can use a free and open source embedding model without needing an 
 
 
 ```python
-from llama_index.core import Settings
-from llama_index.embeddings.huggingface import HuggingFaceEmbedding
+from raghilda.embedding import EmbeddingSentenceTransformers
 
-Settings.embed_model = HuggingFaceEmbedding(model_name="BAAI/bge-small-en-v1.5")
+store = DuckDBStore.create(
+    location="knowledge.db",
+    embed=EmbeddingSentenceTransformers(),
+    overwrite=True,
+)
 ```
 
+raghilda also supports Cohere and NVIDIA NIM embeddings, and you can write your own provider for other services.
+See the [raghilda reference](https://posit-dev.github.io/raghilda/reference/) for the full list.
 :::
 
 
