@@ -182,7 +182,7 @@ chat.chat("Who created the unicorn programming language?")
 
 As with any chatlas tool, the docstring and type hints tell the model what the tool does and how to call it, so it's worth making them specific to your content.
 The tool returns a list of dictionaries, which chatlas converts to JSON before sending it to the model.
-Along with each passage's text, the dictionaries include the headings it falls under (`chunk.context`) and the file or URL it came from (`chunk.origin`).
+Along with each passage's text, the dictionaries include the headings it falls under (`chunk.context`, which is `None` when there aren't any) and the file or URL it came from (`chunk.origin`).
 The headings help the model make sense of a passage taken out of context, and the source lets it cite where an answer came from.
 
 ## Scope retrieval {#scope-retrieval}
