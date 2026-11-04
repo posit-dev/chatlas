@@ -34,7 +34,6 @@ However, before diving into the 2nd technique (i.e., [dynamic retrieval](#dynami
 Basic retrieval is the simplest form of RAG, where you retrieve (a fixed amount of) relevant content from a knowledge store based on the user's query and provide it to the chat model.
 It looks something roughly like this:
 
-
 ```python
 from chatlas import ChatOpenAI
 
@@ -46,9 +45,9 @@ chat = ChatOpenAI(
 user_query = "Who created the unicorn programming language?"
 
 # A placeholder for your retrieval logic
-trusted_content = retrieve_trusted_content(user_query)  
+trusted_content = retrieve_trusted_content(user_query)
 
-chat.chat(trusted_content, user_query)
+chat.chat(*trusted_content, user_query)
 ```
 
 In the sections that follow, we'll implement the `retrieve_trusted_content()` step of this workflow.
