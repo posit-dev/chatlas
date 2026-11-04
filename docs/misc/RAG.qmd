@@ -145,13 +145,18 @@ raghilda also supports Cohere and NVIDIA NIM embeddings, and you can write your 
 See the [raghilda reference](https://posit-dev.github.io/raghilda/reference/) for the full list.
 :::
 
+::: {.callout-tip collapse="true"}
+### Chunking defaults
 
+Long documents (articles or books, say) need to be split into smaller chunks, because the part that answers a question is usually a small piece of the whole.
+`MarkdownChunker` aims for chunks of about 1,600 characters, with each one overlapping its neighbor by half.
+You can change both settings:
 
-::: callout-tip
+```python
+chunker = MarkdownChunker(chunk_size=800, target_overlap=0.3)
+```
 
-### Custom vector stores
-
-The code provided here just uses `llama-index`'s default vector store, but it supports a wide variety of vector stores, such as [DuckDB](https://docs.llamaindex.ai/en/stable/examples/vector_stores/DuckDBDemo/), [Pinecone](https://docs.llamaindex.ai/en/stable/examples/vector_stores/PineconeIndexDemo/), and much more.
+raghilda's [chunking](https://posit-dev.github.io/raghilda/user-guide/chunking.html) article has advice on picking these values.
 :::
 
 ::: callout-tip
