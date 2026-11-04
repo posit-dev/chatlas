@@ -104,9 +104,12 @@ mcp = [
     "mcp>=2.0.0;python_version>='3.10'"
 ]
 eval = [
-    "inspect-ai;python_version>='3.10'",
-    # Inspect's Anthropic adapter constructs MessageParam, a union in SDK 2.0.
-    "anthropic<2.0;python_version>='3.10'",
+    # inspect-ai 0.3.283 adapted its Anthropic provider to anthropic SDK 2.0 and
+    # made it the required minimum (UKGovernmentBEIS/inspect_ai#6003), but it
+    # also dropped Python 3.10, so 3.10 stays on the older pairing.
+    "inspect-ai>=0.3.283;python_version>='3.11'",
+    "inspect-ai;python_version=='3.10'",
+    "anthropic<2.0;python_version=='3.10'",
 ]
 # Provider extras ----
 anthropic = ["anthropic>=1.0.0"]
