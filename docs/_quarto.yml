@@ -119,6 +119,7 @@ website:
         - section: "Miscellaneous"
           contents:
             - misc/RAG.qmd
+            - misc/raghilda.qmd
             - misc/mcp-tools.qmd
             - misc/evals.qmd
 
