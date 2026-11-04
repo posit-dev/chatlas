@@ -61,8 +61,15 @@ This approach requires embedding the content into numerical vectors, which can b
 
 ### Create store {#create-store}
 
-Python has a plethora of options for working with knowledge stores ([llama-index](https://docs.llamaindex.ai/en/stable/), [pinecone](https://docs.pinecone.io/reference/python-sdk), etc.).
+Python has a plethora of options for working with knowledge stores ([llama-index](https://docs.llamaindex.ai/en/stable/), [pinecone](https://docs.pinecone.io/reference/python-sdk), [raghilda](https://posit-dev.github.io/raghilda/), etc.).
 It doesn't really matter which one you choose, but due to its popularity, maturity, and simplicity, lets demonstrate with the [`llama-index`](https://docs.llamaindex.ai/en/stable/) library:
+
+::: callout-tip
+### Using raghilda
+
+[raghilda](https://posit-dev.github.io/raghilda/) is a Posit package for building knowledge stores, designed to pair with chatlas.
+See [RAG with raghilda](raghilda.qmd) for a version of this article that uses it in place of `llama-index`.
+:::
 
 ```bash
 pip install llama-index
