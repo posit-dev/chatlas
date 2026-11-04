@@ -130,3 +130,53 @@ The tool returns a list of dictionaries, which chatlas converts to JSON before s
 Along with each passage's text, the dictionaries include the headings it falls under (`chunk.context`) and the file or URL it came from (`chunk.origin`).
 The headings help the model make sense of a passage taken out of context, and the source lets it cite where an answer came from.
 
+## Scope retrieval {#scope-retrieval}
+
+A store that mixes different kinds of content (say, a user guide and an API reference) can return passages from the wrong part of it.
+raghilda lets you tag documents with **attributes** when you build the store and then filter on them at retrieval time.
+First, declare the attributes when creating the store, and set them on each document before chunking it:
+
+```python
+store = DuckDBStore.create(
+    location="knowledge.db",
+    embed=EmbeddingOpenAI(),
+    attributes={"section": str},
+    overwrite=True,
+)
+
+chunker = MarkdownChunker()
+for section in ["guide", "reference"]:
+    for path in Path("data", section).glob("*.md"):
+        doc = read_as_markdown(str(path))
+        doc.attributes = {"section": section}
+        store.upsert(chunker.chunk(doc))
+
+store.build_index()
+```
+
+Every chunk inherits its document's attributes.
+You can then expose the filter as a tool parameter, so the model chooses which part of the store to search:
+
+```python
+from typing import Literal, Optional
+
+def search_knowledge_store(
+    query: str,
+    section: Optional[Literal["guide", "reference"]] = None,
+) -> list[dict]:
+    """
+    Search the documentation for content relevant to the query.
+
+    Parameters
+    ----------
+    query
+        A description of the information to look for.
+    section
+        Limit the search to the user guide ("guide") or the API reference
+        ("reference"). Leave unset to search everything.
+    """
+    attributes_filter = f"section = '{section}'" if section else None
+    chunks = store.retrieve(query, top_k=5, attributes_filter=attributes_filter)
+    return [{"text": chunk.text, "source": chunk.origin} for chunk in chunks]
+```
+
