@@ -334,3 +334,11 @@ def search_knowledge_store(
 Register this tool with `chat.register_tool()`, just as in the [dynamic retrieval](#dynamic-retrieval) example.
 The `Literal` type hint tells the model which sections exist, and because your function builds the filter, the model only has to pick a section name rather than write filter syntax.
 raghilda's [attribute filters](https://posit-dev.github.io/raghilda/user-guide/attribute-filters.html) article covers more complex schemas and filter expressions.
+
+## Learn more
+
+The raghilda documentation goes deeper into each part of the knowledge store:
+
+- [Core Concepts](https://posit-dev.github.io/raghilda/user-guide/getting-started.html) covers building, indexing, and reconnecting to a store.
+- [Chunking](https://posit-dev.github.io/raghilda/user-guide/chunking.html) explains how to tune chunk size and overlap for better retrieval.
+- [Using RAG with chatlas](https://posit-dev.github.io/raghilda/user-guide/chatlas-integration.html) shows the same integration from raghilda's side, including registering several search tools and choosing a model provider.
