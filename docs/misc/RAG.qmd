@@ -11,16 +11,16 @@ In this article, you'll learn how to do exactly this to improve the quality of r
 ::: callout-warning
 ### Do you need RAG?
 
-The term RAG gets thrown around a lot, and for good reason -- it can be a very useful way to address the most serious limitations of LLMs.
-However, RAG is not always necessary -- sometimes something much simpler will do the trick, such as:
+The term RAG gets thrown around a lot, and for good reason: it can be a very useful way to address the most serious limitations of LLMs.
+However, RAG is not always necessary, and sometimes something much simpler will do the trick, such as:
 
   * Adding trusted/missing content directly to the [system prompt](../get-started/system-prompt.qmd) (or chat input), rather than retrieving a portion of it from a knowledge store.
   * Register a [tool](../get-started/tools.qmd) enabling the LLM to "ask" for trusted content as needed, possibly without needing to manage a separate knowledge store.
 :::
 
 In theory, grounding the LLM's response in trusted content helps to reduce [hallucination](https://en.wikipedia.org/wiki/Hallucination_(artificial_intelligence)).
-But in practice, RAG can be fickle -- it's hard to always retrieve the right information for every user query, and it's not always predictable how the LLM will actually use the retrieved content. 
-For this reason, it's helpful for your RAG workflow to be transparent (so it's easy to debug, understand, and modify) because some trial and error will be necessary. 
+But in practice, RAG can be fickle. It's hard to always retrieve the right information for every user query, and it's not always predictable how the LLM will actually use the retrieved content.
+For this reason, it's helpful for your RAG workflow to be transparent (so it's easy to debug, understand, and modify) because some trial and error will be necessary.
 It can also be very helpful to combine RAG with additional techniques, such as:
 
 1. Setting guidelines for how the LLM should use the retrieved content in the [system prompt](../get-started/system-prompt.qmd).
