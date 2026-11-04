@@ -115,6 +115,14 @@ def retrieve_trusted_content(query: str, top_k: int = 5) -> list[str]:
 The store remembers which embedding model it was created with, so `connect()` restores it for you and queries are embedded the same way as the documents were.
 Opening the store with `read_only=True` is a good habit in an app that only retrieves content.
 
+::: callout-warning
+### Building and connecting in one session
+
+DuckDB won't open a file as read-only while the same Python session still has it open for writing.
+If you build the store and then call `connect(read_only=True)` in the same notebook or script, you'll get a `ConnectionException`.
+Either build the store in a separate script (or restart your Python session before connecting), or keep using the `store` returned by `create()`.
+:::
+
 By default, `retrieve()` runs a hybrid search that combines semantic similarity with BM25 keyword matching.
 Semantic search finds passages that mean the same thing as the query even when they use different words, while keyword search catches exact terms (like function names or error messages) that embeddings can miss.
 The `top_k` limit applies to each kind of search before the results are combined, so you may get back a slightly different number of chunks than you asked for.
