@@ -42,3 +42,18 @@ The final `build_index()` call builds two indexes: a vector index for semantic s
 Since the store is written to `knowledge.db` as you go, there's no separate step to save it.
 You build it once, and your app connects to it later.
 
+
+## Retrieve content {#retrieve-content}
+
+With the store on disk, you can implement `retrieve_trusted_content()`, the function that fetches relevant content for a user query:
+
+```python
+from raghilda.store import DuckDBStore
+
+store = DuckDBStore.connect("knowledge.db", read_only=True)
+
+def retrieve_trusted_content(query: str, top_k: int = 5) -> list[str]:
+    chunks = store.retrieve(query, top_k=top_k)
+    return [f"<excerpt>{chunk.text}</excerpt>" for chunk in chunks]
+```
+
