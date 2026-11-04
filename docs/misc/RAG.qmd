@@ -85,12 +85,31 @@ For this example, let's assume you have a directory (`data`) of Markdown (`.md`)
 This snippet reads each file, chunks it, embeds the chunks, and writes them to a store on disk:
 
 ```python
-from llama_index.core import SimpleDirectoryReader, VectorStoreIndex
+from pathlib import Path
 
-docs = SimpleDirectoryReader("data").load_data()
-index = VectorStoreIndex.from_documents(docs)
+from raghilda.chunker import MarkdownChunker
+from raghilda.embedding import EmbeddingOpenAI
+from raghilda.read import read_as_markdown
+from raghilda.store import DuckDBStore
+
+store = DuckDBStore.create(
+    location="knowledge.db",
+    embed=EmbeddingOpenAI(),
+    overwrite=True,
+)
+
+chunker = MarkdownChunker()
+for path in Path("data").glob("*.md"):
+    doc = read_as_markdown(str(path))
+    store.upsert(chunker.chunk(doc))
+
+store.build_index()
 ```
 
+`MarkdownChunker` splits each document into overlapping chunks at natural boundaries (headings, paragraphs, and sentences), and each chunk remembers the headings it falls under.
+The final `build_index()` call builds two indexes: a vector index for semantic search and a BM25 index for keyword search.
+Since the store is written to `knowledge.db` as you go, there's no separate step to save it.
+You build it once, and your app connects to it later.
 
 ::: callout-caution
 ### Embed pre-requisites
