@@ -61,7 +61,11 @@ This approach requires embedding the content into numerical vectors, which can b
 ### Create store {#create-store}
 
 Python has a plethora of options for working with knowledge stores ([llama-index](https://docs.llamaindex.ai/en/stable/), [pinecone](https://docs.pinecone.io/reference/python-sdk), [raghilda](https://posit-dev.github.io/raghilda/), etc.).
-It doesn't really matter which one you choose, but due to its popularity, maturity, and simplicity, lets demonstrate with the [`llama-index`](https://docs.llamaindex.ai/en/stable/) library:
+The examples in this article use [raghilda](https://posit-dev.github.io/raghilda/), a Posit package made to work alongside chatlas.
+We chose it for its defaults, which handle a lot of what you'd otherwise set up by hand.
+It splits documents at headings and paragraphs, searches by both meaning and keywords, merges overlapping results, and saves the store to disk as you build it.
+Nothing in this article depends on raghilda, though.
+You can follow the same steps with `llama-index` or another library, and the tip at the end of [Retrieve content](#retrieve-content) shows what that looks like.
 
 ::: callout-tip
 ### Using raghilda
