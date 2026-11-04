@@ -27,7 +27,7 @@ The examples here use OpenAI for both embeddings and chat, so you'll also need a
 
 A raghilda store is a database that holds your document chunks along with their embeddings.
 The `DuckDBStore` backend keeps everything in a single local file, so there's no server to run.
-As in the [RAG](RAG.qmd) article, let's assume you have a directory (`data`) of Markdown files that you want to use as trusted content.
+Similar to the [RAG](RAG.qmd) article, let's assume you have a directory (`data`) of Markdown (`.md`) files that you want to use as trusted content.
 This snippet reads each file, chunks it, embeds the chunks, and writes them to a store on disk:
 
 ```python
@@ -100,7 +100,8 @@ The retrieval code in the rest of this article works the same way with any of th
 
 ## Retrieve content {#retrieve-content}
 
-With the store on disk, you can implement `retrieve_trusted_content()`, the function that fetches relevant content for a user query:
+With the store on disk, you can now write `retrieve_trusted_content()`, the placeholder function from the [basic retrieval](RAG.qmd#basic-retrieval) example in the RAG article.
+In your app, connect to the store and search it for content relevant to the user's query:
 
 ```python
 from raghilda.store import DuckDBStore
@@ -197,7 +198,8 @@ The headings help the model make sense of a passage taken out of context, and th
 
 A store that mixes different kinds of content (say, a user guide and an API reference) can return passages from the wrong part of it.
 raghilda lets you tag documents with **attributes** when you build the store and then filter on them at retrieval time.
-First, declare the attributes when creating the store, and set them on each document before chunking it:
+For example, suppose your `data` directory has two subfolders, `guide` and `reference`.
+When you build (or rebuild) the store, declare the attributes in `create()`, and then set them on each document before chunking it:
 
 ```python
 store = DuckDBStore.create(
