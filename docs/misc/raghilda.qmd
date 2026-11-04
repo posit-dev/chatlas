@@ -57,6 +57,46 @@ The final `build_index()` call builds two indexes: a vector index for semantic s
 Since the store is written to `knowledge.db` as you go, there's no separate step to save it.
 You build it once, and your app connects to it later.
 
+::: callout-tip
+### Other inputs
+
+`read_as_markdown()` accepts URLs as well as file paths, and it converts HTML, PDF, Word, and many other formats to Markdown along the way.
+To index an entire website, raghilda's [crawler](https://posit-dev.github.io/raghilda/user-guide/crawling-and-ingestion.html) can discover and fetch the pages for you.
+:::
+
+::: {.callout-tip collapse="true"}
+### Free, local embeddings
+
+`EmbeddingOpenAI` is just one of raghilda's embedding providers.
+If you'd rather not use an API key (or don't want your documents to leave your machine), the SentenceTransformers provider runs open-source models locally.
+First install the extra:
+
+```bash
+pip install "raghilda[sentence-transformers]"
+```
+
+Then pass the provider to the store in place of `EmbeddingOpenAI()`:
+
+```python
+from raghilda.embedding import EmbeddingSentenceTransformers
+
+store = DuckDBStore.create(
+    location="knowledge.db",
+    embed=EmbeddingSentenceTransformers(),
+    overwrite=True,
+)
+```
+
+raghilda also supports Cohere and NVIDIA NIM embeddings, and you can write your own provider for other services.
+See the [raghilda reference](https://posit-dev.github.io/raghilda/reference/) for the full list.
+:::
+
+::: callout-tip
+### Other storage backends
+
+`DuckDBStore` is a good default, but raghilda also provides stores backed by [ChromaDB](https://www.trychroma.com/), OpenAI vector stores, and PostgreSQL.
+The retrieval code in the rest of this article works the same way with any of them.
+:::
 
 ## Retrieve content {#retrieve-content}
 
