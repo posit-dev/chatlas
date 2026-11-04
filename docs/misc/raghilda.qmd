@@ -1,0 +1,10 @@
+---
+title: "RAG with raghilda"
+callout-appearance: simple
+---
+
+[raghilda](https://posit-dev.github.io/raghilda/) is a Python package for building and searching knowledge stores.
+It takes care of the preparation side of [RAG](RAG.qmd): reading documents, splitting them into chunks, embedding those chunks, and retrieving the most relevant ones for a query.
+chatlas takes care of the conversation side.
+To connect the two, you write a Python function that searches the raghilda store and returns the matching passages, which you then either add to the chat input yourself or register as a tool that the model can call.
+
