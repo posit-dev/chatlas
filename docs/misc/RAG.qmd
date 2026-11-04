@@ -111,19 +111,19 @@ The final `build_index()` call builds two indexes: a vector index for semantic s
 Since the store is written to `knowledge.db` as you go, there's no separate step to save it.
 You build it once, and your app connects to it later.
 
-::: callout-caution
-### Embed pre-requisites
+::: callout-tip
+### Other inputs
 
-By default, `VectorStoreIndex` tries to use an OpenAI model to embed the `docs`, which will fail if you don't have an OpenAI API key set up.
-Either set the `OPENAI_API_KEY` environment variable to your OpenAI API key, or see the next tip if you'd rather use a free embedding model.
+`read_as_markdown()` accepts URLs as well as file paths, and it converts HTML, PDF, Word, and many other formats to Markdown along the way.
+To index an entire website, raghilda's [crawler](https://posit-dev.github.io/raghilda/user-guide/crawling-and-ingestion.html) can discover and fetch the pages for you.
 :::
 
 ::: {.callout-tip collapse="true"}
+### Free, local embeddings
 
-### Custom embed model
-
-The embedding model used by `VectorStoreIndex` can be customized via in the `Settings`  object.
-For example, to use a (free) [Hugging Face](https://huggingface.co/) embedding model, first install:
+`EmbeddingOpenAI` is just one of raghilda's embedding providers.
+If you'd rather not use an API key (or don't want your documents to leave your machine), the SentenceTransformers provider runs open-source models locally.
+First install the extra:
 
 ```bash
 pip install llama-index-embeddings-huggingface
