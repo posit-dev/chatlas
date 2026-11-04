@@ -65,3 +65,68 @@ Semantic search finds passages that mean the same thing as the query even when t
 The `top_k` limit applies to each kind of search before the results are combined, so you may get back a slightly different number of chunks than you asked for.
 Overlapping chunks from the same document are also merged into one passage, so the model doesn't see the same text twice.
 
+## Basic retrieval {#basic-retrieval}
+
+Now you can plug `retrieve_trusted_content()` into the basic retrieval workflow from the [RAG](RAG.qmd) article:
+
+```python
+from chatlas import ChatOpenAI
+
+chat = ChatOpenAI(
+    system_prompt="You are a helpful, but terse, assistant. "
+    "If you can't answer the question based on the trusted content, say so.",
+)
+
+user_query = "Who created the unicorn programming language?"
+trusted_content = retrieve_trusted_content(user_query)
+
+chat.chat(*trusted_content, user_query)
+```
+
+Each excerpt is passed to `.chat()` as its own piece of input, followed by the question itself.
+The model sees the retrieved passages and the question together in a single user turn.
+
+## Dynamic retrieval {#dynamic-retrieval}
+
+With dynamic retrieval, the model calls a retrieval [tool](../get-started/tools.qmd) whenever it decides it needs more information.
+It also gets to write its own search queries, which helps when the user's question is vague or needs several lookups to answer.
+
+```python
+from chatlas import ChatOpenAI
+from raghilda.store import DuckDBStore
+
+store = DuckDBStore.connect("knowledge.db", read_only=True)
+
+def search_knowledge_store(query: str, top_k: int = 5) -> list[dict]:
+    """
+    Search the knowledge store for content relevant to the query.
+
+    Parameters
+    ----------
+    query
+        A description of the information to look for.
+    top_k
+        The number of passages to retrieve.
+    """
+    chunks = store.retrieve(query, top_k=top_k)
+    return [
+        {"text": chunk.text, "headings": chunk.context, "source": chunk.origin}
+        for chunk in chunks
+    ]
+
+chat = ChatOpenAI(
+    system_prompt="You are a helpful, but terse, assistant. "
+    "Search the knowledge store before answering, and cite the source of any content you use. "
+    "If you can't answer the question based on the trusted content, say so.",
+)
+
+chat.register_tool(search_knowledge_store)
+
+chat.chat("Who created the unicorn programming language?")
+```
+
+As with any chatlas tool, the docstring and type hints tell the model what the tool does and how to call it, so it's worth making them specific to your content.
+The tool returns a list of dictionaries, which chatlas converts to JSON before sending it to the model.
+Along with each passage's text, the dictionaries include the headings it falls under (`chunk.context`) and the file or URL it came from (`chunk.origin`).
+The headings help the model make sense of a passage taken out of context, and the source lets it cite where an answer came from.
+
