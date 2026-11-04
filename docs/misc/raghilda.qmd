@@ -37,3 +37,8 @@ for path in Path("data").glob("*.md"):
 store.build_index()
 ```
 
+`MarkdownChunker` splits each document into overlapping chunks at natural boundaries (headings, paragraphs, and sentences), and each chunk remembers the headings it falls under.
+The final `build_index()` call builds two indexes: a vector index for semantic search and a BM25 index for keyword search.
+Since the store is written to `knowledge.db` as you go, there's no separate step to save it.
+You build it once, and your app connects to it later.
+
