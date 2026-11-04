@@ -8,3 +8,32 @@ It takes care of the preparation side of [RAG](RAG.qmd): reading documents, spli
 chatlas takes care of the conversation side.
 To connect the two, you write a Python function that searches the raghilda store and returns the matching passages, which you then either add to the chat input yourself or register as a tool that the model can call.
 
+## Create store {#create-store}
+
+A raghilda store is a database that holds your document chunks along with their embeddings.
+The `DuckDBStore` backend keeps everything in a single local file, so there's no server to run.
+As in the [RAG](RAG.qmd) article, let's assume you have a directory (`data`) of Markdown files that you want to use as trusted content.
+This snippet reads each file, chunks it, embeds the chunks, and writes them to a store on disk:
+
+```python
+from pathlib import Path
+
+from raghilda.chunker import MarkdownChunker
+from raghilda.embedding import EmbeddingOpenAI
+from raghilda.read import read_as_markdown
+from raghilda.store import DuckDBStore
+
+store = DuckDBStore.create(
+    location="knowledge.db",
+    embed=EmbeddingOpenAI(),
+    overwrite=True,
+)
+
+chunker = MarkdownChunker()
+for path in Path("data").glob("*.md"):
+    doc = read_as_markdown(str(path))
+    store.upsert(chunker.chunk(doc))
+
+store.build_index()
+```
+
