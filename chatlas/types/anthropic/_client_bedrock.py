@@ -6,7 +6,6 @@ from typing import (
     Any,
     Awaitable,
     Callable,
-    Literal,
     Mapping,
     Optional,
     Sequence,
@@ -31,7 +30,6 @@ class ChatBedrockClientArgs(TypedDict, total=False):
     max_retries: int
     default_headers: Optional[Mapping[str, str]]
     default_query: Optional[Mapping[str, object]]
-    open_telemetry: Union[anthropic.OpenTelemetryOptions, Literal[False], None]
     http_client: httpx2.AsyncClient | None
     middleware: Optional[
         Sequence[
