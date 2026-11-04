@@ -126,12 +126,10 @@ If you'd rather not use an API key (or don't want your documents to leave your m
 First install the extra:
 
 ```bash
-pip install llama-index-embeddings-huggingface
+pip install "raghilda[sentence-transformers]"
 ```
 
-Then set the `embed_model` in the `Settings` object to reference the Hugging Face model you want to use.
-This way, you can use a free and open source embedding model without needing an API key.
-
+Then pass the provider to the store in place of `EmbeddingOpenAI()`:
 
 ```python
 from raghilda.embedding import EmbeddingSentenceTransformers
