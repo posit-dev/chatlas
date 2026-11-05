@@ -202,11 +202,8 @@ class Tool:
 
             parts = [mcp_content_to_value(mcp_tool.name, c) for c in result.content]
 
-            # Pass the result's `_meta` through as `extra`, so servers can attach
-            # client-only metadata (e.g., shinychat's display hints). The
-            # isinstance() guard keeps MagicMock-based tests honest and degrades
-            # gracefully (to extra=None) if the SDK field is ever renamed;
-            # dict() copies so we don't alias a server-owned mutable dict.
+            # Pass the result's `_meta` through as `extra` so servers can
+            # attach client-only metadata (e.g., shinychat's display hints).
             meta = result.meta
             extra = dict(meta) if isinstance(meta, dict) and meta else None
 
