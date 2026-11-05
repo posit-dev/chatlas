@@ -4,76 +4,82 @@ interactions:
       "What is 1 + 1?", "type": "text"}]}], "system": [{"type": "text", "text": "Be
       as terse as possible; no punctuation"}], "tools": [], "anthropic_version": "bedrock-2023-05-31"}'
     headers:
-      Connection:
-      - keep-alive
-      X-Amz-Date:
-      - 20251231T203556Z
       accept:
       - application/json
       accept-encoding:
       - gzip, deflate
+      connection:
+      - keep-alive
       content-length:
       - '228'
       content-type:
       - application/json
       host:
       - bedrock-runtime.us-east-1.amazonaws.com
+      x-amz-date:
+      - 20261105T001330Z
       x-stainless-read-timeout:
       - '600'
       x-stainless-timeout:
       - NOT_GIVEN
     method: POST
-    uri: https://bedrock-runtime.us-east-1.amazonaws.com/model/us.anthropic.claude-sonnet-4-5-20250929-v1:0/invoke-with-response-stream
+    uri: https://bedrock-runtime.us-east-1.amazonaws.com/model/us.anthropic.claude-sonnet-5/invoke-with-response-stream
   response:
     body:
       string: !!binary |
-        AAACHwAAAEsrVOYpCzpldmVudC10eXBlBwAFY2h1bmsNOmNvbnRlbnQtdHlwZQcAEGFwcGxpY2F0
+        AAAC+gAAAEvLYK6GCzpldmVudC10eXBlBwAFY2h1bmsNOmNvbnRlbnQtdHlwZQcAEGFwcGxpY2F0
         aW9uL2pzb24NOm1lc3NhZ2UtdHlwZQcABWV2ZW50eyJieXRlcyI6ImV5SjBlWEJsSWpvaWJXVnpj
         MkZuWlY5emRHRnlkQ0lzSW0xbGMzTmhaMlVpT25zaWJXOWtaV3dpT2lKamJHRjFaR1V0YzI5dWJt
-        VjBMVFF0TlMweU1ESTFNRGt5T1NJc0ltbGtJam9pYlhOblgySmtjbXRmTURGTlowWkhhRGRUVjFo
-        RVFqTjBja1ZuUWtGS09UWnpJaXdpZEhsd1pTSTZJbTFsYzNOaFoyVWlMQ0p5YjJ4bElqb2lZWE56
-        YVhOMFlXNTBJaXdpWTI5dWRHVnVkQ0k2VzEwc0luTjBiM0JmY21WaGMyOXVJanB1ZFd4c0xDSnpk
-        Rzl3WDNObGNYVmxibU5sSWpwdWRXeHNMQ0oxYzJGblpTSTZleUpwYm5CMWRGOTBiMnRsYm5NaU9q
-        STJMQ0pqWVdOb1pWOWpjbVZoZEdsdmJsOXBibkIxZEY5MGIydGxibk1pT2pBc0ltTmhZMmhsWDNK
-        bFlXUmZhVzV3ZFhSZmRHOXJaVzV6SWpvd0xDSnZkWFJ3ZFhSZmRHOXJaVzV6SWpveGZYMTkiLCJw
-        IjoiYWJjZGVmZ2hpamtsbW5vcHFyc3R1In0pdcDlAAABDAAAAEuKgHnVCzpldmVudC10eXBlBwAF
-        Y2h1bmsNOmNvbnRlbnQtdHlwZQcAEGFwcGxpY2F0aW9uL2pzb24NOm1lc3NhZ2UtdHlwZQcABWV2
-        ZW50eyJieXRlcyI6ImV5SjBlWEJsSWpvaVkyOXVkR1Z1ZEY5aWJHOWphMTl6ZEdGeWRDSXNJbWx1
-        WkdWNElqb3dMQ0pqYjI1MFpXNTBYMkpzYjJOcklqcDdJblI1Y0dVaU9pSjBaWGgwSWl3aWRHVjRk
-        Q0k2SWlKOWZRPT0iLCJwIjoiYWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4eXpBQkNERUZHSElKS0xN
-        Tk9QUVJTVCJ9gEwrlQAAAPEAAABL8Xg+nAs6ZXZlbnQtdHlwZQcABWNodW5rDTpjb250ZW50LXR5
-        cGUHABBhcHBsaWNhdGlvbi9qc29uDTptZXNzYWdlLXR5cGUHAAVldmVudHsiYnl0ZXMiOiJleUow
-        ZVhCbElqb2lZMjl1ZEdWdWRGOWliRzlqYTE5a1pXeDBZU0lzSW1sdVpHVjRJam93TENKa1pXeDBZ
-        U0k2ZXlKMGVYQmxJam9pZEdWNGRGOWtaV3gwWVNJc0luUmxlSFFpT2lJeUluMTkiLCJwIjoiYWJj
-        ZGVmZ2hpamtsbW5vcHFyc3R1dncifZ2F9yUAAAC4AAAAS6SbBKQLOmV2ZW50LXR5cGUHAAVjaHVu
-        aw06Y29udGVudC10eXBlBwAQYXBwbGljYXRpb24vanNvbg06bWVzc2FnZS10eXBlBwAFZXZlbnR7
-        ImJ5dGVzIjoiZXlKMGVYQmxJam9pWTI5dWRHVnVkRjlpYkc5amExOXpkRzl3SWl3aWFXNWtaWGdp
-        T2pCOSIsInAiOiJhYmNkZWZnaGlqa2xtbm9wcXJzdHV2In1jk/0pAAABMgAAAEuUkX8yCzpldmVu
-        dC10eXBlBwAFY2h1bmsNOmNvbnRlbnQtdHlwZQcAEGFwcGxpY2F0aW9uL2pzb24NOm1lc3NhZ2Ut
-        dHlwZQcABWV2ZW50eyJieXRlcyI6ImV5SjBlWEJsSWpvaWJXVnpjMkZuWlY5a1pXeDBZU0lzSW1S
-        bGJIUmhJanA3SW5OMGIzQmZjbVZoYzI5dUlqb2laVzVrWDNSMWNtNGlMQ0p6ZEc5d1gzTmxjWFZs
-        Ym1ObElqcHVkV3hzZlN3aWRYTmhaMlVpT25zaWIzVjBjSFYwWDNSdmEyVnVjeUk2TlgxOSIsInAi
-        OiJhYmNkZWZnaGlqa2xtbm9wcXJzdHV2d3h5ekFCQ0RFRkdISUpLTE1OT1BRUlNUVVZXWFlaIn0C
-        juOaAAABYAAAAEvWQuOZCzpldmVudC10eXBlBwAFY2h1bmsNOmNvbnRlbnQtdHlwZQcAEGFwcGxp
-        Y2F0aW9uL2pzb24NOm1lc3NhZ2UtdHlwZQcABWV2ZW50eyJieXRlcyI6ImV5SjBlWEJsSWpvaWJX
-        VnpjMkZuWlY5emRHOXdJaXdpWVcxaGVtOXVMV0psWkhKdlkyc3RhVzUyYjJOaGRHbHZiazFsZEhK
-        cFkzTWlPbnNpYVc1d2RYUlViMnRsYmtOdmRXNTBJam95Tml3aWIzVjBjSFYwVkc5clpXNURiM1Z1
-        ZENJNk5Td2lhVzUyYjJOaGRHbHZia3hoZEdWdVkza2lPakU0TkRZc0ltWnBjbk4wUW5sMFpVeGhk
-        R1Z1WTNraU9qRTRNemw5ZlE9PSIsInAiOiJhYmNkZWZnaGlqa2xtbm9wcXJzdHV2d3h5ekFCQ0RF
-        RkdISUpLTCJ9twZNfA==
+        VjBMVFVpTENKcFpDSTZJbTF6WjE5aVpISnJYM3BvTTNNM2RtcHNlV2xuY1RVeWN6SjRNako0TW5K
+        aWNuQm5ZWGR5ZEdWemJXZzFhemRpY1hKc2VIVnFibnBwZFhOaGVuRWlMQ0owZVhCbElqb2liV1Z6
+        YzJGblpTSXNJbkp2YkdVaU9pSmhjM05wYzNSaGJuUWlMQ0pqYjI1MFpXNTBJanBiWFN3aVkyOXVk
+        R0ZwYm1WeUlqcHVkV3hzTENKemRHOXdYM0psWVhOdmJpSTZiblZzYkN3aWMzUnZjRjl6WlhGMVpX
+        NWpaU0k2Ym5Wc2JDd2ljM1J2Y0Y5a1pYUmhhV3h6SWpwdWRXeHNMQ0oxYzJGblpTSTZleUpwYm5C
+        MWRGOTBiMnRsYm5NaU9qTXdMQ0pqWVdOb1pWOWpjbVZoZEdsdmJsOXBibkIxZEY5MGIydGxibk1p
+        T2pBc0ltTmhZMmhsWDNKbFlXUmZhVzV3ZFhSZmRHOXJaVzV6SWpvd0xDSmpZV05vWlY5amNtVmhk
+        R2x2YmlJNmV5SmxjR2hsYldWeVlXeGZOVzFmYVc1d2RYUmZkRzlyWlc1eklqb3dMQ0psY0dobGJX
+        VnlZV3hmTVdoZmFXNXdkWFJmZEc5clpXNXpJam93ZlN3aWIzVjBjSFYwWDNSdmEyVnVjeUk2TVN3
+        aWMyVnlkbWxqWlY5MGFXVnlJam9pYzNSaGJtUmhjbVFpZlgxOSIsInAiOiJhYmNkZWZnaGlqa2xt
+        bm9wcXJzdHV2d3h5ekFCIn0omuuyAAABGAAAAEsf4EiXCzpldmVudC10eXBlBwAFY2h1bmsNOmNv
+        bnRlbnQtdHlwZQcAEGFwcGxpY2F0aW9uL2pzb24NOm1lc3NhZ2UtdHlwZQcABWV2ZW50eyJieXRl
+        cyI6ImV5SjBlWEJsSWpvaVkyOXVkR1Z1ZEY5aWJHOWphMTl6ZEdGeWRDSXNJbWx1WkdWNElqb3dM
+        Q0pqYjI1MFpXNTBYMkpzYjJOcklqcDdJblI1Y0dVaU9pSjBaWGgwSWl3aWRHVjRkQ0k2SWlKOWZR
+        PT0iLCJwIjoiYWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4eXpBQkNERUZHSElKS0xNTk9QUVJTVFVW
+        V1hZWjAxMjM0NSJ9MF2oFAAAAN4AAABLsumGSQs6ZXZlbnQtdHlwZQcABWNodW5rDTpjb250ZW50
+        LXR5cGUHABBhcHBsaWNhdGlvbi9qc29uDTptZXNzYWdlLXR5cGUHAAVldmVudHsiYnl0ZXMiOiJl
+        eUowZVhCbElqb2lZMjl1ZEdWdWRGOWliRzlqYTE5a1pXeDBZU0lzSW1sdVpHVjRJam93TENKa1pX
+        eDBZU0k2ZXlKMGVYQmxJam9pZEdWNGRGOWtaV3gwWVNJc0luUmxlSFFpT2lJeUluMTkiLCJwIjoi
+        YWJjZCJ91EklOQAAAKwAAABLMfs15gs6ZXZlbnQtdHlwZQcABWNodW5rDTpjb250ZW50LXR5cGUH
+        ABBhcHBsaWNhdGlvbi9qc29uDTptZXNzYWdlLXR5cGUHAAVldmVudHsiYnl0ZXMiOiJleUowZVhC
+        bElqb2lZMjl1ZEdWdWRGOWliRzlqYTE5emRHOXdJaXdpYVc1a1pYZ2lPakI5IiwicCI6ImFiY2Rl
+        ZmdoaWoifefVYB4AAAHwAAAASwdExIkLOmV2ZW50LXR5cGUHAAVjaHVuaw06Y29udGVudC10eXBl
+        BwAQYXBwbGljYXRpb24vanNvbg06bWVzc2FnZS10eXBlBwAFZXZlbnR7ImJ5dGVzIjoiZXlKMGVY
+        QmxJam9pYldWemMyRm5aVjlrWld4MFlTSXNJbVJsYkhSaElqcDdJbk4wYjNCZmNtVmhjMjl1SWpv
+        aVpXNWtYM1IxY200aUxDSnpkRzl3WDNObGNYVmxibU5sSWpwdWRXeHNMQ0p6ZEc5d1gyUmxkR0Zw
+        YkhNaU9tNTFiR3dzSW1OdmJuUmhhVzVsY2lJNmJuVnNiSDBzSW5WellXZGxJanA3SW1sdWNIVjBY
+        M1J2YTJWdWN5STZNekFzSW1OaFkyaGxYMk55WldGMGFXOXVYMmx1Y0hWMFgzUnZhMlZ1Y3lJNk1D
+        d2lZMkZqYUdWZmNtVmhaRjlwYm5CMWRGOTBiMnRsYm5NaU9qQXNJbTkxZEhCMWRGOTBiMnRsYm5N
+        aU9qTXNJbTkxZEhCMWRGOTBiMnRsYm5OZlpHVjBZV2xzY3lJNmV5SjBhR2x1YTJsdVoxOTBiMnRs
+        Ym5NaU9qQjlmWDA9IiwicCI6ImFiY2RlZmdoaWprbG1ub3BxcnN0dXZ3eHl6In2XGP6KAAABUAAA
+        AEt3Y1sfCzpldmVudC10eXBlBwAFY2h1bmsNOmNvbnRlbnQtdHlwZQcAEGFwcGxpY2F0aW9uL2pz
+        b24NOm1lc3NhZ2UtdHlwZQcABWV2ZW50eyJieXRlcyI6ImV5SjBlWEJsSWpvaWJXVnpjMkZuWlY5
+        emRHOXdJaXdpWVcxaGVtOXVMV0psWkhKdlkyc3RhVzUyYjJOaGRHbHZiazFsZEhKcFkzTWlPbnNp
+        YVc1d2RYUlViMnRsYmtOdmRXNTBJam96TUN3aWIzVjBjSFYwVkc5clpXNURiM1Z1ZENJNk15d2lh
+        VzUyYjJOaGRHbHZia3hoZEdWdVkza2lPamc0TVN3aVptbHljM1JDZVhSbFRHRjBaVzVqZVNJNk9E
+        VTVmWDA9IiwicCI6ImFiY2RlZmdoaWprbG1ub3BxcnN0dXZ3eHl6In0QLtyk
     headers:
-      Connection:
+      connection:
       - keep-alive
-      Content-Type:
+      content-type:
       - application/vnd.amazon.eventstream
-      Date:
-      - Wed, 31 Dec 2025 20:35:58 GMT
-      Transfer-Encoding:
+      date:
+      - Thu, 05 Nov 2026 00:13:31 GMT
+      transfer-encoding:
       - chunked
-      X-Amzn-Bedrock-Content-Type:
+      x-amzn-bedrock-content-type:
       - application/json
-      x-amzn-RequestId:
-      - b27a0e6a-0393-4d2a-b474-8f061bff0fdb
+      x-amzn-requestid:
+      - 5a7169db-702b-4101-8b8d-79bdb45975c3
     status:
       code: 200
       message: OK

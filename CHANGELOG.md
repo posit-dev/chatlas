@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changes
 
 * The `snowflake` extra (i.e., `pip install "chatlas[snowflake]"`) no longer installs `snowflake-ml-python`, which pulled in the heavy torch ecosystem and blocked installation on Python 3.13+. `ChatSnowflake()` has used the Cortex REST API (`snowflake.core`) since v0.11.0, so it only needs `snowflake-core` and `snowflake-snowpark-python`.
+* The `eval` extra (i.e., `pip install "chatlas[eval]"`) now requires Python 3.11 or later, because the inspect-ai release that supports the current Anthropic SDK (v2) dropped Python 3.10. (#493)
 
 ### New features
 
@@ -49,6 +50,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * `Chat.export()` and `interpolate_file()` now always read and write files as UTF-8. Previously they relied on the platform's default locale encoding, so on a non-UTF-8 locale `export()` could raise `UnicodeEncodeError` and `interpolate_file()` could silently return a corrupted (mojibake) prompt instead of the file's contents. (#437)
 * `ChatAnthropic()` no longer drops assistant turns that have no content; doing so could produce two consecutive user messages, violating the API's user/assistant alternation requirement. A `"[empty string]"` placeholder is sent instead, matching how empty text content is already normalized. (#416)
 * Providers built on the Chat Completions API (`ChatOpenAICompletions()`, `ChatGroq()`, `ChatOpenRouter()`, `ChatDeepSeek()`, etc.) now put the tool results of a turn ahead of the user's text in the same turn, as the API requires. Resuming a chat that ended with an unanswered tool request (or any turn that mixes tool results and new text) sent the user message first, which these APIs reject because a tool message must directly follow the assistant message that requested it. (#476)
+* `ChatBedrockAnthropic()` and `ChatBedrock(api="messages")` now work with anthropic SDK 2.0. That SDK changed the default API version it sends to Bedrock, which Bedrock rejects with `400 Invalid API version` for Claude models older than 4.7; chatlas now keeps sending the version Bedrock expects. (#493)
+* The Inspect integration (e.g., `chat.to_solver()`) no longer crashes on conversations that include thinking/reasoning content, which thinking-enabled Claude models produce. (#493)
 
 
 ## [0.23.0] - 2026-09-04
