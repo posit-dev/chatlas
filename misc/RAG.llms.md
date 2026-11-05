@@ -4,12 +4,12 @@ Retrieval-Augmented Generation (RAG) is a technique that can improve LLM output 
 
 > **WARNING:**
 >
-> The term RAG gets thrown around a lot, and for good reason – it can be a very useful way to address the most serious limitations of LLMs. However, RAG is not always necessary – sometimes something much simpler will do the trick, such as:
+> The term RAG gets thrown around a lot, and for good reason: it can be a very useful way to address the most serious limitations of LLMs. However, RAG is not always necessary, and sometimes something much simpler will do the trick, such as:
 >
 > - Adding trusted/missing content directly to the [system prompt](../get-started/system-prompt.llms.md) (or chat input), rather than retrieving a portion of it from a knowledge store.
 > - Register a [tool](../get-started/tools.llms.md) enabling the LLM to “ask” for trusted content as needed, possibly without needing to manage a separate knowledge store.
 
-In theory, grounding the LLM’s response in trusted content helps to reduce [hallucination](https://en.wikipedia.org/wiki/Hallucination_(artificial_intelligence)). But in practice, RAG can be fickle – it’s hard to always retrieve the right information for every user query, and it’s not always predictable how the LLM will actually use the retrieved content. For this reason, it’s helpful for your RAG workflow to be transparent (so it’s easy to debug, understand, and modify) because some trial and error will be necessary. It can also be very helpful to combine RAG with additional techniques, such as:
+In theory, grounding the LLM’s response in trusted content helps to reduce [hallucination](https://en.wikipedia.org/wiki/Hallucination_(artificial_intelligence)). But in practice, RAG can be fickle. It’s hard to always retrieve the right information for every user query, and it’s not always predictable how the LLM will actually use the retrieved content. For this reason, it’s helpful for your RAG workflow to be transparent (so it’s easy to debug, understand, and modify) because some trial and error will be necessary. It can also be very helpful to combine RAG with additional techniques, such as:
 
 1.  Setting guidelines for how the LLM should use the retrieved content in the [system prompt](../get-started/system-prompt.llms.md).
 2.  If needed, provide a [tool](../get-started/tools.llms.md) to retrieve additional information from a knowledge store, effectively enabling the LLM to decide when it needs more information.
@@ -31,132 +31,240 @@ chat = ChatOpenAI(
 user_query = "Who created the unicorn programming language?"
 
 # A placeholder for your retrieval logic
-trusted_content = retrieve_trusted_content(user_query)  
+trusted_content = retrieve_trusted_content(user_query)
 
-chat.chat(trusted_content, user_query)
+chat.chat(*trusted_content, user_query)
 ```
 
 In the sections that follow, we’ll implement the `retrieve_trusted_content()` step of this workflow. And, as we’ll see, there are several moving parts to consider when implementing this step.
 
-Obviously, in order to retrieve trusted content, we first need some content to retrieve. Typically content is retrieved from a **knowledge store** – essentially a database that stores documents in a way that allows for efficient retrieval based on semantic similarity. A knowledge store also often takes the form of a **vector store** or **embedding index** because of its efficiency in storing and retrieving content based on semantic similarity. This approach requires embedding the content into numerical vectors, which can be done using various machine learning models.
+Obviously, in order to retrieve trusted content, we first need some content to retrieve. Typically content is retrieved from a **knowledge store**, which is essentially a database that stores documents in a way that allows for efficient retrieval based on semantic similarity. A knowledge store also often takes the form of a **vector store** or **embedding index** because of its efficiency in storing and retrieving content based on semantic similarity. This approach requires embedding the content into numerical vectors, which can be done using various machine learning models.
 
 ### Create store
 
-Python has a plethora of options for working with knowledge stores ([llama-index](https://docs.llamaindex.ai/en/stable/), [pinecone](https://docs.pinecone.io/reference/python-sdk), etc.). It doesn’t really matter which one you choose, but due to its popularity, maturity, and simplicity, lets demonstrate with the [`llama-index`](https://docs.llamaindex.ai/en/stable/) library:
+Python has a plethora of options for working with knowledge stores ([llama-index](https://docs.llamaindex.ai/en/stable/), [pinecone](https://docs.pinecone.io/reference/python-sdk), [raghilda](https://posit-dev.github.io/raghilda/), etc.). The examples in this article use [raghilda](https://posit-dev.github.io/raghilda/), a Posit package made to work alongside chatlas. We chose it for its defaults, which handle a lot of what you’d otherwise set up by hand. It splits documents at headings and paragraphs, searches by both meaning and keywords, merges overlapping results, and saves the store to disk as you build it. Nothing in this article depends on raghilda, though. You can follow the same steps with `llama-index` or another library, and the tip at the end of [Retrieve content](#retrieve-content) shows what that looks like.
 
-``` bash
-pip install llama-index
-```
-
-With `llama-index`, it’s easy to create a knowledge store from a wide variety of input formats, such as text files, [web pages](https://developers.llamaindex.ai/python/examples/data_connectors/webpagedemo/), and [much more](https://pypi.org/project/llama-index-readers-markitdown/). That said, for this example, I’ll assume you have a directory (`data`) with some text files that you want to use as trusted content. This snippet will ingest the files, embed them, and create a vector store `index` that is ready for [retrieval](#retrieve-content).
-
-``` python
-from llama_index.core import SimpleDirectoryReader, VectorStoreIndex
-
-docs = SimpleDirectoryReader("data").load_data()
-index = VectorStoreIndex.from_documents(docs)
-```
-
-> **CAUTION:**
+> **NOTE:**
 >
-> By default, `VectorStoreIndex` tries to use an OpenAI model to embed the `docs`, which will fail if you don’t have an OpenAI API key set up. Either set the `OPENAI_API_KEY` environment variable to your OpenAI API key, or see the next tip if you’d rather use a free embedding model.
-
-> **TIP:**
->
-> The embedding model used by `VectorStoreIndex` can be customized via in the `Settings` object. For example, to use a (free) [Hugging Face](https://huggingface.co/) embedding model, first install:
+> Install raghilda alongside chatlas:
 >
 > ``` bash
-> pip install llama-index-embeddings-huggingface
+> pip install raghilda chatlas
 > ```
 >
-> Then set the `embed_model` in the `Settings` object to reference the Hugging Face model you want to use. This way, you can use a free and open source embedding model without needing an API key.
->
-> ``` python
-> from llama_index.core import Settings
-> from llama_index.embeddings.huggingface import HuggingFaceEmbedding
->
-> Settings.embed_model = HuggingFaceEmbedding(model_name="BAAI/bge-small-en-v1.5")
-> ```
+> The examples here use OpenAI for both embeddings and chat, so you’ll also need an OpenAI API key set in the `OPENAI_API_KEY` environment variable (or see the “Free, local embeddings” tip below).
 
-> **TIP:**
->
-> The code provided here just uses `llama-index`’s default vector store, but it supports a wide variety of vector stores, such as [DuckDB](https://docs.llamaindex.ai/en/stable/examples/vector_stores/DuckDBDemo/), [Pinecone](https://docs.llamaindex.ai/en/stable/examples/vector_stores/PineconeIndexDemo/), and much more.
-
-> **TIP:**
->
-> If your documents are large (e.g., long articles or books), it’s a good idea to split them into smaller chunks to improve retrieval performance. This is important since, if the content relevant to a user query is only a small part of a larger document, retrieving the entire document probably won’t be efficient or effective. When creating the `index`, `llama-index` will automatically chunk the documents into smaller pieces, which can be configured via the `Settings` object:
->
-> ``` python
-> from llama_index.core import Settings
->
-> Settings.chunk_size = 512
-> Settings.chunk_overlap = 50
-> ```
-
-### Save store
-
-If you have a large number of documents, creating a vector store `index` can be time-consuming, so you don’t want to recreate it every time you run your application. Thankfully, you can save the `index` to a directory on disk so you don’t have to recreate it every time you run your application. This can be done with:
+A raghilda store is a database that holds your document chunks along with their embeddings. The `DuckDBStore` backend keeps everything in a single local file, so there’s no server to run. For this example, let’s assume you have a directory (`data`) of Markdown (`.md`) files that you want to use as trusted content. This snippet reads each file, chunks it, embeds the chunks, and writes them to a store on disk:
 
 ``` python
-index.storage_context.persist(persist_dir="./storage")
+from pathlib import Path
+
+from raghilda.chunker import MarkdownChunker
+from raghilda.embedding import EmbeddingOpenAI
+from raghilda.read import read_as_markdown
+from raghilda.store import DuckDBStore
+
+store = DuckDBStore.create(
+    location="knowledge.db",
+    embed=EmbeddingOpenAI(),
+    overwrite=True,
+)
+
+chunker = MarkdownChunker()
+for path in Path("data").glob("*.md"):
+    doc = read_as_markdown(str(path))
+    store.upsert(chunker.chunk(doc))
+
+store.build_index()
 ```
 
-Now, when we go to retrieve content in our app, we can load the `index` from disk instead of recreating it every time.
+`MarkdownChunker` splits each document into overlapping chunks at natural boundaries (headings, paragraphs, and sentences), and each chunk remembers the headings it falls under. The final `build_index()` call builds two indexes: a vector index for semantic search and a BM25 index for keyword search. Since the store is written to `knowledge.db` as you go, there’s no separate step to save it. You build it once, and your app connects to it later.
+
+> **TIP:**
+>
+> `read_as_markdown()` accepts URLs as well as file paths, and it converts HTML, PDF, Word, and many other formats to Markdown along the way. To index an entire website, raghilda’s [crawler](https://posit-dev.github.io/raghilda/user-guide/crawling-and-ingestion.html) can discover and fetch the pages for you.
+
+> **TIP:**
+>
+> `EmbeddingOpenAI` is just one of raghilda’s embedding providers. If you’d rather not use an API key (or don’t want your documents to leave your machine), the SentenceTransformers provider runs open-source models locally. First install the extra:
+>
+> ``` bash
+> pip install "raghilda[sentence-transformers]"
+> ```
+>
+> Then pass the provider to the store in place of `EmbeddingOpenAI()`:
+>
+> ``` python
+> from raghilda.embedding import EmbeddingSentenceTransformers
+>
+> store = DuckDBStore.create(
+>     location="knowledge.db",
+>     embed=EmbeddingSentenceTransformers(),
+>     overwrite=True,
+> )
+> ```
+>
+> raghilda also supports Cohere and NVIDIA NIM embeddings, and you can write your own provider for other services. See the [raghilda reference](https://posit-dev.github.io/raghilda/reference/) for the full list.
+
+> **TIP:**
+>
+> Long documents (articles or books, say) need to be split into smaller chunks, because the part that answers a question is usually a small piece of the whole. `MarkdownChunker` aims for chunks of about 1,600 characters, with each one overlapping its neighbor by half. You can change both settings:
+>
+> ``` python
+> chunker = MarkdownChunker(chunk_size=800, target_overlap=0.3)
+> ```
+>
+> raghilda’s [chunking](https://posit-dev.github.io/raghilda/user-guide/chunking.html) article has advice on picking these values.
+
+> **TIP:**
+>
+> `DuckDBStore` is a good default, but raghilda also provides stores backed by [ChromaDB](https://www.trychroma.com/), OpenAI vector stores, and PostgreSQL. The retrieval code in the rest of this article works the same way with any of them.
 
 ### Retrieve content
 
-With our `index` now available on disk, we’re ready to implement `retrieve_trusted_content()` – the step that retrieves relevant content from the knowledge store based on the user query.
+With the store on disk, we’re ready to implement `retrieve_trusted_content()`, the function that finds content in the knowledge store that’s relevant to the user’s query. In your app, connect to the store and search it:
 
 ``` python
-from llama_index.core import StorageContext, load_index_from_storage
+from raghilda.store import DuckDBStore
 
-# Load the knowledge store (index) from disk
-storage_context = StorageContext.from_defaults(persist_dir="./storage")
-index = load_index_from_storage(storage_context)
+store = DuckDBStore.connect("knowledge.db", read_only=True)
 
-def retrieve_trusted_content(query):
-    retriever = index.as_retriever(similarity_top_k=5)
-    nodes = retriever.retrieve(query)
-    return [f"<excerpt>{x.text}</excerpt>" for x in nodes]
+def retrieve_trusted_content(query: str, top_k: int = 5) -> list[str]:
+    chunks = store.retrieve(query, top_k=top_k)
+    return [f"<excerpt>{chunk.text}</excerpt>" for chunk in chunks]
 ```
 
-This particular implementation retrieves the top 5 most relevant documents from the `index` based on the user query, but you can adjust the number of results by changing the `similarity_top_k` parameter. There’s no magic number for this parameter, but `llama-index` defaults to 2, so you may want to increase it if you find that the retrieved content is too sparse or not relevant enough. That said, you can also leverage
+The store remembers which embedding model it was created with, so `connect()` restores it for you and queries are embedded the same way as the documents were. Opening the store with `read_only=True` is a good habit in an app that only retrieves content.
+
+> **WARNING:**
+>
+> DuckDB won’t open a file as read-only while the same Python session still has it open for writing. If you build the store and then call `connect(read_only=True)` in the same notebook or script, you’ll get a `ConnectionException`. Either build the store in a separate script (or restart your Python session before connecting), or keep using the `store` returned by `create()`.
+
+By default, `retrieve()` runs a hybrid search that combines semantic similarity with BM25 keyword matching. Semantic search finds passages that mean the same thing as the query even when they use different words, while keyword search catches exact terms (like function names or error messages) that embeddings can miss. The `top_k` limit applies to each kind of search separately before the results are combined, so you may get back more (or fewer) chunks than `top_k`. Overlapping chunks from the same document are also merged into one passage, so the model doesn’t see the same text twice. There’s no right value for `top_k`, so if the retrieved content seems too thin or off the mark, try raising it.
+
+Once `retrieve_trusted_content()` is defined, the [basic retrieval](#basic-retrieval) example at the top of this article runs as is. Each excerpt goes to `.chat()` as a separate input, with the question last, so the model gets the passages and the question together in one user turn.
+
+> **TIP:**
+>
+> If you’d rather use [`llama-index`](https://docs.llamaindex.ai/en/stable/), install it with `pip install llama-index`. Then build the index once and save it to disk:
+>
+> ``` python
+> from llama_index.core import SimpleDirectoryReader, VectorStoreIndex
+>
+> docs = SimpleDirectoryReader("data").load_data()
+> index = VectorStoreIndex.from_documents(docs)
+> index.storage_context.persist(persist_dir="./storage")
+> ```
+>
+> In your app, load the saved index and use its retriever inside `retrieve_trusted_content()`:
+>
+> ``` python
+> from llama_index.core import StorageContext, load_index_from_storage
+>
+> storage_context = StorageContext.from_defaults(persist_dir="./storage")
+> index = load_index_from_storage(storage_context)
+>
+> def retrieve_trusted_content(query: str, top_k: int = 5) -> list[str]:
+>     retriever = index.as_retriever(similarity_top_k=top_k)
+>     nodes = retriever.retrieve(query)
+>     return [f"<excerpt>{x.text}</excerpt>" for x in nodes]
+> ```
+>
+> This version only does semantic search. To change the embedding model or chunk size, use the `Settings` object in `llama-index`. The chat code stays the same no matter which library you use.
 
 ## Dynamic retrieval
 
-Dynamic retrieval is similar to [basic retrieval](#basic-retrieval), except that instead of the retrieval being a single fixed step before response generation, it is provided as a [tool](../get-started/tools.llms.md) to the LLM. This results in a much more robust and flexible RAG workflow, as the LLM can decide if, when, and how much contents to retrieve from the knowledge store before generating a response. It can also decide what to provide as input to the retrieval step(s), rather than just using the user query directly, which can be useful if the user query is ambiguous or incomplete.
-
-To implement dynamic retrieval, we can just take the `retrieve_trusted_content()` function we just implemented as a tool with the chat model. When doing this, make sure you provide a clear description of the tool’s purpose and how it should be used, as this will help the LLM understand how to use it effectively. You could even add a parameter to the tool that allows the LLM to specify how many results it wants to retrieve, which can be useful for more complex queries.
+Dynamic retrieval is similar to [basic retrieval](#basic-retrieval), except that instead of the retrieval being a single fixed step before response generation, it is provided as a [tool](../get-started/tools.llms.md) to the LLM. This results in a much more robust and flexible RAG workflow, as the LLM can decide if, when, and how much content to retrieve from the knowledge store before generating a response. It can also decide what to provide as input to the retrieval step(s), rather than just using the user query directly, which can be useful if the user query is ambiguous or incomplete.
 
 ``` python
 from chatlas import ChatOpenAI
-from llama_index.core import StorageContext, load_index_from_storage
+from raghilda.store import DuckDBStore
 
-# Load the knowledge store (index) from disk
-storage_context = StorageContext.from_defaults(persist_dir="./storage")
-index = load_index_from_storage(storage_context)
+store = DuckDBStore.connect("knowledge.db", read_only=True)
 
-def retrieve_trusted_content(query: str, top_k: int = 5):
+def search_knowledge_store(query: str, top_k: int = 5) -> list[dict]:
     """
-    Retrieve relevant content from the knowledge store.
+    Search the knowledge store for content relevant to the query.
 
     Parameters
     ----------
     query
-        The query used to semantically search the knowledge store.
+        A description of the information to look for.
     top_k
-        The number of results to retrieve from the knowledge store.
+        The number of passages to retrieve.
     """
-    retriever = index.as_retriever(similarity_top_k=top_k)
-    nodes = retriever.retrieve(query)
-    return [f"<excerpt>{x.text}</excerpt>" for x in nodes]
+    chunks = store.retrieve(query, top_k=top_k)
+    return [
+        {"text": chunk.text, "headings": chunk.context, "source": chunk.origin}
+        for chunk in chunks
+    ]
 
 chat = ChatOpenAI(
     system_prompt="You are a helpful, but terse, assistant. "
-    "If you can't answer the question based on the trusted content, say so."
+    "Search the knowledge store before answering, and cite the source of any content you use. "
+    "If you can't answer the question based on the trusted content, say so.",
 )
 
-chat.register_tool(retrieve_trusted_content)
+chat.register_tool(search_knowledge_store)
 
 chat.chat("Who created the unicorn programming language?")
 ```
+
+As with any chatlas tool, the docstring and type hints tell the model what the tool does and how to call it, so it’s worth making them specific to your content. The `top_k` parameter lets the model ask for more results when it needs them. The tool returns a list of dictionaries, which chatlas converts to JSON before sending it to the model. Along with each passage’s text, the dictionaries include the headings it falls under (`chunk.context`, which is `None` when there aren’t any) and the file or URL it came from (`chunk.origin`). The headings help the model make sense of a passage taken out of context, and the source lets it cite where an answer came from.
+
+## Scope retrieval
+
+A store that mixes different kinds of content (say, a user guide and an API reference) can return passages from the wrong part of it. raghilda lets you tag documents with **attributes** when you build the store and then filter on them at retrieval time. For example, suppose your `data` directory has two subfolders, `guide` and `reference`. When you build (or rebuild) the store, declare the attributes in `create()`, and then set them on each document before chunking it:
+
+``` python
+store = DuckDBStore.create(
+    location="knowledge.db",
+    embed=EmbeddingOpenAI(),
+    attributes={"section": str},
+    overwrite=True,
+)
+
+chunker = MarkdownChunker()
+for section in ["guide", "reference"]:
+    for path in Path("data", section).glob("*.md"):
+        doc = read_as_markdown(str(path))
+        doc.attributes = {"section": section}
+        store.upsert(chunker.chunk(doc))
+
+store.build_index()
+```
+
+Every chunk inherits its document’s attributes. You can then expose the filter as a tool parameter, so the model chooses which part of the store to search:
+
+``` python
+from typing import Literal, Optional
+
+def search_knowledge_store(
+    query: str,
+    section: Optional[Literal["guide", "reference"]] = None,
+) -> list[dict]:
+    """
+    Search the documentation for content relevant to the query.
+
+    Parameters
+    ----------
+    query
+        A description of the information to look for.
+    section
+        Limit the search to the user guide ("guide") or the API reference
+        ("reference"). Leave unset to search everything.
+    """
+    attributes_filter = f"section = '{section}'" if section else None
+    chunks = store.retrieve(query, top_k=5, attributes_filter=attributes_filter)
+    return [{"text": chunk.text, "source": chunk.origin} for chunk in chunks]
+```
+
+Register this tool with `chat.register_tool()`, just as in the [dynamic retrieval](#dynamic-retrieval) example. The `Literal` type hint tells the model which sections exist, and because your function builds the filter, the model only has to pick a section name rather than write filter syntax. raghilda’s [attribute filters](https://posit-dev.github.io/raghilda/user-guide/attribute-filters.html) article covers more complex schemas and filter expressions.
+
+## Learn more
+
+The raghilda documentation goes deeper into each part of the knowledge store:
+
+- [Core Concepts](https://posit-dev.github.io/raghilda/user-guide/getting-started.html) covers building, indexing, and reconnecting to a store.
+- [Chunking](https://posit-dev.github.io/raghilda/user-guide/chunking.html) explains how to tune chunk size and overlap for better retrieval.
+- [Using RAG with chatlas](https://posit-dev.github.io/raghilda/user-guide/chatlas-integration.html) shows the same integration from raghilda’s side, including registering several search tools and choosing a model provider.

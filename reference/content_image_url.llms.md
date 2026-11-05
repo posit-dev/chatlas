@@ -13,7 +13,7 @@ This function is used to prepare image URLs for input to the chatbot. It can han
 | Name | Type | Description | Default |
 |----|----|----|----|
 | url | [str](https://docs.python.org/3/builtins/stdtypes.html#str) | The URL of the image to include in the chat input. Can be a data: URL or a regular URL. | *required* |
-| detail | [Literal](https://docs.python.org/3/library/typing.html#typing.Literal)\['auto', 'low', 'high'\] | The detail setting for this image. Can be `"auto"`, `"low"`, or `"high"`. | `'auto'` |
+| detail | [Literal](https://docs.python.org/3/library/typing.html#typing.Literal)\['auto', 'low', 'high'\] | The detail setting for this image. Can be `"auto"`, `"low"`, or `"high"`. Only forwarded by OpenAI providers; ignored by others. | `'auto'` |
 
 ## Returns
 

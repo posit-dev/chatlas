@@ -10,7 +10,8 @@ This is the return type for [`content_image_file`](https://posit-dev.github.io/c
 
 ## Parameters
 
-| Name               | Type | Description                    | Default    |
-|--------------------|------|--------------------------------|------------|
-| image_content_type |      | The content type of the image. | *required* |
-| data               |      | The base64-encoded image data. | *required* |
+| Name | Type | Description | Default |
+|----|----|----|----|
+| image_content_type |  | The content type of the image. | *required* |
+| data |  | The base64-encoded image data. | *required* |
+| detail |  | A detail setting for the image. Can be `"auto"`, `"low"`, or `"high"`. Only forwarded by OpenAI providers; ignored by others. | *required* |

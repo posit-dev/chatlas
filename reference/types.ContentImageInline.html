@@ -80,7 +80,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="../site_libs/quarto-html/quarto-syntax-highlighting-8f68c619070a9997a612f17db9fc177b.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-dbb44467009f5f46961876d98a9e1bd1.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-f0558f3739267a7e7a8c6c4fabe4f83f.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -846,10 +846,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h2 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters">Parameters</h2>
 <table class="caption-top table">
 <colgroup>
-<col style="width: 27%">
 <col style="width: 11%">
-<col style="width: 44%">
-<col style="width: 16%">
+<col style="width: 4%">
+<col style="width: 76%">
+<col style="width: 7%">
 </colgroup>
 <thead>
 <tr class="header">
@@ -870,6 +870,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td>data</td>
 <td></td>
 <td>The base64-encoded image data.</td>
+<td><em>required</em></td>
+</tr>
+<tr class="odd">
+<td>detail</td>
+<td></td>
+<td>A detail setting for the image. Can be <code>"auto"</code>, <code>"low"</code>, or <code>"high"</code>. Only forwarded by OpenAI providers; ignored by others.</td>
 <td><em>required</em></td>
 </tr>
 </tbody>

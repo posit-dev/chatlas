@@ -39,7 +39,7 @@ chat.chat("What is the capital of France?")
 
 | Name | Type | Description | Default |
 |----|----|----|----|
-| model | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\[[str](https://docs.python.org/3/builtins/stdtypes.html#str)\] | The model to use for the chat. If `None`, a list of available models will be printed. | `None` |
+| model | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\[[str](https://docs.python.org/3/builtins/stdtypes.html#str)\] | The model to use for the chat. If `None`, the returned chat can list the available models (with `.list_models()`), but sending a message raises an error that names them. | `None` |
 | system_prompt | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\[[str](https://docs.python.org/3/builtins/stdtypes.html#str)\] | A system prompt to set the behavior of the assistant. | `None` |
 | base_url | [str](https://docs.python.org/3/builtins/stdtypes.html#str) | The base URL to the endpoint; the default uses ollama’s API. | `'http://localhost:11434'` |
 | reasoning_effort | 'ReasoningEffort' | Enables extended “thinking” for models that support it (e.g. qwen3, gpt-oss). Which values are accepted is model-dependent – qwen3 only distinguishes `"none"` from any other value (thinking on), while gpt-oss accepts `"low"`, `"medium"`, or `"high"` but ignores `"none"`. See <https://docs.ollama.com/capabilities/thinking> for details. | `None` |

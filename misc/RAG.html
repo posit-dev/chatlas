@@ -80,7 +80,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="../site_libs/quarto-html/quarto-syntax-highlighting-8f68c619070a9997a612f17db9fc177b.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-dbb44467009f5f46961876d98a9e1bd1.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-f0558f3739267a7e7a8c6c4fabe4f83f.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -392,10 +392,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#basic-retrieval" id="toc-basic-retrieval" class="nav-link active" data-scroll-target="#basic-retrieval">Basic retrieval</a>
   <ul class="collapse">
   <li><a href="#create-store" id="toc-create-store" class="nav-link" data-scroll-target="#create-store">Create store</a></li>
-  <li><a href="#save-store" id="toc-save-store" class="nav-link" data-scroll-target="#save-store">Save store</a></li>
   <li><a href="#retrieve-content" id="toc-retrieve-content" class="nav-link" data-scroll-target="#retrieve-content">Retrieve content</a></li>
   </ul></li>
   <li><a href="#dynamic-retrieval" id="toc-dynamic-retrieval" class="nav-link" data-scroll-target="#dynamic-retrieval">Dynamic retrieval</a></li>
+  <li><a href="#scope-retrieval" id="toc-scope-retrieval" class="nav-link" data-scroll-target="#scope-retrieval">Scope retrieval</a></li>
+  <li><a href="#learn-more" id="toc-learn-more" class="nav-link" data-scroll-target="#learn-more">Learn more</a></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/posit-dev/chatlas/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li><li><a href="https://github.com/posit-dev/chatlas/edit/main/docs/misc/RAG.qmd" class="toc-action"><i class="bi empty"></i>Edit this page</a></li></ul></div></nav>
     </div>
@@ -432,14 +433,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>The term RAG gets thrown around a lot, and for good reason – it can be a very useful way to address the most serious limitations of LLMs. However, RAG is not always necessary – sometimes something much simpler will do the trick, such as:</p>
+<p>The term RAG gets thrown around a lot, and for good reason: it can be a very useful way to address the most serious limitations of LLMs. However, RAG is not always necessary, and sometimes something much simpler will do the trick, such as:</p>
 <ul>
 <li>Adding trusted/missing content directly to the <a href="../get-started/system-prompt.html">system prompt</a> (or chat input), rather than retrieving a portion of it from a knowledge store.</li>
 <li>Register a <a href="../get-started/tools.html">tool</a> enabling the LLM to “ask” for trusted content as needed, possibly without needing to manage a separate knowledge store.</li>
 </ul>
 </div>
 </div>
-<p>In theory, grounding the LLM’s response in trusted content helps to reduce <a href="https://en.wikipedia.org/wiki/Hallucination_(artificial_intelligence)">hallucination</a>. But in practice, RAG can be fickle – it’s hard to always retrieve the right information for every user query, and it’s not always predictable how the LLM will actually use the retrieved content. For this reason, it’s helpful for your RAG workflow to be transparent (so it’s easy to debug, understand, and modify) because some trial and error will be necessary. It can also be very helpful to combine RAG with additional techniques, such as:</p>
+<p>In theory, grounding the LLM’s response in trusted content helps to reduce <a href="https://en.wikipedia.org/wiki/Hallucination_(artificial_intelligence)">hallucination</a>. But in practice, RAG can be fickle. It’s hard to always retrieve the right information for every user query, and it’s not always predictable how the LLM will actually use the retrieved content. For this reason, it’s helpful for your RAG workflow to be transparent (so it’s easy to debug, understand, and modify) because some trial and error will be necessary. It can also be very helpful to combine RAG with additional techniques, such as:</p>
 <ol type="1">
 <li>Setting guidelines for how the LLM should use the retrieved content in the <a href="../get-started/system-prompt.html">system prompt</a>.</li>
 <li>If needed, provide a <a href="../get-started/tools.html">tool</a> to retrieve additional information from a knowledge store, effectively enabling the LLM to decide when it needs more information.</li>
@@ -458,142 +459,266 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>user_query <span class="op">=</span> <span class="st">"Who created the unicorn programming language?"</span></span>
 <span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="co"># A placeholder for your retrieval logic</span></span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>trusted_content <span class="op">=</span> retrieve_trusted_content(user_query)  </span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>trusted_content <span class="op">=</span> retrieve_trusted_content(user_query)</span>
 <span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>chat.chat(trusted_content, user_query)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>chat.chat(<span class="op">*</span>trusted_content, user_query)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>In the sections that follow, we’ll implement the <code>retrieve_trusted_content()</code> step of this workflow. And, as we’ll see, there are several moving parts to consider when implementing this step.</p>
-<p>Obviously, in order to retrieve trusted content, we first need some content to retrieve. Typically content is retrieved from a <strong>knowledge store</strong> – essentially a database that stores documents in a way that allows for efficient retrieval based on semantic similarity. A knowledge store also often takes the form of a <strong>vector store</strong> or <strong>embedding index</strong> because of its efficiency in storing and retrieving content based on semantic similarity. This approach requires embedding the content into numerical vectors, which can be done using various machine learning models.</p>
+<p>Obviously, in order to retrieve trusted content, we first need some content to retrieve. Typically content is retrieved from a <strong>knowledge store</strong>, which is essentially a database that stores documents in a way that allows for efficient retrieval based on semantic similarity. A knowledge store also often takes the form of a <strong>vector store</strong> or <strong>embedding index</strong> because of its efficiency in storing and retrieving content based on semantic similarity. This approach requires embedding the content into numerical vectors, which can be done using various machine learning models.</p>
 <section id="create-store" class="level3">
 <h3 class="anchored" data-anchor-id="create-store">Create store</h3>
-<p>Python has a plethora of options for working with knowledge stores (<a href="https://docs.llamaindex.ai/en/stable/">llama-index</a>, <a href="https://docs.pinecone.io/reference/python-sdk">pinecone</a>, etc.). It doesn’t really matter which one you choose, but due to its popularity, maturity, and simplicity, lets demonstrate with the <a href="https://docs.llamaindex.ai/en/stable/"><code>llama-index</code></a> library:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pip</span> install llama-index</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>With <code>llama-index</code>, it’s easy to create a knowledge store from a wide variety of input formats, such as text files, <a href="https://developers.llamaindex.ai/python/examples/data_connectors/webpagedemo/">web pages</a>, and <a href="https://pypi.org/project/llama-index-readers-markitdown/">much more</a>. That said, for this example, I’ll assume you have a directory (<code>data</code>) with some text files that you want to use as trusted content. This snippet will ingest the files, embed them, and create a vector store <code>index</code> that is ready for <a href="#retrieve-content">retrieval</a>.</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> llama_index.core <span class="im">import</span> SimpleDirectoryReader, VectorStoreIndex</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>docs <span class="op">=</span> SimpleDirectoryReader(<span class="st">"data"</span>).load_data()</span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>index <span class="op">=</span> VectorStoreIndex.from_documents(docs)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="callout callout-style-simple callout-caution callout-titled">
+<p>Python has a plethora of options for working with knowledge stores (<a href="https://docs.llamaindex.ai/en/stable/">llama-index</a>, <a href="https://docs.pinecone.io/reference/python-sdk">pinecone</a>, <a href="https://posit-dev.github.io/raghilda/">raghilda</a>, etc.). The examples in this article use <a href="https://posit-dev.github.io/raghilda/">raghilda</a>, a Posit package made to work alongside chatlas. We chose it for its defaults, which handle a lot of what you’d otherwise set up by hand. It splits documents at headings and paragraphs, searches by both meaning and keywords, merges overlapping results, and saves the store to disk as you build it. Nothing in this article depends on raghilda, though. You can follow the same steps with <code>llama-index</code> or another library, and the tip at the end of <a href="#retrieve-content">Retrieve content</a> shows what that looks like.</p>
+<div class="callout callout-style-simple callout-note callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Caution</span>Embed pre-requisites
+<span class="screen-reader-only">Note</span>Prerequisites
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>By default, <code>VectorStoreIndex</code> tries to use an OpenAI model to embed the <code>docs</code>, which will fail if you don’t have an OpenAI API key set up. Either set the <code>OPENAI_API_KEY</code> environment variable to your OpenAI API key, or see the next tip if you’d rather use a free embedding model.</p>
+<p>Install raghilda alongside chatlas:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pip</span> install raghilda chatlas</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>The examples here use OpenAI for both embeddings and chat, so you’ll also need an OpenAI API key set in the <code>OPENAI_API_KEY</code> environment variable (or see the “Free, local embeddings” tip below).</p>
 </div>
 </div>
+<p>A raghilda store is a database that holds your document chunks along with their embeddings. The <code>DuckDBStore</code> backend keeps everything in a single local file, so there’s no server to run. For this example, let’s assume you have a directory (<code>data</code>) of Markdown (<code>.md</code>) files that you want to use as trusted content. This snippet reads each file, chunks it, embeds the chunks, and writes them to a store on disk:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pathlib <span class="im">import</span> Path</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> raghilda.chunker <span class="im">import</span> MarkdownChunker</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> raghilda.embedding <span class="im">import</span> EmbeddingOpenAI</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> raghilda.read <span class="im">import</span> read_as_markdown</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> raghilda.store <span class="im">import</span> DuckDBStore</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>store <span class="op">=</span> DuckDBStore.create(</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>    location<span class="op">=</span><span class="st">"knowledge.db"</span>,</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>    embed<span class="op">=</span>EmbeddingOpenAI(),</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>    overwrite<span class="op">=</span><span class="va">True</span>,</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>chunker <span class="op">=</span> MarkdownChunker()</span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> path <span class="kw">in</span> Path(<span class="st">"data"</span>).glob(<span class="st">"*.md"</span>):</span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>    doc <span class="op">=</span> read_as_markdown(<span class="bu">str</span>(path))</span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>    store.upsert(chunker.chunk(doc))</span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>store.build_index()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><code>MarkdownChunker</code> splits each document into overlapping chunks at natural boundaries (headings, paragraphs, and sentences), and each chunk remembers the headings it falls under. The final <code>build_index()</code> call builds two indexes: a vector index for semantic search and a BM25 index for keyword search. Since the store is written to <code>knowledge.db</code> as you go, there’s no separate step to save it. You build it once, and your app connects to it later.</p>
 <div class="callout callout-style-simple callout-tip callout-titled">
-<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-3-contents" aria-controls="callout-3" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Tip</span>Custom embed model
+<span class="screen-reader-only">Tip</span>Other inputs
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><code>read_as_markdown()</code> accepts URLs as well as file paths, and it converts HTML, PDF, Word, and many other formats to Markdown along the way. To index an entire website, raghilda’s <a href="https://posit-dev.github.io/raghilda/user-guide/crawling-and-ingestion.html">crawler</a> can discover and fetch the pages for you.</p>
+</div>
+</div>
+<div class="callout callout-style-simple callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-4-contents" aria-controls="callout-4" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>Free, local embeddings
 </div>
 <div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
 </div>
-<div id="callout-3" class="callout-3-contents callout-collapse collapse">
+<div id="callout-4" class="callout-4-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<p>The embedding model used by <code>VectorStoreIndex</code> can be customized via in the <code>Settings</code> object. For example, to use a (free) <a href="https://huggingface.co/">Hugging Face</a> embedding model, first install:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pip</span> install llama-index-embeddings-huggingface</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>Then set the <code>embed_model</code> in the <code>Settings</code> object to reference the Hugging Face model you want to use. This way, you can use a free and open source embedding model without needing an API key.</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> llama_index.core <span class="im">import</span> Settings</span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> llama_index.embeddings.huggingface <span class="im">import</span> HuggingFaceEmbedding</span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>Settings.embed_model <span class="op">=</span> HuggingFaceEmbedding(model_name<span class="op">=</span><span class="st">"BAAI/bge-small-en-v1.5"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><code>EmbeddingOpenAI</code> is just one of raghilda’s embedding providers. If you’d rather not use an API key (or don’t want your documents to leave your machine), the SentenceTransformers provider runs open-source models locally. First install the extra:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pip</span> install <span class="st">"raghilda[sentence-transformers]"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Then pass the provider to the store in place of <code>EmbeddingOpenAI()</code>:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> raghilda.embedding <span class="im">import</span> EmbeddingSentenceTransformers</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>store <span class="op">=</span> DuckDBStore.create(</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    location<span class="op">=</span><span class="st">"knowledge.db"</span>,</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    embed<span class="op">=</span>EmbeddingSentenceTransformers(),</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    overwrite<span class="op">=</span><span class="va">True</span>,</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>raghilda also supports Cohere and NVIDIA NIM embeddings, and you can write your own provider for other services. See the <a href="https://posit-dev.github.io/raghilda/reference/">raghilda reference</a> for the full list.</p>
 </div>
 </div>
 </div>
 <div class="callout callout-style-simple callout-tip callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Tip</span>Custom vector stores
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<p>The code provided here just uses <code>llama-index</code>’s default vector store, but it supports a wide variety of vector stores, such as <a href="https://docs.llamaindex.ai/en/stable/examples/vector_stores/DuckDBDemo/">DuckDB</a>, <a href="https://docs.llamaindex.ai/en/stable/examples/vector_stores/PineconeIndexDemo/">Pinecone</a>, and much more.</p>
-</div>
-</div>
-<div class="callout callout-style-simple callout-tip callout-titled">
-<div class="callout-header d-flex align-content-center">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-5-contents" aria-controls="callout-5" aria-expanded="false" aria-label="Toggle callout">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
 <span class="screen-reader-only">Tip</span>Chunking defaults
 </div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-5" class="callout-5-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>Long documents (articles or books, say) need to be split into smaller chunks, because the part that answers a question is usually a small piece of the whole. <code>MarkdownChunker</code> aims for chunks of about 1,600 characters, with each one overlapping its neighbor by half. You can change both settings:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>chunker <span class="op">=</span> MarkdownChunker(chunk_size<span class="op">=</span><span class="dv">800</span>, target_overlap<span class="op">=</span><span class="fl">0.3</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>raghilda’s <a href="https://posit-dev.github.io/raghilda/user-guide/chunking.html">chunking</a> article has advice on picking these values.</p>
+</div>
+</div>
+</div>
+<div class="callout callout-style-simple callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>Other storage backends
+</div>
 </div>
 <div class="callout-body-container callout-body">
-<p>If your documents are large (e.g., long articles or books), it’s a good idea to split them into smaller chunks to improve retrieval performance. This is important since, if the content relevant to a user query is only a small part of a larger document, retrieving the entire document probably won’t be efficient or effective. When creating the <code>index</code>, <code>llama-index</code> will automatically chunk the documents into smaller pieces, which can be configured via the <code>Settings</code> object:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> llama_index.core <span class="im">import</span> Settings</span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>Settings.chunk_size <span class="op">=</span> <span class="dv">512</span></span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>Settings.chunk_overlap <span class="op">=</span> <span class="dv">50</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><code>DuckDBStore</code> is a good default, but raghilda also provides stores backed by <a href="https://www.trychroma.com/">ChromaDB</a>, OpenAI vector stores, and PostgreSQL. The retrieval code in the rest of this article works the same way with any of them.</p>
 </div>
 </div>
-</section>
-<section id="save-store" class="level3">
-<h3 class="anchored" data-anchor-id="save-store">Save store</h3>
-<p>If you have a large number of documents, creating a vector store <code>index</code> can be time-consuming, so you don’t want to recreate it every time you run your application. Thankfully, you can save the <code>index</code> to a directory on disk so you don’t have to recreate it every time you run your application. This can be done with:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>index.storage_context.persist(persist_dir<span class="op">=</span><span class="st">"./storage"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>Now, when we go to retrieve content in our app, we can load the <code>index</code> from disk instead of recreating it every time.</p>
 </section>
 <section id="retrieve-content" class="level3">
 <h3 class="anchored" data-anchor-id="retrieve-content">Retrieve content</h3>
-<p>With our <code>index</code> now available on disk, we’re ready to implement <code>retrieve_trusted_content()</code> – the step that retrieves relevant content from the knowledge store based on the user query.</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> llama_index.core <span class="im">import</span> StorageContext, load_index_from_storage</span>
+<p>With the store on disk, we’re ready to implement <code>retrieve_trusted_content()</code>, the function that finds content in the knowledge store that’s relevant to the user’s query. In your app, connect to the store and search it:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> raghilda.store <span class="im">import</span> DuckDBStore</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>store <span class="op">=</span> DuckDBStore.<span class="ex">connect</span>(<span class="st">"knowledge.db"</span>, read_only<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> retrieve_trusted_content(query: <span class="bu">str</span>, top_k: <span class="bu">int</span> <span class="op">=</span> <span class="dv">5</span>) <span class="op">-&gt;</span> <span class="bu">list</span>[<span class="bu">str</span>]:</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>    chunks <span class="op">=</span> store.retrieve(query, top_k<span class="op">=</span>top_k)</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> [<span class="ss">f"&lt;excerpt&gt;</span><span class="sc">{</span>chunk<span class="sc">.</span>text<span class="sc">}</span><span class="ss">&lt;/excerpt&gt;"</span> <span class="cf">for</span> chunk <span class="kw">in</span> chunks]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>The store remembers which embedding model it was created with, so <code>connect()</code> restores it for you and queries are embedded the same way as the documents were. Opening the store with <code>read_only=True</code> is a good habit in an app that only retrieves content.</p>
+<div class="callout callout-style-simple callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Warning</span>Building and connecting in one session
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>DuckDB won’t open a file as read-only while the same Python session still has it open for writing. If you build the store and then call <code>connect(read_only=True)</code> in the same notebook or script, you’ll get a <code>ConnectionException</code>. Either build the store in a separate script (or restart your Python session before connecting), or keep using the <code>store</code> returned by <code>create()</code>.</p>
+</div>
+</div>
+<p>By default, <code>retrieve()</code> runs a hybrid search that combines semantic similarity with BM25 keyword matching. Semantic search finds passages that mean the same thing as the query even when they use different words, while keyword search catches exact terms (like function names or error messages) that embeddings can miss. The <code>top_k</code> limit applies to each kind of search separately before the results are combined, so you may get back more (or fewer) chunks than <code>top_k</code>. Overlapping chunks from the same document are also merged into one passage, so the model doesn’t see the same text twice. There’s no right value for <code>top_k</code>, so if the retrieved content seems too thin or off the mark, try raising it.</p>
+<p>Once <code>retrieve_trusted_content()</code> is defined, the <a href="#basic-retrieval">basic retrieval</a> example at the top of this article runs as is. Each excerpt goes to <code>.chat()</code> as a separate input, with the question last, so the model gets the passages and the question together in one user turn.</p>
+<div class="callout callout-style-simple callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-8-contents" aria-controls="callout-8" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>Using llama-index instead
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-8" class="callout-8-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>If you’d rather use <a href="https://docs.llamaindex.ai/en/stable/"><code>llama-index</code></a>, install it with <code>pip install llama-index</code>. Then build the index once and save it to disk:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> llama_index.core <span class="im">import</span> SimpleDirectoryReader, VectorStoreIndex</span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Load the knowledge store (index) from disk</span></span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>storage_context <span class="op">=</span> StorageContext.from_defaults(persist_dir<span class="op">=</span><span class="st">"./storage"</span>)</span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>index <span class="op">=</span> load_index_from_storage(storage_context)</span>
-<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> retrieve_trusted_content(query):</span>
-<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>    retriever <span class="op">=</span> index.as_retriever(similarity_top_k<span class="op">=</span><span class="dv">5</span>)</span>
-<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>    nodes <span class="op">=</span> retriever.retrieve(query)</span>
-<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> [<span class="ss">f"&lt;excerpt&gt;</span><span class="sc">{</span>x<span class="sc">.</span>text<span class="sc">}</span><span class="ss">&lt;/excerpt&gt;"</span> <span class="cf">for</span> x <span class="kw">in</span> nodes]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>This particular implementation retrieves the top 5 most relevant documents from the <code>index</code> based on the user query, but you can adjust the number of results by changing the <code>similarity_top_k</code> parameter. There’s no magic number for this parameter, but <code>llama-index</code> defaults to 2, so you may want to increase it if you find that the retrieved content is too sparse or not relevant enough. That said, you can also leverage</p>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>docs <span class="op">=</span> SimpleDirectoryReader(<span class="st">"data"</span>).load_data()</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>index <span class="op">=</span> VectorStoreIndex.from_documents(docs)</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>index.storage_context.persist(persist_dir<span class="op">=</span><span class="st">"./storage"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>In your app, load the saved index and use its retriever inside <code>retrieve_trusted_content()</code>:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> llama_index.core <span class="im">import</span> StorageContext, load_index_from_storage</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>storage_context <span class="op">=</span> StorageContext.from_defaults(persist_dir<span class="op">=</span><span class="st">"./storage"</span>)</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>index <span class="op">=</span> load_index_from_storage(storage_context)</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> retrieve_trusted_content(query: <span class="bu">str</span>, top_k: <span class="bu">int</span> <span class="op">=</span> <span class="dv">5</span>) <span class="op">-&gt;</span> <span class="bu">list</span>[<span class="bu">str</span>]:</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>    retriever <span class="op">=</span> index.as_retriever(similarity_top_k<span class="op">=</span>top_k)</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>    nodes <span class="op">=</span> retriever.retrieve(query)</span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> [<span class="ss">f"&lt;excerpt&gt;</span><span class="sc">{</span>x<span class="sc">.</span>text<span class="sc">}</span><span class="ss">&lt;/excerpt&gt;"</span> <span class="cf">for</span> x <span class="kw">in</span> nodes]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>This version only does semantic search. To change the embedding model or chunk size, use the <code>Settings</code> object in <code>llama-index</code>. The chat code stays the same no matter which library you use.</p>
+</div>
+</div>
+</div>
 </section>
 </section>
 <section id="dynamic-retrieval" class="level2">
 <h2 class="anchored" data-anchor-id="dynamic-retrieval">Dynamic retrieval</h2>
-<p>Dynamic retrieval is similar to <a href="#basic-retrieval">basic retrieval</a>, except that instead of the retrieval being a single fixed step before response generation, it is provided as a <a href="../get-started/tools.html">tool</a> to the LLM. This results in a much more robust and flexible RAG workflow, as the LLM can decide if, when, and how much contents to retrieve from the knowledge store before generating a response. It can also decide what to provide as input to the retrieval step(s), rather than just using the user query directly, which can be useful if the user query is ambiguous or incomplete.</p>
-<p>To implement dynamic retrieval, we can just take the <code>retrieve_trusted_content()</code> function we just implemented as a tool with the chat model. When doing this, make sure you provide a clear description of the tool’s purpose and how it should be used, as this will help the LLM understand how to use it effectively. You could even add a parameter to the tool that allows the LLM to specify how many results it wants to retrieve, which can be useful for more complex queries.</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> chatlas <span class="im">import</span> ChatOpenAI</span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> llama_index.core <span class="im">import</span> StorageContext, load_index_from_storage</span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Load the knowledge store (index) from disk</span></span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>storage_context <span class="op">=</span> StorageContext.from_defaults(persist_dir<span class="op">=</span><span class="st">"./storage"</span>)</span>
-<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>index <span class="op">=</span> load_index_from_storage(storage_context)</span>
-<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> retrieve_trusted_content(query: <span class="bu">str</span>, top_k: <span class="bu">int</span> <span class="op">=</span> <span class="dv">5</span>):</span>
-<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""</span></span>
-<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a><span class="co">    Retrieve relevant content from the knowledge store.</span></span>
-<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a><span class="co">    Parameters</span></span>
-<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a><span class="co">    ----------</span></span>
-<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a><span class="co">    query</span></span>
-<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a><span class="co">        The query used to semantically search the knowledge store.</span></span>
-<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a><span class="co">    top_k</span></span>
-<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a><span class="co">        The number of results to retrieve from the knowledge store.</span></span>
-<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
-<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a>    retriever <span class="op">=</span> index.as_retriever(similarity_top_k<span class="op">=</span>top_k)</span>
-<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a>    nodes <span class="op">=</span> retriever.retrieve(query)</span>
-<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> [<span class="ss">f"&lt;excerpt&gt;</span><span class="sc">{</span>x<span class="sc">.</span>text<span class="sc">}</span><span class="ss">&lt;/excerpt&gt;"</span> <span class="cf">for</span> x <span class="kw">in</span> nodes]</span>
-<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a>chat <span class="op">=</span> ChatOpenAI(</span>
-<span id="cb9-24"><a href="#cb9-24" aria-hidden="true" tabindex="-1"></a>    system_prompt<span class="op">=</span><span class="st">"You are a helpful, but terse, assistant. "</span></span>
-<span id="cb9-25"><a href="#cb9-25" aria-hidden="true" tabindex="-1"></a>    <span class="st">"If you can't answer the question based on the trusted content, say so."</span></span>
-<span id="cb9-26"><a href="#cb9-26" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb9-27"><a href="#cb9-27" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-28"><a href="#cb9-28" aria-hidden="true" tabindex="-1"></a>chat.register_tool(retrieve_trusted_content)</span>
-<span id="cb9-29"><a href="#cb9-29" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-30"><a href="#cb9-30" aria-hidden="true" tabindex="-1"></a>chat.chat(<span class="st">"Who created the unicorn programming language?"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Dynamic retrieval is similar to <a href="#basic-retrieval">basic retrieval</a>, except that instead of the retrieval being a single fixed step before response generation, it is provided as a <a href="../get-started/tools.html">tool</a> to the LLM. This results in a much more robust and flexible RAG workflow, as the LLM can decide if, when, and how much content to retrieve from the knowledge store before generating a response. It can also decide what to provide as input to the retrieval step(s), rather than just using the user query directly, which can be useful if the user query is ambiguous or incomplete.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> chatlas <span class="im">import</span> ChatOpenAI</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> raghilda.store <span class="im">import</span> DuckDBStore</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>store <span class="op">=</span> DuckDBStore.<span class="ex">connect</span>(<span class="st">"knowledge.db"</span>, read_only<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> search_knowledge_store(query: <span class="bu">str</span>, top_k: <span class="bu">int</span> <span class="op">=</span> <span class="dv">5</span>) <span class="op">-&gt;</span> <span class="bu">list</span>[<span class="bu">dict</span>]:</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""</span></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a><span class="co">    Search the knowledge store for content relevant to the query.</span></span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a><span class="co">    Parameters</span></span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a><span class="co">    ----------</span></span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a><span class="co">    query</span></span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a><span class="co">        A description of the information to look for.</span></span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a><span class="co">    top_k</span></span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a><span class="co">        The number of passages to retrieve.</span></span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
+<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a>    chunks <span class="op">=</span> store.retrieve(query, top_k<span class="op">=</span>top_k)</span>
+<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> [</span>
+<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a>        {<span class="st">"text"</span>: chunk.text, <span class="st">"headings"</span>: chunk.context, <span class="st">"source"</span>: chunk.origin}</span>
+<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> chunk <span class="kw">in</span> chunks</span>
+<span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a>    ]</span>
+<span id="cb10-22"><a href="#cb10-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-23"><a href="#cb10-23" aria-hidden="true" tabindex="-1"></a>chat <span class="op">=</span> ChatOpenAI(</span>
+<span id="cb10-24"><a href="#cb10-24" aria-hidden="true" tabindex="-1"></a>    system_prompt<span class="op">=</span><span class="st">"You are a helpful, but terse, assistant. "</span></span>
+<span id="cb10-25"><a href="#cb10-25" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Search the knowledge store before answering, and cite the source of any content you use. "</span></span>
+<span id="cb10-26"><a href="#cb10-26" aria-hidden="true" tabindex="-1"></a>    <span class="st">"If you can't answer the question based on the trusted content, say so."</span>,</span>
+<span id="cb10-27"><a href="#cb10-27" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb10-28"><a href="#cb10-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-29"><a href="#cb10-29" aria-hidden="true" tabindex="-1"></a>chat.register_tool(search_knowledge_store)</span>
+<span id="cb10-30"><a href="#cb10-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-31"><a href="#cb10-31" aria-hidden="true" tabindex="-1"></a>chat.chat(<span class="st">"Who created the unicorn programming language?"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>As with any chatlas tool, the docstring and type hints tell the model what the tool does and how to call it, so it’s worth making them specific to your content. The <code>top_k</code> parameter lets the model ask for more results when it needs them. The tool returns a list of dictionaries, which chatlas converts to JSON before sending it to the model. Along with each passage’s text, the dictionaries include the headings it falls under (<code>chunk.context</code>, which is <code>None</code> when there aren’t any) and the file or URL it came from (<code>chunk.origin</code>). The headings help the model make sense of a passage taken out of context, and the source lets it cite where an answer came from.</p>
+</section>
+<section id="scope-retrieval" class="level2">
+<h2 class="anchored" data-anchor-id="scope-retrieval">Scope retrieval</h2>
+<p>A store that mixes different kinds of content (say, a user guide and an API reference) can return passages from the wrong part of it. raghilda lets you tag documents with <strong>attributes</strong> when you build the store and then filter on them at retrieval time. For example, suppose your <code>data</code> directory has two subfolders, <code>guide</code> and <code>reference</code>. When you build (or rebuild) the store, declare the attributes in <code>create()</code>, and then set them on each document before chunking it:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>store <span class="op">=</span> DuckDBStore.create(</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>    location<span class="op">=</span><span class="st">"knowledge.db"</span>,</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>    embed<span class="op">=</span>EmbeddingOpenAI(),</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>    attributes<span class="op">=</span>{<span class="st">"section"</span>: <span class="bu">str</span>},</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>    overwrite<span class="op">=</span><span class="va">True</span>,</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>chunker <span class="op">=</span> MarkdownChunker()</span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> section <span class="kw">in</span> [<span class="st">"guide"</span>, <span class="st">"reference"</span>]:</span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> path <span class="kw">in</span> Path(<span class="st">"data"</span>, section).glob(<span class="st">"*.md"</span>):</span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>        doc <span class="op">=</span> read_as_markdown(<span class="bu">str</span>(path))</span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>        doc.attributes <span class="op">=</span> {<span class="st">"section"</span>: section}</span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a>        store.upsert(chunker.chunk(doc))</span>
+<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a>store.build_index()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Every chunk inherits its document’s attributes. You can then expose the filter as a tool parameter, so the model chooses which part of the store to search:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> typing <span class="im">import</span> Literal, Optional</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> search_knowledge_store(</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>    query: <span class="bu">str</span>,</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>    section: Optional[Literal[<span class="st">"guide"</span>, <span class="st">"reference"</span>]] <span class="op">=</span> <span class="va">None</span>,</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>) <span class="op">-&gt;</span> <span class="bu">list</span>[<span class="bu">dict</span>]:</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""</span></span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a><span class="co">    Search the documentation for content relevant to the query.</span></span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a><span class="co">    Parameters</span></span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a><span class="co">    ----------</span></span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a><span class="co">    query</span></span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a><span class="co">        A description of the information to look for.</span></span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a><span class="co">    section</span></span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a><span class="co">        Limit the search to the user guide ("guide") or the API reference</span></span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a><span class="co">        ("reference"). Leave unset to search everything.</span></span>
+<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
+<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a>    attributes_filter <span class="op">=</span> <span class="ss">f"section = '</span><span class="sc">{</span>section<span class="sc">}</span><span class="ss">'"</span> <span class="cf">if</span> section <span class="cf">else</span> <span class="va">None</span></span>
+<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a>    chunks <span class="op">=</span> store.retrieve(query, top_k<span class="op">=</span><span class="dv">5</span>, attributes_filter<span class="op">=</span>attributes_filter)</span>
+<span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> [{<span class="st">"text"</span>: chunk.text, <span class="st">"source"</span>: chunk.origin} <span class="cf">for</span> chunk <span class="kw">in</span> chunks]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Register this tool with <code>chat.register_tool()</code>, just as in the <a href="#dynamic-retrieval">dynamic retrieval</a> example. The <code>Literal</code> type hint tells the model which sections exist, and because your function builds the filter, the model only has to pick a section name rather than write filter syntax. raghilda’s <a href="https://posit-dev.github.io/raghilda/user-guide/attribute-filters.html">attribute filters</a> article covers more complex schemas and filter expressions.</p>
+</section>
+<section id="learn-more" class="level2">
+<h2 class="anchored" data-anchor-id="learn-more">Learn more</h2>
+<p>The raghilda documentation goes deeper into each part of the knowledge store:</p>
+<ul>
+<li><a href="https://posit-dev.github.io/raghilda/user-guide/getting-started.html">Core Concepts</a> covers building, indexing, and reconnecting to a store.</li>
+<li><a href="https://posit-dev.github.io/raghilda/user-guide/chunking.html">Chunking</a> explains how to tune chunk size and overlap for better retrieval.</li>
+<li><a href="https://posit-dev.github.io/raghilda/user-guide/chatlas-integration.html">Using RAG with chatlas</a> shows the same integration from raghilda’s side, including registering several search tools and choosing a model provider.</li>
+</ul>
 
 
 </section>
