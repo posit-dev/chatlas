@@ -3,54 +3,57 @@ interactions:
     body: '{"max_tokens": 4096, "messages": [{"role": "user", "content": [{"text":
       "\n# Apples are tasty\n\nBy Hadley Wickham\nApples are delicious and tasty and
       I like to eat them.\nExcept for red delicious, that is. They are NOT delicious.\n",
-      "type": "text"}]}], "tool_choice": {"type": "tool", "name": "_structured_tool_call"},
-      "tools": [{"name": "_structured_tool_call", "input_schema": {"type": "object",
-      "properties": {"data": {"description": "Summary of the article", "properties":
-      {"title": {"type": "string"}, "author": {"type": "string"}}, "required": ["title",
-      "author"], "type": "object", "additionalProperties": false}}}, "description":
-      "Extract structured data"}], "anthropic_version": "bedrock-2023-05-31"}'
+      "type": "text"}]}], "output_config": {"format": {"type": "json_schema", "schema":
+      {"type": "object", "description": "Summary of the article", "title": "ArticleSummary",
+      "properties": {"title": {"type": "string", "title": "Title"}, "author": {"type":
+      "string", "title": "Author"}}, "additionalProperties": false, "required": ["title",
+      "author"]}}}, "tools": [], "anthropic_version": "bedrock-2023-05-31"}'
     headers:
-      Connection:
-      - keep-alive
-      X-Amz-Date:
-      - 20251231T203630Z
       accept:
       - application/json
       accept-encoding:
       - gzip, deflate
+      connection:
+      - keep-alive
       content-length:
-      - '669'
+      - '598'
       content-type:
       - application/json
       host:
       - bedrock-runtime.us-east-1.amazonaws.com
+      x-amz-date:
+      - 20261105T001349Z
       x-stainless-read-timeout:
       - '600'
       x-stainless-timeout:
       - '600'
     method: POST
-    uri: https://bedrock-runtime.us-east-1.amazonaws.com/model/us.anthropic.claude-sonnet-4-5-20250929-v1:0/invoke
+    uri: https://bedrock-runtime.us-east-1.amazonaws.com/model/us.anthropic.claude-sonnet-5/invoke
   response:
     body:
-      string: '{"model":"claude-sonnet-4-5-20250929","id":"msg_bdrk_01A3jPp5Jj9YmkVbvPMrkB9u","type":"message","role":"assistant","content":[{"type":"tool_use","id":"toolu_bdrk_01QxBiUQAr65c2BjhkEkL9H8","name":"_structured_tool_call","input":{"data":{"title":"Apples
-        are tasty","author":"Hadley Wickham"}}}],"stop_reason":"tool_use","stop_sequence":null,"usage":{"input_tokens":748,"cache_creation_input_tokens":0,"cache_read_input_tokens":0,"output_tokens":54}}'
+      string: '{"model":"claude-sonnet-5","id":"msg_bdrk_fwx7ezvitmvaq2gmobbn3v3pmdx5xnovidfqeicyqynlk24jnlva","type":"message","role":"assistant","content":[{"type":"text","text":"{\"title\":\"Apples
+        are tasty\",\"author\":\"Hadley Wickham\"}"}],"container":null,"stop_reason":"end_turn","stop_sequence":null,"stop_details":null,"usage":{"input_tokens":318,"cache_creation_input_tokens":0,"cache_read_input_tokens":0,"cache_creation":{"ephemeral_5m_input_tokens":0,"ephemeral_1h_input_tokens":0},"output_tokens":28,"output_tokens_details":{"thinking_tokens":0},"service_tier":"standard"}}'
     headers:
-      Connection:
+      connection:
       - keep-alive
-      Content-Length:
-      - '447'
-      Content-Type:
+      content-length:
+      - '574'
+      content-type:
       - application/json
-      Date:
-      - Wed, 31 Dec 2025 20:36:32 GMT
-      X-Amzn-Bedrock-Input-Token-Count:
-      - '748'
-      X-Amzn-Bedrock-Invocation-Latency:
-      - '1939'
-      X-Amzn-Bedrock-Output-Token-Count:
-      - '54'
-      x-amzn-RequestId:
-      - 854589d0-375d-4d5f-a791-9b1839f92e31
+      date:
+      - Thu, 05 Nov 2026 00:13:51 GMT
+      x-amzn-bedrock-cache-read-input-token-count:
+      - '0'
+      x-amzn-bedrock-cache-write-input-token-count:
+      - '0'
+      x-amzn-bedrock-input-token-count:
+      - '318'
+      x-amzn-bedrock-invocation-latency:
+      - '1301'
+      x-amzn-bedrock-output-token-count:
+      - '28'
+      x-amzn-requestid:
+      - f68f2c09-00fc-4ec9-a407-89bad68923ad
     status:
       code: 200
       message: OK
@@ -62,54 +65,58 @@ interactions:
       are tasty\",\"author\":\"Hadley Wickham\"}", "type": "text"}]}, {"role": "user",
       "content": [{"text": "\n# Apples are tasty\n\nBy Hadley Wickham\nApples are
       delicious and tasty and I like to eat them.\nExcept for red delicious, that
-      is. They are NOT delicious.\n", "type": "text"}]}], "tool_choice": {"type":
-      "tool", "name": "_structured_tool_call"}, "tools": [{"name": "_structured_tool_call",
-      "input_schema": {"type": "object", "properties": {"data": {"description": "Summary
-      of the article", "properties": {"title": {"type": "string"}, "author": {"type":
-      "string"}}, "required": ["title", "author"], "type": "object", "additionalProperties":
-      false}}}, "description": "Extract structured data"}], "anthropic_version": "bedrock-2023-05-31"}'
+      is. They are NOT delicious.\n", "type": "text"}]}], "output_config": {"format":
+      {"type": "json_schema", "schema": {"type": "object", "description": "Summary
+      of the article", "title": "ArticleSummary", "properties": {"title": {"type":
+      "string", "title": "Title"}, "author": {"type": "string", "title": "Author"}},
+      "additionalProperties": false, "required": ["title", "author"]}}}, "tools":
+      [], "anthropic_version": "bedrock-2023-05-31"}'
     headers:
-      Connection:
-      - keep-alive
-      X-Amz-Date:
-      - 20251231T203632Z
       accept:
       - application/json
       accept-encoding:
       - gzip, deflate
+      connection:
+      - keep-alive
       content-length:
-      - '1003'
+      - '932'
       content-type:
       - application/json
       host:
       - bedrock-runtime.us-east-1.amazonaws.com
+      x-amz-date:
+      - 20261105T001351Z
       x-stainless-read-timeout:
       - '600'
       x-stainless-timeout:
       - '600'
     method: POST
-    uri: https://bedrock-runtime.us-east-1.amazonaws.com/model/us.anthropic.claude-sonnet-4-5-20250929-v1:0/invoke
+    uri: https://bedrock-runtime.us-east-1.amazonaws.com/model/us.anthropic.claude-sonnet-5/invoke
   response:
     body:
-      string: '{"model":"claude-sonnet-4-5-20250929","id":"msg_bdrk_01N4AwEVm138gs6YMVoJLtky","type":"message","role":"assistant","content":[{"type":"tool_use","id":"toolu_bdrk_013EGdtC3LMTZ3QrGDZcjVpt","name":"_structured_tool_call","input":{"data":{"title":"Apples
-        are tasty","author":"Hadley Wickham"}}}],"stop_reason":"tool_use","stop_sequence":null,"usage":{"input_tokens":824,"cache_creation_input_tokens":0,"cache_read_input_tokens":0,"output_tokens":54}}'
+      string: '{"model":"claude-sonnet-5","id":"msg_bdrk_6jcz62lmkw5bix6cdrkbacip6t3td7tzblsonumjakksjsyablxa","type":"message","role":"assistant","content":[{"type":"text","text":"{\"title\":\"Apples
+        are tasty\",\"author\":\"Hadley Wickham\"}"}],"container":null,"stop_reason":"end_turn","stop_sequence":null,"stop_details":null,"usage":{"input_tokens":408,"cache_creation_input_tokens":0,"cache_read_input_tokens":0,"cache_creation":{"ephemeral_5m_input_tokens":0,"ephemeral_1h_input_tokens":0},"output_tokens":28,"output_tokens_details":{"thinking_tokens":0},"service_tier":"standard"}}'
     headers:
-      Connection:
+      connection:
       - keep-alive
-      Content-Length:
-      - '447'
-      Content-Type:
+      content-length:
+      - '574'
+      content-type:
       - application/json
-      Date:
-      - Wed, 31 Dec 2025 20:36:35 GMT
-      X-Amzn-Bedrock-Input-Token-Count:
-      - '824'
-      X-Amzn-Bedrock-Invocation-Latency:
-      - '1954'
-      X-Amzn-Bedrock-Output-Token-Count:
-      - '54'
-      x-amzn-RequestId:
-      - 28a4513b-471c-4d03-b592-8ac64291c96c
+      date:
+      - Thu, 05 Nov 2026 00:13:52 GMT
+      x-amzn-bedrock-cache-read-input-token-count:
+      - '0'
+      x-amzn-bedrock-cache-write-input-token-count:
+      - '0'
+      x-amzn-bedrock-input-token-count:
+      - '408'
+      x-amzn-bedrock-invocation-latency:
+      - '1025'
+      x-amzn-bedrock-output-token-count:
+      - '28'
+      x-amzn-requestid:
+      - f1ca23e8-f95b-425d-9682-7419f33d9f2a
     status:
       code: 200
       message: OK
@@ -124,54 +131,57 @@ interactions:
       is. They are NOT delicious.\n", "type": "text"}]}, {"role": "assistant", "content":
       [{"text": "{\"title\":\"Apples are tasty\",\"author\":\"Hadley Wickham\"}",
       "type": "text"}]}, {"role": "user", "content": [{"text": "Generate the name
-      and age of a random person.", "type": "text"}]}], "tool_choice": {"type": "tool",
-      "name": "_structured_tool_call"}, "tools": [{"name": "_structured_tool_call",
-      "input_schema": {"type": "object", "properties": {"data": {"properties": {"name":
-      {"type": "string"}, "age": {"type": "integer"}}, "required": ["name", "age"],
-      "type": "object", "additionalProperties": false}}}, "description": "Extract
-      structured data"}], "anthropic_version": "bedrock-2023-05-31"}'
+      and age of a random person.", "type": "text"}]}], "output_config": {"format":
+      {"type": "json_schema", "schema": {"type": "object", "title": "Person", "properties":
+      {"name": {"type": "string", "title": "Name"}, "age": {"type": "integer", "title":
+      "Age"}}, "additionalProperties": false, "required": ["name", "age"]}}}, "tools":
+      [], "anthropic_version": "bedrock-2023-05-31"}'
     headers:
-      Connection:
-      - keep-alive
-      X-Amz-Date:
-      - 20251231T203635Z
       accept:
       - application/json
       accept-encoding:
       - gzip, deflate
+      connection:
+      - keep-alive
       content-length:
-      - '1177'
+      - '1094'
       content-type:
       - application/json
       host:
       - bedrock-runtime.us-east-1.amazonaws.com
+      x-amz-date:
+      - 20261105T001352Z
       x-stainless-read-timeout:
       - '600'
       x-stainless-timeout:
       - '600'
     method: POST
-    uri: https://bedrock-runtime.us-east-1.amazonaws.com/model/us.anthropic.claude-sonnet-4-5-20250929-v1:0/invoke
+    uri: https://bedrock-runtime.us-east-1.amazonaws.com/model/us.anthropic.claude-sonnet-5/invoke
   response:
     body:
-      string: '{"model":"claude-sonnet-4-5-20250929","id":"msg_bdrk_01WDqaMGM8DXG2x9pBh8YCN4","type":"message","role":"assistant","content":[{"type":"tool_use","id":"toolu_bdrk_01YUFHoZLodjeSSJ84iedE9y","name":"_structured_tool_call","input":{"data":{"name":"Sarah
-        Johnson","age":34}}}],"stop_reason":"tool_use","stop_sequence":null,"usage":{"input_tokens":850,"cache_creation_input_tokens":0,"cache_read_input_tokens":0,"output_tokens":44}}'
+      string: '{"model":"claude-sonnet-5","id":"msg_bdrk_cuz5ztdb4vilbspzpgka5fpwezqpki2w7dr5sqtpshiz6csga3dq","type":"message","role":"assistant","content":[{"type":"thinking","thinking":"","signature":"EscDCrECCBMQARgCKkAbzO8Ub0xVx2ktoRLcqER21Aisobtoj054DrhqcELN0NkCRbamtLl+6EKsj9MQW+NXb+u0WAIJ1djYyf28VMt5Mg5jbGF1ZGUtc2FmZnJvbjgAQgh0aGlua2luZ1oMMzQxNzQ1MTAxMTk0qAHBlK/XBsIBUggMEAAaJALaigNPNwXp2AQmrQUrFgNPNwXp2AQmrQUrFgNPNwUKvgQmrSABMgQScc8lOgQ4MyOKQgQ4MyOKSgQ4MyOKUABaBNkF4VZgBmgBcADaAWAKFnByZWZpeF9iZWZvcmVfYmxvY2tfdjESIK6kBhfDOIhUMdNAhcg5v/R2rQ1ou/QMQmRh/sUjybY5IgAyIMLAE8hqnJLiL5ZvPYYXdo+LekTJAq3MCXv6HgmK+04fSAMSDJQneU3FsrilDmQz1xoMfE+r1XxP0qT3rlbbIjCWVWqRSB/s7IADeeanByQxjBvaFG8TWul3qiTc5uISdFpoq0jE9gjBGAXOoWX7D5cqQ41+IIqb4qUx0zuj7z6SkKzL1pA3EhPEX7uquQ1YJVcxpg27bIHEa8uQQumJH/15APbaxHlzX3DBNK8t1qPFMwUpQEUYAQ=="},{"type":"text","text":"{\"name\":\"Alice
+        Johnson\",\"age\":29}"}],"container":null,"stop_reason":"end_turn","stop_sequence":null,"stop_details":null,"usage":{"input_tokens":433,"cache_creation_input_tokens":0,"cache_read_input_tokens":0,"cache_creation":{"ephemeral_5m_input_tokens":0,"ephemeral_1h_input_tokens":0},"output_tokens":38,"output_tokens_details":{"thinking_tokens":18},"service_tier":"standard"}}'
     headers:
-      Connection:
+      connection:
       - keep-alive
-      Content-Length:
-      - '426'
-      Content-Type:
+      content-length:
+      - '1217'
+      content-type:
       - application/json
-      Date:
-      - Wed, 31 Dec 2025 20:36:37 GMT
-      X-Amzn-Bedrock-Input-Token-Count:
-      - '850'
-      X-Amzn-Bedrock-Invocation-Latency:
-      - '1798'
-      X-Amzn-Bedrock-Output-Token-Count:
-      - '44'
-      x-amzn-RequestId:
-      - d9a8c17c-6bbd-4f01-a215-186f6b8ea24a
+      date:
+      - Thu, 05 Nov 2026 00:13:53 GMT
+      x-amzn-bedrock-cache-read-input-token-count:
+      - '0'
+      x-amzn-bedrock-cache-write-input-token-count:
+      - '0'
+      x-amzn-bedrock-input-token-count:
+      - '433'
+      x-amzn-bedrock-invocation-latency:
+      - '1307'
+      x-amzn-bedrock-output-token-count:
+      - '38'
+      x-amzn-requestid:
+      - 70248c40-feef-47ab-8026-10fba1d12158
     status:
       code: 200
       message: OK
@@ -187,86 +197,88 @@ interactions:
       [{"text": "{\"title\":\"Apples are tasty\",\"author\":\"Hadley Wickham\"}",
       "type": "text"}]}, {"role": "user", "content": [{"text": "Generate the name
       and age of a random person.", "type": "text"}]}, {"role": "assistant", "content":
-      [{"text": "{\"name\":\"Sarah Johnson\",\"age\":34}", "type": "text"}]}, {"role":
+      [{"type": "thinking", "thinking": "", "signature": "EscDCrECCBMQARgCKkAbzO8Ub0xVx2ktoRLcqER21Aisobtoj054DrhqcELN0NkCRbamtLl+6EKsj9MQW+NXb+u0WAIJ1djYyf28VMt5Mg5jbGF1ZGUtc2FmZnJvbjgAQgh0aGlua2luZ1oMMzQxNzQ1MTAxMTk0qAHBlK/XBsIBUggMEAAaJALaigNPNwXp2AQmrQUrFgNPNwXp2AQmrQUrFgNPNwUKvgQmrSABMgQScc8lOgQ4MyOKQgQ4MyOKSgQ4MyOKUABaBNkF4VZgBmgBcADaAWAKFnByZWZpeF9iZWZvcmVfYmxvY2tfdjESIK6kBhfDOIhUMdNAhcg5v/R2rQ1ou/QMQmRh/sUjybY5IgAyIMLAE8hqnJLiL5ZvPYYXdo+LekTJAq3MCXv6HgmK+04fSAMSDJQneU3FsrilDmQz1xoMfE+r1XxP0qT3rlbbIjCWVWqRSB/s7IADeeanByQxjBvaFG8TWul3qiTc5uISdFpoq0jE9gjBGAXOoWX7D5cqQ41+IIqb4qUx0zuj7z6SkKzL1pA3EhPEX7uquQ1YJVcxpg27bIHEa8uQQumJH/15APbaxHlzX3DBNK8t1qPFMwUpQEUYAQ=="},
+      {"text": "{\"name\":\"Alice Johnson\",\"age\":29}", "type": "text"}]}, {"role":
       "user", "content": [{"text": "What is the name of the person?", "type": "text"}]}],
       "tools": [], "anthropic_version": "bedrock-2023-05-31"}'
     headers:
-      Connection:
-      - keep-alive
-      X-Amz-Date:
-      - 20251231T203637Z
       accept:
       - application/json
       accept-encoding:
       - gzip, deflate
+      connection:
+      - keep-alive
       content-length:
-      - '1034'
+      - '1699'
       content-type:
       - application/json
       host:
       - bedrock-runtime.us-east-1.amazonaws.com
+      x-amz-date:
+      - 20261105T001353Z
       x-stainless-read-timeout:
       - '600'
       x-stainless-timeout:
       - NOT_GIVEN
     method: POST
-    uri: https://bedrock-runtime.us-east-1.amazonaws.com/model/us.anthropic.claude-sonnet-4-5-20250929-v1:0/invoke-with-response-stream
+    uri: https://bedrock-runtime.us-east-1.amazonaws.com/model/us.anthropic.claude-sonnet-5/invoke-with-response-stream
   response:
     body:
       string: !!binary |
-        AAACSAAAAEuhZ/XyCzpldmVudC10eXBlBwAFY2h1bmsNOmNvbnRlbnQtdHlwZQcAEGFwcGxpY2F0
+        AAAC7AAAAEskwMykCzpldmVudC10eXBlBwAFY2h1bmsNOmNvbnRlbnQtdHlwZQcAEGFwcGxpY2F0
         aW9uL2pzb24NOm1lc3NhZ2UtdHlwZQcABWV2ZW50eyJieXRlcyI6ImV5SjBlWEJsSWpvaWJXVnpj
         MkZuWlY5emRHRnlkQ0lzSW0xbGMzTmhaMlVpT25zaWJXOWtaV3dpT2lKamJHRjFaR1V0YzI5dWJt
-        VjBMVFF0TlMweU1ESTFNRGt5T1NJc0ltbGtJam9pYlhOblgySmtjbXRmTURFNFZYcHhTMWhwZDFs
-        WWFqaG5hRzVMYUdWQ2RXWm9JaXdpZEhsd1pTSTZJbTFsYzNOaFoyVWlMQ0p5YjJ4bElqb2lZWE56
-        YVhOMFlXNTBJaXdpWTI5dWRHVnVkQ0k2VzEwc0luTjBiM0JmY21WaGMyOXVJanB1ZFd4c0xDSnpk
-        Rzl3WDNObGNYVmxibU5sSWpwdWRXeHNMQ0oxYzJGblpTSTZleUpwYm5CMWRGOTBiMnRsYm5NaU9q
-        RTVNeXdpWTJGamFHVmZZM0psWVhScGIyNWZhVzV3ZFhSZmRHOXJaVzV6SWpvd0xDSmpZV05vWlY5
-        eVpXRmtYMmx1Y0hWMFgzUnZhMlZ1Y3lJNk1Dd2liM1YwY0hWMFgzUnZhMlZ1Y3lJNk1YMTlmUT09
-        IiwicCI6ImFiY2RlZmdoaWprbG1ub3BxcnN0dXZ3eHl6QUJDREVGR0hJSktMTU5PUFFSU1RVVldY
-        WVowMTIzNDUifVxt0RQAAAD6AAAAS4aoD40LOmV2ZW50LXR5cGUHAAVjaHVuaw06Y29udGVudC10
-        eXBlBwAQYXBwbGljYXRpb24vanNvbg06bWVzc2FnZS10eXBlBwAFZXZlbnR7ImJ5dGVzIjoiZXlK
-        MGVYQmxJam9pWTI5dWRHVnVkRjlpYkc5amExOXpkR0Z5ZENJc0ltbHVaR1Y0SWpvd0xDSmpiMjUw
-        Wlc1MFgySnNiMk5ySWpwN0luUjVjR1VpT2lKMFpYaDBJaXdpZEdWNGRDSTZJaUo5ZlE9PSIsInAi
-        OiJhYmNkZWZnaGlqa2xtbm9wcXJzdHV2d3h5ekFCIn35Dv1IAAABFAAAAEvaEKWWCzpldmVudC10
-        eXBlBwAFY2h1bmsNOmNvbnRlbnQtdHlwZQcAEGFwcGxpY2F0aW9uL2pzb24NOm1lc3NhZ2UtdHlw
-        ZQcABWV2ZW50eyJieXRlcyI6ImV5SjBlWEJsSWpvaVkyOXVkR1Z1ZEY5aWJHOWphMTlrWld4MFlT
-        SXNJbWx1WkdWNElqb3dMQ0prWld4MFlTSTZleUowZVhCbElqb2lkR1Y0ZEY5a1pXeDBZU0lzSW5S
-        bGVIUWlPaUpVYUdVaWZYMD0iLCJwIjoiYWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4eXpBQkNERUZH
-        SElKS0xNTk9QUVJTVFVWV1hZWjAxIn0LREgjAAABIwAAAEvJEcEACzpldmVudC10eXBlBwAFY2h1
-        bmsNOmNvbnRlbnQtdHlwZQcAEGFwcGxpY2F0aW9uL2pzb24NOm1lc3NhZ2UtdHlwZQcABWV2ZW50
-        eyJieXRlcyI6ImV5SjBlWEJsSWpvaVkyOXVkR1Z1ZEY5aWJHOWphMTlrWld4MFlTSXNJbWx1WkdW
-        NElqb3dMQ0prWld4MFlTSTZleUowZVhCbElqb2lkR1Y0ZEY5a1pXeDBZU0lzSW5SbGVIUWlPaUln
-        Ym1GdFpTQnZaaUIwYUdVZ2NHVnljMjl1SUdseklGTmhjbUZvSUVwdmFHNXpiMjR1SW4xOSIsInAi
-        OiJhYmNkZWZnaGlqa2xtbm9wcXJzdHV2d3h5In3wwxeXAAAAtgAAAEsbq7rFCzpldmVudC10eXBl
-        BwAFY2h1bmsNOmNvbnRlbnQtdHlwZQcAEGFwcGxpY2F0aW9uL2pzb24NOm1lc3NhZ2UtdHlwZQcA
-        BWV2ZW50eyJieXRlcyI6ImV5SjBlWEJsSWpvaVkyOXVkR1Z1ZEY5aWJHOWphMTl6ZEc5d0lpd2lh
-        VzVrWlhnaU9qQjkiLCJwIjoiYWJjZGVmZ2hpamtsbW5vcHFyc3QifS9O4SMAAAEsAAAAS0tBVtEL
-        OmV2ZW50LXR5cGUHAAVjaHVuaw06Y29udGVudC10eXBlBwAQYXBwbGljYXRpb24vanNvbg06bWVz
-        c2FnZS10eXBlBwAFZXZlbnR7ImJ5dGVzIjoiZXlKMGVYQmxJam9pYldWemMyRm5aVjlrWld4MFlT
-        SXNJbVJsYkhSaElqcDdJbk4wYjNCZmNtVmhjMjl1SWpvaVpXNWtYM1IxY200aUxDSnpkRzl3WDNO
-        bGNYVmxibU5sSWpwdWRXeHNmU3dpZFhOaFoyVWlPbnNpYjNWMGNIVjBYM1J2YTJWdWN5STZNVEo5
-        ZlE9PSIsInAiOiJhYmNkZWZnaGlqa2xtbm9wcXJzdHV2d3h5ekFCQ0RFRkdISUpLTE1OT1AifU5q
-        RPMAAAFhAAAAS+siyikLOmV2ZW50LXR5cGUHAAVjaHVuaw06Y29udGVudC10eXBlBwAQYXBwbGlj
-        YXRpb24vanNvbg06bWVzc2FnZS10eXBlBwAFZXZlbnR7ImJ5dGVzIjoiZXlKMGVYQmxJam9pYldW
-        emMyRm5aVjl6ZEc5d0lpd2lZVzFoZW05dUxXSmxaSEp2WTJzdGFXNTJiMk5oZEdsdmJrMWxkSEpw
-        WTNNaU9uc2lhVzV3ZFhSVWIydGxia052ZFc1MElqb3hPVE1zSW05MWRIQjFkRlJ2YTJWdVEyOTFi
-        blFpT2pFeUxDSnBiblp2WTJGMGFXOXVUR0YwWlc1amVTSTZNVFUzTXl3aVptbHljM1JDZVhSbFRH
-        RjBaVzVqZVNJNk1UUTBPSDE5IiwicCI6ImFiY2RlZmdoaWprbG1ub3BxcnN0dXZ3eHl6QUJDREVG
-        R0hJSktMTSJ9DZNX7Q==
+        VjBMVFVpTENKcFpDSTZJbTF6WjE5aVpISnJYM0J1Y1hkd2EzaHVlRFp2ZERWaVoyaHZZM2xpYlRO
+        eGJXdG1halUxZVhSbmVtMTRZM1ZxTW10MGVITndjR0Y2YTNObGIzRWlMQ0owZVhCbElqb2liV1Z6
+        YzJGblpTSXNJbkp2YkdVaU9pSmhjM05wYzNSaGJuUWlMQ0pqYjI1MFpXNTBJanBiWFN3aVkyOXVk
+        R0ZwYm1WeUlqcHVkV3hzTENKemRHOXdYM0psWVhOdmJpSTZiblZzYkN3aWMzUnZjRjl6WlhGMVpX
+        NWpaU0k2Ym5Wc2JDd2ljM1J2Y0Y5a1pYUmhhV3h6SWpwdWRXeHNMQ0oxYzJGblpTSTZleUpwYm5C
+        MWRGOTBiMnRsYm5NaU9qSTBOU3dpWTJGamFHVmZZM0psWVhScGIyNWZhVzV3ZFhSZmRHOXJaVzV6
+        SWpvd0xDSmpZV05vWlY5eVpXRmtYMmx1Y0hWMFgzUnZhMlZ1Y3lJNk1Dd2lZMkZqYUdWZlkzSmxZ
+        WFJwYjI0aU9uc2laWEJvWlcxbGNtRnNYelZ0WDJsdWNIVjBYM1J2YTJWdWN5STZNQ3dpWlhCb1pX
+        MWxjbUZzWHpGb1gybHVjSFYwWDNSdmEyVnVjeUk2TUgwc0ltOTFkSEIxZEY5MGIydGxibk1pT2pr
+        c0luTmxjblpwWTJWZmRHbGxjaUk2SW5OMFlXNWtZWEprSW4xOWZRPT0iLCJwIjoiYWJjZGVmZ2hp
+        aiJ9KRWvmwAAAQ0AAABLt+BQZQs6ZXZlbnQtdHlwZQcABWNodW5rDTpjb250ZW50LXR5cGUHABBh
+        cHBsaWNhdGlvbi9qc29uDTptZXNzYWdlLXR5cGUHAAVldmVudHsiYnl0ZXMiOiJleUowZVhCbElq
+        b2lZMjl1ZEdWdWRGOWliRzlqYTE5emRHRnlkQ0lzSW1sdVpHVjRJam93TENKamIyNTBaVzUwWDJK
+        c2IyTnJJanA3SW5SNWNHVWlPaUowWlhoMElpd2lkR1Y0ZENJNklpSjlmUT09IiwicCI6ImFiY2Rl
+        ZmdoaWprbG1ub3BxcnN0dXZ3eHl6QUJDREVGR0hJSktMTU5PUFFSU1RVIn0a6OUFAAAA8gAAAEu2
+        2ERMCzpldmVudC10eXBlBwAFY2h1bmsNOmNvbnRlbnQtdHlwZQcAEGFwcGxpY2F0aW9uL2pzb24N
+        Om1lc3NhZ2UtdHlwZQcABWV2ZW50eyJieXRlcyI6ImV5SjBlWEJsSWpvaVkyOXVkR1Z1ZEY5aWJH
+        OWphMTlrWld4MFlTSXNJbWx1WkdWNElqb3dMQ0prWld4MFlTSTZleUowZVhCbElqb2lkR1Y0ZEY5
+        a1pXeDBZU0lzSW5SbGVIUWlPaUpCYkdsalpTQktiMmh1YzI5dUluMTkiLCJwIjoiYWJjZGVmZ2gi
+        fWJQKHYAAADUAAAAS/hZnugLOmV2ZW50LXR5cGUHAAVjaHVuaw06Y29udGVudC10eXBlBwAQYXBw
+        bGljYXRpb24vanNvbg06bWVzc2FnZS10eXBlBwAFZXZlbnR7ImJ5dGVzIjoiZXlKMGVYQmxJam9p
+        WTI5dWRHVnVkRjlpYkc5amExOXpkRzl3SWl3aWFXNWtaWGdpT2pCOSIsInAiOiJhYmNkZWZnaGlq
+        a2xtbm9wcXJzdHV2d3h5ekFCQ0RFRkdISUpLTE1OT1BRUlNUVVZXWCJ9pfMfBQAAAhAAAABLqQRx
+        +As6ZXZlbnQtdHlwZQcABWNodW5rDTpjb250ZW50LXR5cGUHABBhcHBsaWNhdGlvbi9qc29uDTpt
+        ZXNzYWdlLXR5cGUHAAVldmVudHsiYnl0ZXMiOiJleUowZVhCbElqb2liV1Z6YzJGblpWOWtaV3gw
+        WVNJc0ltUmxiSFJoSWpwN0luTjBiM0JmY21WaGMyOXVJam9pWlc1a1gzUjFjbTRpTENKemRHOXdY
+        M05sY1hWbGJtTmxJanB1ZFd4c0xDSnpkRzl3WDJSbGRHRnBiSE1pT201MWJHd3NJbU52Ym5SaGFX
+        NWxjaUk2Ym5Wc2JIMHNJblZ6WVdkbElqcDdJbWx1Y0hWMFgzUnZhMlZ1Y3lJNk1qUTFMQ0pqWVdO
+        b1pWOWpjbVZoZEdsdmJsOXBibkIxZEY5MGIydGxibk1pT2pBc0ltTmhZMmhsWDNKbFlXUmZhVzV3
+        ZFhSZmRHOXJaVzV6SWpvd0xDSnZkWFJ3ZFhSZmRHOXJaVzV6SWpvNUxDSnZkWFJ3ZFhSZmRHOXJa
+        VzV6WDJSbGRHRnBiSE1pT25zaWRHaHBibXRwYm1kZmRHOXJaVzV6SWpvd2ZYMTkiLCJwIjoiYWJj
+        ZGVmZ2hpamtsbW5vcHFyc3R1dnd4eXpBQkNERUZHSElKS0xNTk9QUVJTVFVWV1hZWjAxMjM0NSJ9
+        6u+/6gAAAU8AAABLldNbTAs6ZXZlbnQtdHlwZQcABWNodW5rDTpjb250ZW50LXR5cGUHABBhcHBs
+        aWNhdGlvbi9qc29uDTptZXNzYWdlLXR5cGUHAAVldmVudHsiYnl0ZXMiOiJleUowZVhCbElqb2li
+        V1Z6YzJGblpWOXpkRzl3SWl3aVlXMWhlbTl1TFdKbFpISnZZMnN0YVc1MmIyTmhkR2x2YmsxbGRI
+        SnBZM01pT25zaWFXNXdkWFJVYjJ0bGJrTnZkVzUwSWpveU5EVXNJbTkxZEhCMWRGUnZhMlZ1UTI5
+        MWJuUWlPamtzSW1sdWRtOWpZWFJwYjI1TVlYUmxibU41SWpvNE56Y3NJbVpwY25OMFFubDBaVXho
+        ZEdWdVkza2lPamcyTlgxOSIsInAiOiJhYmNkZWZnaGlqa2xtbm9wcXJzdHV2d3h5In1sFfel
     headers:
-      Connection:
+      connection:
       - keep-alive
-      Content-Type:
+      content-type:
       - application/vnd.amazon.eventstream
-      Date:
-      - Wed, 31 Dec 2025 20:36:39 GMT
-      Transfer-Encoding:
+      date:
+      - Thu, 05 Nov 2026 00:13:54 GMT
+      transfer-encoding:
       - chunked
-      X-Amzn-Bedrock-Content-Type:
+      x-amzn-bedrock-content-type:
       - application/json
-      x-amzn-RequestId:
-      - f8ffa288-8bae-41eb-9459-edd857472fbd
+      x-amzn-requestid:
+      - 120e9a36-c2df-44d2-949a-663cf991b5c6
     status:
       code: 200
       message: OK
