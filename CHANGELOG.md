@@ -25,6 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Bug fixes
 
+* A tool that returns a `ContentToolResult` whose value is a `Content` object other than an image/PDF/document (e.g. `ContentToolResult(value=ContentText(...), model_format="as_is")`, as MCP client adapters produce) no longer poisons the conversation: the next API request failed with a 400 (e.g. Anthropic's "`tool_result` content must either be a string or a list of content blocks") because the raw `Content` object was serialized into the request. Turn preparation now unwraps any such value to a plain value -- `ContentText` becomes its text, `ContentJson` its underlying data, and a list of non-file content joins into a single string -- so no provider ever sees a raw `Content` object in a tool-result value. (#494)
 * `ChatOllama()` can now be created without a `model`, so `ChatOllama().list_models()` works. Sending a message without a model still raises an error that lists the available models. (#166)
 * `ChatGoogle()` now reports `finish_reason == "content_filter"` for Gemini's `IMAGE_SAFETY`, `IMAGE_PROHIBITED_CONTENT`, `IMAGE_RECITATION` and `LANGUAGE` finish reasons, instead of passing the raw Gemini string through, and reports `"tool_use"` (rather than `"success"`) when a turn ends with a tool request, as `ChatOpenAI()` does. (#473)
 * The error raised for a tool request with invalid JSON arguments from `ChatOpenAI()` and `ChatOpenAICompletions()` (and the providers built on them) now shows the offending arguments, instead of the literal text `{args}`.
