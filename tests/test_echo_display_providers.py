@@ -38,14 +38,14 @@ def vcr_config():
 
 
 def anthropic_search() -> Chat:
-    chat = ChatAnthropic(model="claude-haiku-4-5-20251001")
+    chat = ChatAnthropic(model="claude-haiku-5-5")
     chat.register_tool(tool_web_search())
     return chat
 
 
 def anthropic_fetch() -> Chat:
     chat = ChatAnthropic(
-        model="claude-haiku-4-5-20251001",
+        model="claude-haiku-5-5",
         kwargs={"default_headers": {"anthropic-beta": "web-fetch-2025-09-10"}},
     )
     chat.register_tool(tool_web_fetch())
