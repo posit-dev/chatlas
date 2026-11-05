@@ -45,8 +45,12 @@ jobs:
       - name: Check tests
         run: make check-tests
 
+      # Types/formatting only need one leg: dependency versions are uniform
+      # across the matrix, and the eval extra (inspect-ai) isn't installed on 3.10
       - name: Check types
+        if: matrix.python-version == '3.13'
         run: make check-types
 
       - name: Check formatting
+        if: matrix.python-version == '3.13'
         run: make check-format
