@@ -34,11 +34,15 @@ __all__ = (
 )
 
 if TYPE_CHECKING:
+    from contextlib import AbstractAsyncContextManager
+
     from mcp import Client as MCPClient
     from mcp import ClientSession as MCPClientSession
     from mcp import Tool as MCPTool
     from mcp.types import ContentBlock as MCPContentBlock
     from openai.types.chat import ChatCompletionToolParam
+
+    MCPClientFactory = Callable[[], AbstractAsyncContextManager["MCPClient"]]
 
 
 class Tool:
@@ -153,10 +157,12 @@ class Tool:
     @classmethod
     def from_mcp(
         cls: type["Tool"],
-        session: "MCPClient | MCPClientSession",
-        mcp_tool: "MCPTool",
+        session: "MCPClient | MCPClientSession | None" = None,
+        mcp_tool: "MCPTool | None" = None,
         *,
         name: Optional[str] = None,
+        client_factory: "MCPClientFactory | None" = None,
+        sync: bool = False,
     ) -> "Tool":
         """
         Create a Tool from an MCP tool
@@ -165,21 +171,47 @@ class Tool:
         ----------
         session
             The MCP client (or client session) to use for calling the tool.
+            Mutually exclusive with `client_factory`.
         mcp_tool
             The MCP tool to wrap.
         name
             The name of the tool as advertised to the LLM. Defaults to the MCP
             tool's name. The MCP server is always called with the MCP tool's
             own name, regardless of this value.
+        client_factory
+            A zero-argument callable returning a fresh async-context-managed
+            MCP client per call (for stateless, per-request servers).
+            Mutually exclusive with `session`.
+        sync
+            If True, the tool's func is synchronous (each call runs the async
+            call in a fresh event loop via `asyncio.run()`). If False, the
+            func is async.
 
         Returns
         -------
         Tool
             A new Tool instance wrapping the MCP tool.
         """
+        if mcp_tool is None:
+            raise ValueError("`mcp_tool` is required.")
+        if (session is None) == (client_factory is None):
+            raise ValueError(
+                "Exactly one of `session` or `client_factory` must be provided."
+            )
+        if sync and client_factory is None:
+            raise ValueError(
+                "`sync=True` requires `client_factory`: a `session` belongs to "
+                "the event loop that created it, but a synchronous tool runs "
+                "each call in a fresh event loop."
+            )
 
         async def _call(**args: Any) -> ContentToolResult:
-            result = await session.call_tool(mcp_tool.name, args)
+            if client_factory is not None:
+                async with client_factory() as client:
+                    result = await client.call_tool(mcp_tool.name, args)
+            else:
+                assert session is not None
+                result = await session.call_tool(mcp_tool.name, args)
 
             # Raise an error if the tool call resulted in an error. It doesn't seem to be
             # very well defined how to get at the error message, but it appears that it gets
@@ -223,9 +255,24 @@ class Tool:
                 mcp_tool.annotations.model_dump(by_alias=True, exclude_none=True),
             )
 
+        tool_name = name or mcp_tool.name
+        async_func = _utils.wrap_async(_call)
+        func: Callable[..., Any]
+        if sync:
+
+            def sync_func(**args: Any) -> ContentToolResult:
+                return _utils.run_coro_sync(
+                    lambda: async_func(**args),
+                    what=f"call MCP tool '{tool_name}'",
+                )
+
+            func = sync_func
+        else:
+            func = async_func
+
         return cls(
-            func=_utils.wrap_async(_call),
-            name=name or mcp_tool.name,
+            func=func,
+            name=tool_name,
             description=mcp_tool.description or "",
             parameters=params,
             annotations=annotations,
