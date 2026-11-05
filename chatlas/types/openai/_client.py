@@ -24,7 +24,7 @@ class ChatClientArgs(TypedDict, total=False):
     webhook_secret: str | None
     provider: openai._provider._Provider | None
     base_url: str | httpx2.URL | None | openai.NotGiven
-    data_residency: Optional[Literal["global", "us", "eu", "ae"]]
+    data_residency: Optional[Literal["global", "us", "eu", "ae", "au", "in", "jp"]]
     websocket_base_url: str | httpx2.URL | None
     timeout: float | openai.Timeout | None | openai.NotGiven
     max_retries: int
