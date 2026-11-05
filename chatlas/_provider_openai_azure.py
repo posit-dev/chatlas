@@ -160,6 +160,7 @@ class OpenAIAzureProvider(OpenAIProvider):
 
         self._client = create_openai_client(AzureOpenAI, sync_kwargs)
         self._async_client = create_openai_client(AsyncAzureOpenAI, async_kwargs)
+        self._base_url = str(self._client.base_url)
 
 
 def ChatAzureOpenAICompletions(
@@ -231,3 +232,4 @@ class OpenAIAzureCompletionsProvider(OpenAICompletionsProvider):
 
         self._client = create_openai_client(AzureOpenAI, sync_kwargs)
         self._async_client = create_openai_client(AsyncAzureOpenAI, async_kwargs)
+        self._base_url = str(self._client.base_url)

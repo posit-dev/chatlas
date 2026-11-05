@@ -308,6 +308,7 @@ class PositAnthropicProvider(AnthropicProvider):
                 },
             ),
         )
+        self._base_url = flavor_base_url
 
     def set_model(self, value: str) -> "PositAnthropicProvider | PositOpenAIProvider":
         if value.startswith("claude"):
@@ -373,6 +374,7 @@ class PositOpenAIProvider(OpenAICompletionsProvider):
                 },
             ),
         )
+        self._base_url = flavor_base_url
 
     def set_model(self, value: str) -> "PositAnthropicProvider | PositOpenAIProvider":
         if value.startswith("claude"):

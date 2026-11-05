@@ -152,9 +152,25 @@ class Provider(
     server-side tools, or naming a `Chat` constructor that can.
     """
 
-    def __init__(self, *, name: str, model: str):
+    def __init__(self, *, name: str, model: str, base_url: str | None = None):
         self._name = name
         self._model = model
+        self._base_url = base_url
+
+    @property
+    def base_url(self) -> str | None:
+        """
+        The base URL the provider sends requests to, if known.
+
+        Used for telemetry (e.g. the OpenTelemetry `server.address` and
+        `server.port` attributes). Providers that can't determine their
+        endpoint leave it as None.
+        """
+        return self._base_url
+
+    @base_url.setter
+    def base_url(self, value: str | None) -> None:
+        self._base_url = value
 
     def check_builtin_tool_support(self, tool: ToolBuiltIn) -> None:
         """

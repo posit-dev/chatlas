@@ -227,6 +227,17 @@ class SnowflakeProvider(
         self._session = session
         self._cortex_service = Root(self._session).cortex_inference_service
 
+        # Best-effort endpoint discovery, for telemetry. The Cortex REST API
+        # is served from the account host.
+        try:
+            conn = session.connection
+            host = getattr(conn, "host", None)
+            if host:
+                protocol = getattr(conn, "protocol", None) or "https"
+                self._base_url = f"{protocol}://{host}"
+        except Exception:
+            pass
+
     def close(self) -> None:
         """
         Close the underlying Snowpark session (and its Snowflake connection),

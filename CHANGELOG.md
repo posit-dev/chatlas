@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### New features
 
+* Providers now expose a `base_url` attribute (`chat.provider.base_url`) reporting the endpoint requests are sent to, when the provider can determine it. This is groundwork for richer telemetry (e.g. OpenTelemetry `server.address`/`server.port` attributes) and is handy for confirming which endpoint a provider resolved.
 * The result of `chat.files.get()` (and elements of `chat.files.list()`) can now be passed straight to `.chat()` (and anywhere else content is accepted), so a file uploaded in an earlier session can be reused from its id alone: `chat.chat("Summarize this.", chat.files.get("file_011CRabc..."))`. When the provider doesn't report a MIME type (OpenAI's Files API never does), it's guessed from the filename. For when you want the underlying `ContentUploaded` reference itself (e.g. to build a `UserTurn` by hand), `FileMetadata` gains a `.to_content()` method. This works via a new general convention: any object implementing `to_content() -> Content` (see `chatlas.types.SupportsContent`) is accepted anywhere content is passed, so third-party packages can make their own objects usable as chat inputs. (#417)
 
 ### Changes
