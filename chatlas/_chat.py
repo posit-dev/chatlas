@@ -63,11 +63,22 @@ from ._display import (
 from ._logging import log_tool_error
 from ._mcp_manager import MCPSessionManager
 from ._otel import (
+    AgentOtelTally,
     activate_span,
     end_span,
-    record_chat_result,
+    record_agent_otel,
+    record_chat_chunk,
+    record_chat_span_error,
+    record_chat_span_interrupted,
+    record_chat_span_ok,
+    record_chat_span_output,
+    record_chat_span_status,
+    record_chat_ttft,
     record_chat_ttft_attr,
     record_error,
+    record_request_params,
+    record_tool_otel_interrupted,
+    record_tool_otel_result,
     start_agent_span,
     start_chat_span,
     start_tool_span,
@@ -2748,10 +2759,12 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         controller: StreamController,
     ) -> Generator[str | Content, None, None]:
         agent_span = start_agent_span(self.provider, self._conversation_id)
+        agent_tally = AgentOtelTally()
         try:
             user_turn_result: UserTurn | None = user_turn
             while user_turn_result is not None:
-                for chunk in self._submit_turns(
+                agent_tally.note_request()
+                turn_generator = self._submit_turns(
                     user_turn_result,
                     echo=echo,
                     stream=stream,
@@ -2760,15 +2773,24 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                     content_mode=content,
                     controller=controller,
                     _otel_parent=agent_span,
-                ):
-                    yield chunk
+                )
+                try:
+                    for chunk in turn_generator:
+                        yield chunk
+                finally:
+                    # Close deterministically so an abandoned stream unwinds
+                    # the chat span (recording it as interrupted) before the
+                    # agent span records and ends.
+                    turn_generator.close()
 
                 turn = self.get_last_turn(role="assistant")
                 assert turn is not None
+                agent_tally.note_turn(turn)
                 user_turn_result = None
 
                 # Don't invoke tools if the stream was cancelled
                 if controller.cancelled:
+                    agent_tally.error_type = "cancelled"
                     break
 
                 all_results: list[ContentToolResult] = []
@@ -2782,19 +2804,24 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                         if content == "all":
                             yield x
                         results = self._invoke_tool(x, _otel_parent=agent_span)
-                        for res in results:
-                            if echo == "output":
-                                self._echo_content(res)
-                            if content == "all":
-                                yield res
-                            all_results.append(res)
+                        try:
+                            for res in results:
+                                if echo == "output":
+                                    self._echo_content(res)
+                                if content == "all":
+                                    yield res
+                                all_results.append(res)
+                        finally:
+                            results.close()
 
                 if all_results:
                     user_turn_result = UserTurn(all_results)
+            agent_tally.completed = True
         except Exception as e:
-            record_error(agent_span, e)
+            agent_tally.error_type = type(e).__name__
             raise
         finally:
+            record_agent_otel(agent_span, self.provider, agent_tally)
             end_span(agent_span)
 
     @overload
@@ -2835,9 +2862,11 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         controller: StreamController,
     ) -> AsyncGenerator[str | Content, None]:
         agent_span = start_agent_span(self.provider, self._conversation_id)
+        agent_tally = AgentOtelTally()
         try:
             user_turn_result: UserTurn | None = user_turn
             while user_turn_result is not None:
+                agent_tally.note_request()
                 turn_generator = self._submit_turns_async(
                     user_turn_result,
                     echo=echo,
@@ -2856,10 +2885,12 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
                 turn = self.get_last_turn(role="assistant")
                 assert turn is not None
+                agent_tally.note_turn(turn)
                 user_turn_result = None
 
                 # Don't invoke tools if the stream was cancelled
                 if controller.cancelled:
+                    agent_tally.error_type = "cancelled"
                     break
 
                 all_results: list[ContentToolResult] = []
@@ -2873,21 +2904,26 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                         if content == "all":
                             yield x
                         results = self._invoke_tool_async(x, _otel_parent=agent_span)
-                        async for res in results:
-                            if echo == "output":
-                                self._echo_content(res)
-                            if content == "all":
-                                yield res
-                            else:
-                                yield "\n\n"
-                            all_results.append(res)
+                        try:
+                            async for res in results:
+                                if echo == "output":
+                                    self._echo_content(res)
+                                if content == "all":
+                                    yield res
+                                else:
+                                    yield "\n\n"
+                                all_results.append(res)
+                        finally:
+                            await results.aclose()
 
                 if all_results:
                     user_turn_result = UserTurn(all_results)
+            agent_tally.completed = True
         except Exception as e:
-            record_error(agent_span, e)
+            agent_tally.error_type = type(e).__name__
             raise
         finally:
+            record_agent_otel(agent_span, self.provider, agent_tally)
             end_span(agent_span)
 
     @overload
@@ -2936,8 +2972,20 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         request_turns = [*self._turns, user_turn]
         provider_turns = normalize_turns_for_provider(request_turns)
         chat_span = start_chat_span(
-            self.provider, request_turns, _otel_parent, self._conversation_id
+            self.provider,
+            request_turns,
+            _otel_parent,
+            self._conversation_id,
+            stream=stream,
+            data_model=data_model,
+            tools=self._tools,
         )
+        # Measured from request issuance; the finally covers unwinds that no
+        # handler sees (e.g. a keyboard interrupt or an abandoned stream).
+        request_start: Optional[float] = time.monotonic()
+        # Set once the whole request path has completed; gates the OK stamp in
+        # the finally (stamped last since the SDK treats Ok as final).
+        succeeded = False
         try:
 
             def emit(x: str | Content):
@@ -2963,6 +3011,9 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             # Start collecting additional keyword args (from model parameters)
             all_kwargs = self._collect_all_kwargs(kwargs)
 
+            for span in (chat_span, _otel_parent):
+                record_request_params(span, self._standard_model_params, all_kwargs)
+
             if stream:
                 # Activate the chat span only around the bounded provider calls
                 # (this initial request and each chunk fetch below) so a
@@ -2971,7 +3022,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                 # consumer's scope.
                 # Measured from request issuance; chat_perform() blocks until
                 # headers arrive.
-                stream_start = time.monotonic()
+                stream_start: Optional[float] = time.monotonic()
                 with activate_span(chat_span):
                     response = self.provider.chat_perform(
                         stream=True,
@@ -2987,6 +3038,8 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
                 try:
                     result = None
+                    first_chunk_start: Optional[float] = request_start
+                    last_chunk_time = request_start
                     while True:
                         try:
                             with activate_span(chat_span):
@@ -2996,6 +3049,16 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                         if controller.cancelled:
                             break
                         result = self.provider.stream_merge_chunks(result, chunk)
+                        if first_chunk_start is not None:
+                            record_chat_ttft(self.provider, first_chunk_start)
+                            first_chunk_start = None
+                        else:
+                            record_chat_chunk(self.provider, last_chunk_time)
+                        # Taken after the chunk is merged but before its contents
+                        # are yielded; consecutive timestamps give the interval
+                        # between chunk arrivals, including any consumer time
+                        # between pulls.
+                        last_chunk_time = time.monotonic()
                         for content in self.provider.stream_content(
                             chunk, result, turns=provider_turns
                         ):
@@ -3009,6 +3072,20 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
                     yield from acc.flush_thinking(content_mode, emit)
 
+                    # A cancelled stream is still a completed request (tokens
+                    # and a response id may be known), but it reports an error
+                    # status with `error.type = "cancelled"`, matching the
+                    # finish reason set on the partial turn below.
+                    record_chat_span_status(
+                        chat_span,
+                        self.provider,
+                        result,
+                        request_start,
+                        error_type="cancelled" if controller.cancelled else None,
+                    )
+                    # Duration recorded; skip it in the error handler/finally.
+                    request_start = None
+
                     if not controller.cancelled:
                         turn = self.provider.stream_turn(
                             result,
@@ -3019,11 +3096,18 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                         if echo == "all":
                             emit_other_contents(turn, emit)
                         turn = finalize_assistant_turn(self.provider, turn)
-                        record_chat_result(chat_span, turn)
+                        record_chat_span_output(chat_span, turn)
                         acc.complete_turn(turn)
+                    else:
+                        partial_turn = self._turns[-1] if self._turns else None
+                        if isinstance(partial_turn, AssistantTurn):
+                            record_chat_span_output(chat_span, partial_turn)
                 finally:
                     acc.finalize_turn()
                     close_response(response)
+
+                if not controller.cancelled:
+                    succeeded = True
 
             else:
                 with activate_span(chat_span):
@@ -3034,6 +3118,12 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                         data_model=data_model,
                         kwargs=all_kwargs,
                     )
+
+                record_chat_span_status(
+                    chat_span, self.provider, response, request_start
+                )
+                # Duration recorded; skip it in the error handler/finally.
+                request_start = None
 
                 turn = self.provider.value_turn(
                     response,
@@ -3052,12 +3142,20 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                     emit_other_contents(turn, emit)
 
                 turn = finalize_assistant_turn(self.provider, turn)
-                record_chat_result(chat_span, turn)
+                record_chat_span_output(chat_span, turn)
                 self._turns.extend([user_turn, turn])
+                succeeded = True
         except Exception as e:
-            record_error(chat_span, e)
+            record_chat_span_error(chat_span, self.provider, e, request_start)
+            # Duration recorded (or nothing to record); the finally must not
+            # also record this request as interrupted.
+            request_start = None
             raise
         finally:
+            if succeeded:
+                record_chat_span_ok(chat_span)
+            if request_start is not None:
+                record_chat_span_interrupted(chat_span, self.provider, request_start)
             end_span(chat_span)
 
     @overload
@@ -3103,8 +3201,20 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         request_turns = [*self._turns, user_turn]
         provider_turns = normalize_turns_for_provider(request_turns)
         chat_span = start_chat_span(
-            self.provider, request_turns, _otel_parent, self._conversation_id
+            self.provider,
+            request_turns,
+            _otel_parent,
+            self._conversation_id,
+            stream=stream,
+            data_model=data_model,
+            tools=self._tools,
         )
+        # Measured from request issuance; the finally covers unwinds that no
+        # handler sees (e.g. a keyboard interrupt or an abandoned stream).
+        request_start: Optional[float] = time.monotonic()
+        # Set once the whole request path has completed; gates the OK stamp in
+        # the finally (stamped last since the SDK treats Ok as final).
+        succeeded = False
         try:
 
             def emit(x: str | Content):
@@ -3130,6 +3240,9 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             # Start collecting additional keyword args (from model parameters)
             all_kwargs = self._collect_all_kwargs(kwargs)
 
+            for span in (chat_span, _otel_parent):
+                record_request_params(span, self._standard_model_params, all_kwargs)
+
             if stream:
                 # Activate the chat span only around the bounded provider calls
                 # (this initial request and each chunk fetch below) so a
@@ -3138,7 +3251,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                 # consumer's scope.
                 # Measured from request issuance; chat_perform_async() blocks
                 # until headers arrive.
-                stream_start = time.monotonic()
+                stream_start: Optional[float] = time.monotonic()
                 with activate_span(chat_span):
                     response = await self.provider.chat_perform_async(
                         stream=True,
@@ -3154,6 +3267,8 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
                 try:
                     result = None
+                    first_chunk_start: Optional[float] = request_start
+                    last_chunk_time = request_start
                     while True:
                         try:
                             with activate_span(chat_span):
@@ -3163,6 +3278,16 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                         if controller.cancelled:
                             break
                         result = self.provider.stream_merge_chunks(result, chunk)
+                        if first_chunk_start is not None:
+                            record_chat_ttft(self.provider, first_chunk_start)
+                            first_chunk_start = None
+                        else:
+                            record_chat_chunk(self.provider, last_chunk_time)
+                        # Taken after the chunk is merged but before its contents
+                        # are yielded; consecutive timestamps give the interval
+                        # between chunk arrivals, including any consumer time
+                        # between pulls.
+                        last_chunk_time = time.monotonic()
                         for content in self.provider.stream_content(
                             chunk, result, turns=provider_turns
                         ):
@@ -3178,6 +3303,20 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                     for item in acc.flush_thinking(content_mode, emit):
                         yield item
 
+                    # A cancelled stream is still a completed request (tokens
+                    # and a response id may be known), but it reports an error
+                    # status with `error.type = "cancelled"`, matching the
+                    # finish reason set on the partial turn below.
+                    record_chat_span_status(
+                        chat_span,
+                        self.provider,
+                        result,
+                        request_start,
+                        error_type="cancelled" if controller.cancelled else None,
+                    )
+                    # Duration recorded; skip it in the error handler/finally.
+                    request_start = None
+
                     if not controller.cancelled:
                         turn = self.provider.stream_turn(
                             result,
@@ -3188,11 +3327,18 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                         if echo == "all":
                             emit_other_contents(turn, emit)
                         turn = finalize_assistant_turn(self.provider, turn)
-                        record_chat_result(chat_span, turn)
+                        record_chat_span_output(chat_span, turn)
                         acc.complete_turn(turn)
+                    else:
+                        partial_turn = self._turns[-1] if self._turns else None
+                        if isinstance(partial_turn, AssistantTurn):
+                            record_chat_span_output(chat_span, partial_turn)
                 finally:
                     acc.finalize_turn()
                     await aclose_response(response)
+
+                if not controller.cancelled:
+                    succeeded = True
 
             else:
                 with activate_span(chat_span):
@@ -3203,6 +3349,12 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                         data_model=data_model,
                         kwargs=all_kwargs,
                     )
+
+                record_chat_span_status(
+                    chat_span, self.provider, response, request_start
+                )
+                # Duration recorded; skip it in the error handler/finally.
+                request_start = None
 
                 turn = self.provider.value_turn(
                     response,
@@ -3221,12 +3373,20 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                     emit_other_contents(turn, emit)
 
                 turn = finalize_assistant_turn(self.provider, turn)
-                record_chat_result(chat_span, turn)
+                record_chat_span_output(chat_span, turn)
                 self._turns.extend([user_turn, turn])
+                succeeded = True
         except Exception as e:
-            record_error(chat_span, e)
+            record_chat_span_error(chat_span, self.provider, e, request_start)
+            # Duration recorded (or nothing to record); the finally must not
+            # also record this request as interrupted.
+            request_start = None
             raise
         finally:
+            if succeeded:
+                record_chat_span_ok(chat_span)
+            if request_start is not None:
+                record_chat_span_interrupted(chat_span, self.provider, request_start)
             end_span(chat_span)
 
     def _collect_all_kwargs(
@@ -3252,12 +3412,20 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
     ):
         tool_span = start_tool_span(request, parent=_otel_parent)
         tool = self._tools.get(request.name)
+        # Measured from invocation start; the finally covers unwinds that no
+        # handler sees (e.g. a keyboard interrupt or an abandoned iteration).
+        tool_start = time.monotonic()
+        recorded = False
+        result: ContentToolResult | None = None
 
         try:
             if tool is None:
                 error = RuntimeError("Unknown tool.")
                 record_error(tool_span, error)
-                yield self._handle_tool_error_result(request, error=error)
+                result = self._handle_tool_error_result(request, error=error)
+                record_tool_otel_result(request, tool_start, result)
+                recorded = True
+                yield result
                 return
 
             if isinstance(tool, ToolBuiltIn):
@@ -3266,17 +3434,22 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                     "It should be handled by the provider."
                 )
                 record_error(tool_span, error)
-                yield self._handle_tool_error_result(request, error=error)
+                result = self._handle_tool_error_result(request, error=error)
+                record_tool_otel_result(request, tool_start, result)
+                recorded = True
+                yield result
                 return
 
             # First, invoke the request callbacks. If a ToolRejectError is raised,
             # treat it like a tool failure (i.e., gracefully handle it).
-            result: ContentToolResult | None = None
             try:
                 self._on_tool_request_callbacks.invoke(request)
             except ToolRejectError as e:
                 record_error(tool_span, e)
-                yield self._handle_tool_error_result(request, e)
+                result = self._handle_tool_error_result(request, e)
+                record_tool_otel_result(request, tool_start, result)
+                recorded = True
+                yield result
                 return
 
             try:
@@ -3316,8 +3489,17 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
             except Exception as e:
                 record_error(tool_span, e)
-                yield self._handle_tool_error_result(request, e)
+                result = self._handle_tool_error_result(request, e)
+                record_tool_otel_result(request, tool_start, result)
+                recorded = True
+                yield result
+                return
+
+            record_tool_otel_result(request, tool_start, result)
+            recorded = True
         finally:
+            if not recorded:
+                record_tool_otel_interrupted(tool_span, request, tool_start)
             end_span(tool_span)
 
     async def _invoke_tool_async(
@@ -3325,12 +3507,20 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
     ):
         tool_span = start_tool_span(request, parent=_otel_parent)
         tool = self._tools.get(request.name)
+        # Measured from invocation start; the finally covers unwinds that no
+        # handler sees (e.g. a keyboard interrupt or an abandoned iteration).
+        tool_start = time.monotonic()
+        recorded = False
+        result: ContentToolResult | None = None
 
         try:
             if tool is None:
                 error = RuntimeError("Unknown tool.")
                 record_error(tool_span, error)
-                yield self._handle_tool_error_result(request, error=error)
+                result = self._handle_tool_error_result(request, error=error)
+                record_tool_otel_result(request, tool_start, result)
+                recorded = True
+                yield result
                 return
 
             if isinstance(tool, ToolBuiltIn):
@@ -3339,17 +3529,22 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                     "It should be handled by the provider."
                 )
                 record_error(tool_span, error)
-                yield self._handle_tool_error_result(request, error=error)
+                result = self._handle_tool_error_result(request, error=error)
+                record_tool_otel_result(request, tool_start, result)
+                recorded = True
+                yield result
                 return
 
             # First, invoke the request callbacks. If a ToolRejectError is raised,
             # treat it like a tool failure (i.e., gracefully handle it).
-            result: ContentToolResult | None = None
             try:
                 await self._on_tool_request_callbacks.invoke_async(request)
             except ToolRejectError as e:
                 record_error(tool_span, e)
-                yield self._handle_tool_error_result(request, e)
+                result = self._handle_tool_error_result(request, e)
+                record_tool_otel_result(request, tool_start, result)
+                recorded = True
+                yield result
                 return
 
             # Awaiting an async generator function's call fails, so it goes through wrap_async()
@@ -3398,8 +3593,17 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
             except Exception as e:
                 record_error(tool_span, e)
-                yield self._handle_tool_error_result(request, e)
+                result = self._handle_tool_error_result(request, e)
+                record_tool_otel_result(request, tool_start, result)
+                recorded = True
+                yield result
+                return
+
+            record_tool_otel_result(request, tool_start, result)
+            recorded = True
         finally:
+            if not recorded:
+                record_tool_otel_interrupted(tool_span, request, tool_start)
             end_span(tool_span)
 
     def _handle_tool_error_result(self, request: ContentToolRequest, error: Exception):

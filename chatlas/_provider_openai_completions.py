@@ -369,6 +369,15 @@ class OpenAICompletionsProvider(
             cached_tokens,
         )
 
+    def value_reasoning_tokens(self, completion):
+        usage = completion.usage
+        if usage is None:
+            return None
+        details = getattr(usage, "completion_tokens_details", None)
+        if details is None:
+            return None
+        return getattr(details, "reasoning_tokens", None)
+
     def _turns_as_inputs(self, turns: list[Turn]) -> list["ChatCompletionMessageParam"]:
         res: list["ChatCompletionMessageParam"] = []
         for turn in turns:
