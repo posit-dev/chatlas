@@ -325,6 +325,10 @@ class OpenAICompletionsProvider(
 
         text = delta.content
         if text is None:
+            # A refused request streams its text as `refusal` instead of `content`
+            refusal = getattr(delta, "refusal", None)
+            if refusal:
+                return [ContentText.model_construct(text=refusal)]
             return []
         return [ContentText.model_construct(text=text)]
 
@@ -503,11 +507,19 @@ class OpenAICompletionsProvider(
         completion: "ChatCompletion", has_data_model: bool
     ) -> AssistantTurn[ChatCompletion]:
         finish_reason = normalize_finish_reason(completion.choices[0].finish_reason)
+        message = completion.choices[0].message
+
+        # A refused request ends with "stop", has no content, and carries its text
+        # in `refusal`.
+        refusal = getattr(message, "refusal", None)
+        if not isinstance(refusal, str):
+            refusal = None
+        if refusal and not message.content and finish_reason == "success":
+            finish_reason = "content_filter"
+
         if has_data_model:
             # Must precede the JSON parse below; see check_finish_reason().
             check_finish_reason(finish_reason, "error")
-
-        message = completion.choices[0].message
 
         contents: list[Content] = []
 
@@ -526,6 +538,8 @@ class OpenAICompletionsProvider(
                 contents.append(ContentJson(value=data))
             else:
                 contents.append(ContentText(text=message.content))
+        elif refusal:
+            contents.append(ContentText(text=refusal))
 
         tool_calls = message.tool_calls
 
