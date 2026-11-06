@@ -176,6 +176,13 @@ class Tool:
         -------
         Tool
             A new Tool instance wrapping the MCP tool.
+
+        Note
+        ----
+        The MCP result's `_meta` is passed through to the resulting
+        :class:`~chatlas.types.ContentToolResult`'s `extra` field, so servers
+        can attach client-only metadata (e.g., display hints) that isn't sent
+        to the model. Errored results raise instead and never surface `_meta`.
         """
 
         async def _call(**args: Any) -> ContentToolResult:
@@ -195,11 +202,19 @@ class Tool:
 
             parts = [mcp_content_to_value(mcp_tool.name, c) for c in result.content]
 
+            # Pass the result's `_meta` through as `extra` so servers can
+            # attach client-only metadata (e.g., shinychat's display hints).
+            meta = result.meta
+            extra = dict(meta) if isinstance(meta, dict) and meta else None
+
             # A call gets exactly one result. Several parts become a list value,
             # which _content_expand unrolls for providers that only take text.
-            value: str | ContentImageInline | ContentPDF | list[
-                str | ContentImageInline | ContentPDF
-            ]
+            value: (
+                str
+                | ContentImageInline
+                | ContentPDF
+                | list[str | ContentImageInline | ContentPDF]
+            )
             if len(parts) == 1:
                 value = parts[0]
             elif all(isinstance(p, str) for p in parts):
@@ -207,7 +222,7 @@ class Tool:
             else:
                 value = parts
 
-            return ContentToolResult(value=value)
+            return ContentToolResult(value=value, extra=extra)
 
         params = mcp_tool_input_schema_to_param_schema(mcp_tool.input_schema)
 
