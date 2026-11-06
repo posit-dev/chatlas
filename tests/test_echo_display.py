@@ -23,6 +23,7 @@ from chatlas._content import (
     ContentCitation,
     ContentImageInline,
     ContentImageRemote,
+    ContentJson,
     ContentText,
     ContentThinking,
     ContentThinkingDelta,
@@ -506,6 +507,39 @@ def test_echo_all_still_shows_the_user_prompt():
     res = output()
     assert "👤 User turn:" in res
     assert "what is 2+2?" in res
+
+
+def test_echo_all_shows_structured_json_exactly_once():
+    """
+    For a structured-extraction turn, the `ContentJson` stands in for the
+    assistant's text: it's emitted as the (yielded) text, so
+    `emit_other_contents` must not repeat it as a fenced code block (gh-317).
+    """
+    from pydantic import BaseModel
+
+    class Person(BaseModel):
+        name: str
+        age: int
+
+    chat = make_chat([[ContentJson(value={"name": "John", "age": 15})]])
+    output = capture_echo(chat)
+    chat.chat_structured("John, age 15", data_model=Person, echo="all")
+    res = output()
+
+    assert res.count('"name"') == 1
+    assert "John" in res
+
+
+def test_emit_other_contents_keeps_user_turn_json():
+    """The `ContentJson` skip is scoped to assistant turns (extraction results)."""
+    from chatlas._chat import emit_other_contents
+    from chatlas._turn import UserTurn
+
+    emitted: list = []
+    emit_other_contents(
+        UserTurn([ContentJson(value={"name": "John", "age": 15})]), emitted.append
+    )
+    assert any(isinstance(x, ContentJson) for x in emitted)
 
 
 def test_echo_does_not_truncate_a_short_tool_result():
