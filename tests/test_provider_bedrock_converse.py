@@ -831,6 +831,55 @@ class TestResponseParsing:
         assert turn.tokens[0] == 19
         assert turn.tokens[1] == 5
 
+    def _usage_response(self, **usage):
+        return cast(
+            "ConverseResponseTypeDef",
+            {
+                **CONVERSE_RESPONSE,
+                "usage": {
+                    "inputTokens": 100,
+                    "outputTokens": 5,
+                    "totalTokens": 105,
+                    **usage,
+                },
+            },
+        )
+
+    def provider_for(self, model: str, cache="auto"):
+        from chatlas._provider_bedrock_converse import BedrockConverseProvider
+
+        return BedrockConverseProvider(
+            model=model,
+            aws_profile=None,
+            aws_region="us-east-1",
+            base_url=None,
+            cache=cache,
+        )
+
+    def test_anthropic_cache_writes_count_as_input_at_the_write_multiplier(self):
+        response = self._usage_response(
+            cacheReadInputTokens=20, cacheWriteInputTokens=400
+        )
+        tokens = self.provider().value_tokens(response)
+        # 100 + 400 * 1.25 (5 minute cache write)
+        assert tokens == (600, 5, 20)
+
+    def test_anthropic_one_hour_cache_writes_use_the_higher_multiplier(self):
+        response = self._usage_response(cacheWriteInputTokens=400)
+        tokens = self.provider_for(
+            "us.anthropic.claude-sonnet-4-6", cache="1h"
+        ).value_tokens(response)
+        assert tokens == (900, 5, 0)
+
+    def test_other_models_count_cache_writes_as_regular_input(self):
+        response = self._usage_response(cacheWriteInputTokens=400)
+        tokens = self.provider_for("amazon.nova-pro-v1:0").value_tokens(response)
+        assert tokens == (500, 5, 0)
+
+    def test_missing_cache_write_field_is_zero(self):
+        tokens = self.provider().value_tokens(self._usage_response())
+        assert tokens == (100, 5, 0)
+
     def test_tool_use_response_becomes_a_tool_request(self):
         from chatlas._content import ContentToolRequest
 
