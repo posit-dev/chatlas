@@ -449,9 +449,27 @@ class OpenAIProvider(
         usage = completion.usage
         if usage is None:
             return None
-        cached_tokens = usage.input_tokens_details.cached_tokens
+        details = usage.input_tokens_details
+        cached_tokens = details.cached_tokens
+
+        # `input_tokens` includes the tokens written to the prompt cache, which
+        # GPT-5.6 and later bill at 125% of the input rate for the default
+        # 30-minute lifetime and at 250% for the 12-hour one, so add the premium.
+        # Only the models that bill writes report the per-lifetime breakdown, so
+        # a response without it (earlier models: no write charge) adds nothing.
+        # https://developers.openai.com/api/docs/guides/prompt-caching
+        # The SDK doesn't type `cache_write_tokens_details` (it keeps it as an extra
+        # field, a plain dict), and chatlas doesn't pin a minimum `openai` version.
+        write_details = (details.model_extra or {}).get("cache_write_tokens_details")
+        if write_details is None:
+            write_premium = 0
+        else:
+            write_30m = write_details.get("ttl_30m_tokens") or 0
+            write_12h = write_details.get("ttl_12h_tokens") or 0
+            write_premium = int(0.25 * write_30m + 1.5 * write_12h)
+
         return (
-            usage.input_tokens - cached_tokens,
+            usage.input_tokens - cached_tokens + write_premium,
             usage.output_tokens,
             cached_tokens,
         )
