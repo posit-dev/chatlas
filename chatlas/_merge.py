@@ -86,7 +86,8 @@ def merge_lists(
                     to_merge = [
                         i
                         for i, e_left in enumerate(merged)
-                        if e_left["index"] == e["index"]
+                        if isinstance(e_left, dict)
+                        and e_left.get("index") == e["index"]
                     ]
                     if to_merge:
                         # TODO: Remove this once merge_dict is updated with special
@@ -98,6 +99,20 @@ def merge_lists(
                         merged[to_merge[0]] = merge_dicts(merged[to_merge[0]], e)
                     else:
                         merged.append(e)
+                elif merged and _is_tool_call_fragment(e) and _is_tool_call(merged[-1]):
+                    # Some OpenAI-compatible servers omit `index` on streamed tool
+                    # calls; a fragment without an id or name continues the previous call.
+                    merged[-1] = merge_dicts(merged[-1], e)
                 else:
                     merged.append(e)
     return merged
+
+
+def _is_tool_call(x: Any) -> bool:
+    return (
+        isinstance(x, dict) and "index" not in x and isinstance(x.get("function"), dict)
+    )
+
+
+def _is_tool_call_fragment(x: Any) -> bool:
+    return _is_tool_call(x) and not x.get("id") and not x["function"].get("name")
