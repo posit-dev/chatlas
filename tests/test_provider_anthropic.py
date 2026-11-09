@@ -121,7 +121,7 @@ def test_supports_structured_outputs_for_supported_model_names(model, expected):
 def chat_func(system_prompt: str = "", **kwargs):
     return ChatAnthropic(
         system_prompt=system_prompt,
-        model="claude-haiku-4-5-20251001",
+        model="claude-haiku-5-5",
         **kwargs,
     )
 
@@ -134,7 +134,7 @@ def test_anthropic_simple_request():
     chat.chat("What is 1 + 1?")
     turn = chat.get_last_turn()
     assert turn is not None
-    assert turn.tokens == (26, 5, 0)
+    assert turn.tokens == (32, 3, 0)
     assert turn.finish_reason == "success"
 
 
@@ -185,7 +185,7 @@ async def test_anthropic_tool_variations_async():
 def test_anthropic_web_fetch():
     def chat_fun(**kwargs):
         return ChatAnthropic(
-            model="claude-haiku-4-5-20251001",
+            model="claude-haiku-5-5",
             kwargs={"default_headers": {"anthropic-beta": "web-fetch-2025-09-10"}},
             **kwargs,
         )
@@ -1237,7 +1237,7 @@ def truncated_structured_message() -> "Message":
         id="msg_1",
         type="message",
         role="assistant",
-        model="claude-haiku-4-5-20251001",
+        model="claude-haiku-5-5",
         stop_reason="max_tokens",
         stop_sequence=None,
         content=[TextBlock(type="text", text='{"comments": [{"body": "trunc')],

@@ -15,6 +15,7 @@ from openai.types.chat import (
     ChatCompletionToolMessageParam,
     ChatCompletionUserMessageParam,
 )
+from openai.types.chat.chat_completion_content_part_image_param import ImageURL
 from pydantic import BaseModel
 
 from ._chat import Chat
@@ -449,14 +450,13 @@ class OpenAICompletionsProvider(
                         check_image_content_type_supported(
                             "The Chat Completions API", x.image_content_type
                         )
-                        contents.append(
-                            {
-                                "type": "image_url",
-                                "image_url": {
-                                    "url": f"data:{x.image_content_type};base64,{x.data}"
-                                },
-                            }
+                        image_url = ImageURL(
+                            url=f"data:{x.image_content_type};base64,{x.data}"
                         )
+                        # "auto" is the API default; omit it from the request
+                        if x.detail != "auto":
+                            image_url["detail"] = x.detail
+                        contents.append({"type": "image_url", "image_url": image_url})
                     elif isinstance(x, ContentUploaded):
                         if x.provider != "openai":
                             raise ValueError(
@@ -485,11 +485,13 @@ class OpenAICompletionsProvider(
                             f"Don't know how to handle content type {type(x)} for role='user'."
                         )
 
+                # Tool messages must directly follow the assistant message that
+                # requested them, so they go ahead of any other user content.
+                res.extend(tool_results)
                 if contents:
                     res.append(
                         ChatCompletionUserMessageParam(content=contents, role="user")
                     )
-                res.extend(tool_results)
 
             else:
                 raise ValueError(f"Unknown role: {turn.role}")
@@ -612,7 +614,7 @@ def load_tool_request_args(args: str, name: str) -> dict[str, Any]:
     except orjson.JSONDecodeError:
         raise ValueError(
             f"The model's completion included a tool request ({name}) "
-            "with invalid JSON for input arguments: '{args}'"
+            f"with invalid JSON for input arguments: '{args}'. "
             "This can happen if the model hallucinates parameters not defined by "
             "your function schema. Try revising your tool description and system "
             "prompt to be more specific about the expected input arguments to this function."

@@ -236,6 +236,10 @@ _GOOGLE_FINISH_REASON_MAP: dict[str, FinishReason] = {
     "BLOCKLIST": "content_filter",
     "PROHIBITED_CONTENT": "content_filter",
     "SPII": "content_filter",
+    "IMAGE_SAFETY": "content_filter",
+    "IMAGE_PROHIBITED_CONTENT": "content_filter",
+    "IMAGE_RECITATION": "content_filter",
+    "LANGUAGE": "content_filter",
 }
 
 
@@ -825,6 +829,11 @@ class GoogleProvider(
         ]
         # search request/results precede the text; citations follow it.
         contents = search_contents + contents + citations + url_ctx_contents
+
+        if finish_reason == "success" and any(
+            isinstance(x, ContentToolRequest) for x in contents
+        ):
+            finish_reason = "tool_use"
 
         return AssistantTurn(
             contents,

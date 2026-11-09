@@ -14,6 +14,7 @@ from chatlas.types import (
     Content,
     ContentCitation,
     ContentText,
+    ContentToolRequest,
     ContentToolRequestFetch,
     ContentToolRequestSearch,
     ContentToolResponseFetch,
@@ -65,6 +66,65 @@ def test_normalize_finish_reason_maps_known_reasons():
     assert google_normalize_finish_reason("BLOCKLIST") == "content_filter"
     assert google_normalize_finish_reason("PROHIBITED_CONTENT") == "content_filter"
     assert google_normalize_finish_reason("SPII") == "content_filter"
+
+
+def test_normalize_finish_reason_maps_image_and_language_filters():
+    assert google_normalize_finish_reason("IMAGE_SAFETY") == "content_filter"
+    assert (
+        google_normalize_finish_reason("IMAGE_PROHIBITED_CONTENT") == "content_filter"
+    )
+    assert google_normalize_finish_reason("IMAGE_RECITATION") == "content_filter"
+    assert google_normalize_finish_reason("LANGUAGE") == "content_filter"
+
+
+def _function_call_response(finish_reason):
+    from google.genai.types import (
+        Candidate,
+        FunctionCall,
+        GenerateContentResponse,
+        Part,
+    )
+    from google.genai.types import (
+        Content as GoogleContent,
+    )
+
+    return GenerateContentResponse(
+        candidates=[
+            Candidate(
+                content=GoogleContent(
+                    parts=[Part(function_call=FunctionCall(name="get_time", args={}))],
+                    role="model",
+                ),
+                finish_reason=finish_reason,
+                index=0,
+            )
+        ]
+    )
+
+
+def test_google_value_turn_tool_request_finishes_as_tool_use():
+    provider = GoogleProvider(
+        model="gemini-2.5-flash", api_key="dummy", name="Google/Gemini", kwargs=None
+    )
+    completion = _function_call_response(GoogleFinishReason.STOP)
+
+    turn = provider.value_turn(completion, has_data_model=False)
+
+    assert any(isinstance(c, ContentToolRequest) for c in turn.contents)
+    assert turn.finish_reason == "tool_use"
+
+
+def test_google_stream_turn_tool_request_finishes_as_tool_use():
+    provider = GoogleProvider(
+        model="gemini-2.5-flash", api_key="dummy", name="Google/Gemini", kwargs=None
+    )
+    completion = provider.stream_merge_chunks(
+        None, _function_call_response(GoogleFinishReason.STOP)
+    )
+
+    turn = provider.stream_turn(completion, has_data_model=False)
+
+    assert turn.finish_reason == "tool_use"
 
 
 def test_normalize_finish_reason_passes_through_unknown():

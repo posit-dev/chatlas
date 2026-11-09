@@ -62,6 +62,7 @@ class SubmitInputArgs(TypedDict, total=False):
         None,
         openai.Omit,
     ]
+    image: openai.types.responses.response_create_params.Image | openai.Omit
     include: Union[
         list[
             Literal[
@@ -128,6 +129,7 @@ class SubmitInputArgs(TypedDict, total=False):
         Literal[
             "gpt-6-astra",
             "gpt-6.1-sol",
+            "gpt-6.1-terra",
             "gpt-6-sol",
             "gpt-6-luna",
             "gpt-5.6-sol",
@@ -237,6 +239,7 @@ class SubmitInputArgs(TypedDict, total=False):
             "gpt-daybreak-red-latest",
             "gpt-5.6-cyber",
             "gpt-rosalind-research",
+            "gpt-6-rosalind",
         ],
         openai.Omit,
     ]

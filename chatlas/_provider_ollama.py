@@ -67,8 +67,9 @@ def ChatOllama(
     Parameters
     ----------
     model
-        The model to use for the chat. If `None`, a list of available
-        models will be printed.
+        The model to use for the chat. If `None`, the returned chat can list the
+        available models (with `.list_models()`), but sending a message raises an
+        error that names them.
     system_prompt
         A system prompt to set the behavior of the assistant.
     base_url
@@ -106,9 +107,8 @@ def ChatOllama(
     model_ids = [m["id"] for m in ollama_model_info(base_url)]
 
     if model is None:
-        raise ValueError(
-            f"Must specify model. Available models: {', '.join(model_ids)}"
-        )
+        # Allowed so that `ChatOllama().list_models()` works; chatting requires a model.
+        model = ""
     elif re.sub(":latest$", "", model) not in model_ids:
         if is_local:
             raise ValueError(
@@ -155,6 +155,12 @@ class OllamaProvider(OpenAICompletionsProvider):
 
     def list_models(self):
         return ollama_model_info(self.base_url)
+
+    def _chat_perform_args(self, *args, **kwargs):
+        if not self.model:
+            model_ids = ", ".join(m["id"] for m in ollama_model_info(self.base_url))
+            raise ValueError(f"Must specify model. Available models: {model_ids}")
+        return super()._chat_perform_args(*args, **kwargs)
 
 
 def ollama_model_info(base_url: str) -> list[ModelInfo]:

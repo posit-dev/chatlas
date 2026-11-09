@@ -63,16 +63,29 @@ def test_ollama_remote_connection_failure(monkeypatch):
         ChatOllama(model="llama3.2", base_url="http://remote-host.example.com:11434")
 
 
-def test_ollama_model_none_lists_available_models(monkeypatch):
+def test_ollama_model_none_can_list_models(monkeypatch):
     monkeypatch.setattr("chatlas._provider_ollama.has_ollama", lambda base_url: True)
     monkeypatch.setattr(
         "chatlas._provider_ollama.ollama_model_info", lambda base_url: _MODELS
     )
 
+    chat = ChatOllama(base_url="http://localhost:11434")
+
+    assert [m["id"] for m in chat.list_models()] == ["qwen3:4b", "llama3.2"]
+
+
+def test_ollama_model_none_errors_when_chatting(monkeypatch):
+    monkeypatch.setattr("chatlas._provider_ollama.has_ollama", lambda base_url: True)
+    monkeypatch.setattr(
+        "chatlas._provider_ollama.ollama_model_info", lambda base_url: _MODELS
+    )
+
+    chat = ChatOllama(model=None, base_url="http://localhost:11434")
+
     with pytest.raises(
         ValueError, match="Must specify model. Available models: qwen3:4b, llama3.2"
     ):
-        ChatOllama(model=None, base_url="http://localhost:11434")
+        chat.chat("Hello")
 
 
 def test_ollama_unavailable_model_local_guidance(monkeypatch):
