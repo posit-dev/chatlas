@@ -9,10 +9,13 @@ from anthropic.types import (
     CitationsWebSearchResultLocation,
     DocumentBlock,
     Message,
+    MessageDeltaUsage,
     RawContentBlockDeltaEvent,
     RawContentBlockStartEvent,
     RawContentBlockStopEvent,
+    RawMessageDeltaEvent,
     RawMessageStartEvent,
+    ServerToolUsage,
     TextBlock,
     TextDelta,
     Usage,
@@ -121,7 +124,7 @@ def test_supports_structured_outputs_for_supported_model_names(model, expected):
 def chat_func(system_prompt: str = "", **kwargs):
     return ChatAnthropic(
         system_prompt=system_prompt,
-        model="claude-haiku-4-5-20251001",
+        model="claude-haiku-5-5",
         **kwargs,
     )
 
@@ -134,7 +137,7 @@ def test_anthropic_simple_request():
     chat.chat("What is 1 + 1?")
     turn = chat.get_last_turn()
     assert turn is not None
-    assert turn.tokens == (26, 5, 0)
+    assert turn.tokens == (32, 3, 0)
     assert turn.finish_reason == "success"
 
 
@@ -185,7 +188,7 @@ async def test_anthropic_tool_variations_async():
 def test_anthropic_web_fetch():
     def chat_fun(**kwargs):
         return ChatAnthropic(
-            model="claude-haiku-4-5-20251001",
+            model="claude-haiku-5-5",
             kwargs={"default_headers": {"anthropic-beta": "web-fetch-2025-09-10"}},
             **kwargs,
         )
@@ -300,6 +303,93 @@ def test_anthropic_web_fetch_citation_uses_document_index_for_source():
     assert citation.source is not None
     assert citation.source.url == "https://second.example"
     assert citation.source.title == "Second document"
+
+
+def test_anthropic_stream_usage_takes_cumulative_message_delta_counts():
+    # With server tools, message_delta carries the cumulative input and cache
+    # counts, which differ from message_start (values from the
+    # test_anthropic_web_search_streaming recording).
+    provider = AnthropicProvider(model="claude-haiku-4-5", api_key="dummy", kwargs=None)
+    start_usage = Usage(
+        input_tokens=2247,
+        cache_creation_input_tokens=0,
+        cache_read_input_tokens=0,
+        output_tokens=26,
+    )
+    start = RawMessageStartEvent(
+        type="message_start",
+        message=Message(
+            id="msg",
+            type="message",
+            role="assistant",
+            model="claude-haiku-4-5",
+            content=[],
+            stop_reason=None,
+            stop_sequence=None,
+            usage=start_usage,
+        ),
+    )
+    delta = RawMessageDeltaEvent.model_validate(
+        {
+            "type": "message_delta",
+            "delta": {"stop_reason": "end_turn", "stop_sequence": None},
+            "usage": MessageDeltaUsage(
+                input_tokens=2254,
+                cache_creation_input_tokens=17269,
+                cache_read_input_tokens=0,
+                output_tokens=110,
+                server_tool_use=ServerToolUsage(
+                    web_search_requests=1, web_fetch_requests=0
+                ),
+            ).model_dump(),
+        }
+    )
+
+    completion = provider.stream_merge_chunks(None, start)
+    completion = provider.stream_merge_chunks(completion, delta)
+
+    assert completion.usage.input_tokens == 2254
+    assert completion.usage.cache_creation_input_tokens == 17269
+    assert completion.usage.cache_read_input_tokens == 0
+    assert completion.usage.output_tokens == 110
+    assert completion.usage.server_tool_use == ServerToolUsage(
+        web_search_requests=1, web_fetch_requests=0
+    )
+    assert provider.value_tokens(completion) == (2254 + int(17269 * 1.25), 110, 0)
+
+
+def test_anthropic_stream_usage_keeps_message_start_counts_omitted_by_delta():
+    provider = AnthropicProvider(model="claude-haiku-4-5", api_key="dummy", kwargs=None)
+    start = RawMessageStartEvent(
+        type="message_start",
+        message=Message(
+            id="msg",
+            type="message",
+            role="assistant",
+            model="claude-haiku-4-5",
+            content=[],
+            stop_reason=None,
+            stop_sequence=None,
+            usage=Usage(
+                input_tokens=3,
+                cache_creation_input_tokens=37,
+                cache_read_input_tokens=17269,
+                output_tokens=1,
+            ),
+        ),
+    )
+    delta = RawMessageDeltaEvent.model_validate(
+        {
+            "type": "message_delta",
+            "delta": {"stop_reason": "end_turn", "stop_sequence": None},
+            "usage": {"output_tokens": 10},
+        }
+    )
+
+    completion = provider.stream_merge_chunks(None, start)
+    completion = provider.stream_merge_chunks(completion, delta)
+
+    assert provider.value_tokens(completion) == (3 + int(37 * 1.25), 10, 17269)
 
 
 def test_anthropic_web_fetch_citation_stream_uses_document_index_for_source():
@@ -1071,7 +1161,7 @@ def truncated_structured_message() -> "Message":
         id="msg_1",
         type="message",
         role="assistant",
-        model="claude-haiku-4-5-20251001",
+        model="claude-haiku-5-5",
         stop_reason="max_tokens",
         stop_sequence=None,
         content=[TextBlock(type="text", text='{"comments": [{"body": "trunc')],
@@ -1166,9 +1256,7 @@ def test_anthropic_message_params_convert_unsigned_thinking_blocks():
 
     turns = [
         UserTurn("hi"),
-        AssistantTurn(
-            [ContentThinking(thinking="hmm"), ContentText(text="hello")]
-        ),
+        AssistantTurn([ContentThinking(thinking="hmm"), ContentText(text="hello")]),
         UserTurn("again"),
     ]
     messages = provider._as_message_params(turns)

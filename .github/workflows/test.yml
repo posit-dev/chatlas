@@ -34,13 +34,23 @@ jobs:
         run: uv python install ${{ matrix.python-version }}
 
       - name: Install the project
-        run: uv sync --python ${{ matrix.python-version }} --all-extras
+        # The eval extra (inspect-ai>=0.3.283) requires Python >= 3.11
+        run: |
+          EXTRA_ARGS="--all-extras"
+          if [ "${{ matrix.python-version }}" = "3.10" ]; then
+            EXTRA_ARGS="--all-extras --no-extra eval"
+          fi
+          uv sync --python ${{ matrix.python-version }} $EXTRA_ARGS
 
       - name: Check tests
         run: make check-tests
 
+      # Types/formatting only need one leg: dependency versions are uniform
+      # across the matrix, and the eval extra (inspect-ai) isn't installed on 3.10
       - name: Check types
+        if: matrix.python-version == '3.13'
         run: make check-types
 
       - name: Check formatting
+        if: matrix.python-version == '3.13'
         run: make check-format

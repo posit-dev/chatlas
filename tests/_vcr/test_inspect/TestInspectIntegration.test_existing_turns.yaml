@@ -4,28 +4,27 @@ interactions:
       "My name is Gregg.", "type": "text"}]}, {"role": "assistant", "content": [{"text":
       "Hello Gregg! How can I assist you today?", "type": "text"}]}, {"role": "user",
       "content": [{"text": "What is my name?", "type": "text", "cache_control": {"type":
-      "ephemeral", "ttl": "5m"}}]}], "model": "claude-haiku-4-5-20251001", "stream":
-      true, "system": [{"type": "text", "text": "id=''kgMPryDu7y6hLWnyHvzh8D'' content=''You
-      are a helpful assistant that provides concise answers.'' source=None metadata=None
-      role=''system''", "cache_control": {"type": "ephemeral", "ttl": "5m"}}], "tools":
+      "ephemeral", "ttl": "5m"}}]}], "model": "claude-haiku-5-5", "stream": true,
+      "system": [{"type": "text", "text": "You are a helpful assistant that provides
+      concise answers.", "cache_control": {"type": "ephemeral", "ttl": "5m"}}], "tools":
       []}'
     headers:
-      Accept:
+      accept:
       - application/json
-      Accept-Encoding:
+      accept-encoding:
       - gzip, deflate
-      Connection:
-      - keep-alive
-      Content-Length:
-      - '602'
-      Content-Type:
-      - application/json
-      Host:
-      - api.anthropic.com
-      X-Stainless-Async:
-      - async:asyncio
       anthropic-version:
-      - '2023-06-01'
+      - '2026-10-21'
+      connection:
+      - keep-alive
+      content-length:
+      - '515'
+      content-type:
+      - application/json
+      host:
+      - api.anthropic.com
+      x-stainless-async:
+      - async:asyncio
       x-stainless-read-timeout:
       - '600'
       x-stainless-timeout:
@@ -36,103 +35,101 @@ interactions:
     body:
       string: 'event: message_start
 
-        data: {"type":"message_start","message":{"model":"claude-haiku-4-5-20251001","id":"msg_0113neLjvGWp46y2EVm6XGdc","type":"message","role":"assistant","content":[],"stop_reason":null,"stop_sequence":null,"usage":{"input_tokens":83,"cache_creation_input_tokens":0,"cache_read_input_tokens":0,"cache_creation":{"ephemeral_5m_input_tokens":0,"ephemeral_1h_input_tokens":0},"output_tokens":1,"service_tier":"standard"}}    }
+        data: {"type":"message_start","message":{"model":"claude-haiku-5-5","id":"msg_011CgiofzEZFjPBkBGyLtEdK","type":"message","role":"assistant","content":[],"container":null,"stop_reason":null,"stop_sequence":null,"stop_details":null,"usage":{"input_tokens":59,"cache_creation_input_tokens":0,"cache_read_input_tokens":0,"cache_creation":{"ephemeral_5m_input_tokens":0,"ephemeral_1h_input_tokens":0},"output_tokens":8,"service_tier":"standard","inference_geo":"global","speed":"standard"},"diagnostics":null}   }
 
 
         event: content_block_start
 
-        data: {"type":"content_block_start","index":0,"content_block":{"type":"text","text":""}   }
-
-
-        event: content_block_delta
-
-        data: {"type":"content_block_delta","index":0,"delta":{"type":"text_delta","text":"Your"}        }
-
-
-        event: content_block_delta
-
-        data: {"type":"content_block_delta","index":0,"delta":{"type":"text_delta","text":"
-        name is Gregg."}               }
+        data: {"type":"content_block_start","index":0,"content_block":{"type":"text","text":""}}
 
 
         event: ping
 
         data: {"type": "ping"}
+
+
+        event: content_block_delta
+
+        data: {"type":"content_block_delta","index":0,"delta":{"type":"text_delta","text":"Your
+        name is Gregg"}            }
+
+
+        event: content_block_delta
+
+        data: {"type":"content_block_delta","index":0,"delta":{"type":"text_delta","text":"."}  }
 
 
         event: content_block_stop
 
-        data: {"type":"content_block_stop","index":0         }
-
-
-        event: ping
-
-        data: {"type": "ping"}
-
-
-        event: ping
-
-        data: {"type": "ping"}
+        data: {"type":"content_block_stop","index":0     }
 
 
         event: message_delta
 
-        data: {"type":"message_delta","delta":{"stop_reason":"end_turn","stop_sequence":null},"usage":{"input_tokens":83,"cache_creation_input_tokens":0,"cache_read_input_tokens":0,"output_tokens":10}  }
+        data: {"type":"message_delta","delta":{"stop_reason":"end_turn","stop_sequence":null,"stop_details":null,"container":null},"usage":{"input_tokens":59,"cache_creation_input_tokens":0,"cache_read_input_tokens":0,"output_tokens":11,"output_tokens_details":{"thinking_tokens":0}}        }
 
 
         event: message_stop
 
-        data: {"type":"message_stop"     }
+        data: {"type":"message_stop"   }
 
 
         '
     headers:
-      CF-RAY:
-      - 9b6dc53bac7c1f52-DEN
-      Cache-Control:
-      - no-cache
-      Connection:
-      - keep-alive
-      Content-Type:
-      - text/event-stream; charset=utf-8
-      Date:
-      - Thu, 01 Jan 2026 00:06:23 GMT
-      Server:
-      - cloudflare
-      Transfer-Encoding:
-      - chunked
-      X-Robots-Tag:
-      - none
       anthropic-ratelimit-input-tokens-limit:
-      - '4000000'
+      - '10000000'
       anthropic-ratelimit-input-tokens-remaining:
-      - '4000000'
+      - '10000000'
       anthropic-ratelimit-input-tokens-reset:
-      - '2026-01-01T00:06:23Z'
+      - '2026-11-05T00:06:17Z'
       anthropic-ratelimit-output-tokens-limit:
-      - '800000'
+      - '2000000'
       anthropic-ratelimit-output-tokens-remaining:
-      - '800000'
+      - '2000000'
       anthropic-ratelimit-output-tokens-reset:
-      - '2026-01-01T00:06:23Z'
+      - '2026-11-05T00:06:17Z'
       anthropic-ratelimit-requests-limit:
-      - '4000'
+      - '45000'
       anthropic-ratelimit-requests-remaining:
-      - '3999'
+      - '44999'
       anthropic-ratelimit-requests-reset:
-      - '2026-01-01T00:06:23Z'
+      - '2026-11-05T00:06:17Z'
       anthropic-ratelimit-tokens-limit:
-      - '4800000'
+      - '12000000'
       anthropic-ratelimit-tokens-remaining:
-      - '4800000'
+      - '12000000'
       anthropic-ratelimit-tokens-reset:
-      - '2026-01-01T00:06:23Z'
+      - '2026-11-05T00:06:17Z'
+      anthropic-workspace-id:
+      - wrkspc_01D4K8epTDxMNmDoR6V5auh4
+      cache-control:
+      - no-cache
       cf-cache-status:
       - DYNAMIC
+      connection:
+      - keep-alive
+      content-length:
+      - '1386'
+      content-security-policy:
+      - default-src 'none'; frame-ancestors 'none'
+      content-type:
+      - text/event-stream; charset=utf-8
+      date:
+      - Thu, 05 Nov 2026 00:06:17 GMT
+      server:
+      - cloudflare
+      server-timing:
+      - x-originResponse;dur=62
       strict-transport-security:
       - max-age=31536000; includeSubDomains; preload
-      x-envoy-upstream-service-time:
-      - '245'
+      traceresponse:
+      - 00-623202f26e4349c3e09c907f6c136ae1-b22a0db55924d04b-01
+      transfer-encoding:
+      - chunked
+      vary:
+      - Accept-Encoding
+      x-robots-tag:
+      - none
     status:
       code: 200
       message: OK
@@ -150,32 +147,36 @@ interactions:
       about the criterion to be sure that your conclusion is correct. Avoid simply
       stating the correct answers at the outset. Then, end with your answer formatted
       as ''GRADE: $LETTER'' (without quotes) where LETTER is one of CI.\n\n"}], "model":
-      "claude-haiku-4-5-20251001", "tools": [], "stream": true}'
+      "claude-haiku-5-5", "cache_control": {"type": "ephemeral"}, "tools": [], "thinking":
+      {"type": "adaptive", "block_binding": {"prefix_mismatch_behavior": "drop_block"}},
+      "stream": true}'
     headers:
-      Accept:
+      accept:
       - application/json
-      Accept-Encoding:
+      accept-encoding:
       - gzip, deflate
-      Connection:
-      - keep-alive
-      Content-Length:
-      - '1067'
-      Content-Type:
-      - application/json
-      Host:
-      - api.anthropic.com
-      X-Stainless-Async:
-      - async:asyncio
-      X-Stainless-Helper-Method:
-      - stream
-      X-Stainless-Stream-Helper:
-      - messages
+      anthropic-beta:
+      - thinking-binding-controls-2026-08-01
       anthropic-version:
-      - '2023-06-01'
+      - '2026-10-21'
+      connection:
+      - keep-alive
+      content-length:
+      - '1184'
+      content-type:
+      - application/json
+      host:
+      - api.anthropic.com
       x-irid:
-      - kwmq5rjmxCu8bF5DTVCqxZ
+      - bghZfT82QsVkKLhuFFDYKm
+      x-stainless-async:
+      - async:asyncio
+      x-stainless-helper-method:
+      - stream
       x-stainless-read-timeout:
       - '600'
+      x-stainless-stream-helper:
+      - messages
       x-stainless-timeout:
       - NOT_GIVEN
     method: POST
@@ -184,23 +185,12 @@ interactions:
     body:
       string: 'event: message_start
 
-        data: {"type":"message_start","message":{"model":"claude-haiku-4-5-20251001","id":"msg_01RRsaLVAZqTj24BDVsN7Xo2","type":"message","role":"assistant","content":[],"stop_reason":null,"stop_sequence":null,"usage":{"input_tokens":249,"cache_creation_input_tokens":0,"cache_read_input_tokens":0,"cache_creation":{"ephemeral_5m_input_tokens":0,"ephemeral_1h_input_tokens":0},"output_tokens":1,"service_tier":"standard"}}   }
+        data: {"type":"message_start","message":{"model":"claude-haiku-5-5","id":"msg_011Cgiog1pYkgq1JBdpiskgF","type":"message","role":"assistant","content":[],"container":null,"stop_reason":null,"stop_sequence":null,"stop_details":null,"usage":{"input_tokens":352,"cache_creation_input_tokens":0,"cache_read_input_tokens":0,"cache_creation":{"ephemeral_5m_input_tokens":0,"ephemeral_1h_input_tokens":0},"output_tokens":7,"service_tier":"standard","inference_geo":"global","speed":"standard"},"input_transformations":[],"diagnostics":null}  }
 
 
         event: content_block_start
 
-        data: {"type":"content_block_start","index":0,"content_block":{"type":"text","text":""}     }
-
-
-        event: content_block_delta
-
-        data: {"type":"content_block_delta","index":0,"delta":{"type":"text_delta","text":"Let"}     }
-
-
-        event: content_block_delta
-
-        data: {"type":"content_block_delta","index":0,"delta":{"type":"text_delta","text":"
-        me assess"}    }
+        data: {"type":"content_block_start","index":0,"content_block":{"type":"thinking","thinking":"","signature":""}             }
 
 
         event: ping
@@ -210,243 +200,304 @@ interactions:
 
         event: content_block_delta
 
-        data: {"type":"content_block_delta","index":0,"delta":{"type":"text_delta","text":"
-        whether"}               }
+        data: {"type":"content_block_delta","index":0,"delta":{"type":"thinking_delta","thinking":""}    }
 
 
         event: content_block_delta
 
-        data: {"type":"content_block_delta","index":0,"delta":{"type":"text_delta","text":"
-        the"}   }
+        data: {"type":"content_block_delta","index":0,"delta":{"type":"signature_delta","signature":"CAQSlgcKEAgTGAI4AUIIdGhpbmtpbmcSDDFAD8TxdY3WQSLKQBoMTDuIT36c0b8SFKw9IjBscq2iCTiGwH4vNcRX7Ex75PQ+fEESjbaie75G2kBX+fUyM9JldRkmgRAu8Cp3sccqswby2RKXeHuDaF/gpUeHKzLdBvVNN3BhRAt7bBbbw1jWu7O6pranllyy0a1fs31FpB+pdgfHkrz68Qt1GC4ZiaMBWc3f8RSLwioFqAkzeVWEQfNXJLLvNeM+fbmah+6Ld96n9nmXbmTdUe3M09wi5daKOfiMnVBjMJ2S4ui8P2pY2XHwcCkb1ZxyC8KmqCB4jKINMA0eCvRYrHVf8TD+NPVFWyVykpnA5q+xe/x+ugkAfC9IM+0Gd9saHNyUQp24cDKOVlh4hsoCsvPpHOz46RgZX0U/gp6aqT5LJ9xnGAaAf+scX8V8BlLDwLqQ94YoAMMk361Ac6CrOGKBkUU32FjipdApLSaS2LFmGizPzTNA+S7DLXfLiqPXf8IMufOiSoKJIadNYEpLyGAE1P/XrxlELLd/5r/MDrJfP/nNpcHKQuDh4LzMhl2uFadkJkceZNsS3Ok0AUDGAHgr91feBMqWg4Cq17EHQKSG9bdAoWKXyeu05XuyHQjHa5psgQgXIGF1yw5jW8puiy/U9zrjoAosmMiBP+0+66Ph43WddWYkJuY6Fz5T3SFxpKNspvSJ8dqACV4RwufXVBWjFFphyLxfy24liCi66kaQut+8hTWFOVyaFBvT4yRbM/eoYb76QiGNkP3hzo1J0tqSgFOpBdstbuCDo5Zl4qN0W07jEUvVsQ9l8S5pNlGIzwI0JXw256oVgoEClWM81qhIJP4Oz6HwlBtcMqDdX/qKW/l0JyqnH34kOCn2uNj0K9zPzgBNH9Sce5UUrLdlp417M865SxrSCa5DNcOK9HRoHoHey7KXtVAThyXYeYzQ80AnFBQP5M0OVcE8HuLWvc2PPusDPDK53Sun8KZaAHAvEKyAmIwVc2Ke1xtRRRUJGE7IBaLEd9uRYCnB0p1BwmMK+oetwwjYJlNdZlDQ3sleS7CA3w6r6O/FUpMCSqmGwgqWLJLjfI2PRSXfPxKGg0Ek9KL5Tq9IN5S7xBVZt42duKovyNti8BazYGEnc2om6BRXiK9MhHU7RGADyS1f+aSOUq3iibmojMB3B4EgHXo/d1f1MO5x8Qy8fp9O350jv8LWUFiaJitgj5gYAQ=="}   }
+
+
+        event: content_block_stop
+
+        data: {"type":"content_block_stop","index":0     }
+
+
+        event: content_block_start
+
+        data: {"type":"content_block_start","index":1,"content_block":{"type":"text","text":""}}
 
 
         event: content_block_delta
 
-        data: {"type":"content_block_delta","index":0,"delta":{"type":"text_delta","text":"
-        submission meets the criterion.\n\n**"}              }
+        data: {"type":"content_block_delta","index":1,"delta":{"type":"text_delta","text":"The"}             }
 
 
         event: content_block_delta
 
-        data: {"type":"content_block_delta","index":0,"delta":{"type":"text_delta","text":"Criterion"}          }
+        data: {"type":"content_block_delta","index":1,"delta":{"type":"text_delta","text":"
+        cri"}    }
 
 
         event: content_block_delta
 
-        data: {"type":"content_block_delta","index":0,"delta":{"type":"text_delta","text":"**:"}           }
+        data: {"type":"content_block_delta","index":1,"delta":{"type":"text_delta","text":"terion
+        is that"}         }
 
 
         event: content_block_delta
 
-        data: {"type":"content_block_delta","index":0,"delta":{"type":"text_delta","text":"
-        The answer should include ''Gre"}}
+        data: {"type":"content_block_delta","index":1,"delta":{"type":"text_delta","text":"
+        the answer should"}             }
 
 
         event: content_block_delta
 
-        data: {"type":"content_block_delta","index":0,"delta":{"type":"text_delta","text":"gg''\n\n**"}   }
+        data: {"type":"content_block_delta","index":1,"delta":{"type":"text_delta","text":"
+        include the"}   }
 
 
         event: content_block_delta
 
-        data: {"type":"content_block_delta","index":0,"delta":{"type":"text_delta","text":"Submission**:
-        \"Your"}         }
+        data: {"type":"content_block_delta","index":1,"delta":{"type":"text_delta","text":"
+        string ''Gregg''"}        }
 
 
         event: content_block_delta
 
-        data: {"type":"content_block_delta","index":0,"delta":{"type":"text_delta","text":"
-        name is Gregg.\"\n\n**"}      }
+        data: {"type":"content_block_delta","index":1,"delta":{"type":"text_delta","text":".
+        The submission re"}              }
 
 
         event: content_block_delta
 
-        data: {"type":"content_block_delta","index":0,"delta":{"type":"text_delta","text":"Analysis**:"}}
+        data: {"type":"content_block_delta","index":1,"delta":{"type":"text_delta","text":"ads
+        \"Your name is G"}       }
 
 
         event: content_block_delta
 
-        data: {"type":"content_block_delta","index":0,"delta":{"type":"text_delta","text":"\n1"}
+        data: {"type":"content_block_delta","index":1,"delta":{"type":"text_delta","text":"regg.\"
+        It"}         }
+
+
+        event: content_block_delta
+
+        data: {"type":"content_block_delta","index":1,"delta":{"type":"text_delta","text":"
+        contains "}        }
+
+
+        event: content_block_delta
+
+        data: {"type":"content_block_delta","index":1,"delta":{"type":"text_delta","text":"''Gregg''
+        exact"}            }
+
+
+        event: content_block_delta
+
+        data: {"type":"content_block_delta","index":1,"delta":{"type":"text_delta","text":"ly,"}
         }
 
 
         event: content_block_delta
 
-        data: {"type":"content_block_delta","index":0,"delta":{"type":"text_delta","text":".
-        I"}  }
+        data: {"type":"content_block_delta","index":1,"delta":{"type":"text_delta","text":"
+        with"}   }
 
 
         event: content_block_delta
 
-        data: {"type":"content_block_delta","index":0,"delta":{"type":"text_delta","text":"
-        need to check"}}
+        data: {"type":"content_block_delta","index":1,"delta":{"type":"text_delta","text":"
+        mat"}            }
 
 
         event: content_block_delta
 
-        data: {"type":"content_block_delta","index":0,"delta":{"type":"text_delta","text":"
-        if the"}   }
+        data: {"type":"content_block_delta","index":1,"delta":{"type":"text_delta","text":"ching
+        capitalization, so it"}              }
 
 
         event: content_block_delta
 
-        data: {"type":"content_block_delta","index":0,"delta":{"type":"text_delta","text":"
-        wor"}     }
+        data: {"type":"content_block_delta","index":1,"delta":{"type":"text_delta","text":"
+        satisfies the cri"}      }
 
 
         event: content_block_delta
 
-        data: {"type":"content_block_delta","index":0,"delta":{"type":"text_delta","text":"d
-        "}  }
+        data: {"type":"content_block_delta","index":1,"delta":{"type":"text_delta","text":"terion
+        as written.\n\nThe task"} }
 
 
         event: content_block_delta
 
-        data: {"type":"content_block_delta","index":0,"delta":{"type":"text_delta","text":"''Gregg''
-        appears in the"}      }
+        data: {"type":"content_block_delta","index":1,"delta":{"type":"text_delta","text":"
+        asks what"}    }
 
 
         event: content_block_delta
 
-        data: {"type":"content_block_delta","index":0,"delta":{"type":"text_delta","text":"
-        submission\n2. Looking"}    }
+        data: {"type":"content_block_delta","index":1,"delta":{"type":"text_delta","text":"
+        the user''s name is, and the"}          }
 
 
         event: content_block_delta
 
-        data: {"type":"content_block_delta","index":0,"delta":{"type":"text_delta","text":"
-        at the submission text"}}
+        data: {"type":"content_block_delta","index":1,"delta":{"type":"text_delta","text":"
+        data"}          }
 
 
         event: content_block_delta
 
-        data: {"type":"content_block_delta","index":0,"delta":{"type":"text_delta","text":":
-        \"Your name is Gregg"}        }
+        data: {"type":"content_block_delta","index":1,"delta":{"type":"text_delta","text":"
+        g"}        }
 
 
         event: content_block_delta
 
-        data: {"type":"content_block_delta","index":0,"delta":{"type":"text_delta","text":".\"\n3.
-        The word ''"}               }
+        data: {"type":"content_block_delta","index":1,"delta":{"type":"text_delta","text":"ives
+        no context to"}         }
 
 
         event: content_block_delta
 
-        data: {"type":"content_block_delta","index":0,"delta":{"type":"text_delta","text":"Gregg''
-        is clearly"}        }
+        data: {"type":"content_block_delta","index":1,"delta":{"type":"text_delta","text":"
+        confirm it. The criter"} }
 
 
         event: content_block_delta
 
-        data: {"type":"content_block_delta","index":0,"delta":{"type":"text_delta","text":"
-        present in the submission\n4. The"}            }
+        data: {"type":"content_block_delta","index":1,"delta":{"type":"text_delta","text":"ion
+        does"}         }
 
 
         event: content_block_delta
 
-        data: {"type":"content_block_delta","index":0,"delta":{"type":"text_delta","text":"
-        criterion"}          }
+        data: {"type":"content_block_delta","index":1,"delta":{"type":"text_delta","text":"
+        not ask whether the name"} }
 
 
         event: content_block_delta
 
-        data: {"type":"content_block_delta","index":0,"delta":{"type":"text_delta","text":"
-        is"}            }
+        data: {"type":"content_block_delta","index":1,"delta":{"type":"text_delta","text":"
+        is acc"}              }
 
 
         event: content_block_delta
 
-        data: {"type":"content_block_delta","index":0,"delta":{"type":"text_delta","text":"
-        satisfied - the"}      }
+        data: {"type":"content_block_delta","index":1,"delta":{"type":"text_delta","text":"urate,
+        only whether "}}
 
 
         event: content_block_delta
 
-        data: {"type":"content_block_delta","index":0,"delta":{"type":"text_delta","text":"
-        answer"}          }
+        data: {"type":"content_block_delta","index":1,"delta":{"type":"text_delta","text":"''Gregg''
+        appears"}        }
 
 
         event: content_block_delta
 
-        data: {"type":"content_block_delta","index":0,"delta":{"type":"text_delta","text":"
+        data: {"type":"content_block_delta","index":1,"delta":{"type":"text_delta","text":"
+        in the answer,"} }
+
+
+        event: content_block_delta
+
+        data: {"type":"content_block_delta","index":1,"delta":{"type":"text_delta","text":"
+        so"}      }
+
+
+        event: content_block_delta
+
+        data: {"type":"content_block_delta","index":1,"delta":{"type":"text_delta","text":"
+        that"}}
+
+
+        event: content_block_delta
+
+        data: {"type":"content_block_delta","index":1,"delta":{"type":"text_delta","text":"
+        conc"}  }
+
+
+        event: content_block_delta
+
+        data: {"type":"content_block_delta","index":1,"delta":{"type":"text_delta","text":"ern
         does"}   }
 
 
         event: content_block_delta
 
-        data: {"type":"content_block_delta","index":0,"delta":{"type":"text_delta","text":"
-        include ''Gregg''"}  }
+        data: {"type":"content_block_delta","index":1,"delta":{"type":"text_delta","text":"
+        not change the result.\n\nGR"}              }
 
 
         event: content_block_delta
 
-        data: {"type":"content_block_delta","index":0,"delta":{"type":"text_delta","text":"\n\nGRADE:
-        C"}          }
+        data: {"type":"content_block_delta","index":1,"delta":{"type":"text_delta","text":"ADE:
+        C"}      }
 
 
         event: content_block_stop
 
-        data: {"type":"content_block_stop","index":0        }
+        data: {"type":"content_block_stop","index":1              }
 
 
         event: message_delta
 
-        data: {"type":"message_delta","delta":{"stop_reason":"end_turn","stop_sequence":null},"usage":{"input_tokens":249,"cache_creation_input_tokens":0,"cache_read_input_tokens":0,"output_tokens":123}    }
+        data: {"type":"message_delta","delta":{"stop_reason":"end_turn","stop_sequence":null,"stop_details":null,"container":null},"usage":{"input_tokens":352,"cache_creation_input_tokens":0,"cache_read_input_tokens":0,"output_tokens":272,"output_tokens_details":{"thinking_tokens":123}}    }
 
 
         event: message_stop
 
-        data: {"type":"message_stop"   }
+        data: {"type":"message_stop"         }
 
 
         '
     headers:
-      CF-RAY:
-      - 9b6dc540c87ae649-DEN
-      Cache-Control:
-      - no-cache
-      Connection:
-      - keep-alive
-      Content-Type:
-      - text/event-stream; charset=utf-8
-      Date:
-      - Thu, 01 Jan 2026 00:06:24 GMT
-      Server:
-      - cloudflare
-      Transfer-Encoding:
-      - chunked
-      X-Robots-Tag:
-      - none
       anthropic-ratelimit-input-tokens-limit:
-      - '4000000'
+      - '10000000'
       anthropic-ratelimit-input-tokens-remaining:
-      - '4000000'
+      - '10000000'
       anthropic-ratelimit-input-tokens-reset:
-      - '2026-01-01T00:06:24Z'
+      - '2026-11-05T00:06:17Z'
       anthropic-ratelimit-output-tokens-limit:
-      - '800000'
+      - '2000000'
       anthropic-ratelimit-output-tokens-remaining:
-      - '800000'
+      - '2000000'
       anthropic-ratelimit-output-tokens-reset:
-      - '2026-01-01T00:06:24Z'
+      - '2026-11-05T00:06:17Z'
       anthropic-ratelimit-requests-limit:
-      - '4000'
+      - '45000'
       anthropic-ratelimit-requests-remaining:
-      - '3999'
+      - '44999'
       anthropic-ratelimit-requests-reset:
-      - '2026-01-01T00:06:24Z'
+      - '2026-11-05T00:06:17Z'
       anthropic-ratelimit-tokens-limit:
-      - '4800000'
+      - '12000000'
       anthropic-ratelimit-tokens-remaining:
-      - '4800000'
+      - '12000000'
       anthropic-ratelimit-tokens-reset:
-      - '2026-01-01T00:06:24Z'
+      - '2026-11-05T00:06:17Z'
+      anthropic-workspace-id:
+      - wrkspc_01D4K8epTDxMNmDoR6V5auh4
+      cache-control:
+      - no-cache
       cf-cache-status:
       - DYNAMIC
+      connection:
+      - keep-alive
+      content-length:
+      - '7612'
+      content-security-policy:
+      - default-src 'none'; frame-ancestors 'none'
+      content-type:
+      - text/event-stream; charset=utf-8
+      date:
+      - Thu, 05 Nov 2026 00:06:17 GMT
+      server:
+      - cloudflare
+      server-timing:
+      - x-originResponse;dur=61
       strict-transport-security:
       - max-age=31536000; includeSubDomains; preload
-      x-envoy-upstream-service-time:
-      - '228'
+      traceresponse:
+      - 00-58e59560fa3edb91353ed8f74f6c22c8-79a3bc2755a555d1-01
+      transfer-encoding:
+      - chunked
+      vary:
+      - Accept-Encoding
+      x-robots-tag:
+      - none
     status:
       code: 200
       message: OK
