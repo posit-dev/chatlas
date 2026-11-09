@@ -128,7 +128,7 @@ interactions:
       x-goog-api-client:
       - google-genai-sdk/2.34.0 gl-python/3.13.14
     method: POST
-    uri: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:countTokens
+    uri: https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:countTokens
   response:
     body:
       string: "{\n  \"totalTokens\": 9,\n  \"promptTokensDetails\": [\n    {\n      \"modality\":
