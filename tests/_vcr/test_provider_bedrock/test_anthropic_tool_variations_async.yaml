@@ -1,317 +1,371 @@
 interactions:
 - request:
-    body: '{"max_tokens": 4096, "messages": [{"role": "user", "content": [{"text": "What''s the current date in YYYY-MM-DD format?", "type": "text"}]}], "system": [{"type": "text", "text": "Be very terse, not even punctuation."}], "tools": [{"name": "get_current_date", "input_schema": {"type": "object", "properties": {}, "additionalProperties": false, "required": []}, "description": "Gets the current date"}], "anthropic_version": "bedrock-2023-05-31"}'
+    body: '{"max_tokens": 4096, "messages": [{"role": "user", "content": [{"text":
+      "What''s the current date in YYYY-MM-DD format?", "type": "text"}]}], "system":
+      [{"type": "text", "text": "Be very terse, not even punctuation."}], "tools":
+      [{"name": "get_current_date", "input_schema": {"type": "object", "properties":
+      {}, "additionalProperties": false, "required": []}, "description": "Gets the
+      current date"}], "anthropic_version": "bedrock-2023-05-31"}'
     headers:
-      Connection:
-      - keep-alive
-      X-Amz-Date:
-      - 20251231T203621Z
       accept:
       - application/json
       accept-encoding:
       - gzip, deflate
+      connection:
+      - keep-alive
       content-length:
-      - '370'
+      - '413'
       content-type:
       - application/json
       host:
       - bedrock-runtime.us-east-1.amazonaws.com
+      x-amz-date:
+      - 20261105T001345Z
       x-stainless-read-timeout:
       - '600'
       x-stainless-timeout:
       - NOT_GIVEN
     method: POST
-    uri: https://bedrock-runtime.us-east-1.amazonaws.com/model/us.anthropic.claude-sonnet-4-5-20250929-v1:0/invoke-with-response-stream
+    uri: https://bedrock-runtime.us-east-1.amazonaws.com/model/us.anthropic.claude-sonnet-5/invoke-with-response-stream
   response:
     body:
       string: !!binary |
-        AAACJwAAAEu6BRVuCzpldmVudC10eXBlBwAFY2h1bmsNOmNvbnRlbnQtdHlwZQcAEGFwcGxpY2F0
+        AAAC9AAAAEt0UBDnCzpldmVudC10eXBlBwAFY2h1bmsNOmNvbnRlbnQtdHlwZQcAEGFwcGxpY2F0
         aW9uL2pzb24NOm1lc3NhZ2UtdHlwZQcABWV2ZW50eyJieXRlcyI6ImV5SjBlWEJsSWpvaWJXVnpj
         MkZuWlY5emRHRnlkQ0lzSW0xbGMzTmhaMlVpT25zaWJXOWtaV3dpT2lKamJHRjFaR1V0YzI5dWJt
-        VjBMVFF0TlMweU1ESTFNRGt5T1NJc0ltbGtJam9pYlhOblgySmtjbXRmTURGV1REYzVRbVkzYTFs
-        SFIyOWlWMWhEYlZCMFJqYzRJaXdpZEhsd1pTSTZJbTFsYzNOaFoyVWlMQ0p5YjJ4bElqb2lZWE56
-        YVhOMFlXNTBJaXdpWTI5dWRHVnVkQ0k2VzEwc0luTjBiM0JmY21WaGMyOXVJanB1ZFd4c0xDSnpk
-        Rzl3WDNObGNYVmxibU5sSWpwdWRXeHNMQ0oxYzJGblpTSTZleUpwYm5CMWRGOTBiMnRsYm5NaU9q
-        VTJPQ3dpWTJGamFHVmZZM0psWVhScGIyNWZhVzV3ZFhSZmRHOXJaVzV6SWpvd0xDSmpZV05vWlY5
-        eVpXRmtYMmx1Y0hWMFgzUnZhMlZ1Y3lJNk1Dd2liM1YwY0hWMFgzUnZhMlZ1Y3lJNk1YMTlmUT09
-        IiwicCI6ImFiY2RlZmdoaWprbG1ub3BxcnN0dXZ3eHkifSwtPb0AAAFrAAAAS6GS0ogLOmV2ZW50
-        LXR5cGUHAAVjaHVuaw06Y29udGVudC10eXBlBwAQYXBwbGljYXRpb24vanNvbg06bWVzc2FnZS10
-        eXBlBwAFZXZlbnR7ImJ5dGVzIjoiZXlKMGVYQmxJam9pWTI5dWRHVnVkRjlpYkc5amExOXpkR0Z5
-        ZENJc0ltbHVaR1Y0SWpvd0xDSmpiMjUwWlc1MFgySnNiMk5ySWpwN0luUjVjR1VpT2lKMGIyOXNY
-        M1Z6WlNJc0ltbGtJam9pZEc5dmJIVmZZbVJ5YTE4d01WQk9hbEF4V0VveU5sZEtRak5YV21FM1RI
-        bG1RbkFpTENKdVlXMWxJam9pWjJWMFgyTjFjbkpsYm5SZlpHRjBaU0lzSW1sdWNIVjBJanA3Zlgx
-        OSIsInAiOiJhYmNkZWZnaGlqa2xtbm9wcXJzdHV2d3h5ekFCQ0RFRkdISUpLTE1OT1BRUlMifbu3
-        2SMAAAD/AAAAS05IgP0LOmV2ZW50LXR5cGUHAAVjaHVuaw06Y29udGVudC10eXBlBwAQYXBwbGlj
-        YXRpb24vanNvbg06bWVzc2FnZS10eXBlBwAFZXZlbnR7ImJ5dGVzIjoiZXlKMGVYQmxJam9pWTI5
-        dWRHVnVkRjlpYkc5amExOWtaV3gwWVNJc0ltbHVaR1Y0SWpvd0xDSmtaV3gwWVNJNmV5SjBlWEJs
-        SWpvaWFXNXdkWFJmYW5OdmJsOWtaV3gwWVNJc0luQmhjblJwWVd4ZmFuTnZiaUk2SWlKOWZRPT0i
-        LCJwIjoiYWJjZGVmZ2hpamtsbW5vcHEifcvOHc4AAADfAAAAS4+Jr/kLOmV2ZW50LXR5cGUHAAVj
-        aHVuaw06Y29udGVudC10eXBlBwAQYXBwbGljYXRpb24vanNvbg06bWVzc2FnZS10eXBlBwAFZXZl
-        bnR7ImJ5dGVzIjoiZXlKMGVYQmxJam9pWTI5dWRHVnVkRjlpYkc5amExOXpkRzl3SWl3aWFXNWta
-        WGdpT2pCOSIsInAiOiJhYmNkZWZnaGlqa2xtbm9wcXJzdHV2d3h5ekFCQ0RFRkdISUpLTE1OT1BR
-        UlNUVVZXWFlaMDEyMzQ1Njc4In3feC1oAAABHQAAAEvXAMfnCzpldmVudC10eXBlBwAFY2h1bmsN
-        OmNvbnRlbnQtdHlwZQcAEGFwcGxpY2F0aW9uL2pzb24NOm1lc3NhZ2UtdHlwZQcABWV2ZW50eyJi
-        eXRlcyI6ImV5SjBlWEJsSWpvaWJXVnpjMkZuWlY5a1pXeDBZU0lzSW1SbGJIUmhJanA3SW5OMGIz
-        QmZjbVZoYzI5dUlqb2lkRzl2YkY5MWMyVWlMQ0p6ZEc5d1gzTmxjWFZsYm1ObElqcHVkV3hzZlN3
-        aWRYTmhaMlVpT25zaWIzVjBjSFYwWDNSdmEyVnVjeUk2TXpoOWZRPT0iLCJwIjoiYWJjZGVmZ2hp
-        amtsbW5vcHFyc3R1dnd4eXpBIn2EialDAAABRQAAAEvfY0PtCzpldmVudC10eXBlBwAFY2h1bmsN
-        OmNvbnRlbnQtdHlwZQcAEGFwcGxpY2F0aW9uL2pzb24NOm1lc3NhZ2UtdHlwZQcABWV2ZW50eyJi
-        eXRlcyI6ImV5SjBlWEJsSWpvaWJXVnpjMkZuWlY5emRHOXdJaXdpWVcxaGVtOXVMV0psWkhKdlky
-        c3RhVzUyYjJOaGRHbHZiazFsZEhKcFkzTWlPbnNpYVc1d2RYUlViMnRsYmtOdmRXNTBJam8xTmpn
-        c0ltOTFkSEIxZEZSdmEyVnVRMjkxYm5RaU9qTTRMQ0pwYm5adlkyRjBhVzl1VEdGMFpXNWplU0k2
-        TVRVd09Td2labWx5YzNSQ2VYUmxUR0YwWlc1amVTSTZNVE13TW4xOSIsInAiOiJhYmNkZWZnaGlq
-        ayJ9HQM44Q==
+        VjBMVFVpTENKcFpDSTZJbTF6WjE5aVpISnJYMlZ1Y25SaloycHVOSGQzZEdsbmFHRnFOR3RoWVRO
+        cGVIQTBOMmQzTjJabVozcDRjek5oTjI4elpESm5aMlJ1Tm1GNWRuRWlMQ0owZVhCbElqb2liV1Z6
+        YzJGblpTSXNJbkp2YkdVaU9pSmhjM05wYzNSaGJuUWlMQ0pqYjI1MFpXNTBJanBiWFN3aVkyOXVk
+        R0ZwYm1WeUlqcHVkV3hzTENKemRHOXdYM0psWVhOdmJpSTZiblZzYkN3aWMzUnZjRjl6WlhGMVpX
+        NWpaU0k2Ym5Wc2JDd2ljM1J2Y0Y5a1pYUmhhV3h6SWpwdWRXeHNMQ0oxYzJGblpTSTZleUpwYm5C
+        MWRGOTBiMnRsYm5NaU9qUTFOeXdpWTJGamFHVmZZM0psWVhScGIyNWZhVzV3ZFhSZmRHOXJaVzV6
+        SWpvd0xDSmpZV05vWlY5eVpXRmtYMmx1Y0hWMFgzUnZhMlZ1Y3lJNk1Dd2lZMkZqYUdWZlkzSmxZ
+        WFJwYjI0aU9uc2laWEJvWlcxbGNtRnNYelZ0WDJsdWNIVjBYM1J2YTJWdWN5STZNQ3dpWlhCb1pX
+        MWxjbUZzWHpGb1gybHVjSFYwWDNSdmEyVnVjeUk2TUgwc0ltOTFkSEIxZEY5MGIydGxibk1pT2pJ
+        MExDSnpaWEoyYVdObFgzUnBaWElpT2lKemRHRnVaR0Z5WkNKOWZYMD0iLCJwIjoiYWJjZGVmZ2hp
+        amtsbW5vcHFyIn2ldkjHAAABTwAAAEuV01tMCzpldmVudC10eXBlBwAFY2h1bmsNOmNvbnRlbnQt
+        dHlwZQcAEGFwcGxpY2F0aW9uL2pzb24NOm1lc3NhZ2UtdHlwZQcABWV2ZW50eyJieXRlcyI6ImV5
+        SjBlWEJsSWpvaVkyOXVkR1Z1ZEY5aWJHOWphMTl6ZEdGeWRDSXNJbWx1WkdWNElqb3dMQ0pqYjI1
+        MFpXNTBYMkpzYjJOcklqcDdJblI1Y0dVaU9pSjBiMjlzWDNWelpTSXNJbWxrSWpvaWRHOXZiSFZm
+        WW1SeWExOHdNVUZHYzAxU1FrZzFNbHBNTjI4NWFYRTVSMWxtWjBZaUxDSnVZVzFsSWpvaVoyVjBY
+        Mk4xY25KbGJuUmZaR0YwWlNJc0ltbHVjSFYwSWpwN2ZYMTkiLCJwIjoiYWJjZGVmZ2hpamtsbW5v
+        cHEifV2M+wUAAAD2AAAAS0NY4owLOmV2ZW50LXR5cGUHAAVjaHVuaw06Y29udGVudC10eXBlBwAQ
+        YXBwbGljYXRpb24vanNvbg06bWVzc2FnZS10eXBlBwAFZXZlbnR7ImJ5dGVzIjoiZXlKMGVYQmxJ
+        am9pWTI5dWRHVnVkRjlpYkc5amExOWtaV3gwWVNJc0ltbHVaR1Y0SWpvd0xDSmtaV3gwWVNJNmV5
+        SjBlWEJsSWpvaWFXNXdkWFJmYW5OdmJsOWtaV3gwWVNJc0luQmhjblJwWVd4ZmFuTnZiaUk2SWlK
+        OWZRPT0iLCJwIjoiYWJjZGVmZ2giffZsvuUAAADVAAAAS8U5t1gLOmV2ZW50LXR5cGUHAAVjaHVu
+        aw06Y29udGVudC10eXBlBwAQYXBwbGljYXRpb24vanNvbg06bWVzc2FnZS10eXBlBwAFZXZlbnR7
+        ImJ5dGVzIjoiZXlKMGVYQmxJam9pWTI5dWRHVnVkRjlpYkc5amExOXpkRzl3SWl3aWFXNWtaWGdp
+        T2pCOSIsInAiOiJhYmNkZWZnaGlqa2xtbm9wcXJzdHV2d3h5ekFCQ0RFRkdISUpLTE1OT1BRUlNU
+        VVZXWFkifbyhSHYAAAHqAAAASy0US6oLOmV2ZW50LXR5cGUHAAVjaHVuaw06Y29udGVudC10eXBl
+        BwAQYXBwbGljYXRpb24vanNvbg06bWVzc2FnZS10eXBlBwAFZXZlbnR7ImJ5dGVzIjoiZXlKMGVY
+        QmxJam9pYldWemMyRm5aVjlrWld4MFlTSXNJbVJsYkhSaElqcDdJbk4wYjNCZmNtVmhjMjl1SWpv
+        aWRHOXZiRjkxYzJVaUxDSnpkRzl3WDNObGNYVmxibU5sSWpwdWRXeHNMQ0p6ZEc5d1gyUmxkR0Zw
+        YkhNaU9tNTFiR3dzSW1OdmJuUmhhVzVsY2lJNmJuVnNiSDBzSW5WellXZGxJanA3SW1sdWNIVjBY
+        M1J2YTJWdWN5STZORFUzTENKallXTm9aVjlqY21WaGRHbHZibDlwYm5CMWRGOTBiMnRsYm5NaU9q
+        QXNJbU5oWTJobFgzSmxZV1JmYVc1d2RYUmZkRzlyWlc1eklqb3dMQ0p2ZFhSd2RYUmZkRzlyWlc1
+        eklqb3lPQ3dpYjNWMGNIVjBYM1J2YTJWdWMxOWtaWFJoYVd4eklqcDdJblJvYVc1cmFXNW5YM1J2
+        YTJWdWN5STZNSDE5ZlE9PSIsInAiOiJhYmNkZWZnaGlqa2xtbm9wIn0Mt4vIAAABYAAAAEvWQuOZ
+        CzpldmVudC10eXBlBwAFY2h1bmsNOmNvbnRlbnQtdHlwZQcAEGFwcGxpY2F0aW9uL2pzb24NOm1l
+        c3NhZ2UtdHlwZQcABWV2ZW50eyJieXRlcyI6ImV5SjBlWEJsSWpvaWJXVnpjMkZuWlY5emRHOXdJ
+        aXdpWVcxaGVtOXVMV0psWkhKdlkyc3RhVzUyYjJOaGRHbHZiazFsZEhKcFkzTWlPbnNpYVc1d2RY
+        UlViMnRsYmtOdmRXNTBJam8wTlRjc0ltOTFkSEIxZEZSdmEyVnVRMjkxYm5RaU9qSTRMQ0pwYm5a
+        dlkyRjBhVzl1VEdGMFpXNWplU0k2T1RFMExDSm1hWEp6ZEVKNWRHVk1ZWFJsYm1ONUlqbzVNREI5
+        ZlE9PSIsInAiOiJhYmNkZWZnaGlqa2xtbm9wcXJzdHV2d3h5ekFCQ0RFRkdISUpLTCJ9YCc1ew==
     headers:
-      Connection:
+      connection:
       - keep-alive
-      Content-Type:
+      content-type:
       - application/vnd.amazon.eventstream
-      Date:
-      - Wed, 31 Dec 2025 20:36:23 GMT
-      Transfer-Encoding:
+      date:
+      - Thu, 05 Nov 2026 00:13:46 GMT
+      transfer-encoding:
       - chunked
-      X-Amzn-Bedrock-Content-Type:
+      x-amzn-bedrock-content-type:
       - application/json
-      x-amzn-RequestId:
-      - 3ffb3f27-4eb0-4546-b9f9-c953a89dd2ff
+      x-amzn-requestid:
+      - 1d239615-f2c9-4cda-80cb-139975f5e73e
     status:
       code: 200
       message: OK
 - request:
-    body: '{"max_tokens": 4096, "messages": [{"role": "user", "content": [{"text": "What''s the current date in YYYY-MM-DD format?", "type": "text"}]}, {"role": "assistant", "content": [{"type": "tool_use", "id": "toolu_bdrk_01PNjP1XJ26WJB3WZa7LyfBp", "name": "get_current_date", "input": {}}]}, {"role": "user", "content": [{"type": "tool_result", "tool_use_id": "toolu_bdrk_01PNjP1XJ26WJB3WZa7LyfBp", "is_error": false, "content": "2024-01-01"}]}], "system": [{"type": "text", "text": "Be very terse, not even punctuation."}], "tools": [{"name": "get_current_date", "input_schema": {"type": "object", "properties": {}, "additionalProperties": false, "required": []}, "description": "Gets the current date"}], "anthropic_version": "bedrock-2023-05-31"}'
+    body: '{"max_tokens": 4096, "messages": [{"role": "user", "content": [{"text":
+      "What''s the current date in YYYY-MM-DD format?", "type": "text"}]}, {"role":
+      "assistant", "content": [{"type": "tool_use", "id": "toolu_bdrk_01AFsMRBH52ZL7o9iq9GYfgF",
+      "name": "get_current_date", "input": {}}]}, {"role": "user", "content": [{"type":
+      "tool_result", "tool_use_id": "toolu_bdrk_01AFsMRBH52ZL7o9iq9GYfgF", "is_error":
+      false, "content": "2024-01-01"}]}], "system": [{"type": "text", "text": "Be
+      very terse, not even punctuation."}], "tools": [{"name": "get_current_date",
+      "input_schema": {"type": "object", "properties": {}, "additionalProperties":
+      false, "required": []}, "description": "Gets the current date"}], "anthropic_version":
+      "bedrock-2023-05-31"}'
     headers:
-      Connection:
-      - keep-alive
-      X-Amz-Date:
-      - 20251231T203623Z
       accept:
       - application/json
       accept-encoding:
       - gzip, deflate
+      connection:
+      - keep-alive
       content-length:
-      - '646'
+      - '689'
       content-type:
       - application/json
       host:
       - bedrock-runtime.us-east-1.amazonaws.com
+      x-amz-date:
+      - 20261105T001346Z
       x-stainless-read-timeout:
       - '600'
       x-stainless-timeout:
       - NOT_GIVEN
     method: POST
-    uri: https://bedrock-runtime.us-east-1.amazonaws.com/model/us.anthropic.claude-sonnet-4-5-20250929-v1:0/invoke-with-response-stream
+    uri: https://bedrock-runtime.us-east-1.amazonaws.com/model/us.anthropic.claude-sonnet-5/invoke-with-response-stream
   response:
     body:
       string: !!binary |
-        AAACNgAAAEvnhatcCzpldmVudC10eXBlBwAFY2h1bmsNOmNvbnRlbnQtdHlwZQcAEGFwcGxpY2F0
+        AAADCgAAAEtICC1+CzpldmVudC10eXBlBwAFY2h1bmsNOmNvbnRlbnQtdHlwZQcAEGFwcGxpY2F0
         aW9uL2pzb24NOm1lc3NhZ2UtdHlwZQcABWV2ZW50eyJieXRlcyI6ImV5SjBlWEJsSWpvaWJXVnpj
         MkZuWlY5emRHRnlkQ0lzSW0xbGMzTmhaMlVpT25zaWJXOWtaV3dpT2lKamJHRjFaR1V0YzI5dWJt
-        VjBMVFF0TlMweU1ESTFNRGt5T1NJc0ltbGtJam9pYlhOblgySmtjbXRmTURFMWVHNXdVbnBaVXpW
-        b2NrMTJVRmgwVEdsVldtazJJaXdpZEhsd1pTSTZJbTFsYzNOaFoyVWlMQ0p5YjJ4bElqb2lZWE56
-        YVhOMFlXNTBJaXdpWTI5dWRHVnVkQ0k2VzEwc0luTjBiM0JmY21WaGMyOXVJanB1ZFd4c0xDSnpk
-        Rzl3WDNObGNYVmxibU5sSWpwdWRXeHNMQ0oxYzJGblpTSTZleUpwYm5CMWRGOTBiMnRsYm5NaU9q
-        WXlOU3dpWTJGamFHVmZZM0psWVhScGIyNWZhVzV3ZFhSZmRHOXJaVzV6SWpvd0xDSmpZV05vWlY5
-        eVpXRmtYMmx1Y0hWMFgzUnZhMlZ1Y3lJNk1Dd2liM1YwY0hWMFgzUnZhMlZ1Y3lJNk1YMTlmUT09
-        IiwicCI6ImFiY2RlZmdoaWprbG1ub3BxcnN0dXZ3eHl6QUJDREVGR0hJSktMTU4ifcdqdCMAAAD8
+        VjBMVFVpTENKcFpDSTZJbTF6WjE5aVpISnJYekp0YW14MmJISjBlRzFyZG5VMGJHRTBZM0JuZFd4
+        bFltODNhSE5qWkc5ek1tUnhabmsyWW1scU0yOHpjR3g1YWpaMWRHRWlMQ0owZVhCbElqb2liV1Z6
+        YzJGblpTSXNJbkp2YkdVaU9pSmhjM05wYzNSaGJuUWlMQ0pqYjI1MFpXNTBJanBiWFN3aVkyOXVk
+        R0ZwYm1WeUlqcHVkV3hzTENKemRHOXdYM0psWVhOdmJpSTZiblZzYkN3aWMzUnZjRjl6WlhGMVpX
+        NWpaU0k2Ym5Wc2JDd2ljM1J2Y0Y5a1pYUmhhV3h6SWpwdWRXeHNMQ0oxYzJGblpTSTZleUpwYm5C
+        MWRGOTBiMnRsYm5NaU9qUTVOaXdpWTJGamFHVmZZM0psWVhScGIyNWZhVzV3ZFhSZmRHOXJaVzV6
+        SWpvd0xDSmpZV05vWlY5eVpXRmtYMmx1Y0hWMFgzUnZhMlZ1Y3lJNk1Dd2lZMkZqYUdWZlkzSmxZ
+        WFJwYjI0aU9uc2laWEJvWlcxbGNtRnNYelZ0WDJsdWNIVjBYM1J2YTJWdWN5STZNQ3dpWlhCb1pX
+        MWxjbUZzWHpGb1gybHVjSFYwWDNSdmEyVnVjeUk2TUgwc0ltOTFkSEIxZEY5MGIydGxibk1pT2pF
+        c0luTmxjblpwWTJWZmRHbGxjaUk2SW5OMFlXNWtZWEprSW4xOWZRPT0iLCJwIjoiYWJjZGVmZ2hp
+        amtsbW5vcHFyc3R1dnd4eXpBQkNERUZHSElKS0xNTiJ9fchY1gAAAOAAAABLrPiArgs6ZXZlbnQt
+        dHlwZQcABWNodW5rDTpjb250ZW50LXR5cGUHABBhcHBsaWNhdGlvbi9qc29uDTptZXNzYWdlLXR5
+        cGUHAAVldmVudHsiYnl0ZXMiOiJleUowZVhCbElqb2lZMjl1ZEdWdWRGOWliRzlqYTE5emRHRnlk
+        Q0lzSW1sdVpHVjRJam93TENKamIyNTBaVzUwWDJKc2IyTnJJanA3SW5SNWNHVWlPaUowWlhoMElp
+        d2lkR1Y0ZENJNklpSjlmUT09IiwicCI6ImFiIn2SGprmAAAA+QAAAEvBCHVdCzpldmVudC10eXBl
+        BwAFY2h1bmsNOmNvbnRlbnQtdHlwZQcAEGFwcGxpY2F0aW9uL2pzb24NOm1lc3NhZ2UtdHlwZQcA
+        BWV2ZW50eyJieXRlcyI6ImV5SjBlWEJsSWpvaVkyOXVkR1Z1ZEY5aWJHOWphMTlrWld4MFlTSXNJ
+        bWx1WkdWNElqb3dMQ0prWld4MFlTSTZleUowZVhCbElqb2lkR1Y0ZEY5a1pXeDBZU0lzSW5SbGVI
+        UWlPaUl5SW4xOSIsInAiOiJhYmNkZWZnaGlqa2xtbm9wcXJzdHV2d3h5ekFCQ0RFIn2Z+h0+AAAB
+        BgAAAEvAMGF0CzpldmVudC10eXBlBwAFY2h1bmsNOmNvbnRlbnQtdHlwZQcAEGFwcGxpY2F0aW9u
+        L2pzb24NOm1lc3NhZ2UtdHlwZQcABWV2ZW50eyJieXRlcyI6ImV5SjBlWEJsSWpvaVkyOXVkR1Z1
+        ZEY5aWJHOWphMTlrWld4MFlTSXNJbWx1WkdWNElqb3dMQ0prWld4MFlTSTZleUowZVhCbElqb2lk
+        R1Y0ZEY5a1pXeDBZU0lzSW5SbGVIUWlPaUl3TWpRdE1ERXRNREVpZlgwPSIsInAiOiJhYmNkZWZn
+        aGlqa2xtbm9wcXJzdHV2d3h5ekFCQ0RFRiJ9NBlPPwAAAKQAAABLAYt+Jws6ZXZlbnQtdHlwZQcA
+        BWNodW5rDTpjb250ZW50LXR5cGUHABBhcHBsaWNhdGlvbi9qc29uDTptZXNzYWdlLXR5cGUHAAVl
+        dmVudHsiYnl0ZXMiOiJleUowZVhCbElqb2lZMjl1ZEdWdWRGOWliRzlqYTE5emRHOXdJaXdpYVc1
+        a1pYZ2lPakI5IiwicCI6ImFiIn07FIH1AAAB3wAAAEtE1XxcCzpldmVudC10eXBlBwAFY2h1bmsN
+        OmNvbnRlbnQtdHlwZQcAEGFwcGxpY2F0aW9uL2pzb24NOm1lc3NhZ2UtdHlwZQcABWV2ZW50eyJi
+        eXRlcyI6ImV5SjBlWEJsSWpvaWJXVnpjMkZuWlY5a1pXeDBZU0lzSW1SbGJIUmhJanA3SW5OMGIz
+        QmZjbVZoYzI5dUlqb2laVzVrWDNSMWNtNGlMQ0p6ZEc5d1gzTmxjWFZsYm1ObElqcHVkV3hzTENK
+        emRHOXdYMlJsZEdGcGJITWlPbTUxYkd3c0ltTnZiblJoYVc1bGNpSTZiblZzYkgwc0luVnpZV2Rs
+        SWpwN0ltbHVjSFYwWDNSdmEyVnVjeUk2TkRrMkxDSmpZV05vWlY5amNtVmhkR2x2Ymw5cGJuQjFk
+        RjkwYjJ0bGJuTWlPakFzSW1OaFkyaGxYM0psWVdSZmFXNXdkWFJmZEc5clpXNXpJam93TENKdmRY
+        UndkWFJmZEc5clpXNXpJam80TENKdmRYUndkWFJmZEc5clpXNXpYMlJsZEdGcGJITWlPbnNpZEdo
+        cGJtdHBibWRmZEc5clpXNXpJam93ZlgxOSIsInAiOiJhYmNkZWZnaGkifTMMGpsAAAFkAAAASyPC
+        RVkLOmV2ZW50LXR5cGUHAAVjaHVuaw06Y29udGVudC10eXBlBwAQYXBwbGljYXRpb24vanNvbg06
+        bWVzc2FnZS10eXBlBwAFZXZlbnR7ImJ5dGVzIjoiZXlKMGVYQmxJam9pYldWemMyRm5aVjl6ZEc5
+        d0lpd2lZVzFoZW05dUxXSmxaSEp2WTJzdGFXNTJiMk5oZEdsdmJrMWxkSEpwWTNNaU9uc2lhVzV3
+        ZFhSVWIydGxia052ZFc1MElqbzBPVFlzSW05MWRIQjFkRlJ2YTJWdVEyOTFiblFpT2pnc0ltbHVk
+        bTlqWVhScGIyNU1ZWFJsYm1ONUlqbzRNamtzSW1acGNuTjBRbmwwWlV4aGRHVnVZM2tpT2pjM01Y
+        MTkiLCJwIjoiYWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4eXpBQkNERUZHSElKS0xNTk9QUVJTVCJ9
+        3UtgoQ==
+    headers:
+      connection:
+      - keep-alive
+      content-type:
+      - application/vnd.amazon.eventstream
+      date:
+      - Thu, 05 Nov 2026 00:13:47 GMT
+      transfer-encoding:
+      - chunked
+      x-amzn-bedrock-content-type:
+      - application/json
+      x-amzn-requestid:
+      - 9bb4d020-af4d-4da5-9dcc-ce9c802d6263
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"max_tokens": 4096, "messages": [{"role": "user", "content": [{"text":
+      "What''s the current date in YYYY-MM-DD format?", "type": "text"}]}], "system":
+      [{"type": "text", "text": "Be very terse, not even punctuation."}], "tools":
+      [{"name": "get_current_date2", "input_schema": {"type": "object", "properties":
+      {}, "additionalProperties": false, "required": []}, "description": "Gets the
+      current date"}], "anthropic_version": "bedrock-2023-05-31"}'
+    headers:
+      accept:
+      - application/json
+      accept-encoding:
+      - gzip, deflate
+      connection:
+      - keep-alive
+      content-length:
+      - '414'
+      content-type:
+      - application/json
+      host:
+      - bedrock-runtime.us-east-1.amazonaws.com
+      x-amz-date:
+      - 20261105T001347Z
+      x-stainless-read-timeout:
+      - '600'
+      x-stainless-timeout:
+      - NOT_GIVEN
+    method: POST
+    uri: https://bedrock-runtime.us-east-1.amazonaws.com/model/us.anthropic.claude-sonnet-5/invoke-with-response-stream
+  response:
+    body:
+      string: !!binary |
+        AAADCgAAAEtICC1+CzpldmVudC10eXBlBwAFY2h1bmsNOmNvbnRlbnQtdHlwZQcAEGFwcGxpY2F0
+        aW9uL2pzb24NOm1lc3NhZ2UtdHlwZQcABWV2ZW50eyJieXRlcyI6ImV5SjBlWEJsSWpvaWJXVnpj
+        MkZuWlY5emRHRnlkQ0lzSW0xbGMzTmhaMlVpT25zaWJXOWtaV3dpT2lKamJHRjFaR1V0YzI5dWJt
+        VjBMVFVpTENKcFpDSTZJbTF6WjE5aVpISnJYMkpwYzNaeGNUZHVNbVp5YUhKM2RtczBkWEJsTld4
+        M2FHWmlkRFUwZG5waE5EUnBkSFo1TkRSbGVtWm9Nako1ZVRSMk5IRWlMQ0owZVhCbElqb2liV1Z6
+        YzJGblpTSXNJbkp2YkdVaU9pSmhjM05wYzNSaGJuUWlMQ0pqYjI1MFpXNTBJanBiWFN3aVkyOXVk
+        R0ZwYm1WeUlqcHVkV3hzTENKemRHOXdYM0psWVhOdmJpSTZiblZzYkN3aWMzUnZjRjl6WlhGMVpX
+        NWpaU0k2Ym5Wc2JDd2ljM1J2Y0Y5a1pYUmhhV3h6SWpwdWRXeHNMQ0oxYzJGblpTSTZleUpwYm5C
+        MWRGOTBiMnRsYm5NaU9qUTFPQ3dpWTJGamFHVmZZM0psWVhScGIyNWZhVzV3ZFhSZmRHOXJaVzV6
+        SWpvd0xDSmpZV05vWlY5eVpXRmtYMmx1Y0hWMFgzUnZhMlZ1Y3lJNk1Dd2lZMkZqYUdWZlkzSmxZ
+        WFJwYjI0aU9uc2laWEJvWlcxbGNtRnNYelZ0WDJsdWNIVjBYM1J2YTJWdWN5STZNQ3dpWlhCb1pX
+        MWxjbUZzWHpGb1gybHVjSFYwWDNSdmEyVnVjeUk2TUgwc0ltOTFkSEIxZEY5MGIydGxibk1pT2pF
+        NExDSnpaWEoyYVdObFgzUnBaWElpT2lKemRHRnVaR0Z5WkNKOWZYMD0iLCJwIjoiYWJjZGVmZ2hp
+        amtsbW5vcHFyc3R1dnd4eXpBQkNERUZHSElKS0xNTiJ9/eu8/gAAAX8AAABLNPLjygs6ZXZlbnQt
+        dHlwZQcABWNodW5rDTpjb250ZW50LXR5cGUHABBhcHBsaWNhdGlvbi9qc29uDTptZXNzYWdlLXR5
+        cGUHAAVldmVudHsiYnl0ZXMiOiJleUowZVhCbElqb2lZMjl1ZEdWdWRGOWliRzlqYTE5emRHRnlk
+        Q0lzSW1sdVpHVjRJam93TENKamIyNTBaVzUwWDJKc2IyTnJJanA3SW5SNWNHVWlPaUowYjI5c1gz
+        VnpaU0lzSW1sa0lqb2lkRzl2YkhWZlltUnlhMTh3TVRWdGJVdDZOMmR2V2pkRlZHMXpWM2R6V2t0
+        SWNGb2lMQ0p1WVcxbElqb2laMlYwWDJOMWNuSmxiblJmWkdGMFpUSWlMQ0pwYm5CMWRDSTZlMzE5
+        ZlE9PSIsInAiOiJhYmNkZWZnaGlqa2xtbm9wcXJzdHV2d3h5ekFCQ0RFRkdISUpLTE1OT1BRUlNU
+        VVZXWFlaMDEyMzQ1Njc4In1GkbulAAAA+wAAAEu7yCY9CzpldmVudC10eXBlBwAFY2h1bmsNOmNv
+        bnRlbnQtdHlwZQcAEGFwcGxpY2F0aW9uL2pzb24NOm1lc3NhZ2UtdHlwZQcABWV2ZW50eyJieXRl
+        cyI6ImV5SjBlWEJsSWpvaVkyOXVkR1Z1ZEY5aWJHOWphMTlrWld4MFlTSXNJbWx1WkdWNElqb3dM
+        Q0prWld4MFlTSTZleUowZVhCbElqb2lhVzV3ZFhSZmFuTnZibDlrWld4MFlTSXNJbkJoY25ScFlX
+        eGZhbk52YmlJNklpSjlmUT09IiwicCI6ImFiY2RlZmdoaWprbG0iff2ircsAAACmAAAAS3tLLUcL
+        OmV2ZW50LXR5cGUHAAVjaHVuaw06Y29udGVudC10eXBlBwAQYXBwbGljYXRpb24vanNvbg06bWVz
+        c2FnZS10eXBlBwAFZXZlbnR7ImJ5dGVzIjoiZXlKMGVYQmxJam9pWTI5dWRHVnVkRjlpYkc5amEx
+        OXpkRzl3SWl3aWFXNWtaWGdpT2pCOSIsInAiOiJhYmNkIn32KnvoAAAB5AAAAEuSJPXLCzpldmVu
+        dC10eXBlBwAFY2h1bmsNOmNvbnRlbnQtdHlwZQcAEGFwcGxpY2F0aW9uL2pzb24NOm1lc3NhZ2Ut
+        dHlwZQcABWV2ZW50eyJieXRlcyI6ImV5SjBlWEJsSWpvaWJXVnpjMkZuWlY5a1pXeDBZU0lzSW1S
+        bGJIUmhJanA3SW5OMGIzQmZjbVZoYzI5dUlqb2lkRzl2YkY5MWMyVWlMQ0p6ZEc5d1gzTmxjWFZs
+        Ym1ObElqcHVkV3hzTENKemRHOXdYMlJsZEdGcGJITWlPbTUxYkd3c0ltTnZiblJoYVc1bGNpSTZi
+        blZzYkgwc0luVnpZV2RsSWpwN0ltbHVjSFYwWDNSdmEyVnVjeUk2TkRVNExDSmpZV05vWlY5amNt
+        VmhkR2x2Ymw5cGJuQjFkRjkwYjJ0bGJuTWlPakFzSW1OaFkyaGxYM0psWVdSZmFXNXdkWFJmZEc5
+        clpXNXpJam93TENKdmRYUndkWFJmZEc5clpXNXpJam95T1N3aWIzVjBjSFYwWDNSdmEyVnVjMTlr
+        WlhSaGFXeHpJanA3SW5Sb2FXNXJhVzVuWDNSdmEyVnVjeUk2TUgxOWZRPT0iLCJwIjoiYWJjZGVm
+        Z2hpaiJ9tSaHyAAAAUkAAABLGpOu7As6ZXZlbnQtdHlwZQcABWNodW5rDTpjb250ZW50LXR5cGUH
+        ABBhcHBsaWNhdGlvbi9qc29uDTptZXNzYWdlLXR5cGUHAAVldmVudHsiYnl0ZXMiOiJleUowZVhC
+        bElqb2liV1Z6YzJGblpWOXpkRzl3SWl3aVlXMWhlbTl1TFdKbFpISnZZMnN0YVc1MmIyTmhkR2x2
+        YmsxbGRISnBZM01pT25zaWFXNXdkWFJVYjJ0bGJrTnZkVzUwSWpvME5UZ3NJbTkxZEhCMWRGUnZh
+        MlZ1UTI5MWJuUWlPakk1TENKcGJuWnZZMkYwYVc5dVRHRjBaVzVqZVNJNk1URXhNaXdpWm1seWMz
+        UkNlWFJsVEdGMFpXNWplU0k2TVRBMU9YMTkiLCJwIjoiYWJjZGVmZ2hpamtsbW5vIn34lLkx
+    headers:
+      connection:
+      - keep-alive
+      content-type:
+      - application/vnd.amazon.eventstream
+      date:
+      - Thu, 05 Nov 2026 00:13:48 GMT
+      transfer-encoding:
+      - chunked
+      x-amzn-bedrock-content-type:
+      - application/json
+      x-amzn-requestid:
+      - fe30dbef-1c5b-4b05-aa15-eeef613129e5
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"max_tokens": 4096, "messages": [{"role": "user", "content": [{"text":
+      "What''s the current date in YYYY-MM-DD format?", "type": "text"}]}, {"role":
+      "assistant", "content": [{"type": "tool_use", "id": "toolu_bdrk_015mmKz7goZ7ETmsWwsZKHpZ",
+      "name": "get_current_date2", "input": {}}]}, {"role": "user", "content": [{"type":
+      "tool_result", "tool_use_id": "toolu_bdrk_015mmKz7goZ7ETmsWwsZKHpZ", "is_error":
+      false, "content": "2024-01-01"}]}], "system": [{"type": "text", "text": "Be
+      very terse, not even punctuation."}], "tools": [{"name": "get_current_date2",
+      "input_schema": {"type": "object", "properties": {}, "additionalProperties":
+      false, "required": []}, "description": "Gets the current date"}], "anthropic_version":
+      "bedrock-2023-05-31"}'
+    headers:
+      accept:
+      - application/json
+      accept-encoding:
+      - gzip, deflate
+      connection:
+      - keep-alive
+      content-length:
+      - '691'
+      content-type:
+      - application/json
+      host:
+      - bedrock-runtime.us-east-1.amazonaws.com
+      x-amz-date:
+      - 20261105T001348Z
+      x-stainless-read-timeout:
+      - '600'
+      x-stainless-timeout:
+      - NOT_GIVEN
+    method: POST
+    uri: https://bedrock-runtime.us-east-1.amazonaws.com/model/us.anthropic.claude-sonnet-5/invoke-with-response-stream
+  response:
+    body:
+      string: !!binary |
+        AAADGgAAAEso6Lr8CzpldmVudC10eXBlBwAFY2h1bmsNOmNvbnRlbnQtdHlwZQcAEGFwcGxpY2F0
+        aW9uL2pzb24NOm1lc3NhZ2UtdHlwZQcABWV2ZW50eyJieXRlcyI6ImV5SjBlWEJsSWpvaWJXVnpj
+        MkZuWlY5emRHRnlkQ0lzSW0xbGMzTmhaMlVpT25zaWJXOWtaV3dpT2lKamJHRjFaR1V0YzI5dWJt
+        VjBMVFVpTENKcFpDSTZJbTF6WjE5aVpISnJYM0Z3YW5scGNtTmtZVzE1WVhSeVpuaHZhak5qZERa
+        bllXeGpZbVYwTjNrMWVXOWxaMmg2Wm5FeWVEZG9NblpsWkdOdE4zRWlMQ0owZVhCbElqb2liV1Z6
+        YzJGblpTSXNJbkp2YkdVaU9pSmhjM05wYzNSaGJuUWlMQ0pqYjI1MFpXNTBJanBiWFN3aVkyOXVk
+        R0ZwYm1WeUlqcHVkV3hzTENKemRHOXdYM0psWVhOdmJpSTZiblZzYkN3aWMzUnZjRjl6WlhGMVpX
+        NWpaU0k2Ym5Wc2JDd2ljM1J2Y0Y5a1pYUmhhV3h6SWpwdWRXeHNMQ0oxYzJGblpTSTZleUpwYm5C
+        MWRGOTBiMnRsYm5NaU9qUTVPQ3dpWTJGamFHVmZZM0psWVhScGIyNWZhVzV3ZFhSZmRHOXJaVzV6
+        SWpvd0xDSmpZV05vWlY5eVpXRmtYMmx1Y0hWMFgzUnZhMlZ1Y3lJNk1Dd2lZMkZqYUdWZlkzSmxZ
+        WFJwYjI0aU9uc2laWEJvWlcxbGNtRnNYelZ0WDJsdWNIVjBYM1J2YTJWdWN5STZNQ3dpWlhCb1pX
+        MWxjbUZzWHpGb1gybHVjSFYwWDNSdmEyVnVjeUk2TUgwc0ltOTFkSEIxZEY5MGIydGxibk1pT2pF
+        c0luTmxjblpwWTJWZmRHbGxjaUk2SW5OMFlXNWtZWEprSW4xOWZRPT0iLCJwIjoiYWJjZGVmZ2hp
+        amtsbW5vcHFyc3R1dnd4eXpBQkNERUZHSElKS0xNTk9QUVJTVFVWV1hZWjAxMjMifXt2n6UAAAD8
         AAAASwno+i0LOmV2ZW50LXR5cGUHAAVjaHVuaw06Y29udGVudC10eXBlBwAQYXBwbGljYXRpb24v
         anNvbg06bWVzc2FnZS10eXBlBwAFZXZlbnR7ImJ5dGVzIjoiZXlKMGVYQmxJam9pWTI5dWRHVnVk
         RjlpYkc5amExOXpkR0Z5ZENJc0ltbHVaR1Y0SWpvd0xDSmpiMjUwWlc1MFgySnNiMk5ySWpwN0lu
         UjVjR1VpT2lKMFpYaDBJaXdpZEdWNGRDSTZJaUo5ZlE9PSIsInAiOiJhYmNkZWZnaGlqa2xtbm9w
-        cXJzdHV2d3h5ekFCQ0QifZaMhKQAAADvAAAASy6oF38LOmV2ZW50LXR5cGUHAAVjaHVuaw06Y29u
+        cXJzdHV2d3h5ekFCQ0QifZaMhKQAAADjAAAAS+tY+n4LOmV2ZW50LXR5cGUHAAVjaHVuaw06Y29u
         dGVudC10eXBlBwAQYXBwbGljYXRpb24vanNvbg06bWVzc2FnZS10eXBlBwAFZXZlbnR7ImJ5dGVz
         IjoiZXlKMGVYQmxJam9pWTI5dWRHVnVkRjlpYkc5amExOWtaV3gwWVNJc0ltbHVaR1Y0SWpvd0xD
         SmtaV3gwWVNJNmV5SjBlWEJsSWpvaWRHVjRkRjlrWld4MFlTSXNJblJsZUhRaU9pSXlJbjE5Iiwi
-        cCI6ImFiY2RlZmdoaWprbG1ub3BxcnN0dSJ9pGbzLwAAAPwAAABLCej6LQs6ZXZlbnQtdHlwZQcA
-        BWNodW5rDTpjb250ZW50LXR5cGUHABBhcHBsaWNhdGlvbi9qc29uDTptZXNzYWdlLXR5cGUHAAVl
-        dmVudHsiYnl0ZXMiOiJleUowZVhCbElqb2lZMjl1ZEdWdWRGOWliRzlqYTE5a1pXeDBZU0lzSW1s
-        dVpHVjRJam93TENKa1pXeDBZU0k2ZXlKMGVYQmxJam9pZEdWNGRGOWtaV3gwWVNJc0luUmxlSFFp
-        T2lJd01qUXRNREV0TURFaWZYMD0iLCJwIjoiYWJjZGVmZ2hpamtsbW5vcHFyc3R1diJ9SHiBFQAA
-        AMsAAABLGumeuws6ZXZlbnQtdHlwZQcABWNodW5rDTpjb250ZW50LXR5cGUHABBhcHBsaWNhdGlv
-        bi9qc29uDTptZXNzYWdlLXR5cGUHAAVldmVudHsiYnl0ZXMiOiJleUowZVhCbElqb2lZMjl1ZEdW
-        dWRGOWliRzlqYTE5emRHOXdJaXdpYVc1a1pYZ2lPakI5IiwicCI6ImFiY2RlZmdoaWprbG1ub3Bx
-        cnN0dXZ3eHl6QUJDREVGR0hJSktMTU5PIn1pW98QAAABNgAAAEthEdnyCzpldmVudC10eXBlBwAF
-        Y2h1bmsNOmNvbnRlbnQtdHlwZQcAEGFwcGxpY2F0aW9uL2pzb24NOm1lc3NhZ2UtdHlwZQcABWV2
-        ZW50eyJieXRlcyI6ImV5SjBlWEJsSWpvaWJXVnpjMkZuWlY5a1pXeDBZU0lzSW1SbGJIUmhJanA3
-        SW5OMGIzQmZjbVZoYzI5dUlqb2laVzVrWDNSMWNtNGlMQ0p6ZEc5d1gzTmxjWFZsYm1ObElqcHVk
-        V3hzZlN3aWRYTmhaMlVpT25zaWIzVjBjSFYwWDNSdmEyVnVjeUk2T1gxOSIsInAiOiJhYmNkZWZn
-        aGlqa2xtbm9wcXJzdHV2d3h5ekFCQ0RFRkdISUpLTE1OT1BRUlNUVVZXWFlaMDEyMyJ9o1FvTQAA
-        AT4AAABLUWGSMws6ZXZlbnQtdHlwZQcABWNodW5rDTpjb250ZW50LXR5cGUHABBhcHBsaWNhdGlv
-        bi9qc29uDTptZXNzYWdlLXR5cGUHAAVldmVudHsiYnl0ZXMiOiJleUowZVhCbElqb2liV1Z6YzJG
-        blpWOXpkRzl3SWl3aVlXMWhlbTl1TFdKbFpISnZZMnN0YVc1MmIyTmhkR2x2YmsxbGRISnBZM01p
-        T25zaWFXNXdkWFJVYjJ0bGJrTnZkVzUwSWpvMk1qVXNJbTkxZEhCMWRGUnZhMlZ1UTI5MWJuUWlP
-        amtzSW1sdWRtOWpZWFJwYjI1TVlYUmxibU41SWpveE5EVTBMQ0ptYVhKemRFSjVkR1ZNWVhSbGJt
-        TjVJam94TXpNeGZYMD0iLCJwIjoiYWJjZCJ9wb95GA==
-    headers:
-      Connection:
-      - keep-alive
-      Content-Type:
-      - application/vnd.amazon.eventstream
-      Date:
-      - Wed, 31 Dec 2025 20:36:25 GMT
-      Transfer-Encoding:
-      - chunked
-      X-Amzn-Bedrock-Content-Type:
-      - application/json
-      x-amzn-RequestId:
-      - 671b03f1-a45f-408a-a96e-8bfedf25b5cd
-    status:
-      code: 200
-      message: OK
-- request:
-    body: '{"max_tokens": 4096, "messages": [{"role": "user", "content": [{"text": "What''s the current date in YYYY-MM-DD format?", "type": "text"}]}], "system": [{"type": "text", "text": "Be very terse, not even punctuation."}], "tools": [{"name": "get_current_date2", "input_schema": {"type": "object", "properties": {}, "additionalProperties": false, "required": []}, "description": "Gets the current date"}], "anthropic_version": "bedrock-2023-05-31"}'
-    headers:
-      Connection:
-      - keep-alive
-      X-Amz-Date:
-      - 20251231T203625Z
-      accept:
-      - application/json
-      accept-encoding:
-      - gzip, deflate
-      content-length:
-      - '371'
-      content-type:
-      - application/json
-      host:
-      - bedrock-runtime.us-east-1.amazonaws.com
-      x-stainless-read-timeout:
-      - '600'
-      x-stainless-timeout:
-      - NOT_GIVEN
-    method: POST
-    uri: https://bedrock-runtime.us-east-1.amazonaws.com/model/us.anthropic.claude-sonnet-4-5-20250929-v1:0/invoke-with-response-stream
-  response:
-    body:
-      string: !!binary |
-        AAACJwAAAEu6BRVuCzpldmVudC10eXBlBwAFY2h1bmsNOmNvbnRlbnQtdHlwZQcAEGFwcGxpY2F0
-        aW9uL2pzb24NOm1lc3NhZ2UtdHlwZQcABWV2ZW50eyJieXRlcyI6ImV5SjBlWEJsSWpvaWJXVnpj
-        MkZuWlY5emRHRnlkQ0lzSW0xbGMzTmhaMlVpT25zaWJXOWtaV3dpT2lKamJHRjFaR1V0YzI5dWJt
-        VjBMVFF0TlMweU1ESTFNRGt5T1NJc0ltbGtJam9pYlhOblgySmtjbXRmTURGS1JtOXVaVUZSY1c1
-        MU9IUk5TMjVVWTNaYU5sRk1JaXdpZEhsd1pTSTZJbTFsYzNOaFoyVWlMQ0p5YjJ4bElqb2lZWE56
-        YVhOMFlXNTBJaXdpWTI5dWRHVnVkQ0k2VzEwc0luTjBiM0JmY21WaGMyOXVJanB1ZFd4c0xDSnpk
-        Rzl3WDNObGNYVmxibU5sSWpwdWRXeHNMQ0oxYzJGblpTSTZleUpwYm5CMWRGOTBiMnRsYm5NaU9q
-        VTJPU3dpWTJGamFHVmZZM0psWVhScGIyNWZhVzV3ZFhSZmRHOXJaVzV6SWpvd0xDSmpZV05vWlY5
-        eVpXRmtYMmx1Y0hWMFgzUnZhMlZ1Y3lJNk1Dd2liM1YwY0hWMFgzUnZhMlZ1Y3lJNk1YMTlmUT09
-        IiwicCI6ImFiY2RlZmdoaWprbG1ub3BxcnN0dXZ3eHkifdI9S+4AAAFVAAAAS7+D1G8LOmV2ZW50
+        cCI6ImFiY2RlZmdoaSJ9OIgNXAAAAPcAAABLfjjLPAs6ZXZlbnQtdHlwZQcABWNodW5rDTpjb250
+        ZW50LXR5cGUHABBhcHBsaWNhdGlvbi9qc29uDTptZXNzYWdlLXR5cGUHAAVldmVudHsiYnl0ZXMi
+        OiJleUowZVhCbElqb2lZMjl1ZEdWdWRGOWliRzlqYTE5a1pXeDBZU0lzSW1sdVpHVjRJam93TENK
+        a1pXeDBZU0k2ZXlKMGVYQmxJam9pZEdWNGRGOWtaV3gwWVNJc0luUmxlSFFpT2lJd01qUXRNREV0
+        TURFaWZYMD0iLCJwIjoiYWJjZGVmZ2hpamtsbW5vcHEife8k06sAAAC6AAAAS95bV8QLOmV2ZW50
         LXR5cGUHAAVjaHVuaw06Y29udGVudC10eXBlBwAQYXBwbGljYXRpb24vanNvbg06bWVzc2FnZS10
-        eXBlBwAFZXZlbnR7ImJ5dGVzIjoiZXlKMGVYQmxJam9pWTI5dWRHVnVkRjlpYkc5amExOXpkR0Z5
-        ZENJc0ltbHVaR1Y0SWpvd0xDSmpiMjUwWlc1MFgySnNiMk5ySWpwN0luUjVjR1VpT2lKMGIyOXNY
-        M1Z6WlNJc0ltbGtJam9pZEc5dmJIVmZZbVJ5YTE4d01VeDJhMHh6YVRGRFMyWjNhbE5rUVVKQldU
-        Vk1hVUlpTENKdVlXMWxJam9pWjJWMFgyTjFjbkpsYm5SZlpHRjBaVElpTENKcGJuQjFkQ0k2ZTMx
-        OWZRPT0iLCJwIjoiYWJjZGVmZ2hpamtsbW5vcHFycyJ9cAJ4KwAAAQgAAABLfwDfFQs6ZXZlbnQt
-        dHlwZQcABWNodW5rDTpjb250ZW50LXR5cGUHABBhcHBsaWNhdGlvbi9qc29uDTptZXNzYWdlLXR5
-        cGUHAAVldmVudHsiYnl0ZXMiOiJleUowZVhCbElqb2lZMjl1ZEdWdWRGOWliRzlqYTE5a1pXeDBZ
-        U0lzSW1sdVpHVjRJam93TENKa1pXeDBZU0k2ZXlKMGVYQmxJam9pYVc1d2RYUmZhbk52Ymw5a1pX
-        eDBZU0lzSW5CaGNuUnBZV3hmYW5OdmJpSTZJaUo5ZlE9PSIsInAiOiJhYmNkZWZnaGlqa2xtbm9w
-        cXJzdHV2d3h5eiJ9Fkis3gAAANYAAABLgpnNiAs6ZXZlbnQtdHlwZQcABWNodW5rDTpjb250ZW50
-        LXR5cGUHABBhcHBsaWNhdGlvbi9qc29uDTptZXNzYWdlLXR5cGUHAAVldmVudHsiYnl0ZXMiOiJl
-        eUowZVhCbElqb2lZMjl1ZEdWdWRGOWliRzlqYTE5emRHOXdJaXdpYVc1a1pYZ2lPakI5IiwicCI6
-        ImFiY2RlZmdoaWprbG1ub3BxcnN0dXZ3eHl6QUJDREVGR0hJSktMTU5PUFFSU1RVVldYWVoifebs
-        zSUAAAEPAAAAS80gAwULOmV2ZW50LXR5cGUHAAVjaHVuaw06Y29udGVudC10eXBlBwAQYXBwbGlj
-        YXRpb24vanNvbg06bWVzc2FnZS10eXBlBwAFZXZlbnR7ImJ5dGVzIjoiZXlKMGVYQmxJam9pYldW
-        emMyRm5aVjlrWld4MFlTSXNJbVJsYkhSaElqcDdJbk4wYjNCZmNtVmhjMjl1SWpvaWRHOXZiRjkx
-        YzJVaUxDSnpkRzl3WDNObGNYVmxibU5sSWpwdWRXeHNmU3dpZFhOaFoyVWlPbnNpYjNWMGNIVjBY
-        M1J2YTJWdWN5STZNemw5ZlE9PSIsInAiOiJhYmNkZWZnaGlqa2xtIn3Ck4MGAAABdwAAAEsEgqgL
-        CzpldmVudC10eXBlBwAFY2h1bmsNOmNvbnRlbnQtdHlwZQcAEGFwcGxpY2F0aW9uL2pzb24NOm1l
-        c3NhZ2UtdHlwZQcABWV2ZW50eyJieXRlcyI6ImV5SjBlWEJsSWpvaWJXVnpjMkZuWlY5emRHOXdJ
-        aXdpWVcxaGVtOXVMV0psWkhKdlkyc3RhVzUyYjJOaGRHbHZiazFsZEhKcFkzTWlPbnNpYVc1d2RY
-        UlViMnRsYmtOdmRXNTBJam8xTmprc0ltOTFkSEIxZEZSdmEyVnVRMjkxYm5RaU9qTTVMQ0pwYm5a
-        dlkyRjBhVzl1VEdGMFpXNWplU0k2TVRrek9Td2labWx5YzNSQ2VYUmxUR0YwWlc1amVTSTZNVGN5
-        TlgxOSIsInAiOiJhYmNkZWZnaGlqa2xtbm9wcXJzdHV2d3h5ekFCQ0RFRkdISUpLTE1OT1BRUlNU
-        VVZXWFlaMDEyMzQ1Njc4In01Fvld
+        eXBlBwAFZXZlbnR7ImJ5dGVzIjoiZXlKMGVYQmxJam9pWTI5dWRHVnVkRjlpYkc5amExOXpkRzl3
+        SWl3aWFXNWtaWGdpT2pCOSIsInAiOiJhYmNkZWZnaGlqa2xtbm9wcXJzdHV2d3gifUcKdeQAAAHo
+        AAAAS1fUGMoLOmV2ZW50LXR5cGUHAAVjaHVuaw06Y29udGVudC10eXBlBwAQYXBwbGljYXRpb24v
+        anNvbg06bWVzc2FnZS10eXBlBwAFZXZlbnR7ImJ5dGVzIjoiZXlKMGVYQmxJam9pYldWemMyRm5a
+        VjlrWld4MFlTSXNJbVJsYkhSaElqcDdJbk4wYjNCZmNtVmhjMjl1SWpvaVpXNWtYM1IxY200aUxD
+        SnpkRzl3WDNObGNYVmxibU5sSWpwdWRXeHNMQ0p6ZEc5d1gyUmxkR0ZwYkhNaU9tNTFiR3dzSW1O
+        dmJuUmhhVzVsY2lJNmJuVnNiSDBzSW5WellXZGxJanA3SW1sdWNIVjBYM1J2YTJWdWN5STZORGs0
+        TENKallXTm9aVjlqY21WaGRHbHZibDlwYm5CMWRGOTBiMnRsYm5NaU9qQXNJbU5oWTJobFgzSmxZ
+        V1JmYVc1d2RYUmZkRzlyWlc1eklqb3dMQ0p2ZFhSd2RYUmZkRzlyWlc1eklqbzRMQ0p2ZFhSd2RY
+        UmZkRzlyWlc1elgyUmxkR0ZwYkhNaU9uc2lkR2hwYm10cGJtZGZkRzlyWlc1eklqb3dmWDE5Iiwi
+        cCI6ImFiY2RlZmdoaWprbG1ub3BxciJ9f5WV/AAAAVgAAABLRxMQ3gs6ZXZlbnQtdHlwZQcABWNo
+        dW5rDTpjb250ZW50LXR5cGUHABBhcHBsaWNhdGlvbi9qc29uDTptZXNzYWdlLXR5cGUHAAVldmVu
+        dHsiYnl0ZXMiOiJleUowZVhCbElqb2liV1Z6YzJGblpWOXpkRzl3SWl3aVlXMWhlbTl1TFdKbFpI
+        SnZZMnN0YVc1MmIyTmhkR2x2YmsxbGRISnBZM01pT25zaWFXNXdkWFJVYjJ0bGJrTnZkVzUwSWpv
+        ME9UZ3NJbTkxZEhCMWRGUnZhMlZ1UTI5MWJuUWlPamdzSW1sdWRtOWpZWFJwYjI1TVlYUmxibU41
+        SWpvNU1qY3NJbVpwY25OMFFubDBaVXhoZEdWdVkza2lPamczTTMxOSIsInAiOiJhYmNkZWZnaGlq
+        a2xtbm9wcXJzdHV2d3h5ekFCQ0RFRkdIIn3lRDuw
     headers:
-      Connection:
+      connection:
       - keep-alive
-      Content-Type:
-      - application/vnd.amazon.eventstream
-      Date:
-      - Wed, 31 Dec 2025 20:36:27 GMT
-      Transfer-Encoding:
-      - chunked
-      X-Amzn-Bedrock-Content-Type:
-      - application/json
-      x-amzn-RequestId:
-      - fa735ccc-5383-46e0-a59a-7045bfb33bfd
-    status:
-      code: 200
-      message: OK
-- request:
-    body: '{"max_tokens": 4096, "messages": [{"role": "user", "content": [{"text": "What''s the current date in YYYY-MM-DD format?", "type": "text"}]}, {"role": "assistant", "content": [{"type": "tool_use", "id": "toolu_bdrk_01LvkLsi1CKfwjSdABAY5LiB", "name": "get_current_date2", "input": {}}]}, {"role": "user", "content": [{"type": "tool_result", "tool_use_id": "toolu_bdrk_01LvkLsi1CKfwjSdABAY5LiB", "is_error": false, "content": "2024-01-01"}]}], "system": [{"type": "text", "text": "Be very terse, not even punctuation."}], "tools": [{"name": "get_current_date2", "input_schema": {"type": "object", "properties": {}, "additionalProperties": false, "required": []}, "description": "Gets the current date"}], "anthropic_version": "bedrock-2023-05-31"}'
-    headers:
-      Connection:
-      - keep-alive
-      X-Amz-Date:
-      - 20251231T203627Z
-      accept:
-      - application/json
-      accept-encoding:
-      - gzip, deflate
-      content-length:
-      - '648'
       content-type:
-      - application/json
-      host:
-      - bedrock-runtime.us-east-1.amazonaws.com
-      x-stainless-read-timeout:
-      - '600'
-      x-stainless-timeout:
-      - NOT_GIVEN
-    method: POST
-    uri: https://bedrock-runtime.us-east-1.amazonaws.com/model/us.anthropic.claude-sonnet-4-5-20250929-v1:0/invoke-with-response-stream
-  response:
-    body:
-      string: !!binary |
-        AAACHwAAAEsrVOYpCzpldmVudC10eXBlBwAFY2h1bmsNOmNvbnRlbnQtdHlwZQcAEGFwcGxpY2F0
-        aW9uL2pzb24NOm1lc3NhZ2UtdHlwZQcABWV2ZW50eyJieXRlcyI6ImV5SjBlWEJsSWpvaWJXVnpj
-        MkZuWlY5emRHRnlkQ0lzSW0xbGMzTmhaMlVpT25zaWJXOWtaV3dpT2lKamJHRjFaR1V0YzI5dWJt
-        VjBMVFF0TlMweU1ESTFNRGt5T1NJc0ltbGtJam9pYlhOblgySmtjbXRmTURFMVMxcHpXVzFRT1U1
-        VU5HbDZhR1I1VlhSbE0wWlpJaXdpZEhsd1pTSTZJbTFsYzNOaFoyVWlMQ0p5YjJ4bElqb2lZWE56
-        YVhOMFlXNTBJaXdpWTI5dWRHVnVkQ0k2VzEwc0luTjBiM0JmY21WaGMyOXVJanB1ZFd4c0xDSnpk
-        Rzl3WDNObGNYVmxibU5sSWpwdWRXeHNMQ0oxYzJGblpTSTZleUpwYm5CMWRGOTBiMnRsYm5NaU9q
-        WXlOeXdpWTJGamFHVmZZM0psWVhScGIyNWZhVzV3ZFhSZmRHOXJaVzV6SWpvd0xDSmpZV05vWlY5
-        eVpXRmtYMmx1Y0hWMFgzUnZhMlZ1Y3lJNk1Dd2liM1YwY0hWMFgzUnZhMlZ1Y3lJNk1YMTlmUT09
-        IiwicCI6ImFiY2RlZmdoaWprbG1ub3BxIn1ggnLiAAAA4wAAAEvrWPp+CzpldmVudC10eXBlBwAF
-        Y2h1bmsNOmNvbnRlbnQtdHlwZQcAEGFwcGxpY2F0aW9uL2pzb24NOm1lc3NhZ2UtdHlwZQcABWV2
-        ZW50eyJieXRlcyI6ImV5SjBlWEJsSWpvaVkyOXVkR1Z1ZEY5aWJHOWphMTl6ZEdGeWRDSXNJbWx1
-        WkdWNElqb3dMQ0pqYjI1MFpXNTBYMkpzYjJOcklqcDdJblI1Y0dVaU9pSjBaWGgwSWl3aWRHVjRk
-        Q0k2SWlKOWZRPT0iLCJwIjoiYWJjZGUifWos8RQAAAEPAAAAS80gAwULOmV2ZW50LXR5cGUHAAVj
-        aHVuaw06Y29udGVudC10eXBlBwAQYXBwbGljYXRpb24vanNvbg06bWVzc2FnZS10eXBlBwAFZXZl
-        bnR7ImJ5dGVzIjoiZXlKMGVYQmxJam9pWTI5dWRHVnVkRjlpYkc5amExOWtaV3gwWVNJc0ltbHVa
-        R1Y0SWpvd0xDSmtaV3gwWVNJNmV5SjBlWEJsSWpvaWRHVjRkRjlrWld4MFlTSXNJblJsZUhRaU9p
-        SXlJbjE5IiwicCI6ImFiY2RlZmdoaWprbG1ub3BxcnN0dXZ3eHl6QUJDREVGR0hJSktMTU5PUFFS
-        U1RVVldYWVowIn0eylEvAAABDgAAAEvwQCq1CzpldmVudC10eXBlBwAFY2h1bmsNOmNvbnRlbnQt
-        dHlwZQcAEGFwcGxpY2F0aW9uL2pzb24NOm1lc3NhZ2UtdHlwZQcABWV2ZW50eyJieXRlcyI6ImV5
-        SjBlWEJsSWpvaVkyOXVkR1Z1ZEY5aWJHOWphMTlrWld4MFlTSXNJbWx1WkdWNElqb3dMQ0prWld4
-        MFlTSTZleUowZVhCbElqb2lkR1Y0ZEY5a1pXeDBZU0lzSW5SbGVIUWlPaUl3TWpRdE1ERXRNREVp
-        ZlgwPSIsInAiOiJhYmNkZWZnaGlqa2xtbm9wcXJzdHV2d3h5ekFCQ0RFRkdISUpLTE1OIn0MjqL3
-        AAAArAAAAEsx+zXmCzpldmVudC10eXBlBwAFY2h1bmsNOmNvbnRlbnQtdHlwZQcAEGFwcGxpY2F0
-        aW9uL2pzb24NOm1lc3NhZ2UtdHlwZQcABWV2ZW50eyJieXRlcyI6ImV5SjBlWEJsSWpvaVkyOXVk
-        R1Z1ZEY5aWJHOWphMTl6ZEc5d0lpd2lhVzVrWlhnaU9qQjkiLCJwIjoiYWJjZGVmZ2hpaiJ959Vg
-        HgAAASQAAABLezEdEAs6ZXZlbnQtdHlwZQcABWNodW5rDTpjb250ZW50LXR5cGUHABBhcHBsaWNh
-        dGlvbi9qc29uDTptZXNzYWdlLXR5cGUHAAVldmVudHsiYnl0ZXMiOiJleUowZVhCbElqb2liV1Z6
-        YzJGblpWOWtaV3gwWVNJc0ltUmxiSFJoSWpwN0luTjBiM0JmY21WaGMyOXVJam9pWlc1a1gzUjFj
-        bTRpTENKemRHOXdYM05sY1hWbGJtTmxJanB1ZFd4c2ZTd2lkWE5oWjJVaU9uc2liM1YwY0hWMFgz
-        UnZhMlZ1Y3lJNk9YMTkiLCJwIjoiYWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4eXpBQkNERUZHSElK
-        S0wifbTH2MgAAAFsAAAASxOyDpgLOmV2ZW50LXR5cGUHAAVjaHVuaw06Y29udGVudC10eXBlBwAQ
-        YXBwbGljYXRpb24vanNvbg06bWVzc2FnZS10eXBlBwAFZXZlbnR7ImJ5dGVzIjoiZXlKMGVYQmxJ
-        am9pYldWemMyRm5aVjl6ZEc5d0lpd2lZVzFoZW05dUxXSmxaSEp2WTJzdGFXNTJiMk5oZEdsdmJr
-        MWxkSEpwWTNNaU9uc2lhVzV3ZFhSVWIydGxia052ZFc1MElqbzJNamNzSW05MWRIQjFkRlJ2YTJW
-        dVEyOTFiblFpT2prc0ltbHVkbTlqWVhScGIyNU1ZWFJsYm1ONUlqb3lOamczTENKbWFYSnpkRUo1
-        ZEdWTVlYUmxibU41SWpveU5UVTJmWDA9IiwicCI6ImFiY2RlZmdoaWprbG1ub3BxcnN0dXZ3eHl6
-        QUJDREVGR0hJSktMTU5PUFFSU1RVVldYIn3faeCP
-    headers:
-      Connection:
-      - keep-alive
-      Content-Type:
       - application/vnd.amazon.eventstream
-      Date:
-      - Wed, 31 Dec 2025 20:36:30 GMT
-      Transfer-Encoding:
+      date:
+      - Thu, 05 Nov 2026 00:13:49 GMT
+      transfer-encoding:
       - chunked
-      X-Amzn-Bedrock-Content-Type:
+      x-amzn-bedrock-content-type:
       - application/json
-      x-amzn-RequestId:
-      - f7d341fb-961d-438b-ab4e-11044cafae8a
+      x-amzn-requestid:
+      - 4a46339d-2edb-4fac-b8d6-0d14439420e2
     status:
       code: 200
       message: OK
