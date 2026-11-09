@@ -12,7 +12,11 @@ from ._chat import Chat
 from ._content_file import materialize_url_content
 from ._logging import log_model_default
 from ._provider import ModelInfo, no_file_management
-from ._provider_anthropic import AnthropicProvider, StructuredOutputMode
+from ._provider_anthropic import (
+    AnthropicProvider,
+    StructuredOutputMode,
+    bedrock_anthropic_version,
+)
 from ._provider_openai import OpenAIProvider
 from ._provider_openai_generic import openai_models_to_info
 from ._utils import MISSING, MISSING_TYPE, AnyTypeDict, split_http_client_kwargs
@@ -20,12 +24,15 @@ from ._utils import MISSING, MISSING_TYPE, AnyTypeDict, split_http_client_kwargs
 if TYPE_CHECKING:
     from botocore.credentials import Credentials
     from botocore.session import Session
+    from pydantic import BaseModel
 
     from ._content import Content
     from ._provider_anthropic import ContentBlockParam
     from ._provider_openai import ResponseInputItemParam
-    from ._turn import Role
+    from ._tools import Tool, ToolBuiltIn
+    from ._turn import Role, Turn
     from .types.anthropic import ChatClientArgs as AnthropicClientArgs
+    from .types.anthropic import SubmitInputArgs as AnthropicSubmitInputArgs
     from .types.bedrock import ChatClientArgs as ConverseClientArgs
     from .types.openai import ChatClientArgs as OpenAIClientArgs
 
@@ -374,6 +381,18 @@ class BedrockMessagesProvider(AnthropicProvider):
 
     def list_models(self) -> list[ModelInfo]:
         return openai_models_to_info(self._models_client.models.list(), self.name)
+
+    def _chat_perform_args(
+        self,
+        stream: bool,
+        turns: list["Turn"],
+        tools: dict[str, "Tool | ToolBuiltIn"],
+        data_model: Optional["type[BaseModel]"] = None,
+        kwargs: Optional["AnthropicSubmitInputArgs"] = None,
+    ) -> "AnthropicSubmitInputArgs":
+        return bedrock_anthropic_version(
+            super()._chat_perform_args(stream, turns, tools, data_model, kwargs)
+        )
 
     @staticmethod
     def _as_content_block(content: "Content") -> "ContentBlockParam":

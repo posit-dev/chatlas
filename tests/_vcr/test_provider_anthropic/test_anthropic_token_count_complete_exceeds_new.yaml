@@ -7,9 +7,9 @@ interactions:
       accept:
       - application/json
       accept-encoding:
-      - gzip, deflate, zstd
+      - gzip, deflate
       anthropic-version:
-      - '2023-06-01'
+      - '2026-10-21'
       connection:
       - keep-alive
       content-length:
@@ -30,6 +30,8 @@ interactions:
     body:
       string: '{"input_tokens":11}'
     headers:
+      anthropic-workspace-id:
+      - wrkspc_01D4K8epTDxMNmDoR6V5auh4
       cf-cache-status:
       - DYNAMIC
       connection:
@@ -41,15 +43,11 @@ interactions:
       content-type:
       - application/json
       date:
-      - Mon, 27 Jul 2026 18:27:40 GMT
+      - Thu, 05 Nov 2026 00:07:33 GMT
       server:
       - cloudflare
       server-timing:
-      - x-originResponse;dur=52
-      transfer-encoding:
-      - chunked
-      vary:
-      - Accept-Encoding
+      - x-originResponse;dur=33
       x-robots-tag:
       - none
     status:
@@ -67,9 +65,9 @@ interactions:
       accept:
       - application/json
       accept-encoding:
-      - gzip, deflate, zstd
+      - gzip, deflate
       anthropic-version:
-      - '2023-06-01'
+      - '2026-10-21'
       connection:
       - keep-alive
       content-length:
@@ -90,6 +88,8 @@ interactions:
     body:
       string: '{"input_tokens":36}'
     headers:
+      anthropic-workspace-id:
+      - wrkspc_01D4K8epTDxMNmDoR6V5auh4
       cf-cache-status:
       - DYNAMIC
       connection:
@@ -101,15 +101,11 @@ interactions:
       content-type:
       - application/json
       date:
-      - Mon, 27 Jul 2026 18:27:40 GMT
+      - Thu, 05 Nov 2026 00:07:33 GMT
       server:
       - cloudflare
       server-timing:
-      - x-originResponse;dur=53
-      transfer-encoding:
-      - chunked
-      vary:
-      - Accept-Encoding
+      - x-originResponse;dur=23
       x-robots-tag:
       - none
     status:

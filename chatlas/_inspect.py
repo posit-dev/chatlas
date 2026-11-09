@@ -10,6 +10,7 @@ from ._content import (
     ContentJson,
     ContentPDF,
     ContentText,
+    ContentThinking,
     ContentToolRequest,
     ContentToolResult,
     ContentUnion,
@@ -184,6 +185,11 @@ def chatlas_content_as_inspect(content: ContentUnion) -> InspectContent:
 
     if isinstance(content, ContentText):
         return itool.ContentText(text=content.text)
+    elif isinstance(content, ContentThinking):
+        return itool.ContentReasoning(
+            reasoning=content.thinking,
+            signature=(content.extra or {}).get("signature"),
+        )
     elif isinstance(content, ContentImageRemote):
         return itool.ContentImage(image=content.url, detail=content.detail)
     elif isinstance(content, ContentImageInline):

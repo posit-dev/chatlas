@@ -1,16 +1,25 @@
 from __future__ import annotations
 
 import json
-from typing import Any, cast
+from collections.abc import AsyncIterator, Iterator, Sequence
+from types import SimpleNamespace
+from typing import cast
 
 import pytest
 
 pytest.importorskip("opentelemetry.sdk")
 
-from chatlas import ChatOpenAI, _otel
-from chatlas._content import ContentText, ContentToolRequest, ContentToolResult, ToolInfo
-from chatlas._turn import AssistantTurn
+from chatlas import ChatOpenAI, _chat, _otel
+from chatlas._content import (
+    Content,
+    ContentText,
+    ContentThinkingDelta,
+    ContentToolRequest,
+    ContentToolResult,
+    ToolInfo,
+)
 from chatlas._tools import ToolBuiltIn
+from chatlas._turn import AssistantTurn, Turn
 from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import SimpleSpanProcessor
 from opentelemetry.sdk.trace.export.in_memory_span_exporter import InMemorySpanExporter
@@ -269,6 +278,93 @@ def test_streaming_span_lifecycle(otel_setup: InMemorySpanExporter):
     assert chat_span.status.status_code.name == "UNSET", (
         f"Successful chat span should be UNSET, got {chat_span.status.status_code.name}"
     )
+    # Time to first token is recorded on the streamed chat span.
+    attrs = chat_span.attributes or {}
+    ttft = attrs.get("gen_ai.response.time_to_first_chunk")
+    assert isinstance(ttft, float) and ttft > 0, (
+        f"Expected gen_ai.response.time_to_first_chunk > 0, got {ttft!r}"
+    )
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("async_mode", [False, True], ids=["sync", "async"])
+@pytest.mark.parametrize(
+    "first_content",
+    [ContentText(text="hi"), ContentThinkingDelta(thinking="hmm")],
+    ids=["text", "thinking"],
+)
+async def test_ttft_recorded_at_first_non_empty_token(
+    otel_setup: InMemorySpanExporter,
+    monkeypatch: pytest.MonkeyPatch,
+    async_mode: bool,
+    first_content: ContentText | ContentThinkingDelta,
+) -> None:
+    chat = ChatOpenAI(model="gpt-4o-mini")
+    now = 0.0
+    clock = SimpleNamespace(monotonic=lambda: now)
+    monkeypatch.setattr(_chat, "time", clock)
+    monkeypatch.setattr(_otel, "time", clock)
+
+    def chunks() -> Iterator[object]:
+        nonlocal now
+        for timestamp in (2.0, 5.0, 9.0):
+            now = timestamp
+            yield object()
+
+    def streaming_perform(*args: object, **kwargs: object) -> Iterator[object]:
+        nonlocal now
+        now = 1.0
+        return chunks()
+
+    async def streaming_perform_async(
+        *args: object, **kwargs: object
+    ) -> AsyncIterator[object]:
+        nonlocal now
+        now = 1.0
+
+        async def gen() -> AsyncIterator[object]:
+            for chunk in chunks():
+                yield chunk
+
+        return gen()
+
+    content_chunks: list[list[Content]] = [
+        [ContentText.model_construct(text="")],
+        [first_content],
+        [ContentText(text="there")],
+    ]
+    stream_contents = iter(content_chunks)
+
+    def stream_content(
+        chunk: object, completion: object, turns: Sequence[Turn] = ()
+    ) -> list[Content]:
+        return next(stream_contents)
+
+    def stream_merge_chunks(result: object, chunk: object) -> object:
+        return chunk
+
+    def stream_turn(
+        completion: object, has_data_model: bool, turns: Sequence[Turn] = ()
+    ) -> AssistantTurn[object]:
+        return AssistantTurn("hi there")
+
+    monkeypatch.setattr(chat.provider, "chat_perform", streaming_perform)
+    monkeypatch.setattr(chat.provider, "chat_perform_async", streaming_perform_async)
+    monkeypatch.setattr(chat.provider, "stream_content", stream_content)
+    monkeypatch.setattr(chat.provider, "stream_merge_chunks", stream_merge_chunks)
+    monkeypatch.setattr(chat.provider, "stream_turn", stream_turn)
+
+    if async_mode:
+        async for _ in await chat.stream_async("Say hello."):
+            pass
+    else:
+        list(chat.stream("Say hello."))
+
+    spans = otel_setup.get_finished_spans()
+    chat_spans = [s for s in spans if s.name.startswith("chat ")]
+    assert len(chat_spans) == 1
+    attrs = chat_spans[0].attributes or {}
+    assert attrs.get("gen_ai.response.time_to_first_chunk") == 5.0
 
 
 def test_chat_error_recorded(otel_setup: InMemorySpanExporter):
@@ -533,6 +629,12 @@ async def test_async_stream_iteration_provider_span_nests_under_chat_span(
     assert chat_span.context is not None
     assert _parent_span_id(iter_span) == chat_span.context.span_id, (
         "provider span created while iterating the async stream should nest under the chat span"
+    )
+    # Time to first token is recorded on the async streamed chat span.
+    attrs = chat_span.attributes or {}
+    ttft = attrs.get("gen_ai.response.time_to_first_chunk")
+    assert isinstance(ttft, float) and ttft > 0, (
+        f"Expected gen_ai.response.time_to_first_chunk > 0, got {ttft!r}"
     )
 
 

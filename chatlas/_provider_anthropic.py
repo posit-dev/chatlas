@@ -931,8 +931,10 @@ class AnthropicProvider(
                 if content[-1].get("type") != "thinking":
                     content[-1]["cache_control"] = self._cache_control()  # type: ignore
 
-            role = "user" if isinstance(turn, UserTurn) else "assistant"
-            messages.append({"role": role, "content": content})
+            role: Literal["user", "assistant"] = (
+                "user" if isinstance(turn, UserTurn) else "assistant"
+            )
+            messages.append(cast("MessageParam", {"role": role, "content": content}))
         return messages
 
     @staticmethod
@@ -1599,6 +1601,18 @@ class AnthropicBedrockProvider(AnthropicProvider):
         self._client = AnthropicBedrock(**kwargs_full)  # type: ignore
         self._async_client = AsyncAnthropicBedrock(**kwargs_full)  # type: ignore
 
+    def _chat_perform_args(
+        self,
+        stream: bool,
+        turns: list[Turn],
+        tools: dict[str, Tool | ToolBuiltIn],
+        data_model: Optional[type[BaseModel]] = None,
+        kwargs: Optional["SubmitInputArgs"] = None,
+    ) -> "SubmitInputArgs":
+        return bedrock_anthropic_version(
+            super()._chat_perform_args(stream, turns, tools, data_model, kwargs)
+        )
+
     def list_models(self):
         # boto3 should come via anthropic's bedrock extras
         import boto3
@@ -1800,6 +1814,17 @@ def anthropic_replayable(content: ProviderAnnotation) -> bool:
         isinstance(extra, dict)
         and extra.get("type") in ANTHROPIC_SERVER_TOOL_BLOCK_TYPES
     )
+
+
+def bedrock_anthropic_version(res: "SubmitInputArgs") -> "SubmitInputArgs":
+    # anthropic 2.x defaults the Bedrock request body's `anthropic_version` to
+    # the latest API version; keep sending the value Bedrock has always been
+    # sent (the SDK applies the default with `setdefault`, so an explicit body
+    # value wins). inspect-ai made the same call (UKGovernmentBEIS/inspect_ai#6003).
+    extra_body = dict(cast(dict[str, Any], res.get("extra_body") or {}))
+    extra_body.setdefault("anthropic_version", "bedrock-2023-05-31")
+    res["extra_body"] = extra_body
+    return res
 
 
 def is_anthropic_text_document(mime_type: str) -> bool:
