@@ -3,12 +3,12 @@ interactions:
     body: '{"max_tokens": 4096, "messages": [{"role": "user", "content": [{"text":
       "The new quantum computing breakthrough could revolutionize the tech industry.",
       "type": "text", "cache_control": {"type": "ephemeral", "ttl": "5m"}}]}], "model":
-      "claude-haiku-4-5-20251001", "output_config": {"format": {"type": "json_schema",
-      "schema": {"$defs": {"Classification": {"type": "object", "title": "Classification",
-      "properties": {"name": {"type": "string", "enum": ["Politics", "Sports", "Technology",
-      "Entertainment", "Business", "Other"], "description": "The category name", "title":
-      "Name"}, "score": {"type": "number", "description": "The classification score
-      for the category, ranging from 0.0 to 1.0.", "title": "Score"}}, "additionalProperties":
+      "claude-haiku-5-5", "output_config": {"format": {"type": "json_schema", "schema":
+      {"$defs": {"Classification": {"type": "object", "title": "Classification", "properties":
+      {"name": {"type": "string", "enum": ["Politics", "Sports", "Technology", "Entertainment",
+      "Business", "Other"], "description": "The category name", "title": "Name"},
+      "score": {"type": "number", "description": "The classification score for the
+      category, ranging from 0.0 to 1.0.", "title": "Score"}}, "additionalProperties":
       false, "required": ["name", "score"]}}, "type": "object", "description": "Array
       of classification results. The scores should sum to 1.", "title": "Classifications",
       "properties": {"classifications": {"type": "array", "title": "Classifications",
@@ -17,22 +17,22 @@ interactions:
       "text": "You are a friendly but terse assistant.", "cache_control": {"type":
       "ephemeral", "ttl": "5m"}}], "tools": []}'
     headers:
-      Accept:
+      accept:
       - application/json
-      Accept-Encoding:
-      - gzip, deflate, zstd
-      Connection:
-      - keep-alive
-      Content-Length:
-      - '1174'
-      Content-Type:
-      - application/json
-      Host:
-      - api.anthropic.com
-      X-Stainless-Async:
-      - 'false'
+      accept-encoding:
+      - gzip, deflate
       anthropic-version:
-      - '2023-06-01'
+      - '2026-10-21'
+      connection:
+      - keep-alive
+      content-length:
+      - '1165'
+      content-type:
+      - application/json
+      host:
+      - api.anthropic.com
+      x-stainless-async:
+      - 'false'
       x-stainless-read-timeout:
       - '600'
       x-stainless-timeout:
@@ -41,64 +41,60 @@ interactions:
     uri: https://api.anthropic.com/v1/messages
   response:
     body:
-      string: '{"model":"claude-haiku-4-5-20251001","id":"msg_01UHkoU5gpQE5ne6Uj3ZVJGd","type":"message","role":"assistant","content":[{"type":"text","text":"{\"classifications\":
-        [{\"name\": \"Technology\", \"score\": 0.95}, {\"name\": \"Business\", \"score\":
-        0.05}, {\"name\": \"Politics\", \"score\": 0.0}, {\"name\": \"Sports\", \"score\":
-        0.0}, {\"name\": \"Entertainment\", \"score\": 0.0}, {\"name\": \"Other\",
-        \"score\": 0.0}]}"}],"stop_reason":"end_turn","stop_sequence":null,"stop_details":null,"usage":{"input_tokens":424,"cache_creation_input_tokens":0,"cache_read_input_tokens":0,"cache_creation":{"ephemeral_5m_input_tokens":0,"ephemeral_1h_input_tokens":0},"output_tokens":92,"service_tier":"standard","inference_geo":"not_available"}}'
+      string: '{"model":"claude-haiku-5-5","id":"msg_011CgiomSN4z66fBF3s8M4YF","type":"message","role":"assistant","content":[{"type":"text","text":"{\"classifications\":[{\"name\":\"Technology\",\"score\":0.85},{\"name\":\"Business\",\"score\":0.08},{\"name\":\"Politics\",\"score\":0.02},{\"name\":\"Sports\",\"score\":0.01},{\"name\":\"Entertainment\",\"score\":0.01},{\"name\":\"Other\",\"score\":0.03}]}"}],"container":null,"stop_reason":"end_turn","stop_sequence":null,"stop_details":null,"usage":{"input_tokens":4,"cache_creation_input_tokens":531,"cache_read_input_tokens":0,"cache_creation":{"ephemeral_5m_input_tokens":531,"ephemeral_1h_input_tokens":0},"output_tokens":101,"output_tokens_details":{"thinking_tokens":0},"service_tier":"standard","inference_geo":"global","speed":"standard"},"diagnostics":null}'
     headers:
-      CF-RAY:
-      - 9faa36d5b9d1a1c1-MSP
-      Connection:
-      - keep-alive
-      Content-Security-Policy:
-      - default-src 'none'; frame-ancestors 'none'
-      Content-Type:
-      - application/json
-      Date:
-      - Tue, 12 May 2026 14:46:42 GMT
-      Server:
-      - cloudflare
-      Transfer-Encoding:
-      - chunked
-      X-Robots-Tag:
-      - none
       anthropic-ratelimit-input-tokens-limit:
-      - '4000000'
+      - '10000000'
       anthropic-ratelimit-input-tokens-remaining:
-      - '4000000'
+      - '10000000'
       anthropic-ratelimit-input-tokens-reset:
-      - '2026-05-12T14:46:42Z'
+      - '2026-11-05T00:07:32Z'
       anthropic-ratelimit-output-tokens-limit:
-      - '800000'
+      - '2000000'
       anthropic-ratelimit-output-tokens-remaining:
-      - '800000'
+      - '2000000'
       anthropic-ratelimit-output-tokens-reset:
-      - '2026-05-12T14:46:42Z'
+      - '2026-11-05T00:07:32Z'
       anthropic-ratelimit-requests-limit:
-      - '20000'
+      - '45000'
       anthropic-ratelimit-requests-remaining:
-      - '19999'
+      - '44999'
       anthropic-ratelimit-requests-reset:
-      - '2026-05-12T14:46:40Z'
+      - '2026-11-05T00:07:31Z'
       anthropic-ratelimit-tokens-limit:
-      - '4800000'
+      - '12000000'
       anthropic-ratelimit-tokens-remaining:
-      - '4800000'
+      - '12000000'
       anthropic-ratelimit-tokens-reset:
-      - '2026-05-12T14:46:42Z'
+      - '2026-11-05T00:07:32Z'
+      anthropic-workspace-id:
+      - wrkspc_01D4K8epTDxMNmDoR6V5auh4
       cf-cache-status:
       - DYNAMIC
+      connection:
+      - keep-alive
       content-length:
-      - '737'
+      - '805'
+      content-security-policy:
+      - default-src 'none'; frame-ancestors 'none'
+      content-type:
+      - application/json
+      date:
+      - Thu, 05 Nov 2026 00:07:32 GMT
+      server:
+      - cloudflare
+      server-timing:
+      - x-originResponse;dur=1702
       strict-transport-security:
       - max-age=31536000; includeSubDomains; preload
       traceresponse:
-      - 00-4c9f6719a85ccfad2385137f55fb3a9e-47a5ff82c15eaea2-01
+      - 00-4dec0c10fdfa4cfa3def20d1d6778868-f0f5e650e93952ee-01
+      transfer-encoding:
+      - chunked
       vary:
       - Accept-Encoding
-      x-envoy-upstream-service-time:
-      - '2335'
+      x-robots-tag:
+      - none
     status:
       code: 200
       message: OK
