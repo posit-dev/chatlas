@@ -52,6 +52,8 @@ class SubmitInputArgs(TypedDict, total=False):
                 ],
             ]
         ],
+        list[google.genai.types.Content],
+        list[google.genai.types.ContentDict],
     ]
     config: Union[
         google.genai.types.GenerateContentConfig,

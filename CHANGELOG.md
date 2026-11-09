@@ -12,11 +12,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### New features
 
+* Tools registered from an MCP server (via `.register_mcp_tools_stdio_async()`, `.register_mcp_tools_http_stream_async()`, or `Tool.from_mcp()`) now pass the tool result's `_meta` through to the `ContentToolResult`'s `extra` field. This lets MCP servers attach client-only metadata that isn't sent to the model — for example, shinychat's `display` hints, so a server can ask compatible chat UIs to open the tool-result card by default. Errored results still raise and never surface `_meta`.
+* MCP tool results that carry `structuredContent` now use it as the tool result's value (JSON-dumped for the model), instead of dropping it. The converted content blocks are preserved client-side under the `extra["content"]` key, merged with the `_meta` passthrough described above.
+
 * The result of `chat.files.get()` (and elements of `chat.files.list()`) can now be passed straight to `.chat()` (and anywhere else content is accepted), so a file uploaded in an earlier session can be reused from its id alone: `chat.chat("Summarize this.", chat.files.get("file_011CRabc..."))`. When the provider doesn't report a MIME type (OpenAI's Files API never does), it's guessed from the filename. For when you want the underlying `ContentUploaded` reference itself (e.g. to build a `UserTurn` by hand), `FileMetadata` gains a `.to_content()` method. This works via a new general convention: any object implementing `to_content() -> Content` (see `chatlas.types.SupportsContent`) is accepted anywhere content is passed, so third-party packages can make their own objects usable as chat inputs. (#417)
 
 ### Changes
 
 * The `snowflake` extra (i.e., `pip install "chatlas[snowflake]"`) no longer installs `snowflake-ml-python`, which pulled in the heavy torch ecosystem and blocked installation on Python 3.13+. `ChatSnowflake()` has used the Cortex REST API (`snowflake.core`) since v0.11.0, so it only needs `snowflake-core` and `snowflake-snowpark-python`.
+* The `eval` extra (i.e., `pip install "chatlas[eval]"`) now requires Python 3.11 or later, because the inspect-ai release that supports the current Anthropic SDK (v2) dropped Python 3.10. (#493)
 
 ### New features
 
@@ -24,9 +28,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Bug fixes
 
+* A tool that returns a `ContentToolResult` whose value is a `Content` object other than an image/PDF/document (e.g. `ContentToolResult(value=ContentText(...), model_format="as_is")`, as MCP client adapters produce) no longer poisons the conversation: the next API request failed with a 400 (e.g. Anthropic's "`tool_result` content must either be a string or a list of content blocks") because the raw `Content` object was serialized into the request. Turn preparation now unwraps any such value to a plain value -- `ContentText` becomes its text, `ContentJson` its underlying data, and a list of non-file content joins into a single string -- so no provider ever sees a raw `Content` object in a tool-result value. (#494)
+* `.register_tool()` now keeps the description, parameters and `strict` setting of a `Tool` built with explicit `parameters=`, as `.set_tools()` does, instead of rebuilding them from the signature and docstring of `tool.func`. A `name=` override renames the tool without rebuilding it; passing `model=` still rebuilds the schema from that model. (#496)
 * `ChatOllama()` can now be created without a `model`, so `ChatOllama().list_models()` works. Sending a message without a model still raises an error that lists the available models. (#166)
 * `ChatGoogle()` now reports `finish_reason == "content_filter"` for Gemini's `IMAGE_SAFETY`, `IMAGE_PROHIBITED_CONTENT`, `IMAGE_RECITATION` and `LANGUAGE` finish reasons, instead of passing the raw Gemini string through, and reports `"tool_use"` (rather than `"success"`) when a turn ends with a tool request, as `ChatOpenAI()` does. (#473)
 * The error raised for a tool request with invalid JSON arguments from `ChatOpenAI()` and `ChatOpenAICompletions()` (and the providers built on them) now shows the offending arguments, instead of the literal text `{args}`.
+* When streaming with server tools such as web search, `ChatAnthropic()` (and `ChatBedrockAnthropic()`) no longer under-reports the turn's token usage and cost. Streamed turns previously kept the input and cache token counts from the start of the response, missing tokens consumed mid-turn (e.g. cache writes made while searching); they now report the same totals as the equivalent non-streamed request. (#466)
 * `content_image_url()` with a `data:` URL no longer silently drops the `detail` argument: the setting is now carried by inline image content and forwarded to OpenAI's Responses and Chat Completions APIs (regular image URLs already forwarded it). Other providers continue to ignore `detail`. (#467)
 * `ChatBedrock()` on a Converse model no longer drops redacted reasoning blocks when streaming. They were discarded as they arrived, so a streamed turn lost them, while a non-streamed one kept them. (#468)
 * `ChatBedrockAnthropic()` now uses native structured outputs for `data_model` on Claude 4.5 and later, as `ChatAnthropic()` does. Its Bedrock model IDs (`anthropic.claude-...`, `us.anthropic.claude-...`) weren't recognized, so it fell back to forcing a tool call, which Claude Opus 5.5 and Sonnet 5.5 reject with a 400.
@@ -48,6 +55,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * `Chat.export()` and `interpolate_file()` now always read and write files as UTF-8. Previously they relied on the platform's default locale encoding, so on a non-UTF-8 locale `export()` could raise `UnicodeEncodeError` and `interpolate_file()` could silently return a corrupted (mojibake) prompt instead of the file's contents. (#437)
 * `ChatAnthropic()` no longer drops assistant turns that have no content; doing so could produce two consecutive user messages, violating the API's user/assistant alternation requirement. A `"[empty string]"` placeholder is sent instead, matching how empty text content is already normalized. (#416)
 * Providers built on the Chat Completions API (`ChatOpenAICompletions()`, `ChatGroq()`, `ChatOpenRouter()`, `ChatDeepSeek()`, etc.) now put the tool results of a turn ahead of the user's text in the same turn, as the API requires. Resuming a chat that ended with an unanswered tool request (or any turn that mixes tool results and new text) sent the user message first, which these APIs reject because a tool message must directly follow the assistant message that requested it. (#476)
+* `ChatBedrockAnthropic()` and `ChatBedrock(api="messages")` now work with anthropic SDK 2.0. That SDK changed the default API version it sends to Bedrock, which Bedrock rejects with `400 Invalid API version` for Claude models older than 4.7; chatlas now keeps sending the version Bedrock expects. (#493)
+* The Inspect integration (e.g., `chat.to_solver()`) no longer crashes on conversations that include thinking/reasoning content, which thinking-enabled Claude models produce. (#493)
 * `ChatMistral()` now reports `"context_window"` as the finish reason when a response stops with Mistral's `model_length` (the request reached the model's context length), instead of passing the raw string through. As for other providers, this makes chatlas warn about the truncated response (or raise an error when a data model was requested). (#477)
 
 

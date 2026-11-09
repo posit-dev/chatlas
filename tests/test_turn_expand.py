@@ -8,6 +8,7 @@ from chatlas._content import (
     Content,
     ContentImageInline,
     ContentImageRemote,
+    ContentJson,
     ContentPDF,
     ContentText,
     ContentToolRequest,
@@ -185,6 +186,94 @@ def test_expand_turn_tool_result_with_list_of_images():
     # Final closing wrapper
     assert isinstance(turn.contents[8], ContentText)
     assert turn.contents[8].text == "</tool-contents>"
+
+
+def test_expand_turn_tool_result_with_content_text_value():
+    """A bare ContentText value (as MCP adapters return) unwraps to plain text."""
+    request = tool_request()
+    result = ContentToolResult(
+        value=ContentText(text="42"), model_format="as_is", request=request
+    )
+
+    turn = provider_turn([result])
+
+    assert len(turn.contents) == 1
+    res = turn.contents[0]
+    assert isinstance(res, ContentToolResult)
+    assert type(res.value) is str
+    assert res.value == "42"
+
+    # The original result (i.e., what stays in the chat history) is untouched.
+    assert isinstance(result.value, ContentText)
+
+
+def test_expand_turn_tool_result_with_list_of_content_text():
+    """A list of non-file Content values joins into a single plain-text value."""
+    request = tool_request()
+    result = ContentToolResult(
+        value=[ContentText(text="a"), ContentText(text="b")],
+        model_format="as_is",
+        request=request,
+    )
+
+    turn = provider_turn([result])
+
+    assert len(turn.contents) == 1
+    res = turn.contents[0]
+    assert isinstance(res, ContentToolResult)
+    assert type(res.value) is str
+    assert res.value == "a\nb"
+
+
+def test_expand_turn_tool_result_with_content_json_value():
+    """A bare ContentJson value unwraps to its underlying dict."""
+    request = tool_request()
+    result = ContentToolResult(value=ContentJson(value={"answer": 42}), request=request)
+
+    turn = provider_turn([result])
+
+    assert len(turn.contents) == 1
+    res = turn.contents[0]
+    assert isinstance(res, ContentToolResult)
+    assert res.value == {"answer": 42}
+    # The default (auto) format renders the dict as a JSON string for the model.
+    assert res.get_model_value() == '{"answer":42}'
+
+
+def test_anthropic_tool_result_content_is_never_a_raw_content_object():
+    """Regression test for #494: Anthropic rejects tool_result.content given
+    as a JSON object, so a ContentText value must serialize as a string."""
+    request = tool_request()
+    turns = normalize_turns_for_provider(
+        [
+            UserTurn("go"),
+            AssistantTurn([request]),
+            UserTurn(
+                [
+                    ContentToolResult(
+                        value=ContentText(text="42"),
+                        model_format="as_is",
+                        request=request,
+                    )
+                ]
+            ),
+        ]
+    )
+
+    messages = AnthropicProvider(
+        model="claude-sonnet-4-5", api_key="dummy", kwargs=None
+    )._as_message_params(turns)
+
+    blocks = [
+        cast(dict[str, Any], b)
+        for b in messages[-1]["content"]
+        if isinstance(b, dict) and b.get("type") == "tool_result"
+    ]
+    assert len(blocks) == 1
+
+    # tool_result.content must be a string (or a list of content blocks) --
+    # never a bare object.
+    assert blocks[0]["content"] == "42"
 
 
 def test_expand_turn_multiple_tool_results():
