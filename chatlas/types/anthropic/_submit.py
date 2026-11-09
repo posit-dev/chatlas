@@ -56,6 +56,8 @@ class SubmitInputArgs(TypedDict, total=False):
     ]
     model: Union[
         Literal[
+            "claude-fable-5-2",
+            "claude-mythos-5-2",
             "claude-haiku-5-5",
             "claude-sonnet-5-5",
             "claude-fable-5-1",

@@ -565,8 +565,12 @@ class GoogleProvider(
         if usage is None:
             return None
         cached = usage.cached_content_token_count or 0
+        # Content fetched by built-in tools (URL context, search, ...) is
+        # counted as input tokens, but reported separately from the prompt.
         return (
-            (usage.prompt_token_count or 0) - cached,
+            (usage.prompt_token_count or 0)
+            + (usage.tool_use_prompt_token_count or 0)
+            - cached,
             (usage.candidates_token_count or 0) + (usage.thoughts_token_count or 0),
             usage.cached_content_token_count or 0,
         )

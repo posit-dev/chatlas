@@ -17,7 +17,7 @@ interactions:
       x-goog-api-client:
       - google-genai-sdk/2.14.0 gl-python/3.12.13
     method: post
-    uri: https://generativelanguage.googleapis.com/upload/v1beta/files
+    uri: https://generativelanguage.googleapis.com/upload/v1/files
   response:
     body:
       string: ''
@@ -37,7 +37,7 @@ interactions:
       X-Goog-Upload-Chunk-Granularity:
       - '8388608'
       X-Goog-Upload-Control-URL:
-      - https://generativelanguage.googleapis.com/upload/v1beta/files?upload_id=AKhXX7KH4itjTVAxvnge_CENuHLITLjgaSMQW-SDTSDSDchtBuHhAK0L4XBu5dOPr-q3AWXC2QVriuxrAAnQNQ2glYBTE8oZAiLqXdOTqbD20eg&upload_protocol=resumable
+      - https://generativelanguage.googleapis.com/upload/v1/files?upload_id=AKhXX7KH4itjTVAxvnge_CENuHLITLjgaSMQW-SDTSDSDchtBuHhAK0L4XBu5dOPr-q3AWXC2QVriuxrAAnQNQ2glYBTE8oZAiLqXdOTqbD20eg&upload_protocol=resumable
       X-Goog-Upload-Header-Content-Type:
       - application/json; charset=UTF-8
       X-Goog-Upload-Header-Vary:
@@ -58,7 +58,7 @@ interactions:
       X-Goog-Upload-Status:
       - active
       X-Goog-Upload-URL:
-      - https://generativelanguage.googleapis.com/upload/v1beta/files?upload_id=AKhXX7KH4itjTVAxvnge_CENuHLITLjgaSMQW-SDTSDSDchtBuHhAK0L4XBu5dOPr-q3AWXC2QVriuxrAAnQNQ2glYBTE8oZAiLqXdOTqbD20eg&upload_protocol=resumable
+      - https://generativelanguage.googleapis.com/upload/v1/files?upload_id=AKhXX7KH4itjTVAxvnge_CENuHLITLjgaSMQW-SDTSDSDchtBuHhAK0L4XBu5dOPr-q3AWXC2QVriuxrAAnQNQ2glYBTE8oZAiLqXdOTqbD20eg&upload_protocol=resumable
     status:
       code: 200
       message: OK
@@ -338,14 +338,14 @@ interactions:
       X-Goog-Upload-Protocol:
       - resumable
     method: POST
-    uri: https://generativelanguage.googleapis.com/upload/v1beta/files?upload_id=AKhXX7KH4itjTVAxvnge_CENuHLITLjgaSMQW-SDTSDSDchtBuHhAK0L4XBu5dOPr-q3AWXC2QVriuxrAAnQNQ2glYBTE8oZAiLqXdOTqbD20eg&upload_protocol=resumable
+    uri: https://generativelanguage.googleapis.com/upload/v1/files?upload_id=AKhXX7KH4itjTVAxvnge_CENuHLITLjgaSMQW-SDTSDSDchtBuHhAK0L4XBu5dOPr-q3AWXC2QVriuxrAAnQNQ2glYBTE8oZAiLqXdOTqbD20eg&upload_protocol=resumable
   response:
     body:
       string: "{\n  \"file\": {\n    \"name\": \"files/ofyvwkznt2rs\",\n    \"mimeType\":
         \"application/pdf\",\n    \"sizeBytes\": \"14560\",\n    \"createTime\": \"2026-07-28T03:21:18.604327Z\",\n
         \   \"updateTime\": \"2026-07-28T03:21:18.604327Z\",\n    \"expirationTime\":
         \"2026-07-30T03:21:18.448013188Z\",\n    \"sha256Hash\": \"MWE4OWZhODBjYmU3ZmE0YzU3MTJmN2IxNTQxOGM0YmIzM2I5YzJjMDY4MGQwYzI3M2Q5NTMyOGEyZWVlMGU2Zg==\",\n
-        \   \"uri\": \"https://generativelanguage.googleapis.com/v1beta/files/ofyvwkznt2rs\",\n
+        \   \"uri\": \"https://generativelanguage.googleapis.com/v1/files/ofyvwkznt2rs\",\n
         \   \"state\": \"ACTIVE\",\n    \"source\": \"UPLOADED\"\n  }\n}\n"
     headers:
       Alt-Svc:
@@ -377,14 +377,14 @@ interactions:
       x-goog-api-client:
       - google-genai-sdk/2.14.0 gl-python/3.12.13
     method: get
-    uri: https://generativelanguage.googleapis.com/v1beta/files/ofyvwkznt2rs
+    uri: https://generativelanguage.googleapis.com/v1/files/ofyvwkznt2rs
   response:
     body:
       string: "{\n  \"name\": \"files/ofyvwkznt2rs\",\n  \"mimeType\": \"application/pdf\",\n
         \ \"sizeBytes\": \"14560\",\n  \"createTime\": \"2026-07-28T03:21:18.604327Z\",\n
         \ \"updateTime\": \"2026-07-28T03:21:18.604327Z\",\n  \"expirationTime\":
         \"2026-07-30T03:21:18.448013188Z\",\n  \"sha256Hash\": \"MWE4OWZhODBjYmU3ZmE0YzU3MTJmN2IxNTQxOGM0YmIzM2I5YzJjMDY4MGQwYzI3M2Q5NTMyOGEyZWVlMGU2Zg==\",\n
-        \ \"uri\": \"https://generativelanguage.googleapis.com/v1beta/files/ofyvwkznt2rs\",\n
+        \ \"uri\": \"https://generativelanguage.googleapis.com/v1/files/ofyvwkznt2rs\",\n
         \ \"state\": \"ACTIVE\",\n  \"source\": \"UPLOADED\"\n}\n"
     headers:
       Alt-Svc:
@@ -422,7 +422,7 @@ interactions:
       x-goog-api-client:
       - google-genai-sdk/2.14.0 gl-python/3.12.13
     method: get
-    uri: https://generativelanguage.googleapis.com/v1beta/files
+    uri: https://generativelanguage.googleapis.com/v1/files
   response:
     body:
       string: "{\n  \"files\": [\n    {\n      \"name\": \"files/ofyvwkznt2rs\",\n
@@ -430,14 +430,14 @@ interactions:
         \     \"createTime\": \"2026-07-28T03:21:18.604327Z\",\n      \"updateTime\":
         \"2026-07-28T03:21:18.604327Z\",\n      \"expirationTime\": \"2026-07-30T03:21:18.448013188Z\",\n
         \     \"sha256Hash\": \"MWE4OWZhODBjYmU3ZmE0YzU3MTJmN2IxNTQxOGM0YmIzM2I5YzJjMDY4MGQwYzI3M2Q5NTMyOGEyZWVlMGU2Zg==\",\n
-        \     \"uri\": \"https://generativelanguage.googleapis.com/v1beta/files/ofyvwkznt2rs\",\n
+        \     \"uri\": \"https://generativelanguage.googleapis.com/v1/files/ofyvwkznt2rs\",\n
         \     \"state\": \"ACTIVE\",\n      \"source\": \"UPLOADED\"\n    },\n    {\n
         \     \"name\": \"files/ymyumydi3p7b\",\n      \"displayName\": \"test3.pdf\",\n
         \     \"mimeType\": \"application/pdf\",\n      \"sizeBytes\": \"44\",\n      \"createTime\":
         \"2026-07-28T02:18:05.066673Z\",\n      \"updateTime\": \"2026-07-28T02:18:05.066673Z\",\n
         \     \"expirationTime\": \"2026-07-30T02:18:04.857005085Z\",\n      \"sha256Hash\":
         \"NTY4NWUyZDYzZDJhM2I3NTBlMDg1MGI4NjU0YzA2Zjg3ZmU5YTFiMTM4NTI1ZGVlZjI2NDE2NmU0MTUyZWZiYw==\",\n
-        \     \"uri\": \"https://generativelanguage.googleapis.com/v1beta/files/ymyumydi3p7b\",\n
+        \     \"uri\": \"https://generativelanguage.googleapis.com/v1/files/ymyumydi3p7b\",\n
         \     \"state\": \"ACTIVE\",\n      \"source\": \"UPLOADED\"\n    }\n  ]\n}\n"
     headers:
       Alt-Svc:
@@ -475,7 +475,7 @@ interactions:
       x-goog-api-client:
       - google-genai-sdk/2.14.0 gl-python/3.12.13
     method: delete
-    uri: https://generativelanguage.googleapis.com/v1beta/files/ofyvwkznt2rs
+    uri: https://generativelanguage.googleapis.com/v1/files/ofyvwkznt2rs
   response:
     body:
       string: '{}
