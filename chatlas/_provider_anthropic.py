@@ -710,6 +710,21 @@ class AnthropicProvider(
             completion.stop_reason = chunk.delta.stop_reason
             completion.stop_sequence = chunk.delta.stop_sequence
             completion.usage.output_tokens = chunk.usage.output_tokens
+            # Usage on message_delta is cumulative and, with server tools, can
+            # exceed message_start's input and cache counts. Fields are omitted
+            # when not applicable, in which case message_start's value stands.
+            if chunk.usage.input_tokens is not None:
+                completion.usage.input_tokens = chunk.usage.input_tokens
+            if chunk.usage.cache_creation_input_tokens is not None:
+                completion.usage.cache_creation_input_tokens = (
+                    chunk.usage.cache_creation_input_tokens
+                )
+            if chunk.usage.cache_read_input_tokens is not None:
+                completion.usage.cache_read_input_tokens = (
+                    chunk.usage.cache_read_input_tokens
+                )
+            if chunk.usage.server_tool_use is not None:
+                completion.usage.server_tool_use = chunk.usage.server_tool_use
 
         return completion
 
@@ -805,15 +820,20 @@ class AnthropicProvider(
         res: "SubmitInputArgs" = {}
 
         # anthropic>=1.0 removed these sampling parameters from the request
-        # schema; current models ignore them. Forward them via `extra_body`
-        # so older models that still honor them keep working.
+        # schema; Claude 4.7 and later reject non-default values with a 400.
+        # Forward them via `extra_body` so older models that still honor them
+        # keep working.
         removed = [p for p in ("temperature", "top_p", "top_k") if p in params]
         if removed:
             warnings.warn(
-                f"The {', '.join(removed)} sampling parameter(s) no longer have "
-                "an effect on current Anthropic models. They are forwarded via "
-                "`extra_body` for older models that still honor them; this "
-                "forwarding is deprecated and will be removed in a future release.",
+                f"The {', '.join(removed)} sampling parameter(s) are deprecated by "
+                "Anthropic: Claude 4.7 and later models return a 400 error when they "
+                "are set to a non-default value, and API version 2026-10-21 removes "
+                "them for every model "
+                "(https://platform.claude.com/docs/en/about-claude/model-deprecations). "
+                "They are forwarded via `extra_body` for older models that still "
+                "honor them; this forwarding is deprecated and will be removed in a "
+                "future release.",
                 DeprecationWarning,
                 stacklevel=2,
             )
@@ -931,8 +951,10 @@ class AnthropicProvider(
                 if content[-1].get("type") != "thinking":
                     content[-1]["cache_control"] = self._cache_control()  # type: ignore
 
-            role = "user" if isinstance(turn, UserTurn) else "assistant"
-            messages.append({"role": role, "content": content})
+            role: Literal["user", "assistant"] = (
+                "user" if isinstance(turn, UserTurn) else "assistant"
+            )
+            messages.append(cast("MessageParam", {"role": role, "content": content}))
         return messages
 
     @staticmethod
@@ -1599,6 +1621,18 @@ class AnthropicBedrockProvider(AnthropicProvider):
         self._client = AnthropicBedrock(**kwargs_full)  # type: ignore
         self._async_client = AsyncAnthropicBedrock(**kwargs_full)  # type: ignore
 
+    def _chat_perform_args(
+        self,
+        stream: bool,
+        turns: list[Turn],
+        tools: dict[str, Tool | ToolBuiltIn],
+        data_model: Optional[type[BaseModel]] = None,
+        kwargs: Optional["SubmitInputArgs"] = None,
+    ) -> "SubmitInputArgs":
+        return bedrock_anthropic_version(
+            super()._chat_perform_args(stream, turns, tools, data_model, kwargs)
+        )
+
     def list_models(self):
         # boto3 should come via anthropic's bedrock extras
         import boto3
@@ -1691,6 +1725,8 @@ def anthropic_document_sources(
             elif isinstance(content, ContentUploaded):
                 if not content.mime_type.startswith("image/"):
                     sources.append(None)
+            elif isinstance(content, ContentToolResult):
+                sources.extend(anthropic_tool_result_document_sources(content))
 
     for block in contents:
         if block.type != "web_fetch_tool_result":
@@ -1699,6 +1735,36 @@ def anthropic_document_sources(
         if isinstance(result, WebFetchBlock):
             sources.append(WebSource(url=result.url))
 
+    return sources
+
+
+def anthropic_tool_result_document_sources(
+    content: ContentToolResult,
+) -> list[Optional[WebSource]]:
+    """Document slots taken by raw `document` blocks in a tool result.
+
+    A tool can return Anthropic blocks as-is (`model_format="as_is"`), and
+    any `document` block among them is sent inside the `tool_result` and
+    counts toward `document_index`. (`search_result` blocks have their own
+    `search_result_index`, so they don't take a slot.)
+    """
+    # Only an as-is value can carry raw blocks; every other format serializes
+    # to a string. Skip those without rendering them -- this runs for every
+    # citation, and rendering can mean `.to_json()`/`.to_pandas()` calls.
+    if content.model_format != "as_is":
+        return []
+    value = content.get_model_value()
+    if not isinstance(value, list):
+        return []
+    sources: list[Optional[WebSource]] = []
+    for block in value:
+        if not isinstance(block, dict) or block.get("type") != "document":
+            continue
+        source = block.get("source")
+        url = None
+        if isinstance(source, dict) and source.get("type") == "url":
+            url = source.get("url")
+        sources.append(WebSource(url=url) if url else None)
     return sources
 
 
@@ -1800,6 +1866,17 @@ def anthropic_replayable(content: ProviderAnnotation) -> bool:
         isinstance(extra, dict)
         and extra.get("type") in ANTHROPIC_SERVER_TOOL_BLOCK_TYPES
     )
+
+
+def bedrock_anthropic_version(res: "SubmitInputArgs") -> "SubmitInputArgs":
+    # anthropic 2.x defaults the Bedrock request body's `anthropic_version` to
+    # the latest API version; keep sending the value Bedrock has always been
+    # sent (the SDK applies the default with `setdefault`, so an explicit body
+    # value wins). inspect-ai made the same call (UKGovernmentBEIS/inspect_ai#6003).
+    extra_body = dict(cast(dict[str, Any], res.get("extra_body") or {}))
+    extra_body.setdefault("anthropic_version", "bedrock-2023-05-31")
+    res["extra_body"] = extra_body
+    return res
 
 
 def is_anthropic_text_document(mime_type: str) -> bool:

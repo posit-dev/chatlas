@@ -149,8 +149,8 @@ def test_token_count_method():
     chat = ChatOpenAI(model="gpt-4o-mini")
     assert chat.token_count("What is 1 + 1?") == 15
 
-    chat = ChatAnthropic(model="claude-haiku-4-5-20251001")
-    assert chat.token_count("What is 1 + 1?") == 16
+    chat = ChatAnthropic(model="claude-haiku-5-5")
+    assert chat.token_count("What is 1 + 1?") == 17
 
     chat = ChatGoogle(model="gemini-2.5-flash")
     assert chat.token_count("What is 1 + 1?") == 9

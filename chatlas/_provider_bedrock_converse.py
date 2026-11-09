@@ -622,6 +622,8 @@ class BedrockConverseProvider(
                     )
                 elif "signature" in reasoning:
                     block["reasoningSignature"] = reasoning["signature"]
+                elif "redactedContent" in reasoning:
+                    block["redactedContent"] = reasoning["redactedContent"]
         elif "contentBlockStop" in chunk:
             blocks = merged.get("blocks", {})
             block = blocks.get(chunk["contentBlockStop"]["contentBlockIndex"])
@@ -668,6 +670,17 @@ class BedrockConverseProvider(
                                 "toolUseId": block["toolUseId"],
                                 "name": block["name"],
                                 "input": block.get("arguments", {}),
+                            }
+                        },
+                    )
+                )
+            elif "redactedContent" in block:
+                content_blocks.append(
+                    cast(
+                        "ContentBlockOutputTypeDef",
+                        {
+                            "reasoningContent": {
+                                "redactedContent": block["redactedContent"]
                             }
                         },
                     )
@@ -1132,6 +1145,7 @@ class ConverseStreamBlock(TypedDict, total=False):
     arguments: dict[str, Any]
     reasoningText: str
     reasoningSignature: str
+    redactedContent: bytes
 
 
 class ConverseSubmitArgs(TypedDict, total=False):

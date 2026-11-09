@@ -104,7 +104,16 @@ mcp = [
     "mcp>=2.0.0;python_version>='3.10'"
 ]
 eval = [
-    "inspect-ai;python_version>='3.10'"
+    # inspect-ai 0.3.283 adapted its Anthropic provider to anthropic SDK 2.0 and
+    # made it the required minimum (UKGovernmentBEIS/inspect_ai#6003); it also
+    # dropped Python 3.10, so the eval extra is 3.11+ only (CI's 3.10 job
+    # installs with --no-extra eval).
+    "inspect-ai>=0.3.283;python_version>='3.11'",
+    # inspect-ai declares agent-client-protocol>=0.12.0 with no upper bound,
+    # but its acp agent imports acp.helpers, which agent-client-protocol 1.0
+    # removed (UKGovernmentBEIS/inspect_ai#6417). Cap until an inspect-ai
+    # release supports agent-client-protocol 1.x.
+    "agent-client-protocol>=0.12.0,<1;python_version>='3.11'",
 ]
 # Provider extras ----
 anthropic = ["anthropic>=1.0.0"]

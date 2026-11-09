@@ -1,16 +1,16 @@
 interactions:
 - request:
-    body: '{"input": [{"type": "message", "role": "user", "content": [{"type": "input_text",
-      "text": "What is 1 + 1?"}]}], "model": "gpt-4o-mini"}'
+    body: '{"model": "gpt-4o-mini", "input": [{"type": "message", "role": "user",
+      "content": [{"type": "input_text", "text": "What is 1 + 1?"}]}]}'
     headers:
       accept:
       - application/json
       accept-encoding:
-      - gzip, deflate, zstd
+      - gzip, deflate
       connection:
       - keep-alive
       content-length:
-      - '107'
+      - '124'
       content-type:
       - application/json
       host:
@@ -23,11 +23,10 @@ interactions:
     uri: https://api.openai.com/v1/responses/input_tokens
   response:
     body:
-      string: "{\n  \"object\": \"response.input_tokens\",\n  \"input_tokens\": 15\n\
-        }"
+      string: "{\n  \"object\": \"response.input_tokens\",\n  \"input_tokens\": 15\n}"
     headers:
       access-control-expose-headers:
-      - X-Request-ID
+      - X-Request-ID, Server-Timing-Total
       - CF-Ray
       - CF-Ray
       alt-svc:
@@ -41,9 +40,9 @@ interactions:
       content-type:
       - application/json
       date:
-      - Mon, 27 Jul 2026 18:36:40 GMT
+      - Thu, 05 Nov 2026 00:08:26 GMT
       openai-processing-ms:
-      - '303'
+      - '366'
       openai-version:
       - '2020-10-01'
       server:
@@ -59,19 +58,19 @@ interactions:
       message: OK
 - request:
     body: '{"messages": [{"role": "user", "content": [{"text": "What is 1 + 1?", "type":
-      "text", "cache_control": {"type": "ephemeral", "ttl": "5m"}}]}], "model": "claude-haiku-4-5-20251001",
+      "text", "cache_control": {"type": "ephemeral", "ttl": "5m"}}]}], "model": "claude-haiku-5-5",
       "tools": []}'
     headers:
       accept:
       - application/json
       accept-encoding:
-      - gzip, deflate, zstd
+      - gzip, deflate
       anthropic-version:
-      - '2023-06-01'
+      - '2026-10-21'
       connection:
       - keep-alive
       content-length:
-      - '177'
+      - '168'
       content-type:
       - application/json
       host:
@@ -86,8 +85,10 @@ interactions:
     uri: https://api.anthropic.com/v1/messages/count_tokens
   response:
     body:
-      string: '{"input_tokens":16}'
+      string: '{"input_tokens":17}'
     headers:
+      anthropic-workspace-id:
+      - wrkspc_01D4K8epTDxMNmDoR6V5auh4
       cf-cache-status:
       - DYNAMIC
       connection:
@@ -99,15 +100,11 @@ interactions:
       content-type:
       - application/json
       date:
-      - Mon, 27 Jul 2026 18:36:40 GMT
+      - Thu, 05 Nov 2026 00:08:26 GMT
       server:
       - cloudflare
       server-timing:
-      - x-originResponse;dur=40
-      transfer-encoding:
-      - chunked
-      vary:
-      - Accept-Encoding
+      - x-originResponse;dur=35
       x-robots-tag:
       - none
     status:
@@ -129,13 +126,13 @@ interactions:
       host:
       - generativelanguage.googleapis.com
       x-goog-api-client:
-      - google-genai-sdk/2.11.0 gl-python/3.12.13
+      - google-genai-sdk/2.34.0 gl-python/3.13.14
     method: POST
-    uri: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:countTokens
+    uri: https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:countTokens
   response:
     body:
-      string: "{\n  \"totalTokens\": 9,\n  \"promptTokensDetails\": [\n    {\n   \
-        \   \"modality\": \"TEXT\",\n      \"tokenCount\": 9\n    }\n  ]\n}\n"
+      string: "{\n  \"totalTokens\": 9,\n  \"promptTokensDetails\": [\n    {\n      \"modality\":
+        \"TEXT\",\n      \"tokenCount\": 9\n    }\n  ]\n}\n"
     headers:
       alt-svc:
       - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
@@ -144,11 +141,11 @@ interactions:
       content-type:
       - application/json; charset=UTF-8
       date:
-      - Mon, 27 Jul 2026 18:36:41 GMT
+      - Thu, 05 Nov 2026 00:08:26 GMT
       server:
       - scaffolding on HTTPServer2
       server-timing:
-      - gfet4t7; dur=70
+      - gfet4t7; dur=66
       transfer-encoding:
       - chunked
       vary:
