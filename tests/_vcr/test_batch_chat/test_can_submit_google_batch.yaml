@@ -20,7 +20,7 @@ interactions:
       x-goog-api-client:
       - google-genai-sdk/2.11.0 gl-python/3.12.13
     method: POST
-    uri: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:batchGenerateContent
+    uri: https://generativelanguage.googleapis.com/v1/models/gemini-3.5-flash:batchGenerateContent
   response:
     body:
       string: "{\n  \"name\": \"batches/gpv3pjje0g931jdhnalwqk9sv4pbqgjlqhi9\",\n
