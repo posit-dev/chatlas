@@ -27,6 +27,7 @@ from google.genai.types import (
 )
 from google.genai.types import (
     GroundingMetadataDict,
+    HttpOptions,
     UrlContextMetadata,
     UrlMetadata,
     UrlRetrievalStatus,
@@ -100,6 +101,42 @@ def _function_call_response(finish_reason):
             )
         ]
     )
+
+
+def api_version(provider: GoogleProvider) -> str | None:
+    return provider._client._api_client._http_options.api_version
+
+
+def test_google_defaults_to_v1beta_api():
+    # google-genai 3.0 changed the Gemini Developer API default from v1beta to
+    # v1; chatlas pins v1beta so behavior doesn't shift under a SDK upgrade.
+    provider = GoogleProvider(
+        model="gemini-2.5-flash", api_key="dummy", name="Google/Gemini", kwargs=None
+    )
+
+    assert api_version(provider) == "v1beta"
+
+
+def test_google_http_options_api_version_override():
+    provider = GoogleProvider(
+        model="gemini-2.5-flash",
+        api_key="dummy",
+        name="Google/Gemini",
+        kwargs={"http_options": HttpOptions(api_version="v1")},
+    )
+
+    assert api_version(provider) == "v1"
+
+
+def test_google_vertex_api_version_untouched():
+    provider = GoogleProvider(
+        model="gemini-2.5-flash",
+        api_key="dummy",
+        name="Google/Vertex",
+        kwargs={"vertexai": True, "project": "dummy", "location": "dummy"},
+    )
+
+    assert api_version(provider) != "v1beta"
 
 
 def test_google_value_turn_tool_request_finishes_as_tool_use():

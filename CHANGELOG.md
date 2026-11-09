@@ -231,6 +231,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Bug fixes
 
 * OpenAI-compatible providers (e.g., `ChatOllama()` with models like qwen3) now capture thinking content returned in a `reasoning` field, not just `reasoning_content`. Previously this thinking content was silently dropped.
+* `ChatGoogle()` now pins the Gemini Developer API to `v1beta` (overridable via `http_options` in `**kwargs`). `google-genai` 3.0 changed its default to `v1`, which no longer serves some things chatlas users may rely on (e.g., `gemini-*-latest` model aliases); the pin keeps behavior consistent across `google-genai` 2.x and 3.x. `ChatVertex()` is unaffected.
+* The `eval` extra now caps `agent-client-protocol` below 1.0. Its 1.0 release removed `acp.helpers`, which current `inspect-ai` releases import, breaking any `inspect_ai.eval()` call (UKGovernmentBEIS/inspect_ai#6417).
 
 ## [0.18.1] - 2026-05-21
 
