@@ -1,4 +1,5 @@
 import os
+import re
 from pathlib import Path
 from typing import Callable
 
@@ -631,6 +632,22 @@ def make_vcr_config(match_on: list[str] = VCR_MATCH_ON_DEFAULT) -> dict:
 def vcr_config():
     """Global VCR configuration for pytest-recording."""
     return make_vcr_config()
+
+
+def _gemini_path(r1, r2) -> bool:
+    # google-genai 3.0 defaults the Gemini Developer API to /v1/ where 2.x
+    # used /v1beta/, and CI's Python 3.10 leg still resolves 2.x. Treat the
+    # version segment as equivalent so cassettes replay on both SDK majors.
+    return _normalize_gemini_path(r1.path) == _normalize_gemini_path(r2.path)
+
+
+def _normalize_gemini_path(path: str) -> str:
+    return re.sub(r"/v1beta(/|$)", r"/v1\1", path)
+
+
+@pytest.hookimpl
+def pytest_recording_configure(vcr):
+    vcr.register_matcher("path", _gemini_path)
 
 
 @pytest.fixture(scope="module")
