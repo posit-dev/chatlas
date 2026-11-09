@@ -176,6 +176,17 @@ class Tool:
         -------
         Tool
             A new Tool instance wrapping the MCP tool.
+
+        Note
+        ----
+        The MCP result's `_meta` is passed through to the resulting
+        :class:`~chatlas.types.ContentToolResult`'s `extra` field, so servers
+        can attach client-only metadata (e.g., display hints) that isn't sent
+        to the model. When the result carries `structuredContent`, it becomes
+        the result's value (which is JSON-dumped for the model), and the
+        converted content blocks are preserved client-side under
+        `extra["content"]`. Errored results raise instead and never surface
+        `_meta` or `structuredContent`.
         """
 
         async def _call(**args: Any) -> ContentToolResult:
@@ -195,19 +206,46 @@ class Tool:
 
             parts = [mcp_content_to_value(mcp_tool.name, c) for c in result.content]
 
-            # A call gets exactly one result. Several parts become a list value,
-            # which _content_expand unrolls for providers that only take text.
-            value: str | ContentImageInline | ContentPDF | list[
-                str | ContentImageInline | ContentPDF
-            ]
-            if len(parts) == 1:
-                value = parts[0]
-            elif all(isinstance(p, str) for p in parts):
-                value = "\n".join(cast("list[str]", parts))
-            else:
-                value = parts
+            # Pass the result's `_meta` through as `extra` so servers can
+            # attach client-only metadata (e.g., shinychat's display hints).
+            meta = result.meta
+            meta_extra = dict(meta) if isinstance(meta, dict) and meta else None
 
-            return ContentToolResult(value=value)
+            value: (
+                str
+                | ContentImageInline
+                | ContentPDF
+                | dict[str, Any]
+                | list[str | ContentImageInline | ContentPDF]
+            )
+            extra: Optional[dict[str, Any]]
+            # structuredContent is always a JSON object; the isinstance() guard
+            # doubles as a None check while keeping MagicMock-based tests honest
+            # (same rationale as the `meta` guard above).
+            structured = result.structured_content
+            if isinstance(structured, dict):
+                # structuredContent is the machine-readable value for the model
+                # (model_format="auto" JSON-dumps it). The converted content
+                # blocks are preserved client-side under extra["content"]
+                # (which wins over a colliding `_meta["content"]` key).
+                value = structured
+                if parts:
+                    extra = {**(meta_extra or {}), "content": parts}
+                else:
+                    extra = meta_extra
+            else:
+                extra = meta_extra
+                # A call gets exactly one result. Several parts become a list
+                # value, which _content_expand unrolls for providers that only
+                # take text.
+                if len(parts) == 1:
+                    value = parts[0]
+                elif all(isinstance(p, str) for p in parts):
+                    value = "\n".join(cast("list[str]", parts))
+                else:
+                    value = parts
+
+            return ContentToolResult(value=value, extra=extra)
 
         params = mcp_tool_input_schema_to_param_schema(mcp_tool.input_schema)
 

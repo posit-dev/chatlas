@@ -24,6 +24,7 @@ from ._content import (
     ContentDocument,
     ContentImageInline,
     ContentImageRemote,
+    ContentJson,
     ContentPDF,
     ContentText,
     ContentToolRequest,
@@ -118,7 +119,14 @@ def combine_tool_results(results: list[ContentToolResult]) -> ContentToolResult:
 
 
 def expand_tool_result(content: ContentToolResult) -> list[ContentUnion]:
-    """Expand a tool result that contains images/files into separate content items."""
+    """Expand a tool result that contains images/files into separate content items.
+
+    Any other `Content` value (e.g. a bare `ContentText`, as returned by MCP
+    client adapters) is unwrapped to a plain value instead: providers
+    serialize tool-result values via `get_model_value()`, and a raw `Content`
+    object there ends up as a JSON object on the wire, which provider APIs
+    (Anthropic included) reject.
+    """
     request = content.request
     if request is None:
         return [content]
@@ -133,7 +141,32 @@ def expand_tool_result(content: ContentToolResult) -> list[ContentUnion]:
         if all(isinstance(x, (Content, str)) for x in value):
             return expand_tool_values(request, list(value))
 
+    if isinstance(value, Content):
+        return [content.model_copy(update={"value": unwrap_content_value(value)})]
+
+    if (
+        isinstance(value, (list, tuple))
+        and any(isinstance(x, Content) for x in value)
+        and all(isinstance(x, (Content, str)) for x in value)
+    ):
+        # Mirrors combine_tool_results: non-file parts join into one string.
+        joined = "\n".join(str(x) for x in value)
+        return [content.model_copy(update={"value": joined})]
+
     return [content]
+
+
+def unwrap_content_value(value: Content) -> object:
+    """Unwrap a non-file `Content` tool-result value to a plain value.
+
+    The unwrapped value keeps working with the result's `model_format` (e.g.
+    a dict unwraps cleanly under the default `"auto"` JSON formatting).
+    """
+    if isinstance(value, ContentText):
+        return value.text
+    if isinstance(value, ContentJson):
+        return value.value
+    return str(value)
 
 
 def expand_tool_value(
