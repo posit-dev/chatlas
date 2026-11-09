@@ -68,14 +68,14 @@ requires_bedrock = pytest.mark.skipif(
 @pytest.mark.vcr
 def test_anthropic_simple_request():
     chat = ChatBedrockAnthropic(
-        model="us.anthropic.claude-sonnet-4-5-20250929-v1:0",
+        model="us.anthropic.claude-sonnet-5",
         cache="none",
         system_prompt="Be as terse as possible; no punctuation",
     )
     chat.chat("What is 1 + 1?")
     turn = chat.get_last_turn()
     assert turn is not None
-    assert turn.tokens == (26, 5, 0)
+    assert turn.tokens == (30, 3, 0)
 
 
 @requires_bedrock
@@ -83,7 +83,7 @@ def test_anthropic_simple_request():
 @pytest.mark.asyncio
 async def test_anthropic_simple_streaming_request():
     chat = ChatBedrockAnthropic(
-        model="us.anthropic.claude-sonnet-4-5-20250929-v1:0",
+        model="us.anthropic.claude-sonnet-5",
         cache="none",
         system_prompt="Be as terse as possible; no punctuation",
     )
@@ -102,7 +102,7 @@ async def test_anthropic_simple_streaming_request():
 def test_anthropic_respects_turns_interface():
     def chat_fun(**kwargs):
         return ChatBedrockAnthropic(
-            model="us.anthropic.claude-sonnet-4-5-20250929-v1:0", cache="none", **kwargs
+            model="us.anthropic.claude-sonnet-5", cache="none", **kwargs
         )
 
     assert_turns_system(chat_fun)
@@ -114,7 +114,7 @@ def test_anthropic_respects_turns_interface():
 def test_anthropic_tool_variations():
     def chat_fun(**kwargs):
         return ChatBedrockAnthropic(
-            model="us.anthropic.claude-sonnet-4-5-20250929-v1:0", cache="none", **kwargs
+            model="us.anthropic.claude-sonnet-5", cache="none", **kwargs
         )
 
     assert_tools_simple(chat_fun)
@@ -128,7 +128,7 @@ def test_anthropic_tool_variations():
 async def test_anthropic_tool_variations_async():
     def chat_fun(**kwargs):
         return ChatBedrockAnthropic(
-            model="us.anthropic.claude-sonnet-4-5-20250929-v1:0", cache="none", **kwargs
+            model="us.anthropic.claude-sonnet-5", cache="none", **kwargs
         )
 
     await assert_tools_async(chat_fun)
@@ -139,7 +139,7 @@ async def test_anthropic_tool_variations_async():
 def test_data_extraction():
     def chat_fun(**kwargs):
         return ChatBedrockAnthropic(
-            model="us.anthropic.claude-sonnet-4-5-20250929-v1:0", cache="none", **kwargs
+            model="us.anthropic.claude-sonnet-5", cache="none", **kwargs
         )
 
     assert_data_extraction(chat_fun)
@@ -150,11 +150,11 @@ def test_data_extraction():
 def test_anthropic_images():
     def chat_fun(**kwargs):
         return ChatBedrockAnthropic(
-            model="us.anthropic.claude-sonnet-4-5-20250929-v1:0", cache="none", **kwargs
+            model="us.anthropic.claude-sonnet-5", cache="none", **kwargs
         )
 
     assert_images_inline(chat_fun)
-    assert_images_remote_error(chat_fun, message="URL sources are not supported")
+    assert_images_remote_error(chat_fun)
 
 
 @requires_bedrock
@@ -169,13 +169,14 @@ def test_reasoning():
     from chatlas._content import ContentThinking
 
     chat = ChatBedrockAnthropic(
-        model="us.anthropic.claude-sonnet-4-5-20250929-v1:0",
+        model="us.anthropic.claude-sonnet-5",
         cache="none",
-        reasoning=4000,
+        reasoning="xhigh",
     )
-    chat.chat("What is 1 + 1?")
+    chat.chat("What is the 15th Fibonacci number? Compute it step by step without code.")
     turn = chat.get_last_turn()
     assert turn is not None
     thinking = [c for c in turn.contents if isinstance(c, ContentThinking)]
     assert len(thinking) == 1
-    assert len(thinking[0].thinking) > 0
+    # Claude 5 returns signed thinking without exposing the reasoning text
+    assert (thinking[0].extra or {}).get("signature")
