@@ -148,7 +148,9 @@ async def test_mcp_negotiates_modern_protocol_http():
         tool = chat._tools["add"]
         assert isinstance(tool, Tool)
         res = await tool.func(x=1, y=2)
-        assert res.value == "3"
+        # FastMCP wraps scalar returns as structuredContent={"result": ...},
+        # which becomes the tool result's value.
+        assert res.value == {"result": 3}
 
         await chat.cleanup_mcp_tools()
 
@@ -169,7 +171,7 @@ async def test_mcp_negotiates_modern_protocol_stdio():
     tool = chat._tools["multiply"]
     assert isinstance(tool, Tool)
     res = await tool.func(a=2, b=3)
-    assert res.value == "6"
+    assert res.value == {"result": 6}
 
     await chat.cleanup_mcp_tools()
 
@@ -376,7 +378,7 @@ class TestMCPErrorHandling:
 
             # The namespaced tool should still call the server's own tool name
             res = await chat._tools["mcp.add"].func(x=1, y=2)
-            assert res.value == "3"
+            assert res.value == {"result": 3}
 
             await chat.cleanup_mcp_tools()
 
