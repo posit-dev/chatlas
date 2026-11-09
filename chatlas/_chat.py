@@ -2300,11 +2300,19 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             name = name or func.name
             annotations = annotations or func.annotations
             if model is not None:
-                func = Tool.from_func(
+                tool = Tool.from_func(
                     func.func, name=name, model=model, annotations=annotations
                 )
-            func = func.func
-            tool = Tool.from_func(func, name=name, model=model, annotations=annotations)
+            else:
+                schema = func.schema["function"]
+                tool = Tool(
+                    func=func.func,
+                    name=name,
+                    description=schema.get("description", ""),
+                    parameters=schema.get("parameters", {}),
+                    annotations=annotations,
+                    strict=schema.get("strict"),
+                )
         else:
             if isinstance(func, ToolBuiltIn):
                 self.provider.check_builtin_tool_support(func)
