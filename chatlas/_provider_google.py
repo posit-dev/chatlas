@@ -281,16 +281,6 @@ class GoogleProvider(
             **(kwargs or {}),
         }
 
-        # google-genai 3.0 defaults the Gemini Developer API to v1, but v1beta
-        # is what chatlas (and ellmer) target, and v1 drops things chatlas
-        # users may rely on (e.g., gemini-*-latest aliases). Pin v1beta so a
-        # SDK upgrade doesn't silently change behavior. Vertex is unaffected
-        # (it defaults to v1beta1 in both SDK versions).
-        if not kwargs_full.get("vertexai") and "http_options" not in kwargs_full:
-            from google.genai.types import HttpOptions
-
-            kwargs_full["http_options"] = HttpOptions(api_version="v1beta")
-
         self._client = genai.Client(**kwargs_full)
 
     def close(self) -> None:
