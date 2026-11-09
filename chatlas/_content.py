@@ -380,10 +380,14 @@ class ContentImageInline(ContentImage):
         The content type of the image.
     data
         The base64-encoded image data.
+    detail
+        A detail setting for the image. Can be `"auto"`, `"low"`, or `"high"`.
+        Only forwarded by OpenAI providers; ignored by others.
     """
 
     image_content_type: ImageContentTypes
     data: str
+    detail: Literal["auto", "low", "high"] = "auto"
 
     content_type: ContentTypeEnum = "image_inline"
 

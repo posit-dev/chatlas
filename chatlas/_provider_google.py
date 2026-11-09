@@ -236,6 +236,10 @@ _GOOGLE_FINISH_REASON_MAP: dict[str, FinishReason] = {
     "BLOCKLIST": "content_filter",
     "PROHIBITED_CONTENT": "content_filter",
     "SPII": "content_filter",
+    "IMAGE_SAFETY": "content_filter",
+    "IMAGE_PROHIBITED_CONTENT": "content_filter",
+    "IMAGE_RECITATION": "content_filter",
+    "LANGUAGE": "content_filter",
 }
 
 
@@ -561,8 +565,12 @@ class GoogleProvider(
         if usage is None:
             return None
         cached = usage.cached_content_token_count or 0
+        # Content fetched by built-in tools (URL context, search, ...) is
+        # counted as input tokens, but reported separately from the prompt.
         return (
-            (usage.prompt_token_count or 0) - cached,
+            (usage.prompt_token_count or 0)
+            + (usage.tool_use_prompt_token_count or 0)
+            - cached,
             (usage.candidates_token_count or 0) + (usage.thoughts_token_count or 0),
             usage.cached_content_token_count or 0,
         )
@@ -825,6 +833,11 @@ class GoogleProvider(
         ]
         # search request/results precede the text; citations follow it.
         contents = search_contents + contents + citations + url_ctx_contents
+
+        if finish_reason == "success" and any(
+            isinstance(x, ContentToolRequest) for x in contents
+        ):
+            finish_reason = "tool_use"
 
         return AssistantTurn(
             contents,

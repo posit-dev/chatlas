@@ -40,7 +40,7 @@ from inspect_ai.dataset import Sample, json_dataset
 from inspect_ai.scorer import model_graded_qa
 from inspect_ai.solver import TaskState
 
-MODEL = "claude-haiku-4-5-20251001"
+MODEL = "claude-haiku-5-5"
 SCORER_MODEL = f"anthropic/{MODEL}"
 SYSTEM_DEFAULT = "You are a helpful assistant that provides concise answers."
 
