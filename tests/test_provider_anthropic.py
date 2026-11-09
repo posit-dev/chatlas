@@ -9,10 +9,13 @@ from anthropic.types import (
     CitationsWebSearchResultLocation,
     DocumentBlock,
     Message,
+    MessageDeltaUsage,
     RawContentBlockDeltaEvent,
     RawContentBlockStartEvent,
     RawContentBlockStopEvent,
+    RawMessageDeltaEvent,
     RawMessageStartEvent,
+    ServerToolUsage,
     TextBlock,
     TextDelta,
     Usage,
@@ -36,6 +39,7 @@ from chatlas._content import (
 from chatlas._provider_anthropic import (
     _ANTHROPIC_FINISH_REASON_MAP,
     AnthropicProvider,
+    anthropic_document_sources,
     anthropic_fetch_result,
     serving_model,
     supports_structured_outputs,
@@ -46,9 +50,11 @@ from chatlas._provider_anthropic import (
 from chatlas.types import (
     ContentCitation,
     ContentText,
+    ContentToolRequest,
     ContentToolRequestSearch,
     ContentToolResponseFetch,
     ContentToolResponseSearch,
+    ContentToolResult,
 )
 from pydantic import BaseModel, Field
 
@@ -300,6 +306,93 @@ def test_anthropic_web_fetch_citation_uses_document_index_for_source():
     assert citation.source is not None
     assert citation.source.url == "https://second.example"
     assert citation.source.title == "Second document"
+
+
+def test_anthropic_stream_usage_takes_cumulative_message_delta_counts():
+    # With server tools, message_delta carries the cumulative input and cache
+    # counts, which differ from message_start (values from the
+    # test_anthropic_web_search_streaming recording).
+    provider = AnthropicProvider(model="claude-haiku-4-5", api_key="dummy", kwargs=None)
+    start_usage = Usage(
+        input_tokens=2247,
+        cache_creation_input_tokens=0,
+        cache_read_input_tokens=0,
+        output_tokens=26,
+    )
+    start = RawMessageStartEvent(
+        type="message_start",
+        message=Message(
+            id="msg",
+            type="message",
+            role="assistant",
+            model="claude-haiku-4-5",
+            content=[],
+            stop_reason=None,
+            stop_sequence=None,
+            usage=start_usage,
+        ),
+    )
+    delta = RawMessageDeltaEvent.model_validate(
+        {
+            "type": "message_delta",
+            "delta": {"stop_reason": "end_turn", "stop_sequence": None},
+            "usage": MessageDeltaUsage(
+                input_tokens=2254,
+                cache_creation_input_tokens=17269,
+                cache_read_input_tokens=0,
+                output_tokens=110,
+                server_tool_use=ServerToolUsage(
+                    web_search_requests=1, web_fetch_requests=0
+                ),
+            ).model_dump(),
+        }
+    )
+
+    completion = provider.stream_merge_chunks(None, start)
+    completion = provider.stream_merge_chunks(completion, delta)
+
+    assert completion.usage.input_tokens == 2254
+    assert completion.usage.cache_creation_input_tokens == 17269
+    assert completion.usage.cache_read_input_tokens == 0
+    assert completion.usage.output_tokens == 110
+    assert completion.usage.server_tool_use == ServerToolUsage(
+        web_search_requests=1, web_fetch_requests=0
+    )
+    assert provider.value_tokens(completion) == (2254 + int(17269 * 1.25), 110, 0)
+
+
+def test_anthropic_stream_usage_keeps_message_start_counts_omitted_by_delta():
+    provider = AnthropicProvider(model="claude-haiku-4-5", api_key="dummy", kwargs=None)
+    start = RawMessageStartEvent(
+        type="message_start",
+        message=Message(
+            id="msg",
+            type="message",
+            role="assistant",
+            model="claude-haiku-4-5",
+            content=[],
+            stop_reason=None,
+            stop_sequence=None,
+            usage=Usage(
+                input_tokens=3,
+                cache_creation_input_tokens=37,
+                cache_read_input_tokens=17269,
+                output_tokens=1,
+            ),
+        ),
+    )
+    delta = RawMessageDeltaEvent.model_validate(
+        {
+            "type": "message_delta",
+            "delta": {"stop_reason": "end_turn", "stop_sequence": None},
+            "usage": {"output_tokens": 10},
+        }
+    )
+
+    completion = provider.stream_merge_chunks(None, start)
+    completion = provider.stream_merge_chunks(completion, delta)
+
+    assert provider.value_tokens(completion) == (3 + int(37 * 1.25), 10, 17269)
 
 
 def test_anthropic_web_fetch_citation_stream_uses_document_index_for_source():
@@ -586,6 +679,126 @@ def test_anthropic_web_fetch_citation_uses_pdf_url_when_present():
 
     assert citation.source is not None
     assert citation.source.url == "https://docs.example/report.pdf"
+
+
+def test_anthropic_web_fetch_citation_accounts_for_tool_result_documents():
+    provider = AnthropicProvider(
+        model="claude-sonnet-4-5", api_key="dummy", kwargs=None
+    )
+
+    request = ContentToolRequest(id="call-1", name="lookup", arguments={})
+    prior_turns = [
+        UserTurn("Compare the handbook with https://site.example"),
+        AssistantTurn([request], finish_reason="tool_use"),
+        UserTurn(
+            [
+                ContentToolResult(
+                    value=[
+                        {
+                            "type": "document",
+                            "source": {
+                                "type": "url",
+                                "url": "https://docs.example/handbook.pdf",
+                            },
+                        },
+                        # Search results are cited by `search_result_index`, so
+                        # they don't take a `document_index` slot.
+                        {
+                            "type": "search_result",
+                            "source": "https://kb.example/entry",
+                            "title": "KB entry",
+                            "content": [{"type": "text", "text": "Entry"}],
+                        },
+                        {
+                            "type": "document",
+                            "source": {
+                                "type": "text",
+                                "media_type": "text/plain",
+                                "data": "Internal notes",
+                            },
+                        },
+                    ],
+                    model_format="as_is",
+                    request=request,
+                ),
+            ]
+        ),
+    ]
+
+    completion = Message(
+        id="msg",
+        type="message",
+        role="assistant",
+        model="claude-sonnet-4-5",
+        content=[
+            web_fetch_result("https://site.example", "Site page"),
+            TextBlock(
+                type="text",
+                text="The handbook, the notes and the site disagree",
+                citations=[
+                    CitationCharLocation(
+                        type="char_location",
+                        cited_text="claim from the handbook",
+                        document_index=0,
+                        document_title=None,
+                        start_char_index=0,
+                        end_char_index=23,
+                    ),
+                    CitationCharLocation(
+                        type="char_location",
+                        cited_text="claim from the notes",
+                        document_index=1,
+                        document_title=None,
+                        start_char_index=24,
+                        end_char_index=44,
+                    ),
+                    CitationCharLocation(
+                        type="char_location",
+                        cited_text="claim from the site",
+                        document_index=2,
+                        document_title="Site page",
+                        start_char_index=45,
+                        end_char_index=64,
+                    ),
+                ],
+            ),
+        ],
+        stop_reason="end_turn",
+        stop_sequence=None,
+        usage=Usage(input_tokens=1, output_tokens=1),
+    )
+
+    turn = provider._as_turn(completion, turns=prior_turns)
+    citations = [c for c in turn.contents if isinstance(c, ContentCitation)]
+
+    assert citations[0].source is not None
+    assert citations[0].source.url == "https://docs.example/handbook.pdf"
+    # A text document has no URL to attribute.
+    assert citations[1].source is None
+    assert citations[2].source is not None
+    assert citations[2].source.url == "https://site.example"
+
+
+def test_anthropic_document_sources_does_not_serialize_tool_results():
+    # Resolving citations walks every prior tool result, but only one sent
+    # as-is can hold document blocks. Serializing other results (e.g. a
+    # DataFrame's `.to_json()`) would be wasted work on every citation.
+    class CountingValue:
+        to_json_calls = 0
+
+        def to_json(self) -> str:
+            self.to_json_calls += 1
+            return "[]"
+
+    request = ContentToolRequest(id="call-1", name="lookup", arguments={})
+    turns = [
+        UserTurn("hi"),
+        AssistantTurn([request], finish_reason="tool_use"),
+        UserTurn([ContentToolResult(value=CountingValue(), request=request)]),
+    ]
+
+    assert anthropic_document_sources(turns, []) == []
+    assert turns[2].contents[0].value.to_json_calls == 0
 
 
 def web_fetch_result(url: str, title: str) -> WebFetchToolResultBlock:
@@ -1310,9 +1523,7 @@ def test_anthropic_message_params_convert_unsigned_thinking_blocks():
 
     turns = [
         UserTurn("hi"),
-        AssistantTurn(
-            [ContentThinking(thinking="hmm"), ContentText(text="hello")]
-        ),
+        AssistantTurn([ContentThinking(thinking="hmm"), ContentText(text="hello")]),
         UserTurn("again"),
     ]
     messages = provider._as_message_params(turns)
