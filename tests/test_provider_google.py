@@ -127,6 +127,47 @@ def test_google_stream_turn_tool_request_finishes_as_tool_use():
     assert turn.finish_reason == "tool_use"
 
 
+def test_google_value_tokens_counts_tool_use_prompt_tokens_as_input():
+    from google.genai.types import (
+        GenerateContentResponse,
+        GenerateContentResponseUsageMetadata,
+    )
+
+    provider = GoogleProvider(
+        model="gemini-2.5-flash", api_key="dummy", name="Google/Gemini", kwargs=None
+    )
+    completion = GenerateContentResponse(
+        usage_metadata=GenerateContentResponseUsageMetadata(
+            prompt_token_count=27,
+            tool_use_prompt_token_count=10309,
+            candidates_token_count=40,
+            thoughts_token_count=200,
+        )
+    )
+
+    assert provider.value_tokens(completion) == (10336, 240, 0)
+
+
+def test_google_value_tokens_without_tool_use_prompt_tokens():
+    from google.genai.types import (
+        GenerateContentResponse,
+        GenerateContentResponseUsageMetadata,
+    )
+
+    provider = GoogleProvider(
+        model="gemini-2.5-flash", api_key="dummy", name="Google/Gemini", kwargs=None
+    )
+    completion = GenerateContentResponse(
+        usage_metadata=GenerateContentResponseUsageMetadata(
+            prompt_token_count=100,
+            cached_content_token_count=30,
+            candidates_token_count=5,
+        )
+    )
+
+    assert provider.value_tokens(completion) == (70, 5, 30)
+
+
 def test_normalize_finish_reason_passes_through_unknown():
     assert google_normalize_finish_reason("OTHER") == "OTHER"
     assert google_normalize_finish_reason("NEW_REASON") == "NEW_REASON"
