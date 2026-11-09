@@ -40,6 +40,7 @@ def content_image_url(
         regular URL.
     detail
         The detail setting for this image. Can be `"auto"`, `"low"`, or `"high"`.
+        Only forwarded by OpenAI providers; ignored by others.
 
     Returns
     -------
@@ -70,7 +71,9 @@ def content_image_url(
         content_type, base64_data = parse_data_url(url)
         if not is_image_content_type(content_type):
             raise ValueError(f"Unsupported image content type: {content_type}")
-        return ContentImageInline(image_content_type=content_type, data=base64_data)
+        return ContentImageInline(
+            image_content_type=content_type, data=base64_data, detail=detail
+        )
     else:
         return ContentImageRemote(url=url, detail=detail)
 

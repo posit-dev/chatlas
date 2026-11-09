@@ -13,6 +13,8 @@ try:
 except ImportError:
     pytest.skip("MCP package not available", allow_module_level=True)
 
+from mcp.types import CallToolResult, ImageContent, TextContent
+
 
 class TestToolFromMCP:
     """Test Tool.from_mcp() class method."""
@@ -506,6 +508,154 @@ async def test_multi_part_mcp_result_is_one_list_valued_result():
 
     assert isinstance(result, ContentToolResult)
     assert result.value == ["stdout: rendering", "Done.", expected_image]
+
+
+def tool_returning(result: CallToolResult) -> Tool:
+    """A Tool whose MCP session returns the given (real) CallToolResult."""
+    helper = TestToolFromMCP()
+    mcp_tool = helper.create_mock_mcp_tool(
+        name="tool",
+        description="A tool",
+        input_schema={"type": "object", "properties": {}},
+    )
+    session = helper.create_mock_session()
+    session.call_tool.return_value = result
+    return Tool.from_mcp(session, mcp_tool)
+
+
+class TestToolFromMCPResultMetadata:
+    """_meta passthrough and structuredContent handling in Tool.from_mcp()."""
+
+    @pytest.mark.asyncio
+    async def test_meta_passed_through_to_extra(self):
+        result = CallToolResult(
+            content=[TextContent(type="text", text="Hello")],
+            _meta={"display": {"open": True}},
+        )
+
+        res = await tool_returning(result).func()
+
+        assert isinstance(res, ContentToolResult)
+        assert res.extra == {"display": {"open": True}}
+        assert res.value == "Hello"
+
+    @pytest.mark.asyncio
+    async def test_no_meta_means_no_extra(self):
+        result = CallToolResult(content=[TextContent(type="text", text="Hello")])
+
+        res = await tool_returning(result).func()
+
+        assert isinstance(res, ContentToolResult)
+        assert res.extra is None
+
+    @pytest.mark.asyncio
+    async def test_empty_meta_means_no_extra(self):
+        result = CallToolResult(
+            content=[TextContent(type="text", text="Hello")],
+            _meta={},
+        )
+
+        res = await tool_returning(result).func()
+
+        assert isinstance(res, ContentToolResult)
+        assert res.extra is None
+
+    @pytest.mark.asyncio
+    async def test_error_result_never_surfaces_meta(self):
+        sentinel = "SENTINEL_meta_value_9f3b2c"
+        result = CallToolResult(
+            content=[TextContent(type="text", text="Error executing tool tool: boom")],
+            isError=True,
+            _meta={"display": {"open": sentinel}},
+        )
+
+        with pytest.raises(RuntimeError) as excinfo:
+            await tool_returning(result).func()
+
+        assert sentinel not in str(excinfo.value)
+
+    @pytest.mark.asyncio
+    async def test_extra_is_a_copy_of_meta(self):
+        result = CallToolResult(
+            content=[TextContent(type="text", text="Hello")],
+            _meta={"display": {"open": True}},
+        )
+
+        res = await tool_returning(result).func()
+
+        assert isinstance(res, ContentToolResult)
+        res.extra["display"] = None
+        res.extra["added"] = 1
+        assert result.meta == {"display": {"open": True}}
+
+    @pytest.mark.asyncio
+    async def test_structured_content_with_text_content(self):
+        result = CallToolResult(
+            content=[TextContent(type="text", text='{"a": 1}')],
+            structuredContent={"a": 1},
+        )
+
+        res = await tool_returning(result).func()
+
+        assert isinstance(res, ContentToolResult)
+        assert res.value == {"a": 1}
+        assert res.extra == {"content": ['{"a": 1}']}
+
+    @pytest.mark.asyncio
+    async def test_structured_content_with_image_content(self):
+        result = CallToolResult(
+            content=[ImageContent(type="image", data="aGVsbG8=", mimeType="image/png")],
+            structuredContent={"path": "/tmp/plot.png"},
+        )
+
+        res = await tool_returning(result).func()
+
+        assert isinstance(res, ContentToolResult)
+        assert res.value == {"path": "/tmp/plot.png"}
+        assert res.extra == {
+            "content": [
+                ContentImageInline(data="aGVsbG8=", image_content_type="image/png")
+            ]
+        }
+
+    @pytest.mark.asyncio
+    async def test_structured_content_merges_with_meta(self):
+        result = CallToolResult(
+            content=[TextContent(type="text", text="done")],
+            structuredContent={"a": 1},
+            _meta={"display": {"open": True}},
+        )
+
+        res = await tool_returning(result).func()
+
+        assert isinstance(res, ContentToolResult)
+        assert res.value == {"a": 1}
+        assert res.extra == {"display": {"open": True}, "content": ["done"]}
+
+    @pytest.mark.asyncio
+    async def test_structured_content_with_no_content(self):
+        result = CallToolResult(content=[], structuredContent={"a": 1})
+
+        res = await tool_returning(result).func()
+
+        assert isinstance(res, ContentToolResult)
+        assert res.value == {"a": 1}
+        assert res.extra is None
+
+    @pytest.mark.asyncio
+    async def test_error_result_never_surfaces_structured_content(self):
+        sentinel = "SENTINEL_structured_value_7d41e0"
+        result = CallToolResult(
+            content=[TextContent(type="text", text="Error executing tool tool: boom")],
+            isError=True,
+            structuredContent={"secret": sentinel},
+            _meta={"display": {"open": sentinel}},
+        )
+
+        with pytest.raises(RuntimeError) as excinfo:
+            await tool_returning(result).func()
+
+        assert sentinel not in str(excinfo.value)
 
 
 class TestToolFromMCPClientFactory:

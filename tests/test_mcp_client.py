@@ -1,6 +1,7 @@
 import asyncio
 import contextlib
 import os
+import socket
 import subprocess
 import sys
 import time
@@ -23,29 +24,37 @@ except ImportError:
 # Directory where MCP server implementations are located
 MCP_SERVER_DIR = Path(__file__).parent / "mcp_servers"
 
-# Allow port to be set via environment variable
-# (MCP server implementations should listen to this environment variable)
-ENV_VARS = os.environ.copy()
-ENV_VARS["MCP_PORT"] = "8081"
-SERVER_URL = f"http://localhost:{ENV_VARS['MCP_PORT']}/mcp"
+
+def _free_port() -> int:
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+        sock.bind(("127.0.0.1", 0))
+        return sock.getsockname()[1]
 
 
 @contextlib.contextmanager
 def sync_http_mcp_server(server_file: str):
     """Synchronous variant of http_mcp_server for testing the sync API."""
     full_path = str(MCP_SERVER_DIR / server_file)
+    port = _free_port()
+    url = f"http://localhost:{port}/mcp"
+
     process = subprocess.Popen(
         args=[sys.executable, full_path],
+        stdin=subprocess.DEVNULL,
         stdout=subprocess.DEVNULL,
-        env=ENV_VARS,
+        env={**os.environ, "MCP_PORT": str(port)},
     )
+
     try:
-        start = time.time()
+        timeout = 10  # seconds
+        start_time = time.time()
         while True:
-            try:
-                urllib.request.urlopen(
-                    f"http://localhost:{ENV_VARS['MCP_PORT']}", timeout=1
+            if process.poll() is not None:
+                raise RuntimeError(
+                    f"MCP server exited early with code {process.returncode}"
                 )
+            try:
+                urllib.request.urlopen(url, timeout=1)
                 break
             except urllib.error.HTTPError:
                 # Any HTTP response (even 404) means the server is up
@@ -53,12 +62,11 @@ def sync_http_mcp_server(server_file: str):
             # OSError: vcrpy's patched http.client lets connection errors
             # escape urllib's URLError wrapping
             except (urllib.error.URLError, OSError):
-                if time.time() - start > 10:
-                    process.kill()
-                    process.wait()
-                    raise TimeoutError("Failed to connect to MCP server")
-                time.sleep(0.1)
-        yield
+                pass
+            if time.time() - start_time > timeout:
+                raise TimeoutError("Failed to connect to MCP server")
+            time.sleep(0.1)
+        yield url
     finally:
         process.kill()
         process.wait()
@@ -66,35 +74,46 @@ def sync_http_mcp_server(server_file: str):
 
 @asynccontextmanager
 async def http_mcp_server(server_file: str):
-    full_path = str(MCP_SERVER_DIR / server_file)
+    """Run an MCP server on its own free port and yield its URL.
 
+    A shared fixed port let a test reach a server that was still shutting down
+    (or one started elsewhere), so each server gets a fresh port.
+    """
+    full_path = str(MCP_SERVER_DIR / server_file)
+    port = _free_port()
+    url = f"http://localhost:{port}/mcp"
+
+    # MCP server implementations listen on MCP_PORT. Their output is discarded
+    # so a chatty server can't block on a full pipe.
     process = subprocess.Popen(
         args=[sys.executable, full_path],
-        stdout=subprocess.PIPE,
-        stdin=subprocess.PIPE,
-        env=ENV_VARS,
+        stdin=subprocess.DEVNULL,
+        stdout=subprocess.DEVNULL,
+        env={**os.environ, "MCP_PORT": str(port)},
     )
 
-    # Throw if the process fails to start
-    if process.returncode is not None:
-        raise RuntimeError(f"Failed to start MCP server: {process.returncode}")
-
-    async with httpx.AsyncClient() as client:
-        timeout = 10  # seconds
-        start_time = asyncio.get_event_loop().time()
-        while True:
-            try:
-                await client.get(f"http://localhost:{ENV_VARS['MCP_PORT']}")
-                break
-            except httpx.ConnectError:
+    try:
+        async with httpx.AsyncClient() as client:
+            timeout = 10  # seconds
+            start_time = asyncio.get_event_loop().time()
+            while True:
+                if process.poll() is not None:
+                    raise RuntimeError(
+                        f"MCP server exited early with code {process.returncode}"
+                    )
+                try:
+                    # Any response from the MCP endpoint itself (not a 404 from
+                    # some other server) means the app is serving.
+                    resp = await client.get(url)
+                    if resp.status_code != 404:
+                        break
+                except httpx.TransportError:
+                    pass
                 if asyncio.get_event_loop().time() - start_time > timeout:
-                    process.kill()
-                    process.wait()
                     raise TimeoutError("Failed to connect to MCP server")
                 await asyncio.sleep(0.1)
 
-    try:
-        yield
+        yield url
     finally:
         process.kill()
         process.wait()
@@ -104,9 +123,9 @@ async def http_mcp_server(server_file: str):
 async def test_register_http_mcp_server():
     chat = ChatOpenAI()
 
-    async with http_mcp_server("http_add.py"):
+    async with http_mcp_server("http_add.py") as url:
         await chat.register_mcp_tools_http_stream_async(
-            url=SERVER_URL,
+            url=url,
         )
 
         # Name derived from server info (the server name is "test")
@@ -165,8 +184,8 @@ async def test_register_stdio_mcp_server():
 async def test_mcp_negotiates_modern_protocol_http():
     chat = ChatOpenAI()
 
-    async with http_mcp_server("http_add.py"):
-        await chat.register_mcp_tools_http_stream_async(url=SERVER_URL)
+    async with http_mcp_server("http_add.py") as url:
+        await chat.register_mcp_tools_http_stream_async(url=url)
 
         info = chat._mcp_manager._mcp_sessions["test"]
         assert info.session is not None
@@ -175,7 +194,9 @@ async def test_mcp_negotiates_modern_protocol_http():
         tool = chat._tools["add"]
         assert isinstance(tool, Tool)
         res = await tool.func(x=1, y=2)
-        assert res.value == "3"
+        # FastMCP wraps scalar returns as structuredContent={"result": ...},
+        # which becomes the tool result's value.
+        assert res.value == {"result": 3}
 
         await chat.cleanup_mcp_tools()
 
@@ -196,7 +217,7 @@ async def test_mcp_negotiates_modern_protocol_stdio():
     tool = chat._tools["multiply"]
     assert isinstance(tool, Tool)
     res = await tool.func(a=2, b=3)
-    assert res.value == "6"
+    assert res.value == {"result": 6}
 
     await chat.cleanup_mcp_tools()
 
@@ -212,10 +233,10 @@ async def test_register_multiple_mcp_servers():
         include_tools=["subtract"],
     )
 
-    async with http_mcp_server("http_add.py"):
+    async with http_mcp_server("http_add.py") as url:
         await chat.register_mcp_tools_http_stream_async(
             name="sse_test",
-            url=SERVER_URL,
+            url=url,
         )
 
         expected_tools = {
@@ -272,10 +293,10 @@ async def test_call_http_mcp_tool():
         model="gpt-5.4", system_prompt="Be very terse, not even punctuation."
     )
 
-    async with http_mcp_server("http_current_date.py"):
+    async with http_mcp_server("http_current_date.py") as url:
         await chat.register_mcp_tools_http_stream_async(
             name="test",
-            url=SERVER_URL,
+            url=url,
         )
 
         response = await chat.chat_async(
@@ -373,12 +394,12 @@ class TestMCPErrorHandling:
         chat.register_tool(add)
 
         # Try to register MCP server with overlapping tool name
-        async with http_mcp_server("http_add.py"):
+        async with http_mcp_server("http_add.py") as url:
             with pytest.raises(
                 ValueError, match="following tools are already registered: {'add'}"
             ):
                 await chat.register_mcp_tools_http_stream_async(
-                    url=SERVER_URL,
+                    url=url,
                 )
 
     @pytest.mark.asyncio
@@ -393,10 +414,8 @@ class TestMCPErrorHandling:
         chat.register_tool(add)
 
         # Register MCP server with namespace - should work
-        async with http_mcp_server("http_add.py"):
-            await chat.register_mcp_tools_http_stream_async(
-                url=SERVER_URL, namespace="mcp"
-            )
+        async with http_mcp_server("http_add.py") as url:
+            await chat.register_mcp_tools_http_stream_async(url=url, namespace="mcp")
 
             # Should have both tools with different names
             tools = chat.get_tools()
@@ -405,7 +424,7 @@ class TestMCPErrorHandling:
 
             # The namespaced tool should still call the server's own tool name
             res = await chat._tools["mcp.add"].func(x=1, y=2)
-            assert res.value == "3"
+            assert res.value == {"result": 3}
 
             await chat.cleanup_mcp_tools()
 
@@ -622,11 +641,11 @@ class TestMCPTransportKwargs:
 
         chat = ChatOpenAI()
 
-        async with http_mcp_server("http_add.py"):
+        async with http_mcp_server("http_add.py") as url:
             # The streamable_http_client accepts an http_client param for custom configuration
             async with httpx.AsyncClient(timeout=30.0) as client:
                 await chat.register_mcp_tools_http_stream_async(
-                    url=SERVER_URL,
+                    url=url,
                     transport_kwargs={"http_client": client},
                 )
 
@@ -645,8 +664,8 @@ class TestStatelessRegistration:
         from chatlas._mcp_manager import HTTPSessionInfo, MCPSessionManager
 
         manager = MCPSessionManager()
-        async with http_mcp_server("http_add.py"):
-            info = HTTPSessionInfo(name="", url=SERVER_URL)
+        async with http_mcp_server("http_add.py") as url:
+            info = HTTPSessionInfo(name="", url=url)
             await manager.register_stateless_tools(info)
 
             assert info.name == "test"
@@ -656,7 +675,7 @@ class TestStatelessRegistration:
             assert manager.has_registrations
 
             res = await info.tools["add"].func(x=1, y=2)
-            assert res.value == "3"
+            assert res.value == {"result": 3}
 
             closed = await manager.close_sessions()
             assert [s.name for s in closed] == ["test"]
@@ -685,9 +704,9 @@ class TestStatelessRegistration:
         from chatlas._mcp_manager import MCPSessionManager
 
         manager = MCPSessionManager()
-        async with http_mcp_server("http_add.py"):
+        async with http_mcp_server("http_add.py") as url:
             info = await manager.register_http_stream_tools(
-                url=SERVER_URL,
+                url=url,
                 name=None,
                 include_tools=(),
                 exclude_tools=(),
@@ -696,7 +715,7 @@ class TestStatelessRegistration:
             )
             assert manager.has_open_sessions
             res = await info.tools["add"].func(x=2, y=2)
-            assert res.value == "4"
+            assert res.value == {"result": 4}
             await manager.close_sessions()
 
     @pytest.mark.asyncio
@@ -707,8 +726,8 @@ class TestStatelessRegistration:
             MCPSessionManager,
         )
         manager = MCPSessionManager()
-        async with http_mcp_server("http_legacy_stub.py"):
-            info = HTTPSessionInfo(name="", url=SERVER_URL)
+        async with http_mcp_server("http_legacy_stub.py") as url:
+            info = HTTPSessionInfo(name="", url=url)
             with pytest.raises(LegacyMCPServerError, match="persistent session"):
                 await manager.register_stateless_tools(info)
             assert not manager.has_registrations
@@ -743,8 +762,8 @@ class TestRegisterMCPToolsAsync:
     @pytest.mark.asyncio
     async def test_http_stateless(self):
         chat = ChatOpenAI()
-        async with http_mcp_server("http_add.py"):
-            await chat.register_mcp_tools_async(url=SERVER_URL)
+        async with http_mcp_server("http_add.py") as url:
+            await chat.register_mcp_tools_async(url=url)
 
             assert not chat._mcp_manager.has_open_sessions
             assert chat._mcp_manager.has_registrations
@@ -752,7 +771,7 @@ class TestRegisterMCPToolsAsync:
             assert info.protocol_version == "2026-07-28"
 
             res = await chat._tools["add"].func(x=1, y=2)
-            assert res.value == "3"
+            assert res.value == {"result": 3}
 
             await chat.cleanup_mcp_tools()
             assert "add" not in chat._tools
@@ -761,8 +780,8 @@ class TestRegisterMCPToolsAsync:
     @pytest.mark.asyncio
     async def test_http_legacy_falls_back_to_persistent(self):
         chat = ChatOpenAI()
-        async with http_mcp_server("http_legacy_stub.py"):
-            await chat.register_mcp_tools_async(url=SERVER_URL)
+        async with http_mcp_server("http_legacy_stub.py") as url:
+            await chat.register_mcp_tools_async(url=url)
 
             assert chat._mcp_manager.has_open_sessions
             info = chat._mcp_manager._mcp_sessions["legacy_stub"]
@@ -781,7 +800,7 @@ class TestRegisterMCPToolsAsync:
         )
         assert chat._mcp_manager.has_open_sessions
         res = await chat._tools["multiply"].func(a=2, b=3)
-        assert res.value == "6"
+        assert res.value == {"result": 6}
         await chat.cleanup_mcp_tools()
 
     @pytest.mark.asyncio
@@ -794,7 +813,7 @@ class TestRegisterMCPToolsAsync:
         )
         assert not chat._mcp_manager.has_open_sessions
         res = await chat._tools["multiply"].func(a=2, b=3)
-        assert res.value == "6"
+        assert res.value == {"result": 6}
         await chat.cleanup_mcp_tools()
 
     @pytest.mark.asyncio
@@ -809,7 +828,7 @@ class TestRegisterMCPToolsAsync:
         )
         assert set(chat._tools) == {"ns.multiply"}
         res = await chat._tools["ns.multiply"].func(a=2, b=3)
-        assert res.value == "6"
+        assert res.value == {"result": 6}
         await chat.cleanup_mcp_tools()
 
     @pytest.mark.asyncio
@@ -820,9 +839,9 @@ class TestRegisterMCPToolsAsync:
             return x + y
 
         chat.register_tool(add)
-        async with http_mcp_server("http_add.py"):
+        async with http_mcp_server("http_add.py") as url:
             with pytest.raises(ValueError, match="already registered"):
-                await chat.register_mcp_tools_async(url=SERVER_URL)
+                await chat.register_mcp_tools_async(url=url)
             assert not chat._mcp_manager.has_registrations
 
     @pytest.mark.asyncio
@@ -835,8 +854,8 @@ class TestRegisterMCPToolsAsync:
 class TestRegisterMCPToolsSync:
     def test_http_stateless(self):
         chat = ChatOpenAI()
-        with sync_http_mcp_server("http_add.py"):
-            chat.register_mcp_tools(url=SERVER_URL)
+        with sync_http_mcp_server("http_add.py") as url:
+            chat.register_mcp_tools(url=url)
 
             assert not chat._mcp_manager.has_open_sessions
             assert chat._mcp_manager.has_registrations
@@ -844,7 +863,7 @@ class TestRegisterMCPToolsSync:
             tool = chat._tools["add"]
             assert not tool._is_async
             res = tool.func(x=1, y=2)
-            assert res.value == "3"
+            assert res.value == {"result": 3}
 
     def test_stdio_spawn_per_call(self):
         chat = ChatOpenAI()
@@ -854,13 +873,13 @@ class TestRegisterMCPToolsSync:
         )
         assert not chat._mcp_manager.has_open_sessions
         res = chat._tools["multiply"].func(a=2, b=3)
-        assert res.value == "6"
+        assert res.value == {"result": 6}
 
     def test_legacy_server_errors(self):
         chat = ChatOpenAI()
-        with sync_http_mcp_server("http_legacy_stub.py"):
+        with sync_http_mcp_server("http_legacy_stub.py") as url:
             with pytest.raises(RuntimeError, match="register_mcp_tools_async"):
-                chat.register_mcp_tools(url=SERVER_URL)
+                chat.register_mcp_tools(url=url)
         assert not chat._mcp_manager.has_registrations
 
     @pytest.mark.asyncio
@@ -880,7 +899,7 @@ class TestRegisterMCPToolsSync:
         chat = ChatOpenAI()
         with pytest.raises(ValueError, match="register_mcp_tools_async"):
             chat.register_mcp_tools(
-                url=SERVER_URL, transport_kwargs={"http_client": object()}
+                url="http://localhost:1/mcp", transport_kwargs={"http_client": object()}
             )
 
 
@@ -888,13 +907,13 @@ class TestMCPDeprecations:
     @pytest.mark.asyncio
     async def test_http_stream_async_deprecated(self):
         chat = ChatOpenAI()
-        async with http_mcp_server("http_add.py"):
+        async with http_mcp_server("http_add.py") as url:
             with pytest.warns(DeprecationWarning, match="deprecated"):
-                await chat.register_mcp_tools_http_stream_async(url=SERVER_URL)
+                await chat.register_mcp_tools_http_stream_async(url=url)
             # Behavior is unchanged: persistent session, tools work
             assert chat._mcp_manager.has_open_sessions
             res = await chat._tools["add"].func(x=1, y=1)
-            assert res.value == "2"
+            assert res.value == {"result": 2}
             await chat.cleanup_mcp_tools()
 
     @pytest.mark.asyncio
@@ -910,8 +929,8 @@ class TestMCPDeprecations:
     @pytest.mark.asyncio
     async def test_close_no_warning_for_stateless_registrations(self):
         chat = ChatOpenAI()
-        async with http_mcp_server("http_add.py"):
-            await chat.register_mcp_tools_async(url=SERVER_URL)
+        async with http_mcp_server("http_add.py") as url:
+            await chat.register_mcp_tools_async(url=url)
             with warnings.catch_warnings():
                 warnings.simplefilter("error")
                 chat.close()
@@ -922,7 +941,7 @@ def test_chat_sync_with_mcp_tools():
     chat = ChatOpenAI(
         model="gpt-5.4", system_prompt="Be very terse, not even punctuation."
     )
-    with sync_http_mcp_server("http_current_date.py"):
-        chat.register_mcp_tools(url=SERVER_URL, name="test")
+    with sync_http_mcp_server("http_current_date.py") as url:
+        chat.register_mcp_tools(url=url, name="test")
         response = chat.chat("What's the current date in YYYY-MM-DD format?")
         assert "2024-01-01" in response.get_content()

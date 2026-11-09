@@ -2,29 +2,28 @@ interactions:
 - request:
     body: '{"max_tokens": 4096, "messages": [{"role": "user", "content": [{"text":
       "What is today''s date?", "type": "text", "cache_control": {"type": "ephemeral",
-      "ttl": "5m"}}]}], "model": "claude-haiku-4-5-20251001", "stream": true, "system":
-      [{"type": "text", "text": "id=''3dGwH2FJpYEoHZewUtt5Vx'' content=''You are a
-      helpful assistant that provides concise answers.'' source=None metadata=None
-      role=''system''", "cache_control": {"type": "ephemeral", "ttl": "5m"}}], "tools":
-      [{"name": "get_current_date", "input_schema": {"type": "object", "properties":
-      {}}, "description": "Get the current date in YYYY-MM-DD format."}]}'
+      "ttl": "5m"}}]}], "model": "claude-haiku-5-5", "stream": true, "system": [{"type":
+      "text", "text": "You are a helpful assistant that provides concise answers.",
+      "cache_control": {"type": "ephemeral", "ttl": "5m"}}], "tools": [{"name": "get_current_date",
+      "input_schema": {"type": "object", "properties": {}, "additionalProperties":
+      false, "required": []}, "description": "Get the current date in YYYY-MM-DD format."}]}'
     headers:
-      Accept:
+      accept:
       - application/json
-      Accept-Encoding:
+      accept-encoding:
       - gzip, deflate
-      Connection:
-      - keep-alive
-      Content-Length:
-      - '572'
-      Content-Type:
-      - application/json
-      Host:
-      - api.anthropic.com
-      X-Stainless-Async:
-      - async:asyncio
       anthropic-version:
-      - '2023-06-01'
+      - '2026-10-21'
+      connection:
+      - keep-alive
+      content-length:
+      - '528'
+      content-type:
+      - application/json
+      host:
+      - api.anthropic.com
+      x-stainless-async:
+      - async:asyncio
       x-stainless-read-timeout:
       - '600'
       x-stainless-timeout:
@@ -35,140 +34,12 @@ interactions:
     body:
       string: 'event: message_start
 
-        data: {"type":"message_start","message":{"model":"claude-haiku-4-5-20251001","id":"msg_01YNLUoYTNuMcWcC3Hoiv3UH","type":"message","role":"assistant","content":[],"stop_reason":null,"stop_sequence":null,"usage":{"input_tokens":605,"cache_creation_input_tokens":0,"cache_read_input_tokens":0,"cache_creation":{"ephemeral_5m_input_tokens":0,"ephemeral_1h_input_tokens":0},"output_tokens":25,"service_tier":"standard"}}         }
+        data: {"type":"message_start","message":{"model":"claude-haiku-5-5","id":"msg_011Cgiog8TArEXEykGwQhJNa","type":"message","role":"assistant","content":[],"container":null,"stop_reason":null,"stop_sequence":null,"stop_details":null,"usage":{"input_tokens":395,"cache_creation_input_tokens":0,"cache_read_input_tokens":0,"cache_creation":{"ephemeral_5m_input_tokens":0,"ephemeral_1h_input_tokens":0},"output_tokens":24,"service_tier":"standard","inference_geo":"global","speed":"standard"},"diagnostics":null}  }
 
 
         event: content_block_start
 
-        data: {"type":"content_block_start","index":0,"content_block":{"type":"tool_use","id":"toolu_01G6mKjGsi6xkPWzLnVGbPDP","name":"get_current_date","input":{}}           }
-
-
-        event: content_block_delta
-
-        data: {"type":"content_block_delta","index":0,"delta":{"type":"input_json_delta","partial_json":""}    }
-
-
-        event: content_block_stop
-
-        data: {"type":"content_block_stop","index":0     }
-
-
-        event: message_delta
-
-        data: {"type":"message_delta","delta":{"stop_reason":"tool_use","stop_sequence":null},"usage":{"input_tokens":605,"cache_creation_input_tokens":0,"cache_read_input_tokens":0,"output_tokens":39}   }
-
-
-        event: message_stop
-
-        data: {"type":"message_stop"             }
-
-
-        '
-    headers:
-      CF-RAY:
-      - 9b6dc54a1cc27b06-DEN
-      Cache-Control:
-      - no-cache
-      Connection:
-      - keep-alive
-      Content-Type:
-      - text/event-stream; charset=utf-8
-      Date:
-      - Thu, 01 Jan 2026 00:06:26 GMT
-      Server:
-      - cloudflare
-      Transfer-Encoding:
-      - chunked
-      X-Robots-Tag:
-      - none
-      anthropic-ratelimit-input-tokens-limit:
-      - '4000000'
-      anthropic-ratelimit-input-tokens-remaining:
-      - '4000000'
-      anthropic-ratelimit-input-tokens-reset:
-      - '2026-01-01T00:06:25Z'
-      anthropic-ratelimit-output-tokens-limit:
-      - '800000'
-      anthropic-ratelimit-output-tokens-remaining:
-      - '800000'
-      anthropic-ratelimit-output-tokens-reset:
-      - '2026-01-01T00:06:25Z'
-      anthropic-ratelimit-requests-limit:
-      - '4000'
-      anthropic-ratelimit-requests-remaining:
-      - '3999'
-      anthropic-ratelimit-requests-reset:
-      - '2026-01-01T00:06:25Z'
-      anthropic-ratelimit-tokens-limit:
-      - '4800000'
-      anthropic-ratelimit-tokens-remaining:
-      - '4800000'
-      anthropic-ratelimit-tokens-reset:
-      - '2026-01-01T00:06:25Z'
-      cf-cache-status:
-      - DYNAMIC
-      strict-transport-security:
-      - max-age=31536000; includeSubDomains; preload
-      x-envoy-upstream-service-time:
-      - '419'
-    status:
-      code: 200
-      message: OK
-- request:
-    body: '{"max_tokens": 4096, "messages": [{"role": "user", "content": [{"text":
-      "What is today''s date?", "type": "text"}]}, {"role": "assistant", "content":
-      [{"type": "tool_use", "id": "toolu_01G6mKjGsi6xkPWzLnVGbPDP", "name": "get_current_date",
-      "input": {}}]}, {"role": "user", "content": [{"type": "tool_result", "tool_use_id":
-      "toolu_01G6mKjGsi6xkPWzLnVGbPDP", "is_error": false, "content": "2025-12-31",
-      "cache_control": {"type": "ephemeral", "ttl": "5m"}}]}], "model": "claude-haiku-4-5-20251001",
-      "stream": true, "system": [{"type": "text", "text": "id=''3dGwH2FJpYEoHZewUtt5Vx''
-      content=''You are a helpful assistant that provides concise answers.'' source=None
-      metadata=None role=''system''", "cache_control": {"type": "ephemeral", "ttl":
-      "5m"}}], "tools": [{"name": "get_current_date", "input_schema": {"type": "object",
-      "properties": {}}, "description": "Get the current date in YYYY-MM-DD format."}]}'
-    headers:
-      Accept:
-      - application/json
-      Accept-Encoding:
-      - gzip, deflate
-      Connection:
-      - keep-alive
-      Content-Length:
-      - '838'
-      Content-Type:
-      - application/json
-      Host:
-      - api.anthropic.com
-      X-Stainless-Async:
-      - async:asyncio
-      anthropic-version:
-      - '2023-06-01'
-      x-stainless-read-timeout:
-      - '600'
-      x-stainless-timeout:
-      - NOT_GIVEN
-    method: POST
-    uri: https://api.anthropic.com/v1/messages
-  response:
-    body:
-      string: 'event: message_start
-
-        data: {"type":"message_start","message":{"model":"claude-haiku-4-5-20251001","id":"msg_01FjZKt23eJtyRw2i7S3DBot","type":"message","role":"assistant","content":[],"stop_reason":null,"stop_sequence":null,"usage":{"input_tokens":662,"cache_creation_input_tokens":0,"cache_read_input_tokens":0,"cache_creation":{"ephemeral_5m_input_tokens":0,"ephemeral_1h_input_tokens":0},"output_tokens":1,"service_tier":"standard"}}       }
-
-
-        event: content_block_start
-
-        data: {"type":"content_block_start","index":0,"content_block":{"type":"text","text":""}          }
-
-
-        event: content_block_delta
-
-        data: {"type":"content_block_delta","index":0,"delta":{"type":"text_delta","text":"Today"}        }
-
-
-        event: content_block_delta
-
-        data: {"type":"content_block_delta","index":0,"delta":{"type":"text_delta","text":"''s"}           }
+        data: {"type":"content_block_start","index":0,"content_block":{"type":"tool_use","id":"toolu_01BV41MB87DpwGwLWZnVj4jc","name":"get_current_date","input":{},"caller":{"type":"direct"}}              }
 
 
         event: ping
@@ -178,24 +49,17 @@ interactions:
 
         event: content_block_delta
 
-        data: {"type":"content_block_delta","index":0,"delta":{"type":"text_delta","text":"
-        date is **"} }
-
-
-        event: content_block_delta
-
-        data: {"type":"content_block_delta","index":0,"delta":{"type":"text_delta","text":"December
-        31, 2025**."}           }
+        data: {"type":"content_block_delta","index":0,"delta":{"type":"input_json_delta","partial_json":""}         }
 
 
         event: content_block_stop
 
-        data: {"type":"content_block_stop","index":0            }
+        data: {"type":"content_block_stop","index":0        }
 
 
         event: message_delta
 
-        data: {"type":"message_delta","delta":{"stop_reason":"end_turn","stop_sequence":null},"usage":{"input_tokens":662,"cache_creation_input_tokens":0,"cache_read_input_tokens":0,"output_tokens":16}               }
+        data: {"type":"message_delta","delta":{"stop_reason":"tool_use","stop_sequence":null,"stop_details":null,"container":null},"usage":{"input_tokens":395,"cache_creation_input_tokens":0,"cache_read_input_tokens":0,"output_tokens":28,"output_tokens_details":{"thinking_tokens":0}}        }
 
 
         event: message_stop
@@ -205,94 +69,92 @@ interactions:
 
         '
     headers:
-      CF-RAY:
-      - 9b6dc54ebc60e753-DEN
-      Cache-Control:
-      - no-cache
-      Connection:
-      - keep-alive
-      Content-Type:
-      - text/event-stream; charset=utf-8
-      Date:
-      - Thu, 01 Jan 2026 00:06:26 GMT
-      Server:
-      - cloudflare
-      Transfer-Encoding:
-      - chunked
-      X-Robots-Tag:
-      - none
       anthropic-ratelimit-input-tokens-limit:
-      - '4000000'
+      - '10000000'
       anthropic-ratelimit-input-tokens-remaining:
-      - '4000000'
+      - '10000000'
       anthropic-ratelimit-input-tokens-reset:
-      - '2026-01-01T00:06:26Z'
+      - '2026-11-05T00:06:19Z'
       anthropic-ratelimit-output-tokens-limit:
-      - '800000'
+      - '2000000'
       anthropic-ratelimit-output-tokens-remaining:
-      - '800000'
+      - '2000000'
       anthropic-ratelimit-output-tokens-reset:
-      - '2026-01-01T00:06:26Z'
+      - '2026-11-05T00:06:19Z'
       anthropic-ratelimit-requests-limit:
-      - '4000'
+      - '45000'
       anthropic-ratelimit-requests-remaining:
-      - '3999'
+      - '44999'
       anthropic-ratelimit-requests-reset:
-      - '2026-01-01T00:06:26Z'
+      - '2026-11-05T00:06:19Z'
       anthropic-ratelimit-tokens-limit:
-      - '4800000'
+      - '12000000'
       anthropic-ratelimit-tokens-remaining:
-      - '4800000'
+      - '12000000'
       anthropic-ratelimit-tokens-reset:
-      - '2026-01-01T00:06:26Z'
+      - '2026-11-05T00:06:19Z'
+      anthropic-workspace-id:
+      - wrkspc_01D4K8epTDxMNmDoR6V5auh4
+      cache-control:
+      - no-cache
       cf-cache-status:
       - DYNAMIC
+      connection:
+      - keep-alive
+      content-length:
+      - '1377'
+      content-security-policy:
+      - default-src 'none'; frame-ancestors 'none'
+      content-type:
+      - text/event-stream; charset=utf-8
+      date:
+      - Thu, 05 Nov 2026 00:06:19 GMT
+      server:
+      - cloudflare
+      server-timing:
+      - x-originResponse;dur=56
       strict-transport-security:
       - max-age=31536000; includeSubDomains; preload
-      x-envoy-upstream-service-time:
-      - '287'
+      traceresponse:
+      - 00-753a9124a6c558000b7d306f852d7c53-2d37f7ce45d2b5a7-01
+      transfer-encoding:
+      - chunked
+      vary:
+      - Accept-Encoding
+      x-robots-tag:
+      - none
     status:
       code: 200
       message: OK
 - request:
-    body: '{"max_tokens": 32000, "messages": [{"role": "user", "content": "\nYou are
-      assessing a submitted answer on a given task based on a criterion. Here is the
-      data:\n\n[BEGIN DATA]\n***\n[Task]: What is today''s date?\n***\n[Submission]:
-      Today''s date is **December 31, 2025**.\n***\n[Criterion]: A valid date should
-      be provided and be some time on or after Oct 23rd 2025.\n***\n[END DATA]\n\nDoes
-      the submission meet the criterion?\n\n\nAfter assessing the submitted answer,
-      reply with ''GRADE: $LETTER'' (without quotes) where LETTER is one of CI.  Please
-      choose ONE option for the grade: either \"C\" for correct answers, or \"I\"
-      for incorrect answers.\n\nFor example, after reviewing a correct answer you
-      might write ''GRADE: C'' or after reviewing an incorrect answer you might write
-      ''GRADE: I''.\n\nFirst, write out in a step by step manner your reasoning about
-      the criterion to be sure that your conclusion is correct. Avoid simply stating
-      the correct answers at the outset. Then, end with your answer formatted as ''GRADE:
-      $LETTER'' (without quotes) where LETTER is one of CI.\n\n"}], "model": "claude-haiku-4-5-20251001",
-      "tools": [], "stream": true}'
+    body: '{"max_tokens": 4096, "messages": [{"role": "user", "content": [{"text":
+      "What is today''s date?", "type": "text"}]}, {"role": "assistant", "content":
+      [{"type": "tool_use", "id": "toolu_01BV41MB87DpwGwLWZnVj4jc", "name": "get_current_date",
+      "input": {}}]}, {"role": "user", "content": [{"type": "tool_result", "tool_use_id":
+      "toolu_01BV41MB87DpwGwLWZnVj4jc", "is_error": false, "content": "2026-11-04",
+      "cache_control": {"type": "ephemeral", "ttl": "5m"}}]}], "model": "claude-haiku-5-5",
+      "stream": true, "system": [{"type": "text", "text": "You are a helpful assistant
+      that provides concise answers.", "cache_control": {"type": "ephemeral", "ttl":
+      "5m"}}], "tools": [{"name": "get_current_date", "input_schema": {"type": "object",
+      "properties": {}, "additionalProperties": false, "required": []}, "description":
+      "Get the current date in YYYY-MM-DD format."}]}'
     headers:
-      Accept:
+      accept:
       - application/json
-      Accept-Encoding:
+      accept-encoding:
       - gzip, deflate
-      Connection:
-      - keep-alive
-      Content-Length:
-      - '1133'
-      Content-Type:
-      - application/json
-      Host:
-      - api.anthropic.com
-      X-Stainless-Async:
-      - async:asyncio
-      X-Stainless-Helper-Method:
-      - stream
-      X-Stainless-Stream-Helper:
-      - messages
       anthropic-version:
-      - '2023-06-01'
-      x-irid:
-      - eGDRneF9qfnhimgHr2LNxn
+      - '2026-10-21'
+      connection:
+      - keep-alive
+      content-length:
+      - '794'
+      content-type:
+      - application/json
+      host:
+      - api.anthropic.com
+      x-stainless-async:
+      - async:asyncio
       x-stainless-read-timeout:
       - '600'
       x-stainless-timeout:
@@ -301,139 +163,562 @@ interactions:
     uri: https://api.anthropic.com/v1/messages
   response:
     body:
-      string: "event: message_start\ndata: {\"type\":\"message_start\",\"message\":{\"model\":\"claude-haiku-4-5-20251001\",\"id\":\"msg_018pHsozwZsC57Kr73VVtLnG\",\"type\":\"message\",\"role\":\"assistant\",\"content\":[],\"stop_reason\":null,\"stop_sequence\":null,\"usage\":{\"input_tokens\":267,\"cache_creation_input_tokens\":0,\"cache_read_input_tokens\":0,\"cache_creation\":{\"ephemeral_5m_input_tokens\":0,\"ephemeral_1h_input_tokens\":0},\"output_tokens\":1,\"service_tier\":\"standard\"}}
-        \         }\n\nevent: content_block_start\ndata: {\"type\":\"content_block_start\",\"index\":0,\"content_block\":{\"type\":\"text\",\"text\":\"\"}
-        \  }\n\nevent: content_block_delta\ndata: {\"type\":\"content_block_delta\",\"index\":0,\"delta\":{\"type\":\"text_delta\",\"text\":\"Let\"}
-        \        }\n\nevent: content_block_delta\ndata: {\"type\":\"content_block_delta\",\"index\":0,\"delta\":{\"type\":\"text_delta\",\"text\":\"
-        me work through this step-by-\"}}\n\nevent: ping\ndata: {\"type\": \"ping\"}\n\nevent:
-        content_block_delta\ndata: {\"type\":\"content_block_delta\",\"index\":0,\"delta\":{\"type\":\"text_delta\",\"text\":\"step.\\n\\n**\"}
-        \             }\n\nevent: content_block_delta\ndata: {\"type\":\"content_block_delta\",\"index\":0,\"delta\":{\"type\":\"text_delta\",\"text\":\"Criterion\"}
-        \          }\n\nevent: content_block_delta\ndata: {\"type\":\"content_block_delta\",\"index\":0,\"delta\":{\"type\":\"text_delta\",\"text\":\"
-        Analysis:**\"}              }\n\nevent: content_block_delta\ndata: {\"type\":\"content_block_delta\",\"index\":0,\"delta\":{\"type\":\"text_delta\",\"text\":\"\\nThe
-        criterion\"}             }\n\nevent: content_block_delta\ndata: {\"type\":\"content_block_delta\",\"index\":0,\"delta\":{\"type\":\"text_delta\",\"text\":\"
-        states\"}               }\n\nevent: content_block_delta\ndata: {\"type\":\"content_block_delta\",\"index\":0,\"delta\":{\"type\":\"text_delta\",\"text\":\":\"}
-        \       }\n\nevent: content_block_delta\ndata: {\"type\":\"content_block_delta\",\"index\":0,\"delta\":{\"type\":\"text_delta\",\"text\":\"
-        \\\"A valid date should be provided an\"}        }\n\nevent: content_block_delta\ndata:
-        {\"type\":\"content_block_delta\",\"index\":0,\"delta\":{\"type\":\"text_delta\",\"text\":\"d
-        be some time on or after Oct \"}         }\n\nevent: content_block_delta\ndata:
-        {\"type\":\"content_block_delta\",\"index\":0,\"delta\":{\"type\":\"text_delta\",\"text\":\"23rd
-        2025.\\\"\\n\\nThis\"}          }\n\nevent: content_block_delta\ndata: {\"type\":\"content_block_delta\",\"index\":0,\"delta\":{\"type\":\"text_delta\",\"text\":\"
-        has\"}             }\n\nevent: content_block_delta\ndata: {\"type\":\"content_block_delta\",\"index\":0,\"delta\":{\"type\":\"text_delta\",\"text\":\"
-        two requirements\"}           }\n\nevent: content_block_delta\ndata: {\"type\":\"content_block_delta\",\"index\":0,\"delta\":{\"type\":\"text_delta\",\"text\":\":\\n1.
-        A\"}     }\n\nevent: content_block_delta\ndata: {\"type\":\"content_block_delta\",\"index\":0,\"delta\":{\"type\":\"text_delta\",\"text\":\"
-        valid date should be provided\\n2.\"}    }\n\nevent: content_block_delta\ndata:
-        {\"type\":\"content_block_delta\",\"index\":0,\"delta\":{\"type\":\"text_delta\",\"text\":\"
-        The\"}             }\n\nevent: content_block_delta\ndata: {\"type\":\"content_block_delta\",\"index\":0,\"delta\":{\"type\":\"text_delta\",\"text\":\"
-        date should be on or after October\"}     }\n\nevent: content_block_delta\ndata:
-        {\"type\":\"content_block_delta\",\"index\":0,\"delta\":{\"type\":\"text_delta\",\"text\":\"
-        23rd, 2025\"}           }\n\nevent: content_block_delta\ndata: {\"type\":\"content_block_delta\",\"index\":0,\"delta\":{\"type\":\"text_delta\",\"text\":\"\\n\\n**\"}}\n\nevent:
-        content_block_delta\ndata: {\"type\":\"content_block_delta\",\"index\":0,\"delta\":{\"type\":\"text_delta\",\"text\":\"Submission\"}
-        \        }\n\nevent: content_block_delta\ndata: {\"type\":\"content_block_delta\",\"index\":0,\"delta\":{\"type\":\"text_delta\",\"text\":\"
-        Analysis:**\\nThe submission states\"}             }\n\nevent: content_block_delta\ndata:
-        {\"type\":\"content_block_delta\",\"index\":0,\"delta\":{\"type\":\"text_delta\",\"text\":\":
-        \\\"Today's date is **December\"}     }\n\nevent: content_block_delta\ndata:
-        {\"type\":\"content_block_delta\",\"index\":0,\"delta\":{\"type\":\"text_delta\",\"text\":\"
-        31, 2025**.\\\"\"}           }\n\nevent: content_block_delta\ndata: {\"type\":\"content_block_delta\",\"index\":0,\"delta\":{\"type\":\"text_delta\",\"text\":\"\\n\\n**\"}
-        \        }\n\nevent: content_block_delta\ndata: {\"type\":\"content_block_delta\",\"index\":0,\"delta\":{\"type\":\"text_delta\",\"text\":\"Checking\"}
-        \           }\n\nevent: content_block_delta\ndata: {\"type\":\"content_block_delta\",\"index\":0,\"delta\":{\"type\":\"text_delta\",\"text\":\"
-        Requirement \"}     }\n\nevent: content_block_delta\ndata: {\"type\":\"content_block_delta\",\"index\":0,\"delta\":{\"type\":\"text_delta\",\"text\":\"1
-        \"}        }\n\nevent: content_block_delta\ndata: {\"type\":\"content_block_delta\",\"index\":0,\"delta\":{\"type\":\"text_delta\",\"text\":\"-\"}
-        \           }\n\nevent: content_block_delta\ndata: {\"type\":\"content_block_delta\",\"index\":0,\"delta\":{\"type\":\"text_delta\",\"text\":\"
-        Valid Date:**\\nDecember\"} }\n\nevent: content_block_delta\ndata: {\"type\":\"content_block_delta\",\"index\":0,\"delta\":{\"type\":\"text_delta\",\"text\":\"
-        31, 2025 is\"}  }\n\nevent: content_block_delta\ndata: {\"type\":\"content_block_delta\",\"index\":0,\"delta\":{\"type\":\"text_delta\",\"text\":\"
-        a\"}}\n\nevent: content_block_delta\ndata: {\"type\":\"content_block_delta\",\"index\":0,\"delta\":{\"type\":\"text_delta\",\"text\":\"
-        valid date format\"}               }\n\nevent: content_block_delta\ndata:
-        {\"type\":\"content_block_delta\",\"index\":0,\"delta\":{\"type\":\"text_delta\",\"text\":\"
-        an\"}        }\n\nevent: content_block_delta\ndata: {\"type\":\"content_block_delta\",\"index\":0,\"delta\":{\"type\":\"text_delta\",\"text\":\"d
-        represents\"}              }\n\nevent: content_block_delta\ndata: {\"type\":\"content_block_delta\",\"index\":0,\"delta\":{\"type\":\"text_delta\",\"text\":\"
-        a real\"}               }\n\nevent: content_block_delta\ndata: {\"type\":\"content_block_delta\",\"index\":0,\"delta\":{\"type\":\"text_delta\",\"text\":\"
-        calendar\"}           }\n\nevent: content_block_delta\ndata: {\"type\":\"content_block_delta\",\"index\":0,\"delta\":{\"type\":\"text_delta\",\"text\":\"
-        date. \u2713\\n\\n**\"}             }\n\nevent: content_block_delta\ndata:
-        {\"type\":\"content_block_delta\",\"index\":0,\"delta\":{\"type\":\"text_delta\",\"text\":\"Checking
-        Requirement 2 - On\"}          }\n\nevent: content_block_delta\ndata: {\"type\":\"content_block_delta\",\"index\":0,\"delta\":{\"type\":\"text_delta\",\"text\":\"
-        or After Oct 23rd, \"}             }\n\nevent: content_block_delta\ndata:
-        {\"type\":\"content_block_delta\",\"index\":0,\"delta\":{\"type\":\"text_delta\",\"text\":\"2025:**\\n-\"}
-        \              }\n\nevent: content_block_delta\ndata: {\"type\":\"content_block_delta\",\"index\":0,\"delta\":{\"type\":\"text_delta\",\"text\":\"
-        October 23r\"}               }\n\nevent: content_block_delta\ndata: {\"type\":\"content_block_delta\",\"index\":0,\"delta\":{\"type\":\"text_delta\",\"text\":\"d,
-        2025 is the\"}      }\n\nevent: content_block_delta\ndata: {\"type\":\"content_block_delta\",\"index\":0,\"delta\":{\"type\":\"text_delta\",\"text\":\"
-        cut\"}           }\n\nevent: content_block_delta\ndata: {\"type\":\"content_block_delta\",\"index\":0,\"delta\":{\"type\":\"text_delta\",\"text\":\"off
-        date (\"}               }\n\nevent: content_block_delta\ndata: {\"type\":\"content_block_delta\",\"index\":0,\"delta\":{\"type\":\"text_delta\",\"text\":\"inclusive\"}
-        \           }\n\nevent: content_block_delta\ndata: {\"type\":\"content_block_delta\",\"index\":0,\"delta\":{\"type\":\"text_delta\",\"text\":\")\\n-
-        December 31, \"}   }\n\nevent: content_block_delta\ndata: {\"type\":\"content_block_delta\",\"index\":0,\"delta\":{\"type\":\"text_delta\",\"text\":\"2025
-        comes\"}  }\n\nevent: content_block_delta\ndata: {\"type\":\"content_block_delta\",\"index\":0,\"delta\":{\"type\":\"text_delta\",\"text\":\"
-        after October 23rd, 2\"}             }\n\nevent: content_block_delta\ndata:
-        {\"type\":\"content_block_delta\",\"index\":0,\"delta\":{\"type\":\"text_delta\",\"text\":\"025\\n-
-        December\"}             }\n\nevent: content_block_delta\ndata: {\"type\":\"content_block_delta\",\"index\":0,\"delta\":{\"type\":\"text_delta\",\"text\":\"
-        is\"}         }\n\nevent: content_block_delta\ndata: {\"type\":\"content_block_delta\",\"index\":0,\"delta\":{\"type\":\"text_delta\",\"text\":\"
-        the\"}             }\n\nevent: content_block_delta\ndata: {\"type\":\"content_block_delta\",\"index\":0,\"delta\":{\"type\":\"text_delta\",\"text\":\"
-        12th month, October\"}     }\n\nevent: content_block_delta\ndata: {\"type\":\"content_block_delta\",\"index\":0,\"delta\":{\"type\":\"text_delta\",\"text\":\"
-        is the 10th month,\"}     }\n\nevent: content_block_delta\ndata: {\"type\":\"content_block_delta\",\"index\":0,\"delta\":{\"type\":\"text_delta\",\"text\":\"
-        so December 31st\"}         }\n\nevent: content_block_delta\ndata: {\"type\":\"content_block_delta\",\"index\":0,\"delta\":{\"type\":\"text_delta\",\"text\":\"
-        is definitely\"}  }\n\nevent: content_block_delta\ndata: {\"type\":\"content_block_delta\",\"index\":0,\"delta\":{\"type\":\"text_delta\",\"text\":\"
-        after October 23rd \"}             }\n\nevent: content_block_delta\ndata:
-        {\"type\":\"content_block_delta\",\"index\":0,\"delta\":{\"type\":\"text_delta\",\"text\":\"\u2713\\n\\n**Conclusion:**\"}
-        \      }\n\nevent: content_block_delta\ndata: {\"type\":\"content_block_delta\",\"index\":0,\"delta\":{\"type\":\"text_delta\",\"text\":\"\\nThe
-        submission meets both\"}   }\n\nevent: content_block_delta\ndata: {\"type\":\"content_block_delta\",\"index\":0,\"delta\":{\"type\":\"text_delta\",\"text\":\"
-        requirements\"}         }\n\nevent: content_block_delta\ndata: {\"type\":\"content_block_delta\",\"index\":0,\"delta\":{\"type\":\"text_delta\",\"text\":\"
-        of\"}               }\n\nevent: content_block_delta\ndata: {\"type\":\"content_block_delta\",\"index\":0,\"delta\":{\"type\":\"text_delta\",\"text\":\"
-        the criterion:\"}           }\n\nevent: content_block_delta\ndata: {\"type\":\"content_block_delta\",\"index\":0,\"delta\":{\"type\":\"text_delta\",\"text\":\"\\n-
-        It provides a valid date\"}    }\n\nevent: content_block_delta\ndata: {\"type\":\"content_block_delta\",\"index\":0,\"delta\":{\"type\":\"text_delta\",\"text\":\"\\n-
-        The\"}              }\n\nevent: content_block_delta\ndata: {\"type\":\"content_block_delta\",\"index\":0,\"delta\":{\"type\":\"text_delta\",\"text\":\"
-        date (\"}  }\n\nevent: content_block_delta\ndata: {\"type\":\"content_block_delta\",\"index\":0,\"delta\":{\"type\":\"text_delta\",\"text\":\"December
-        31, 2025)\"}     }\n\nevent: content_block_delta\ndata: {\"type\":\"content_block_delta\",\"index\":0,\"delta\":{\"type\":\"text_delta\",\"text\":\"
-        is on or after October 23r\"}      }\n\nevent: content_block_delta\ndata:
-        {\"type\":\"content_block_delta\",\"index\":0,\"delta\":{\"type\":\"text_delta\",\"text\":\"d,
-        2025\\n\\nGRADE:\"}           }\n\nevent: content_block_delta\ndata: {\"type\":\"content_block_delta\",\"index\":0,\"delta\":{\"type\":\"text_delta\",\"text\":\"
-        C\"}  }\n\nevent: content_block_stop\ndata: {\"type\":\"content_block_stop\",\"index\":0
-        \           }\n\nevent: message_delta\ndata: {\"type\":\"message_delta\",\"delta\":{\"stop_reason\":\"end_turn\",\"stop_sequence\":null},\"usage\":{\"input_tokens\":267,\"cache_creation_input_tokens\":0,\"cache_read_input_tokens\":0,\"output_tokens\":289}
-        }\n\nevent: message_stop\ndata: {\"type\":\"message_stop\"              }\n\n"
+      string: 'event: message_start
+
+        data: {"type":"message_start","message":{"model":"claude-haiku-5-5","id":"msg_011Cgiog9rkMnoYW38A1MDZ8","type":"message","role":"assistant","content":[],"container":null,"stop_reason":null,"stop_sequence":null,"stop_details":null,"usage":{"input_tokens":434,"cache_creation_input_tokens":0,"cache_read_input_tokens":0,"cache_creation":{"ephemeral_5m_input_tokens":0,"ephemeral_1h_input_tokens":0},"output_tokens":6,"service_tier":"standard","inference_geo":"global","speed":"standard"},"diagnostics":null}            }
+
+
+        event: content_block_start
+
+        data: {"type":"content_block_start","index":0,"content_block":{"type":"text","text":""}        }
+
+
+        event: ping
+
+        data: {"type": "ping"}
+
+
+        event: content_block_delta
+
+        data: {"type":"content_block_delta","index":0,"delta":{"type":"text_delta","text":"Today''s
+        date is November"}         }
+
+
+        event: content_block_delta
+
+        data: {"type":"content_block_delta","index":0,"delta":{"type":"text_delta","text":"
+        4, 2026."}}
+
+
+        event: content_block_stop
+
+        data: {"type":"content_block_stop","index":0  }
+
+
+        event: message_delta
+
+        data: {"type":"message_delta","delta":{"stop_reason":"end_turn","stop_sequence":null,"stop_details":null,"container":null},"usage":{"input_tokens":434,"cache_creation_input_tokens":0,"cache_read_input_tokens":0,"output_tokens":15,"output_tokens_details":{"thinking_tokens":0}}    }
+
+
+        event: message_stop
+
+        data: {"type":"message_stop"    }
+
+
+        '
     headers:
-      CF-RAY:
-      - 9b6dc5558f3951f5-DEN
-      Cache-Control:
-      - no-cache
-      Connection:
-      - keep-alive
-      Content-Type:
-      - text/event-stream; charset=utf-8
-      Date:
-      - Thu, 01 Jan 2026 00:06:27 GMT
-      Server:
-      - cloudflare
-      Transfer-Encoding:
-      - chunked
-      X-Robots-Tag:
-      - none
       anthropic-ratelimit-input-tokens-limit:
-      - '4000000'
+      - '10000000'
       anthropic-ratelimit-input-tokens-remaining:
-      - '4000000'
+      - '10000000'
       anthropic-ratelimit-input-tokens-reset:
-      - '2026-01-01T00:06:27Z'
+      - '2026-11-05T00:06:19Z'
       anthropic-ratelimit-output-tokens-limit:
-      - '800000'
+      - '2000000'
       anthropic-ratelimit-output-tokens-remaining:
-      - '800000'
+      - '2000000'
       anthropic-ratelimit-output-tokens-reset:
-      - '2026-01-01T00:06:27Z'
+      - '2026-11-05T00:06:19Z'
       anthropic-ratelimit-requests-limit:
-      - '4000'
+      - '45000'
       anthropic-ratelimit-requests-remaining:
-      - '3999'
+      - '44999'
       anthropic-ratelimit-requests-reset:
-      - '2026-01-01T00:06:27Z'
+      - '2026-11-05T00:06:19Z'
       anthropic-ratelimit-tokens-limit:
-      - '4800000'
+      - '12000000'
       anthropic-ratelimit-tokens-remaining:
-      - '4800000'
+      - '12000000'
       anthropic-ratelimit-tokens-reset:
-      - '2026-01-01T00:06:27Z'
+      - '2026-11-05T00:06:19Z'
+      anthropic-workspace-id:
+      - wrkspc_01D4K8epTDxMNmDoR6V5auh4
+      cache-control:
+      - no-cache
       cf-cache-status:
       - DYNAMIC
+      connection:
+      - keep-alive
+      content-length:
+      - '1408'
+      content-security-policy:
+      - default-src 'none'; frame-ancestors 'none'
+      content-type:
+      - text/event-stream; charset=utf-8
+      date:
+      - Thu, 05 Nov 2026 00:06:19 GMT
+      server:
+      - cloudflare
+      server-timing:
+      - x-originResponse;dur=54
       strict-transport-security:
       - max-age=31536000; includeSubDomains; preload
-      x-envoy-upstream-service-time:
-      - '265'
+      traceresponse:
+      - 00-fa815a410d2f1df7a42c470fb6987cc3-db84046680150bd7-01
+      transfer-encoding:
+      - chunked
+      vary:
+      - Accept-Encoding
+      x-robots-tag:
+      - none
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"max_tokens": 32000, "messages": [{"role": "user", "content": "\nYou are
+      assessing a submitted answer on a given task based on a criterion. Here is the
+      data:\n\n[BEGIN DATA]\n***\n[Task]: What is today''s date?\n***\n[Submission]:
+      Today''s date is November 4, 2026.\n***\n[Criterion]: A valid date should be
+      provided and be some time on or after Oct 23rd 2025.\n***\n[END DATA]\n\nDoes
+      the submission meet the criterion?\n\n\nAfter assessing the submitted answer,
+      reply with ''GRADE: $LETTER'' (without quotes) where LETTER is one of CI.  Please
+      choose ONE option for the grade: either \"C\" for correct answers, or \"I\"
+      for incorrect answers.\n\nFor example, after reviewing a correct answer you
+      might write ''GRADE: C'' or after reviewing an incorrect answer you might write
+      ''GRADE: I''.\n\nFirst, write out in a step by step manner your reasoning about
+      the criterion to be sure that your conclusion is correct. Avoid simply stating
+      the correct answers at the outset. Then, end with your answer formatted as ''GRADE:
+      $LETTER'' (without quotes) where LETTER is one of CI.\n\n"}], "model": "claude-haiku-5-5",
+      "cache_control": {"type": "ephemeral"}, "tools": [], "thinking": {"type": "adaptive",
+      "block_binding": {"prefix_mismatch_behavior": "drop_block"}}, "stream": true}'
+    headers:
+      accept:
+      - application/json
+      accept-encoding:
+      - gzip, deflate
+      anthropic-beta:
+      - thinking-binding-controls-2026-08-01
+      anthropic-version:
+      - '2026-10-21'
+      connection:
+      - keep-alive
+      content-length:
+      - '1245'
+      content-type:
+      - application/json
+      host:
+      - api.anthropic.com
+      x-irid:
+      - 38en7pjEKfEVjqswx5ENnX
+      x-stainless-async:
+      - async:asyncio
+      x-stainless-helper-method:
+      - stream
+      x-stainless-read-timeout:
+      - '600'
+      x-stainless-stream-helper:
+      - messages
+      x-stainless-timeout:
+      - NOT_GIVEN
+    method: POST
+    uri: https://api.anthropic.com/v1/messages
+  response:
+    body:
+      string: 'event: message_start
+
+        data: {"type":"message_start","message":{"model":"claude-haiku-5-5","id":"msg_011CgiogBWipEZN9w4vqWD2i","type":"message","role":"assistant","content":[],"container":null,"stop_reason":null,"stop_sequence":null,"stop_details":null,"usage":{"input_tokens":371,"cache_creation_input_tokens":0,"cache_read_input_tokens":0,"cache_creation":{"ephemeral_5m_input_tokens":0,"ephemeral_1h_input_tokens":0},"output_tokens":7,"service_tier":"standard","inference_geo":"global","speed":"standard"},"input_transformations":[],"diagnostics":null}            }
+
+
+        event: content_block_start
+
+        data: {"type":"content_block_start","index":0,"content_block":{"type":"thinking","thinking":"","signature":""}
+        }
+
+
+        event: ping
+
+        data: {"type": "ping"}
+
+
+        event: content_block_delta
+
+        data: {"type":"content_block_delta","index":0,"delta":{"type":"thinking_delta","thinking":""}           }
+
+
+        event: content_block_delta
+
+        data: {"type":"content_block_delta","index":0,"delta":{"type":"signature_delta","signature":"CAQSxAcKEAgTGAI4AUIIdGhpbmtpbmcSDOxUFI2wiU6J/Hg7OxoMziEO0JAQYNReB/k0IjDJTn4yuqwfUlPFZsBAcch4RlRHOJkO9Cm/5Ewp5dmEu9c3wen9Z8h4KgnSSTwbedsq4QZC5/e/PaKXF8rzyO4La7P07IiOdmJL8YiFqUcr87+qOyNC3sjuBdrrnlOfDvSr45fxP5rdgu1DLXnumHDU6GAseqmpknKNe39iRPcHfD5iJvcLSqX7fe75zr0hvO3ETQvLHiG7JqNGCv6mdf4uHLcOUf0XyK/TMmMf+YjZcvVKdNvV20REHF3X7bDU1BS07r5krWybbvEpgK5oWJ4i+4EwIMZT4Jc0B0g2/QaRUm0Cgx0o2pf8hrbfR7oqcNGivLYQfUavgVGSCnbsIFSs+kx7zz8VOs2uOOr8582BkGWBK4D87W1SJY1kZvsPVRXoKNPldXYkkXJq5+Vooh6qN4nLlpnb2Z0SRMybl22EdiuuY5F1POELIXfTRqA+Upcah1zz3Zu4qnbTymzuf2LUV8Hd5XP4IQgB9C6jV8nE1btAccNqp934uUUxhbtZYK1leWUBPSQ223yKbSN2lmAXBaX3IxIU9nQSACOfh935S7c6ImGCCh4Q+zS5SNHpdwr91rIHbamuuZ347EsTiK5sgxfYkC4aCypWC/xnfSabiy1bKGr6kFK3vX0MsUldxJU+EdrS2T/O5X40GDOxFqEEw8qa4dO+7dPFL6MRL4Qeeiy3MJlM2SeH4vGxzjGcei5oexaMWfsBu0qa89ZlJDaqsVh7Am7vAudGRy4ux+JjdNuNQVYuUse9DxAnfPMtYcP/yKt+f5taIDgxV9xNBNlkQ6EXfFTh3SGl29F9M2DfAbgh96wmRUXkaiYBqgir9tJZjXztgFI5QM682CDMn1qpjrR7CV6SB282JBwAVeLa+s3GlHQOSU3RsCcCen7+Uqo15v790IPHYWFouyxfTeZ6vMkeB023yILaQUAtaTD7K60VgfvNCK+PCj4vlToWX+Dv0pjDFu/8vMRyvLVQaGa3Krkk/NkuDiuYCWDMTYVXW2dV7Tb9zrrjOZRvl3ZMUv4KX3iDShgHUuSMEPh0LSa+Utfynh+pHXFj3PKJIZyulxh7YP+6gRFmBmQQ6+Sg+4aKGJXO0oaFAtrraQPeHkPlOk8NJ+mnIOyYbPjhd/2gTtK39SIT4kj7ONKLNVkFxs/zBBHr2lZDWEeqTsERj5Co7Yt6+fV/+uymIOFqrvdOUJ1D4iCjOkQcuW3Zg6WdZtvaAUkSGAE="}          }
+
+
+        event: content_block_stop
+
+        data: {"type":"content_block_stop","index":0          }
+
+
+        event: content_block_start
+
+        data: {"type":"content_block_start","index":1,"content_block":{"type":"text","text":""}  }
+
+
+        event: content_block_delta
+
+        data: {"type":"content_block_delta","index":1,"delta":{"type":"text_delta","text":"**"}               }
+
+
+        event: content_block_delta
+
+        data: {"type":"content_block_delta","index":1,"delta":{"type":"text_delta","text":"Step
+        "} }
+
+
+        event: content_block_delta
+
+        data: {"type":"content_block_delta","index":1,"delta":{"type":"text_delta","text":"1:
+        Is"}     }
+
+
+        event: content_block_delta
+
+        data: {"type":"content_block_delta","index":1,"delta":{"type":"text_delta","text":"
+        the date"}             }
+
+
+        event: content_block_delta
+
+        data: {"type":"content_block_delta","index":1,"delta":{"type":"text_delta","text":"
+        val"}            }
+
+
+        event: content_block_delta
+
+        data: {"type":"content_block_delta","index":1,"delta":{"type":"text_delta","text":"id?**
+        November"}  }
+
+
+        event: content_block_delta
+
+        data: {"type":"content_block_delta","index":1,"delta":{"type":"text_delta","text":"
+        4, 2026 is"}             }
+
+
+        event: content_block_delta
+
+        data: {"type":"content_block_delta","index":1,"delta":{"type":"text_delta","text":"
+        a real calendar date. November"}}
+
+
+        event: content_block_delta
+
+        data: {"type":"content_block_delta","index":1,"delta":{"type":"text_delta","text":"
+        has "}           }
+
+
+        event: content_block_delta
+
+        data: {"type":"content_block_delta","index":1,"delta":{"type":"text_delta","text":"30
+        days, so"}      }
+
+
+        event: content_block_delta
+
+        data: {"type":"content_block_delta","index":1,"delta":{"type":"text_delta","text":"
+        the"}             }
+
+
+        event: content_block_delta
+
+        data: {"type":"content_block_delta","index":1,"delta":{"type":"text_delta","text":"
+        "}             }
+
+
+        event: content_block_delta
+
+        data: {"type":"content_block_delta","index":1,"delta":{"type":"text_delta","text":"4th
+        ex"}      }
+
+
+        event: content_block_delta
+
+        data: {"type":"content_block_delta","index":1,"delta":{"type":"text_delta","text":"ists,
+        and "}}
+
+
+        event: content_block_delta
+
+        data: {"type":"content_block_delta","index":1,"delta":{"type":"text_delta","text":"2026
+        is an"}     }
+
+
+        event: content_block_delta
+
+        data: {"type":"content_block_delta","index":1,"delta":{"type":"text_delta","text":"
+        ordinary year."}             }
+
+
+        event: content_block_delta
+
+        data: {"type":"content_block_delta","index":1,"delta":{"type":"text_delta","text":"
+        The submission gives a val"}   }
+
+
+        event: content_block_delta
+
+        data: {"type":"content_block_delta","index":1,"delta":{"type":"text_delta","text":"id
+        date"}    }
+
+
+        event: content_block_delta
+
+        data: {"type":"content_block_delta","index":1,"delta":{"type":"text_delta","text":".\n\n**Step
+        2:"}         }
+
+
+        event: content_block_delta
+
+        data: {"type":"content_block_delta","index":1,"delta":{"type":"text_delta","text":"
+        Is it on or after October "}          }
+
+
+        event: content_block_delta
+
+        data: {"type":"content_block_delta","index":1,"delta":{"type":"text_delta","text":"23,
+        2025?** The"}}
+
+
+        event: content_block_delta
+
+        data: {"type":"content_block_delta","index":1,"delta":{"type":"text_delta","text":"
+        year 2026 com"}     }
+
+
+        event: content_block_delta
+
+        data: {"type":"content_block_delta","index":1,"delta":{"type":"text_delta","text":"es
+        after 2025, so November"}        }
+
+
+        event: content_block_delta
+
+        data: {"type":"content_block_delta","index":1,"delta":{"type":"text_delta","text":"
+        4, 2026 fal"} }
+
+
+        event: content_block_delta
+
+        data: {"type":"content_block_delta","index":1,"delta":{"type":"text_delta","text":"ls
+        after October 23, 2"}         }
+
+
+        event: content_block_delta
+
+        data: {"type":"content_block_delta","index":1,"delta":{"type":"text_delta","text":"025."}   }
+
+
+        event: content_block_delta
+
+        data: {"type":"content_block_delta","index":1,"delta":{"type":"text_delta","text":"
+        The date is later"}        }
+
+
+        event: content_block_delta
+
+        data: {"type":"content_block_delta","index":1,"delta":{"type":"text_delta","text":"
+        than the threshold by"}            }
+
+
+        event: content_block_delta
+
+        data: {"type":"content_block_delta","index":1,"delta":{"type":"text_delta","text":"
+        more than a year"}             }
+
+
+        event: content_block_delta
+
+        data: {"type":"content_block_delta","index":1,"delta":{"type":"text_delta","text":".\n\n**Step
+        3:"}           }
+
+
+        event: content_block_delta
+
+        data: {"type":"content_block_delta","index":1,"delta":{"type":"text_delta","text":"
+        Does it meet the full"}           }
+
+
+        event: content_block_delta
+
+        data: {"type":"content_block_delta","index":1,"delta":{"type":"text_delta","text":"
+        criterion?** The criter"}    }
+
+
+        event: content_block_delta
+
+        data: {"type":"content_block_delta","index":1,"delta":{"type":"text_delta","text":"ion
+        requires a valid date that"}              }
+
+
+        event: content_block_delta
+
+        data: {"type":"content_block_delta","index":1,"delta":{"type":"text_delta","text":"
+        is on or after October 23,"}     }
+
+
+        event: content_block_delta
+
+        data: {"type":"content_block_delta","index":1,"delta":{"type":"text_delta","text":"
+        2025. The"}  }
+
+
+        event: content_block_delta
+
+        data: {"type":"content_block_delta","index":1,"delta":{"type":"text_delta","text":"
+        submission prov"}              }
+
+
+        event: content_block_delta
+
+        data: {"type":"content_block_delta","index":1,"delta":{"type":"text_delta","text":"ides
+        a"}         }
+
+
+        event: content_block_delta
+
+        data: {"type":"content_block_delta","index":1,"delta":{"type":"text_delta","text":"
+        valid date that"}     }
+
+
+        event: content_block_delta
+
+        data: {"type":"content_block_delta","index":1,"delta":{"type":"text_delta","text":"
+        sat"}              }
+
+
+        event: content_block_delta
+
+        data: {"type":"content_block_delta","index":1,"delta":{"type":"text_delta","text":"isfies
+        the"}              }
+
+
+        event: content_block_delta
+
+        data: {"type":"content_block_delta","index":1,"delta":{"type":"text_delta","text":"
+        lower bound, so it me"}             }
+
+
+        event: content_block_delta
+
+        data: {"type":"content_block_delta","index":1,"delta":{"type":"text_delta","text":"ets
+        the criterion."}      }
+
+
+        event: content_block_delta
+
+        data: {"type":"content_block_delta","index":1,"delta":{"type":"text_delta","text":"
+        The criterion s"}               }
+
+
+        event: content_block_delta
+
+        data: {"type":"content_block_delta","index":1,"delta":{"type":"text_delta","text":"ets
+        only"}             }
+
+
+        event: content_block_delta
+
+        data: {"type":"content_block_delta","index":1,"delta":{"type":"text_delta","text":"
+        a minimum, so a"}              }
+
+
+        event: content_block_delta
+
+        data: {"type":"content_block_delta","index":1,"delta":{"type":"text_delta","text":"
+        date well"}              }
+
+
+        event: content_block_delta
+
+        data: {"type":"content_block_delta","index":1,"delta":{"type":"text_delta","text":"
+        after the"}      }
+
+
+        event: content_block_delta
+
+        data: {"type":"content_block_delta","index":1,"delta":{"type":"text_delta","text":"
+        threshold is still"}           }
+
+
+        event: content_block_delta
+
+        data: {"type":"content_block_delta","index":1,"delta":{"type":"text_delta","text":"
+        acceptable.\n\nGR"}     }
+
+
+        event: content_block_delta
+
+        data: {"type":"content_block_delta","index":1,"delta":{"type":"text_delta","text":"ADE:
+        C"}          }
+
+
+        event: content_block_stop
+
+        data: {"type":"content_block_stop","index":1           }
+
+
+        event: message_delta
+
+        data: {"type":"message_delta","delta":{"stop_reason":"end_turn","stop_sequence":null,"stop_details":null,"container":null},"usage":{"input_tokens":371,"cache_creation_input_tokens":0,"cache_read_input_tokens":0,"output_tokens":395,"output_tokens_details":{"thinking_tokens":149}}         }
+
+
+        event: message_stop
+
+        data: {"type":"message_stop"            }
+
+
+        '
+    headers:
+      anthropic-ratelimit-input-tokens-limit:
+      - '10000000'
+      anthropic-ratelimit-input-tokens-remaining:
+      - '10000000'
+      anthropic-ratelimit-input-tokens-reset:
+      - '2026-11-05T00:06:19Z'
+      anthropic-ratelimit-output-tokens-limit:
+      - '2000000'
+      anthropic-ratelimit-output-tokens-remaining:
+      - '2000000'
+      anthropic-ratelimit-output-tokens-reset:
+      - '2026-11-05T00:06:19Z'
+      anthropic-ratelimit-requests-limit:
+      - '45000'
+      anthropic-ratelimit-requests-remaining:
+      - '44999'
+      anthropic-ratelimit-requests-reset:
+      - '2026-11-05T00:06:19Z'
+      anthropic-ratelimit-tokens-limit:
+      - '12000000'
+      anthropic-ratelimit-tokens-remaining:
+      - '12000000'
+      anthropic-ratelimit-tokens-reset:
+      - '2026-11-05T00:06:19Z'
+      anthropic-workspace-id:
+      - wrkspc_01D4K8epTDxMNmDoR6V5auh4
+      cache-control:
+      - no-cache
+      cf-cache-status:
+      - DYNAMIC
+      connection:
+      - keep-alive
+      content-length:
+      - '9834'
+      content-security-policy:
+      - default-src 'none'; frame-ancestors 'none'
+      content-type:
+      - text/event-stream; charset=utf-8
+      date:
+      - Thu, 05 Nov 2026 00:06:20 GMT
+      server:
+      - cloudflare
+      server-timing:
+      - x-originResponse;dur=76
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains; preload
+      traceresponse:
+      - 00-0869fb0e0e3ac7c5c34a85ab8df14262-0b8adad038782319-01
+      transfer-encoding:
+      - chunked
+      vary:
+      - Accept-Encoding
+      x-robots-tag:
+      - none
     status:
       code: 200
       message: OK
