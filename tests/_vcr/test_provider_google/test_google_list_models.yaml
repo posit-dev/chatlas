@@ -15,7 +15,7 @@ interactions:
       x-goog-api-client:
       - google-genai-sdk/1.56.0 gl-python/3.11.13
     method: GET
-    uri: https://generativelanguage.googleapis.com/v1beta/models
+    uri: https://generativelanguage.googleapis.com/v1/models
   response:
     body:
       string: "{\n  \"models\": [\n    {\n      \"name\": \"models/embedding-gecko-001\",\n
@@ -356,7 +356,7 @@ interactions:
       x-goog-api-client:
       - google-genai-sdk/1.56.0 gl-python/3.11.13
     method: GET
-    uri: https://generativelanguage.googleapis.com/v1beta/models?pageToken=Ch9tb2RlbHMvdmVvLTMuMS1nZW5lcmF0ZS1wcmV2aWV3
+    uri: https://generativelanguage.googleapis.com/v1/models?pageToken=Ch9tb2RlbHMvdmVvLTMuMS1nZW5lcmF0ZS1wcmV2aWV3
   response:
     body:
       string: "{\n  \"models\": [\n    {\n      \"name\": \"models/veo-3.1-fast-generate-preview\",\n

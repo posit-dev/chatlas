@@ -10,7 +10,7 @@ interactions:
       x-goog-api-client:
       - google-genai-sdk/1.56.0 gl-python/3.11.13
     method: post
-    uri: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:streamGenerateContent?alt=sse
+    uri: https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:streamGenerateContent?alt=sse
   response:
     body:
       string: "data: {\"candidates\": [{\"content\": {\"parts\": [{\"text\": \"2\"}],\"role\":
