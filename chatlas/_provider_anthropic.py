@@ -1708,6 +1708,11 @@ def anthropic_tool_result_document_sources(
     counts toward `document_index`. (`search_result` blocks have their own
     `search_result_index`, so they don't take a slot.)
     """
+    # Only an as-is value can carry raw blocks; every other format serializes
+    # to a string. Skip those without rendering them -- this runs for every
+    # citation, and rendering can mean `.to_json()`/`.to_pandas()` calls.
+    if content.model_format != "as_is":
+        return []
     value = content.get_model_value()
     if not isinstance(value, list):
         return []

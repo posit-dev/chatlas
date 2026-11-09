@@ -36,6 +36,7 @@ from chatlas._content import (
 from chatlas._provider_anthropic import (
     _ANTHROPIC_FINISH_REASON_MAP,
     AnthropicProvider,
+    anthropic_document_sources,
     anthropic_fetch_result,
     serving_model,
     supports_structured_outputs,
@@ -686,6 +687,28 @@ def test_anthropic_web_fetch_citation_accounts_for_tool_result_documents():
     assert citations[1].source is None
     assert citations[2].source is not None
     assert citations[2].source.url == "https://site.example"
+
+
+def test_anthropic_document_sources_does_not_serialize_tool_results():
+    # Resolving citations walks every prior tool result, but only one sent
+    # as-is can hold document blocks. Serializing other results (e.g. a
+    # DataFrame's `.to_json()`) would be wasted work on every citation.
+    class CountingValue:
+        to_json_calls = 0
+
+        def to_json(self) -> str:
+            self.to_json_calls += 1
+            return "[]"
+
+    request = ContentToolRequest(id="call-1", name="lookup", arguments={})
+    turns = [
+        UserTurn("hi"),
+        AssistantTurn([request], finish_reason="tool_use"),
+        UserTurn([ContentToolResult(value=CountingValue(), request=request)]),
+    ]
+
+    assert anthropic_document_sources(turns, []) == []
+    assert turns[2].contents[0].value.to_json_calls == 0
 
 
 def web_fetch_result(url: str, title: str) -> WebFetchToolResultBlock:
