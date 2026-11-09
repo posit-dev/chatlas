@@ -707,15 +707,18 @@ class AnthropicProvider(
             # Usage on message_delta is cumulative and, with server tools, can
             # exceed message_start's input and cache counts. Fields are omitted
             # when not applicable, in which case message_start's value stands.
-            for field in (
-                "input_tokens",
-                "cache_creation_input_tokens",
-                "cache_read_input_tokens",
-                "server_tool_use",
-            ):
-                value = getattr(chunk.usage, field, None)
-                if value is not None:
-                    setattr(completion.usage, field, value)
+            if chunk.usage.input_tokens is not None:
+                completion.usage.input_tokens = chunk.usage.input_tokens
+            if chunk.usage.cache_creation_input_tokens is not None:
+                completion.usage.cache_creation_input_tokens = (
+                    chunk.usage.cache_creation_input_tokens
+                )
+            if chunk.usage.cache_read_input_tokens is not None:
+                completion.usage.cache_read_input_tokens = (
+                    chunk.usage.cache_read_input_tokens
+                )
+            if chunk.usage.server_tool_use is not None:
+                completion.usage.server_tool_use = chunk.usage.server_tool_use
 
         return completion
 
