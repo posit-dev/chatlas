@@ -705,6 +705,21 @@ class AnthropicProvider(
             completion.stop_reason = chunk.delta.stop_reason
             completion.stop_sequence = chunk.delta.stop_sequence
             completion.usage.output_tokens = chunk.usage.output_tokens
+            # Usage on message_delta is cumulative and, with server tools, can
+            # exceed message_start's input and cache counts. Fields are omitted
+            # when not applicable, in which case message_start's value stands.
+            if chunk.usage.input_tokens is not None:
+                completion.usage.input_tokens = chunk.usage.input_tokens
+            if chunk.usage.cache_creation_input_tokens is not None:
+                completion.usage.cache_creation_input_tokens = (
+                    chunk.usage.cache_creation_input_tokens
+                )
+            if chunk.usage.cache_read_input_tokens is not None:
+                completion.usage.cache_read_input_tokens = (
+                    chunk.usage.cache_read_input_tokens
+                )
+            if chunk.usage.server_tool_use is not None:
+                completion.usage.server_tool_use = chunk.usage.server_tool_use
 
         return completion
 
@@ -800,15 +815,20 @@ class AnthropicProvider(
         res: "SubmitInputArgs" = {}
 
         # anthropic>=1.0 removed these sampling parameters from the request
-        # schema; current models ignore them. Forward them via `extra_body`
-        # so older models that still honor them keep working.
+        # schema; Claude 4.7 and later reject non-default values with a 400.
+        # Forward them via `extra_body` so older models that still honor them
+        # keep working.
         removed = [p for p in ("temperature", "top_p", "top_k") if p in params]
         if removed:
             warnings.warn(
-                f"The {', '.join(removed)} sampling parameter(s) no longer have "
-                "an effect on current Anthropic models. They are forwarded via "
-                "`extra_body` for older models that still honor them; this "
-                "forwarding is deprecated and will be removed in a future release.",
+                f"The {', '.join(removed)} sampling parameter(s) are deprecated by "
+                "Anthropic: Claude 4.7 and later models return a 400 error when they "
+                "are set to a non-default value, and API version 2026-10-21 removes "
+                "them for every model "
+                "(https://platform.claude.com/docs/en/about-claude/model-deprecations). "
+                "They are forwarded via `extra_body` for older models that still "
+                "honor them; this forwarding is deprecated and will be removed in a "
+                "future release.",
                 DeprecationWarning,
                 stacklevel=2,
             )

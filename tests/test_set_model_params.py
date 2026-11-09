@@ -169,7 +169,10 @@ def test_translate_model_params_anthropic():
         "stop_sequences": ["STOP"],
     }
 
-    with pytest.warns(DeprecationWarning, match="no longer have an effect"):
+    with pytest.warns(
+        DeprecationWarning,
+        match="return a 400 error when they are set to a non-default value",
+    ):
         result = provider.translate_model_params(params)
 
     expected = {
@@ -517,7 +520,10 @@ def test_anthropic_model_params_integration():
     )
 
     # Test that provider.translate_model_params converts them correctly
-    with pytest.warns(DeprecationWarning, match="no longer have an effect"):
+    with pytest.warns(
+        DeprecationWarning,
+        match="return a 400 error when they are set to a non-default value",
+    ):
         provider_args = chat.provider.translate_model_params(
             chat._standard_model_params
         )
@@ -564,3 +570,17 @@ def test_chat_kwargs_with_model_params():
     assert kwargs.get("max_tokens") == 100
     assert kwargs.get("frequency_penalty") == 0.1
     assert kwargs.get("presence_penalty") == 0.3  # Should override chat.chat_kwargs
+
+
+def test_anthropic_sampling_warning_cites_the_deprecation_page():
+    """The warning says what Anthropic documents: a 400 on Claude 4.7+, removal in 2026-10-21."""
+    provider = ChatAnthropic().provider
+
+    with pytest.warns(DeprecationWarning) as record:
+        provider.translate_model_params({"temperature": 0.7, "top_k": 50})
+
+    message = str(record[0].message)
+    assert message.startswith("The temperature, top_k sampling parameter(s)")
+    assert "Claude 4.7 and later" in message
+    assert "2026-10-21" in message
+    assert "no longer have an effect" not in message
