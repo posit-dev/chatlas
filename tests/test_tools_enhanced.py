@@ -683,6 +683,67 @@ class TestRegisterToolInstance:
         assert registered_tool.name == "custom_multiply"
         assert registered_tool.func == multiply
 
+    def test_register_tool_instance_keeps_schema(self):
+        """A Tool built with explicit parameters keeps them when registered."""
+        chat = ChatOpenAI()
+
+        def invoke(**arguments):
+            """Invoke the tool."""
+            return "ok"
+
+        parameters = {
+            "type": "object",
+            "properties": {"r": {"type": "string", "description": "R code"}},
+        }
+        tool = Tool(
+            func=invoke,
+            name="send",
+            description="Send code to a persistent session.",
+            parameters=parameters,
+            strict=False,
+        )
+
+        chat.register_tool(tool)
+
+        func_schema = chat._tools["send"].schema["function"]
+        assert func_schema["description"] == "Send code to a persistent session."
+        assert func_schema.get("parameters") == {
+            "type": "object",
+            "properties": {"r": {"type": "string", "description": "R code"}},
+        }
+        assert func_schema.get("strict") is False
+
+    def test_register_tool_instance_with_custom_name_keeps_schema(self):
+        """A name override renames the tool without rebuilding its schema."""
+        chat = ChatOpenAI()
+
+        def invoke(**arguments):
+            """Invoke the tool."""
+            return "ok"
+
+        parameters = {
+            "type": "object",
+            "properties": {"r": {"type": "string", "description": "R code"}},
+        }
+        tool = Tool(
+            func=invoke,
+            name="send",
+            description="Send code to a persistent session.",
+            parameters=parameters,
+        )
+
+        chat.register_tool(tool, name="send_r")
+
+        assert list(chat._tools) == ["send_r"]
+        func_schema = chat._tools["send_r"].schema["function"]
+        assert func_schema["name"] == "send_r"
+        assert func_schema["description"] == "Send code to a persistent session."
+        assert func_schema.get("parameters") == {
+            "type": "object",
+            "properties": {"r": {"type": "string", "description": "R code"}},
+        }
+        assert tool.name == "send"
+
     def test_register_tool_instance_with_model_override(self):
         """Test registering a Tool instance with a model override."""
         from pydantic import BaseModel, Field
