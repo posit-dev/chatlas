@@ -154,10 +154,13 @@ class OllamaProvider(OpenAICompletionsProvider):
         self.base_url = base_url
 
     def list_models(self):
+        # Always set from the constructor's (required) base_url argument
+        assert self.base_url is not None
         return ollama_model_info(self.base_url)
 
     def _chat_perform_args(self, *args, **kwargs):
         if not self.model:
+            assert self.base_url is not None
             model_ids = ", ".join(m["id"] for m in ollama_model_info(self.base_url))
             raise ValueError(f"Must specify model. Available models: {model_ids}")
         return super()._chat_perform_args(*args, **kwargs)

@@ -430,6 +430,7 @@ class BedrockConverseProvider(
         self._cache: Literal["auto", "5m", "1h", "none"] = cache
 
         resolved_base_url = base_url or bedrock_base_url("converse", aws_region)
+        self._base_url = resolved_base_url
         # `LazyCredentials` defers the botocore credential chain to the first
         # signed request. Resolving it here instead (e.g. via
         # `bedrock_credentials(aws_profile)`, which eagerly freezes credentials

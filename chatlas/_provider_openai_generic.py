@@ -148,6 +148,7 @@ class OpenAIAbstractProvider(
 
         self._client = create_openai_client(OpenAI, sync_kwargs)
         self._async_client = create_openai_client(AsyncOpenAI, async_kwargs)
+        self._base_url = str(self._client.base_url)
 
     def close(self) -> None:
         self._client.close()
