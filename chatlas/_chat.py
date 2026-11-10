@@ -27,6 +27,7 @@ from typing import (
     overload,
 )
 
+import orjson
 from pydantic import BaseModel
 
 from ._callbacks import CallbackManager
@@ -81,6 +82,7 @@ from ._turn import (
     SystemTurn,
     Turn,
     UserTurn,
+    caller_stacklevel,
     check_finish_reason,
     normalize_turns_for_provider,
     user_turn,
@@ -1647,6 +1649,8 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         stream: bool = False,
         kwargs: Optional[SubmitInputArgsT] = None,
     ) -> dict[str, Any]:
+        stream = self._resolve_stream(stream, data_model, yields_chunks=False)
+
         display = self._markdown_display(echo=echo)
 
         response = ChatResponse(
@@ -1748,6 +1752,8 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         stream: bool = False,
         kwargs: Optional[SubmitInputArgsT] = None,
     ) -> dict[str, Any]:
+        stream = self._resolve_stream(stream, data_model, yields_chunks=False)
+
         display = self._markdown_display(echo=echo)
 
         response = ChatResponseAsync(
@@ -2755,6 +2761,8 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         *,
         controller: StreamController,
     ) -> Generator[str | Content, None, None]:
+        stream = self._resolve_stream(stream, data_model)
+
         agent_span = start_agent_span(self.provider, self._conversation_id)
         try:
             user_turn_result: UserTurn | None = user_turn
@@ -2842,6 +2850,8 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         *,
         controller: StreamController,
     ) -> AsyncGenerator[str | Content, None]:
+        stream = self._resolve_stream(stream, data_model)
+
         agent_span = start_agent_span(self.provider, self._conversation_id)
         try:
             user_turn_result: UserTurn | None = user_turn
@@ -3051,9 +3061,10 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                 emit_thinking_contents(turn, emit)
                 emit_web_contents(turn, emit)
 
-                if turn.text:
-                    emit(turn.text)
-                    yield turn.text
+                text = nonstream_yield_text(turn, data_model)
+                if text:
+                    emit(text)
+                    yield text
 
                 emit_image_contents(turn, emit)
                 if echo == "all":
@@ -3220,9 +3231,10 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                 emit_thinking_contents(turn, emit)
                 emit_web_contents(turn, emit)
 
-                if turn.text:
-                    emit(turn.text)
-                    yield turn.text
+                text = nonstream_yield_text(turn, data_model)
+                if text:
+                    emit(text)
+                    yield text
 
                 emit_image_contents(turn, emit)
                 if echo == "all":
@@ -3236,6 +3248,30 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             raise
         finally:
             end_span(chat_span)
+
+    def _resolve_stream(
+        self,
+        stream: bool,
+        data_model: type[BaseModel] | None,
+        *,
+        yields_chunks: bool = True,
+    ) -> bool:
+        """Downgrade a streaming request when the provider can't stream it."""
+        if not stream or self.provider.can_stream(data_model):
+            return stream
+        outcome = (
+            "yielded (as a single chunk)"
+            if yields_chunks
+            # `chat_structured()` returns a validated model; nothing is yielded
+            else "produced"
+        )
+        warnings.warn(
+            "This provider does not support streaming structured data "
+            "extraction; falling back to a non-streaming request. The full "
+            f"result is still {outcome} and recorded in the conversation.",
+            stacklevel=caller_stacklevel(),
+        )
+        return False
 
     def _collect_all_kwargs(
         self,
@@ -3752,7 +3788,8 @@ def emit_other_contents(
 
     Reasoning and web activity are excluded: both are displayed as they arrive
     (streaming) or explicitly before the text (non-streaming), so emitting them
-    from the turn's contents too would show them twice.
+    from the turn's contents too would show them twice. The same goes for an
+    assistant turn's structured-extraction JSON, which stands in for its text.
     """
     # Gather other content to emit in _reverse_ order
     to_emit: list[Content | str] = []
@@ -3765,6 +3802,11 @@ def emit_other_contents(
     for content in reversed(x.contents):
         if isinstance(content, ContentText):
             has_text = True
+        elif isinstance(content, ContentJson) and isinstance(x, AssistantTurn):
+            # Structured-extraction JSON is the assistant turn's text: it was
+            # streamed live or emitted as the text, so emitting it here too
+            # would show it twice.
+            continue
         elif isinstance(content, (ContentThinking, ContentThinkingDelta)):
             continue
         elif isinstance(content, PROVIDER_ANNOTATION_TYPES):
@@ -3843,6 +3885,22 @@ async def aclose_response(response: Any) -> None:
             await response.close()
         else:
             response.close()
+
+
+def nonstream_yield_text(turn: Turn, data_model: type[BaseModel] | None) -> str:
+    """
+    Text to yield for a turn produced by a non-streaming request.
+
+    A structured-extraction turn carries its result in `ContentJson`, which
+    `turn.text` ignores; serialize it so that `"".join(chunks)` still parses
+    (see [](`~chatlas.Chat.stream`)).
+    """
+    if data_model is None:
+        return turn.text
+    for content in turn.contents:
+        if isinstance(content, ContentJson):
+            return orjson.dumps(content.value).decode("utf-8")
+    return turn.text
 
 
 def finalize_assistant_turn(provider: Provider, turn: Turn) -> AssistantTurn:
