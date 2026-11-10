@@ -39,16 +39,16 @@ def merge_dicts(left: dict[str, Any], *others: dict[str, Any]) -> dict[str, Any]
                     merged[right_k] = None
             elif left_v is None:
                 merged[right_k] = right_v
-            elif left_v == right_v:
-                continue
             elif isinstance(left_v, str):
                 merged[right_k] += right_v
+            elif isinstance(left_v, dict):
+                merged[right_k] = merge_dicts(merged[right_k], right_v)
+            elif isinstance(left_v, list):
+                merged[right_k] = merge_lists(merged[right_k], right_v)
+            elif left_v == right_v:
+                continue
             elif isinstance(left_v, (int, float)):
                 merged[right_k] = right_v
-            elif isinstance(merged[right_k], dict):
-                merged[right_k] = merge_dicts(merged[right_k], right_v)
-            elif isinstance(merged[right_k], list):
-                merged[right_k] = merge_lists(merged[right_k], right_v)
             elif type(merged[right_k]) is not type(right_v):
                 raise TypeError(
                     f'additional_kwargs["{right_k}"] already exists in this message,'
