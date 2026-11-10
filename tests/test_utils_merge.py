@@ -98,6 +98,39 @@ def test_fragments_route_to_parallel_unindexed_calls_by_completeness():
     ]
 
 
+def test_unindexed_fragments_continue_an_indexed_call():
+    # Some servers send `index` on the first chunk of a tool call but omit it
+    # on the argument fragments that follow
+    chunks = [
+        _tool_call_chunk(
+            index=0, id="call_1", function={"name": "f", "arguments": '{"x":'}
+        ),
+        _tool_call_chunk(function={"arguments": " 1}"}),
+    ]
+    merged = merge_dicts({}, *chunks)
+    assert merged["tool_calls"] == [
+        {
+            "index": 0,
+            "id": "call_1",
+            "function": {"name": "f", "arguments": '{"x": 1}'},
+        }
+    ]
+
+
+def test_fragments_route_to_calls_announced_without_arguments():
+    chunks = [
+        _tool_call_chunk(id="call_1", function={"name": "f"}),
+        _tool_call_chunk(id="call_2", function={"name": "g"}),
+        _tool_call_chunk(function={"arguments": '{"x":1}'}),
+        _tool_call_chunk(function={"arguments": '{"y":2}'}),
+    ]
+    merged = merge_dicts({}, *chunks)
+    assert [c["function"]["arguments"] for c in merged["tool_calls"]] == [
+        '{"x":1}',
+        '{"y":2}',
+    ]
+
+
 def test_indexed_chunk_after_unindexed_element_does_not_raise():
     merged = merge_dicts(
         {"tool_calls": [{"id": "call_1", "function": {"arguments": "{}"}}]},

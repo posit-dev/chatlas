@@ -103,19 +103,21 @@ def merge_lists(
                 elif merged and _is_tool_call_fragment(e):
                     # Some OpenAI-compatible servers omit `index` on streamed tool
                     # calls; a fragment without an id or name continues a previous
-                    # call. With several unindexed calls in flight, it belongs to
-                    # the first whose arguments don't parse as complete JSON yet
-                    # (a JSON object has no proper prefix that parses), falling
-                    # back to the most recent call.
+                    # call. With several calls in flight, it belongs to the first
+                    # whose arguments don't parse as complete JSON yet (a JSON
+                    # object has no proper prefix that parses), falling back to
+                    # the most recent call. Fragments interleaved across parallel
+                    # calls carry no routing signal at all, so that ordering
+                    # can't be recovered by any strategy.
                     target = next(
                         (
                             i
                             for i, c in enumerate(merged)
-                            if _is_tool_call(c) and not _arguments_complete(c)
+                            if _is_tool_call_target(c) and not _arguments_complete(c)
                         ),
                         None,
                     )
-                    if target is None and _is_tool_call(merged[-1]):
+                    if target is None and _is_tool_call_target(merged[-1]):
                         target = len(merged) - 1
                     if target is None:
                         merged.append(e)
@@ -136,8 +138,17 @@ def _is_tool_call_fragment(x: Any) -> bool:
     return _is_tool_call(x) and not x.get("id") and not x["function"].get("name")
 
 
+def _is_tool_call_target(x: Any) -> bool:
+    # Unlike `_is_tool_call`, an `index` doesn't disqualify a merge target:
+    # some servers index only the first chunk of a call
+    return isinstance(x, dict) and isinstance(x.get("function"), dict)
+
+
 def _arguments_complete(tool_call: dict[str, Any]) -> bool:
     arguments = tool_call.get("function", {}).get("arguments")
+    if arguments is None:
+        # Announced with only an id/name; still awaiting its arguments
+        return False
     if not isinstance(arguments, str):
         return True
     try:
