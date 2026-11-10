@@ -371,15 +371,23 @@ def converse_cache_point(
     return {"type": "default"}
 
 
+# Responses carry their request's cache-point TTLs under this private key so
+# `value_tokens()` can weight cache writes per response, even when requests
+# with different TTLs are in flight concurrently on a shared provider.
+_CACHE_POINT_TTLS_KEY = "chatlasCachePointTtls"
+
+
 def request_cache_point_ttls(
     args: "ConverseRequestTypeDef",
 ) -> "list[Literal['5m', '1h']]":
     """TTLs of the cache points present in a Converse request."""
     ttls: list[Literal["5m", "1h"]] = []
     blocks: list[dict] = list(args.get("system") or [])
+    tool_config = args.get("toolConfig") or {}
+    blocks.extend(cast("list[dict]", tool_config.get("tools") or []))
     for message in args.get("messages") or []:
         content = message.get("content")
-        if isinstance(content, list):
+        if isinstance(content, (list, tuple)):
             blocks.extend(cast("list[dict]", content))
     for block in blocks:
         if isinstance(block, dict) and "cachePoint" in block:
@@ -446,10 +454,6 @@ class BedrockConverseProvider(
         self._aws_region = aws_region
         self._max_tokens = max_tokens
         self._cache: Literal["auto", "5m", "1h", "none"] = cache
-        # TTLs of the cache points in the most recent request, since the
-        # caller can place their own via kwargs with a TTL that differs from
-        # `cache`. `None` until a request is built.
-        self._request_cache_ttls: Optional[list[Literal["5m", "1h"]]] = None
 
         resolved_base_url = base_url or bedrock_base_url("converse", aws_region)
         # `LazyCredentials` defers the botocore credential chain to the first
@@ -545,7 +549,9 @@ class BedrockConverseProvider(
         args = self._chat_perform_args(stream, turns, tools, data_model, kwargs)
         if stream:
             return self._converse_stream(args)
-        return self._converse(args)
+        response = self._converse(args)
+        cast(dict, response)[_CACHE_POINT_TTLS_KEY] = request_cache_point_ttls(args)
+        return response
 
     @overload
     async def chat_perform_async(
@@ -581,7 +587,9 @@ class BedrockConverseProvider(
         args = self._chat_perform_args(stream, turns, tools, data_model, kwargs)
         if stream:
             return self._converse_stream_async(args)
-        return await self._converse_async(args)
+        response = await self._converse_async(args)
+        cast(dict, response)[_CACHE_POINT_TTLS_KEY] = request_cache_point_ttls(args)
+        return response
 
     def stream_content(
         self,
@@ -603,7 +611,9 @@ class BedrockConverseProvider(
         chunk: dict,
     ) -> Optional[ConverseAccumulator]:
         merged: ConverseAccumulator = completion or {}
-        if "messageStart" in chunk:
+        if _CACHE_POINT_TTLS_KEY in chunk:
+            cast(dict, merged)[_CACHE_POINT_TTLS_KEY] = chunk[_CACHE_POINT_TTLS_KEY]
+        elif "messageStart" in chunk:
             merged["role"] = chunk["messageStart"]["role"]
         elif "contentBlockStart" in chunk:
             start_event = chunk["contentBlockStart"]
@@ -731,6 +741,10 @@ class BedrockConverseProvider(
                 "usage": usage,
             },
         )
+        if _CACHE_POINT_TTLS_KEY in completion:
+            cast(dict, response)[_CACHE_POINT_TTLS_KEY] = cast(dict, completion)[
+                _CACHE_POINT_TTLS_KEY
+            ]
         return self._as_turn(response, has_data_model)
 
     def value_turn(
@@ -752,9 +766,11 @@ class BedrockConverseProvider(
         if not model_id.startswith("anthropic."):
             cache_write_mult = 1.0
         else:
-            ttls = self._request_cache_ttls
+            ttls = cast(dict, completion).get(_CACHE_POINT_TTLS_KEY)
             if ttls is None:
-                # No request built yet; assume the configured cache setting.
+                # Completion didn't come through `chat_perform()` (e.g. a raw
+                # response passed to `value_tokens()` directly); assume the
+                # configured cache setting.
                 ttls = ["1h"] if self._cache == "1h" else ["5m"]
             # Usage reports a single write count, so writes from mixed-TTL
             # cache points can't be attributed exactly; the 1h multiplier
@@ -888,7 +904,6 @@ class BedrockConverseProvider(
             assert tool_config is not None
             args["toolConfig"] = tool_config
 
-        self._request_cache_ttls = request_cache_point_ttls(args)
         return args
 
     def _request_target(
@@ -920,6 +935,7 @@ class BedrockConverseProvider(
         return converse_response_from_json(response.json())
 
     def _converse_stream(self, args: ConverseRequestTypeDef) -> Iterator[dict]:
+        yield {_CACHE_POINT_TTLS_KEY: request_cache_point_ttls(args)}
         url, body = self._request_target(args, "converse-stream")
         with self._client.stream("POST", url, json=body) as response:
             if not response.is_success:
@@ -930,6 +946,7 @@ class BedrockConverseProvider(
     async def _converse_stream_async(
         self, args: ConverseRequestTypeDef
     ) -> AsyncIterator[dict]:
+        yield {_CACHE_POINT_TTLS_KEY: request_cache_point_ttls(args)}
         url, body = self._request_target(args, "converse-stream")
         async with self._async_client.stream("POST", url, json=body) as response:
             if not response.is_success:
@@ -945,6 +962,8 @@ class BedrockConverseProvider(
     ) -> AssistantTurn[ConverseResponseTypeDef]:
         finish_reason = converse_stop_reason(completion["stopReason"])
         tokens = self.value_tokens(completion)
+        # Don't leak the request-scoped TTL metadata onto the stored turn
+        cast(dict, completion).pop(_CACHE_POINT_TTLS_KEY, None)
         if has_data_model:
             check_finish_reason(finish_reason, "error")
 
