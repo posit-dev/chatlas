@@ -77,6 +77,27 @@ def test_tool_calls_without_index_and_different_ids_stay_separate():
     assert [c["id"] for c in merged["tool_calls"]] == ["call_1", "call_2"]
 
 
+def test_fragments_route_to_parallel_unindexed_calls_by_completeness():
+    # When parallel calls are announced together, an anonymous fragment
+    # continues the first call whose arguments aren't complete yet; merging
+    # every fragment into the last call would corrupt its JSON.
+    chunks = [
+        _tool_call_chunk(
+            id="call_1", function={"name": "f", "arguments": ""}
+        ),
+        _tool_call_chunk(
+            id="call_2", function={"name": "g", "arguments": ""}
+        ),
+        _tool_call_chunk(function={"arguments": '{"x":1}'}),
+        _tool_call_chunk(function={"arguments": '{"y":2}'}),
+    ]
+    merged = merge_dicts({}, *chunks)
+    assert [c["function"]["arguments"] for c in merged["tool_calls"]] == [
+        '{"x":1}',
+        '{"y":2}',
+    ]
+
+
 def test_indexed_chunk_after_unindexed_element_does_not_raise():
     merged = merge_dicts(
         {"tool_calls": [{"id": "call_1", "function": {"arguments": "{}"}}]},

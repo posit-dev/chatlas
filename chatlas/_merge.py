@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import json
 from typing import Any, Optional
 
 
@@ -99,10 +100,27 @@ def merge_lists(
                         merged[to_merge[0]] = merge_dicts(merged[to_merge[0]], e)
                     else:
                         merged.append(e)
-                elif merged and _is_tool_call_fragment(e) and _is_tool_call(merged[-1]):
+                elif merged and _is_tool_call_fragment(e):
                     # Some OpenAI-compatible servers omit `index` on streamed tool
-                    # calls; a fragment without an id or name continues the previous call.
-                    merged[-1] = merge_dicts(merged[-1], e)
+                    # calls; a fragment without an id or name continues a previous
+                    # call. With several unindexed calls in flight, it belongs to
+                    # the first whose arguments don't parse as complete JSON yet
+                    # (a JSON object has no proper prefix that parses), falling
+                    # back to the most recent call.
+                    target = next(
+                        (
+                            i
+                            for i, c in enumerate(merged)
+                            if _is_tool_call(c) and not _arguments_complete(c)
+                        ),
+                        None,
+                    )
+                    if target is None and _is_tool_call(merged[-1]):
+                        target = len(merged) - 1
+                    if target is None:
+                        merged.append(e)
+                    else:
+                        merged[target] = merge_dicts(merged[target], e)
                 else:
                     merged.append(e)
     return merged
@@ -116,3 +134,14 @@ def _is_tool_call(x: Any) -> bool:
 
 def _is_tool_call_fragment(x: Any) -> bool:
     return _is_tool_call(x) and not x.get("id") and not x["function"].get("name")
+
+
+def _arguments_complete(tool_call: dict[str, Any]) -> bool:
+    arguments = tool_call.get("function", {}).get("arguments")
+    if not isinstance(arguments, str):
+        return True
+    try:
+        json.loads(arguments)
+    except ValueError:
+        return False
+    return True
