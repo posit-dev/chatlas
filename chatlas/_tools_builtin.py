@@ -17,9 +17,16 @@ from ._tools import ToolBuiltIn
 if TYPE_CHECKING:
     from anthropic.types import WebSearchTool20250305Param
     from anthropic.types.beta import BetaWebFetchTool20250910Param
-    from anthropic.types.beta.beta_citations_config_param import (
-        BetaCitationsConfigParam,
-    )
+    try:
+        # anthropic >= 1.11 renamed this param type (the old name now
+        # refers to a pydantic response model)
+        from anthropic.types.beta.beta_citations_config_param_param import (  # pyright: ignore[reportMissingImports]
+            BetaCitationsConfigParamParam as BetaCitationsConfigParam,
+        )
+    except ImportError:
+        from anthropic.types.beta.beta_citations_config_param import (
+            BetaCitationsConfigParam,
+        )
     from anthropic.types.cache_control_ephemeral_param import (
         CacheControlEphemeralParam,
     )

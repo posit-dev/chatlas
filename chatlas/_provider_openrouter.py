@@ -20,6 +20,7 @@ def ChatOpenRouter(
     api_key: Optional[str] = None,
     base_url: str = "https://openrouter.ai/api/v1",
     seed: Optional[int] | MISSING_TYPE = MISSING,
+    strict: bool = False,
     kwargs: Optional["ChatClientArgs"] = None,
 ) -> Chat["SubmitInputArgs", ChatCompletion]:
     """
@@ -65,6 +66,10 @@ def ChatOpenRouter(
     seed
         Optional integer seed that the model uses to try and make output more
         reproducible.
+    strict
+        Whether to use OpenAI's strict mode for structured outputs
+        (`response_format`). Only enable this if the underlying model's
+        provider supports it.
     kwargs
         Additional arguments to pass to the `openai.OpenAI()` client constructor.
 
@@ -133,6 +138,7 @@ def ChatOpenRouter(
             seed=seed,
             name="OpenRouter",
             preserve_thinking=True,
+            strict=strict,
             kwargs=kwargs2,
         ),
         system_prompt=system_prompt,

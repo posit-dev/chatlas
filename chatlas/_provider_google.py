@@ -236,6 +236,10 @@ _GOOGLE_FINISH_REASON_MAP: dict[str, FinishReason] = {
     "BLOCKLIST": "content_filter",
     "PROHIBITED_CONTENT": "content_filter",
     "SPII": "content_filter",
+    "IMAGE_SAFETY": "content_filter",
+    "IMAGE_PROHIBITED_CONTENT": "content_filter",
+    "IMAGE_RECITATION": "content_filter",
+    "LANGUAGE": "content_filter",
 }
 
 
@@ -561,8 +565,12 @@ class GoogleProvider(
         if usage is None:
             return None
         cached = usage.cached_content_token_count or 0
+        # Content fetched by built-in tools (URL context, search, ...) is
+        # counted as input tokens, but reported separately from the prompt.
         return (
-            (usage.prompt_token_count or 0) - cached,
+            (usage.prompt_token_count or 0)
+            + (usage.tool_use_prompt_token_count or 0)
+            - cached,
             (usage.candidates_token_count or 0) + (usage.thoughts_token_count or 0),
             usage.cached_content_token_count or 0,
         )
@@ -825,6 +833,11 @@ class GoogleProvider(
         ]
         # search request/results precede the text; citations follow it.
         contents = search_contents + contents + citations + url_ctx_contents
+
+        if finish_reason == "success" and any(
+            isinstance(x, ContentToolRequest) for x in contents
+        ):
+            finish_reason = "tool_use"
 
         return AssistantTurn(
             contents,
@@ -1330,6 +1343,31 @@ def google_meta(obj: "GoogleFile") -> FileMetadata:
         provider="google",
         extra=obj,
     )
+
+
+def google_check_meta(meta: FileMetadata) -> None:
+    # Raise if the file can't be referenced in a turn: Gemini only accepts an
+    # ACTIVE file's full URI, not a PROCESSING/FAILED file or a `files/...`
+    # resource name. Called by `FileMetadata.to_content()`.
+    obj = meta.extra
+    if obj is not None:
+        from google.genai.types import File as GoogleFile
+
+        if isinstance(obj, GoogleFile):
+            if obj.state is not None and obj.state.value == "FAILED":
+                detail = obj.error.message if obj.error else "no error detail given"
+                raise ValueError(f"File {obj.name!r} failed to process: {detail}")
+            if google_file_processing(obj):
+                raise ValueError(
+                    f"File {obj.name!r} is still PROCESSING -- Gemini only "
+                    "accepts an ACTIVE file as input. Wait for processing to "
+                    "finish, then re-fetch with `.files.get()`."
+                )
+    if not meta.id.startswith(("https://", "http://", "gs://")):
+        raise ValueError(
+            f"{meta.id!r} is a Files API resource name, not a file URI -- "
+            "Gemini can't reference it in a turn."
+        )
 
 
 def google_supports_mixed_tools(model: str) -> bool:

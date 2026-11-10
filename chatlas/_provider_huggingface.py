@@ -18,6 +18,7 @@ def ChatHuggingFace(
     system_prompt: Optional[str] = None,
     model: Optional[str] = None,
     api_key: Optional[str] = None,
+    strict: bool = False,
     kwargs: Optional["ChatClientArgs"] = None,
 ) -> Chat["SubmitInputArgs", ChatCompletion]:
     """
@@ -63,6 +64,10 @@ def ChatHuggingFace(
         The API key to use for authentication. You generally should not supply
         this directly, but instead set the `HUGGINGFACE_API_KEY` environment
         variable.
+    strict
+        Whether to use OpenAI's strict mode for structured outputs
+        (`response_format`). Only enable this if the inference provider
+        serving the model supports it.
     kwargs
         Additional arguments to pass to the underlying OpenAI client
         constructor.
@@ -131,6 +136,7 @@ def ChatHuggingFace(
         provider=HuggingFaceProvider(
             api_key=api_key,
             model=model,
+            strict=strict,
             kwargs=kwargs,
         ),
         system_prompt=system_prompt,
@@ -143,6 +149,7 @@ class HuggingFaceProvider(OpenAICompletionsProvider):
         *,
         api_key: Optional[str] = None,
         model: str,
+        strict: bool = False,
         kwargs: Optional["ChatClientArgs"] = None,
     ):
         # https://huggingface.co/docs/inference-providers/en/index?python-clients=requests#http--curl
@@ -151,5 +158,6 @@ class HuggingFaceProvider(OpenAICompletionsProvider):
             model=model,
             api_key=api_key,
             base_url="https://router.huggingface.co/v1",
+            strict=strict,
             kwargs=kwargs,
         )

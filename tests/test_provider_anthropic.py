@@ -9,10 +9,13 @@ from anthropic.types import (
     CitationsWebSearchResultLocation,
     DocumentBlock,
     Message,
+    MessageDeltaUsage,
     RawContentBlockDeltaEvent,
     RawContentBlockStartEvent,
     RawContentBlockStopEvent,
+    RawMessageDeltaEvent,
     RawMessageStartEvent,
+    ServerToolUsage,
     TextBlock,
     TextDelta,
     Usage,
@@ -36,6 +39,7 @@ from chatlas._content import (
 from chatlas._provider_anthropic import (
     _ANTHROPIC_FINISH_REASON_MAP,
     AnthropicProvider,
+    anthropic_document_sources,
     anthropic_fetch_result,
     serving_model,
     supports_structured_outputs,
@@ -46,9 +50,11 @@ from chatlas._provider_anthropic import (
 from chatlas.types import (
     ContentCitation,
     ContentText,
+    ContentToolRequest,
     ContentToolRequestSearch,
     ContentToolResponseFetch,
     ContentToolResponseSearch,
+    ContentToolResult,
 )
 from pydantic import BaseModel, Field
 
@@ -106,6 +112,12 @@ def test_normalize_finish_reason_handles_none():
         ("claude-opus-5", True),
         ("claude-haiku-10", True),
         ("claude-3-5-sonnet-20240620", False),
+        # Bedrock model IDs
+        ("anthropic.claude-sonnet-4-5-20250929-v1:0", True),
+        ("us.anthropic.claude-sonnet-5-5-v1:0", True),
+        ("global.anthropic.claude-opus-5-5-v1:0", True),
+        ("us-gov.anthropic.claude-sonnet-4-5-20250929-v1:0", True),
+        ("anthropic.claude-3-5-sonnet-20240620-v1:0", False),
     ],
 )
 def test_supports_structured_outputs_for_supported_model_names(model, expected):
@@ -115,7 +127,7 @@ def test_supports_structured_outputs_for_supported_model_names(model, expected):
 def chat_func(system_prompt: str = "", **kwargs):
     return ChatAnthropic(
         system_prompt=system_prompt,
-        model="claude-haiku-4-5-20251001",
+        model="claude-haiku-5-5",
         **kwargs,
     )
 
@@ -128,7 +140,7 @@ def test_anthropic_simple_request():
     chat.chat("What is 1 + 1?")
     turn = chat.get_last_turn()
     assert turn is not None
-    assert turn.tokens == (26, 5, 0)
+    assert turn.tokens == (32, 3, 0)
     assert turn.finish_reason == "success"
 
 
@@ -179,7 +191,7 @@ async def test_anthropic_tool_variations_async():
 def test_anthropic_web_fetch():
     def chat_fun(**kwargs):
         return ChatAnthropic(
-            model="claude-haiku-4-5-20251001",
+            model="claude-haiku-5-5",
             kwargs={"default_headers": {"anthropic-beta": "web-fetch-2025-09-10"}},
             **kwargs,
         )
@@ -294,6 +306,93 @@ def test_anthropic_web_fetch_citation_uses_document_index_for_source():
     assert citation.source is not None
     assert citation.source.url == "https://second.example"
     assert citation.source.title == "Second document"
+
+
+def test_anthropic_stream_usage_takes_cumulative_message_delta_counts():
+    # With server tools, message_delta carries the cumulative input and cache
+    # counts, which differ from message_start (values from the
+    # test_anthropic_web_search_streaming recording).
+    provider = AnthropicProvider(model="claude-haiku-4-5", api_key="dummy", kwargs=None)
+    start_usage = Usage(
+        input_tokens=2247,
+        cache_creation_input_tokens=0,
+        cache_read_input_tokens=0,
+        output_tokens=26,
+    )
+    start = RawMessageStartEvent(
+        type="message_start",
+        message=Message(
+            id="msg",
+            type="message",
+            role="assistant",
+            model="claude-haiku-4-5",
+            content=[],
+            stop_reason=None,
+            stop_sequence=None,
+            usage=start_usage,
+        ),
+    )
+    delta = RawMessageDeltaEvent.model_validate(
+        {
+            "type": "message_delta",
+            "delta": {"stop_reason": "end_turn", "stop_sequence": None},
+            "usage": MessageDeltaUsage(
+                input_tokens=2254,
+                cache_creation_input_tokens=17269,
+                cache_read_input_tokens=0,
+                output_tokens=110,
+                server_tool_use=ServerToolUsage(
+                    web_search_requests=1, web_fetch_requests=0
+                ),
+            ).model_dump(),
+        }
+    )
+
+    completion = provider.stream_merge_chunks(None, start)
+    completion = provider.stream_merge_chunks(completion, delta)
+
+    assert completion.usage.input_tokens == 2254
+    assert completion.usage.cache_creation_input_tokens == 17269
+    assert completion.usage.cache_read_input_tokens == 0
+    assert completion.usage.output_tokens == 110
+    assert completion.usage.server_tool_use == ServerToolUsage(
+        web_search_requests=1, web_fetch_requests=0
+    )
+    assert provider.value_tokens(completion) == (2254 + int(17269 * 1.25), 110, 0)
+
+
+def test_anthropic_stream_usage_keeps_message_start_counts_omitted_by_delta():
+    provider = AnthropicProvider(model="claude-haiku-4-5", api_key="dummy", kwargs=None)
+    start = RawMessageStartEvent(
+        type="message_start",
+        message=Message(
+            id="msg",
+            type="message",
+            role="assistant",
+            model="claude-haiku-4-5",
+            content=[],
+            stop_reason=None,
+            stop_sequence=None,
+            usage=Usage(
+                input_tokens=3,
+                cache_creation_input_tokens=37,
+                cache_read_input_tokens=17269,
+                output_tokens=1,
+            ),
+        ),
+    )
+    delta = RawMessageDeltaEvent.model_validate(
+        {
+            "type": "message_delta",
+            "delta": {"stop_reason": "end_turn", "stop_sequence": None},
+            "usage": {"output_tokens": 10},
+        }
+    )
+
+    completion = provider.stream_merge_chunks(None, start)
+    completion = provider.stream_merge_chunks(completion, delta)
+
+    assert provider.value_tokens(completion) == (3 + int(37 * 1.25), 10, 17269)
 
 
 def test_anthropic_web_fetch_citation_stream_uses_document_index_for_source():
@@ -580,6 +679,126 @@ def test_anthropic_web_fetch_citation_uses_pdf_url_when_present():
 
     assert citation.source is not None
     assert citation.source.url == "https://docs.example/report.pdf"
+
+
+def test_anthropic_web_fetch_citation_accounts_for_tool_result_documents():
+    provider = AnthropicProvider(
+        model="claude-sonnet-4-5", api_key="dummy", kwargs=None
+    )
+
+    request = ContentToolRequest(id="call-1", name="lookup", arguments={})
+    prior_turns = [
+        UserTurn("Compare the handbook with https://site.example"),
+        AssistantTurn([request], finish_reason="tool_use"),
+        UserTurn(
+            [
+                ContentToolResult(
+                    value=[
+                        {
+                            "type": "document",
+                            "source": {
+                                "type": "url",
+                                "url": "https://docs.example/handbook.pdf",
+                            },
+                        },
+                        # Search results are cited by `search_result_index`, so
+                        # they don't take a `document_index` slot.
+                        {
+                            "type": "search_result",
+                            "source": "https://kb.example/entry",
+                            "title": "KB entry",
+                            "content": [{"type": "text", "text": "Entry"}],
+                        },
+                        {
+                            "type": "document",
+                            "source": {
+                                "type": "text",
+                                "media_type": "text/plain",
+                                "data": "Internal notes",
+                            },
+                        },
+                    ],
+                    model_format="as_is",
+                    request=request,
+                ),
+            ]
+        ),
+    ]
+
+    completion = Message(
+        id="msg",
+        type="message",
+        role="assistant",
+        model="claude-sonnet-4-5",
+        content=[
+            web_fetch_result("https://site.example", "Site page"),
+            TextBlock(
+                type="text",
+                text="The handbook, the notes and the site disagree",
+                citations=[
+                    CitationCharLocation(
+                        type="char_location",
+                        cited_text="claim from the handbook",
+                        document_index=0,
+                        document_title=None,
+                        start_char_index=0,
+                        end_char_index=23,
+                    ),
+                    CitationCharLocation(
+                        type="char_location",
+                        cited_text="claim from the notes",
+                        document_index=1,
+                        document_title=None,
+                        start_char_index=24,
+                        end_char_index=44,
+                    ),
+                    CitationCharLocation(
+                        type="char_location",
+                        cited_text="claim from the site",
+                        document_index=2,
+                        document_title="Site page",
+                        start_char_index=45,
+                        end_char_index=64,
+                    ),
+                ],
+            ),
+        ],
+        stop_reason="end_turn",
+        stop_sequence=None,
+        usage=Usage(input_tokens=1, output_tokens=1),
+    )
+
+    turn = provider._as_turn(completion, turns=prior_turns)
+    citations = [c for c in turn.contents if isinstance(c, ContentCitation)]
+
+    assert citations[0].source is not None
+    assert citations[0].source.url == "https://docs.example/handbook.pdf"
+    # A text document has no URL to attribute.
+    assert citations[1].source is None
+    assert citations[2].source is not None
+    assert citations[2].source.url == "https://site.example"
+
+
+def test_anthropic_document_sources_does_not_serialize_tool_results():
+    # Resolving citations walks every prior tool result, but only one sent
+    # as-is can hold document blocks. Serializing other results (e.g. a
+    # DataFrame's `.to_json()`) would be wasted work on every citation.
+    class CountingValue:
+        to_json_calls = 0
+
+        def to_json(self) -> str:
+            self.to_json_calls += 1
+            return "[]"
+
+    request = ContentToolRequest(id="call-1", name="lookup", arguments={})
+    turns = [
+        UserTurn("hi"),
+        AssistantTurn([request], finish_reason="tool_use"),
+        UserTurn([ContentToolResult(value=CountingValue(), request=request)]),
+    ]
+
+    assert anthropic_document_sources(turns, []) == []
+    assert turns[2].contents[0].value.to_json_calls == 0
 
 
 def web_fetch_result(url: str, title: str) -> WebFetchToolResultBlock:
@@ -928,13 +1147,18 @@ def test_anthropic_list_models():
     assert_list_models(chat_func)
 
 
-def test_anthropic_removes_empty_assistant_turns():
-    """Test that empty assistant turns are dropped to avoid API errors."""
+def test_anthropic_empty_assistant_turn_placeholder():
+    """Empty assistant turns get a placeholder instead of being dropped (#416).
+
+    Dropping the turn could produce two consecutive user messages, violating
+    the API's user/assistant alternation requirement.
+    """
     chat = chat_func()
     chat.set_turns(
         [
             UserTurn("Don't say anything"),
             AssistantTurn([]),
+            UserTurn("What did I just say?"),
         ]
     )
 
@@ -942,10 +1166,11 @@ def test_anthropic_removes_empty_assistant_turns():
     provider = cast(AnthropicProvider, chat.provider)
     turns_json = provider._as_message_params(chat.get_turns())
 
-    # Should only have the user turn, not the empty assistant turn
-    assert len(turns_json) == 1
-    assert turns_json[0]["role"] == "user"
-    assert turns_json[0]["content"][0]["text"] == "Don't say anything"  # type: ignore
+    # The empty assistant turn is kept (with placeholder content), so
+    # user/assistant roles still alternate as the API requires
+    assert [m["role"] for m in turns_json] == ["user", "assistant", "user"]
+    assert turns_json[1]["content"] == [{"type": "text", "text": "[empty string]"}]
+    assert turns_json[2]["content"][0]["text"] == "What did I just say?"  # type: ignore
 
 
 @pytest.mark.vcr
@@ -1059,7 +1284,7 @@ def truncated_structured_message() -> "Message":
         id="msg_1",
         type="message",
         role="assistant",
-        model="claude-haiku-4-5-20251001",
+        model="claude-haiku-5-5",
         stop_reason="max_tokens",
         stop_sequence=None,
         content=[TextBlock(type="text", text='{"comments": [{"body": "trunc')],
@@ -1154,9 +1379,7 @@ def test_anthropic_message_params_convert_unsigned_thinking_blocks():
 
     turns = [
         UserTurn("hi"),
-        AssistantTurn(
-            [ContentThinking(thinking="hmm"), ContentText(text="hello")]
-        ),
+        AssistantTurn([ContentThinking(thinking="hmm"), ContentText(text="hello")]),
         UserTurn("again"),
     ]
     messages = provider._as_message_params(turns)

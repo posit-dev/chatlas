@@ -1,9 +1,10 @@
 interactions:
 - request:
-    body: '{"include": ["reasoning.encrypted_content"], "input": [{"role": "user",
-      "content": [{"type": "input_text", "text": "\n        What are the canonical
-      colors of the ROYGBIV rainbow?\n        Put each colour on its own line. Don''t
-      use punctuation.\n    "}]}], "model": "gpt-5.4", "store": false, "stream": true}'
+    body: '{"include": ["reasoning.encrypted_content"], "input": [{"type": "message",
+      "role": "user", "content": [{"type": "input_text", "text": "\n        What are
+      the canonical colors of the ROYGBIV rainbow?\n        Put each colour on its
+      own line. Don''t use punctuation.\n    "}]}], "model": "gpt-5.4", "store": false,
+      "stream": true}'
     headers:
       Accept:
       - application/json

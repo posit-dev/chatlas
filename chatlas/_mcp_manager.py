@@ -10,7 +10,7 @@ from typing import TYPE_CHECKING, Any, Optional, Sequence
 from ._tools import Tool, ToolBuiltIn
 
 if TYPE_CHECKING:
-    from mcp import ClientSession
+    from mcp import Client, ClientSession
 
 
 @dataclass
@@ -22,6 +22,7 @@ class SessionInfo(ABC):
     namespace: str | None = None
 
     # Primary derived attributes
+    client: Client | None = None
     session: ClientSession | None = None
     tools: dict[str, Tool | ToolBuiltIn] = field(default_factory=dict)
 
@@ -38,15 +39,29 @@ class SessionInfo(ABC):
     async def close_session(self) -> None:
         await self.exit_stack.aclose()
 
+    async def _connect(self, transport: Any) -> None:
+        mcp = try_import_mcp()
+        # mode="auto" probes `server/discover` to negotiate a 2026-07-28+
+        # (stateless) protocol revision, falling back to the legacy
+        # `initialize` handshake for older servers.
+        client = await self.exit_stack.enter_async_context(
+            mcp.Client(transport, mode="auto")
+        )
+        self.client = client
+        self.session = client.session
+        if not self.name:
+            server_info = client.server_info
+            self.name = (server_info.name if server_info else None) or "mcp"
+
     async def request_tools(self) -> None:
-        if self.session is None:
+        if self.client is None:
             raise ValueError("Session must be opened before requesting tools.")
 
         if self.include_tools and self.exclude_tools:
             raise ValueError("Cannot specify both include_tools and exclude_tools.")
 
         # Request the MCP tools available
-        response = await self.session.list_tools()
+        response = await self.client.list_tools()
         tool_names = set(x.name for x in response.tools)
 
         # Warn if tools are mis-specified
@@ -78,11 +93,13 @@ class SessionInfo(ABC):
         for tool in response.tools:
             if tool.name not in tool_names:
                 continue
-            if self.namespace:
-                tool.name = f"{self.namespace}.{tool.name}"
-            self_tools[tool.name] = Tool.from_mcp(
-                session=self.session,
+            # Only the chatlas-side name is namespaced: the server must still be
+            # called with its own tool name, so don't mutate the MCP tool object
+            name = f"{self.namespace}.{tool.name}" if self.namespace else tool.name
+            self_tools[name] = Tool.from_mcp(
+                session=self.client,
                 mcp_tool=tool,
+                name=name,
             )
 
         # Store the tools
@@ -95,22 +112,11 @@ class HTTPSessionInfo(SessionInfo):
     transport_kwargs: dict[str, Any] = field(default_factory=dict)
 
     async def open_session(self):
-        mcp = try_import_mcp()
+        try_import_mcp()
         from mcp.client.streamable_http import streamable_http_client
 
-        read, write = await self.exit_stack.enter_async_context(
-            streamable_http_client(
-                self.url,
-                **self.transport_kwargs,
-            )
-        )
-        session = await self.exit_stack.enter_async_context(
-            mcp.ClientSession(read, write)
-        )
-        server = await session.initialize()
-        self.session = session
-        if not self.name:
-            self.name = server.server_info.name or "mcp"
+        transport = streamable_http_client(self.url, **self.transport_kwargs)
+        await self._connect(transport)
 
 
 @dataclass
@@ -129,16 +135,7 @@ class STDIOSessionInfo(SessionInfo):
             **self.transport_kwargs,
         )
 
-        transport = await self.exit_stack.enter_async_context(
-            stdio_client(server_params)
-        )
-        session = await self.exit_stack.enter_async_context(
-            mcp.ClientSession(*transport)
-        )
-        server = await session.initialize()
-        self.session = session
-        if not self.name:
-            self.name = server.server_info.name or "mcp"
+        await self._connect(stdio_client(server_params))
 
 
 class MCPSessionManager:

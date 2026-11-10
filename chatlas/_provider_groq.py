@@ -128,6 +128,8 @@ def ChatGroq(
             base_url=base_url,
             seed=seed,
             name="Groq",
+            # Groq supports OpenAI's strict mode for structured outputs
+            strict=True,
             kwargs=kwargs,
         ),
         system_prompt=system_prompt,

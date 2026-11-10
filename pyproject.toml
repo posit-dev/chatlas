@@ -81,9 +81,8 @@ dev = [
     "numpy>1.24.4",
     "tiktoken",
     "databricks-sdk",
-    "snowflake-ml-python>=1.8.4",
-    # torch (a dependency of snowflake-ml-python) is not yet compatible with Python >3.11
-    "torch;python_version<='3.11'",
+    "snowflake-core>=1.5.0",
+    "snowflake-snowpark-python",
     "tenacity",
     "opentelemetry-sdk>=1.0",
 ]
@@ -105,7 +104,16 @@ mcp = [
     "mcp>=2.0.0;python_version>='3.10'"
 ]
 eval = [
-    "inspect-ai;python_version>='3.10'"
+    # inspect-ai 0.3.283 adapted its Anthropic provider to anthropic SDK 2.0 and
+    # made it the required minimum (UKGovernmentBEIS/inspect_ai#6003); it also
+    # dropped Python 3.10, so the eval extra is 3.11+ only (CI's 3.10 job
+    # installs with --no-extra eval).
+    "inspect-ai>=0.3.283;python_version>='3.11'",
+    # inspect-ai declares agent-client-protocol>=0.12.0 with no upper bound,
+    # but its acp agent imports acp.helpers, which agent-client-protocol 1.0
+    # removed (UKGovernmentBEIS/inspect_ai#6417). Cap until an inspect-ai
+    # release supports agent-client-protocol 1.x.
+    "agent-client-protocol>=0.12.0,<1;python_version>='3.11'",
 ]
 # Provider extras ----
 anthropic = ["anthropic>=1.0.0"]
@@ -124,9 +132,10 @@ openai = []
 azure-openai = []
 perplexity = []
 posit = ["anthropic>=1.0.0"]
-# Version requirement avoids an install issue with recent Python versions.
-# Remove it when snowflake-ml-python can be installed without a requirement.
-snowflake = ["snowflake-ml-python<=1.9.0"]
+# The provider talks to the Cortex REST API via snowflake.core and manages
+# connections via snowflake.snowpark -- snowflake-ml-python is not needed
+# (and its torch dependency chain doesn't support recent Python versions).
+snowflake = ["snowflake-core>=1.5.0", "snowflake-snowpark-python"]
 vertex = ["google-genai>=2.0.0"]
 
 [dependency-groups]

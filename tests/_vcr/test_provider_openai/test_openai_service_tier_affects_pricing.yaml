@@ -1,8 +1,8 @@
 interactions:
 - request:
-    body: '{"include": ["reasoning.encrypted_content"], "input": [{"role": "user",
-      "content": [{"type": "input_text", "text": "What is 1+1?"}]}], "model": "gpt-5.4",
-      "service_tier": "priority", "store": false, "stream": true}'
+    body: '{"include": ["reasoning.encrypted_content"], "input": [{"type": "message",
+      "role": "user", "content": [{"type": "input_text", "text": "What is 1+1?"}]}],
+      "model": "gpt-5.4", "service_tier": "priority", "store": false, "stream": true}'
     headers:
       Accept:
       - application/json

@@ -1,10 +1,10 @@
 interactions:
 - request:
-    body: '{"include": ["reasoning.encrypted_content"], "input": [{"role": "system",
-      "content": [{"type": "input_text", "text": "Return very minimal output, AND
-      ONLY USE UPPERCASE."}]}, {"role": "user", "content": [{"type": "input_text",
-      "text": "What is the name of Winnie the Pooh''s human friend?"}]}], "model":
-      "gpt-5.4", "store": false, "stream": true}'
+    body: '{"include": ["reasoning.encrypted_content"], "input": [{"type": "message",
+      "role": "system", "content": [{"type": "input_text", "text": "Return very minimal
+      output, AND ONLY USE UPPERCASE."}]}, {"type": "message", "role": "user", "content":
+      [{"type": "input_text", "text": "What is the name of Winnie the Pooh''s human
+      friend?"}]}], "model": "gpt-5.4", "store": false, "stream": true}'
     headers:
       accept:
       - application/json
@@ -144,11 +144,11 @@ interactions:
       code: 200
       message: OK
 - request:
-    body: '{"include": ["reasoning.encrypted_content"], "input": [{"role": "system",
-      "content": [{"type": "input_text", "text": "Return very minimal output, AND
-      ONLY USE UPPERCASE."}]}, {"role": "user", "content": [{"type": "input_text",
-      "text": "What is the name of Winnie the Pooh''s human friend?"}]}], "model":
-      "gpt-5.4", "store": false, "stream": true}'
+    body: '{"include": ["reasoning.encrypted_content"], "input": [{"type": "message",
+      "role": "system", "content": [{"type": "input_text", "text": "Return very minimal
+      output, AND ONLY USE UPPERCASE."}]}, {"type": "message", "role": "user", "content":
+      [{"type": "input_text", "text": "What is the name of Winnie the Pooh''s human
+      friend?"}]}], "model": "gpt-5.4", "store": false, "stream": true}'
     headers:
       accept:
       - application/json
@@ -288,12 +288,13 @@ interactions:
       code: 200
       message: OK
 - request:
-    body: '{"include": ["reasoning.encrypted_content"], "input": [{"role": "user",
-      "content": [{"type": "input_text", "text": "My name is Steve"}]}, {"role": "assistant",
-      "content": [{"type": "output_text", "text": "Hello Steve, how can I help you
-      today?", "annotations": []}], "status": "completed", "type": "message"}, {"role":
-      "user", "content": [{"type": "input_text", "text": "What is my name?"}]}], "model":
-      "gpt-5.4", "store": false, "stream": true}'
+    body: '{"include": ["reasoning.encrypted_content"], "input": [{"type": "message",
+      "role": "user", "content": [{"type": "input_text", "text": "My name is Steve"}]},
+      {"role": "assistant", "content": [{"type": "output_text", "text": "Hello Steve,
+      how can I help you today?", "annotations": []}], "status": "completed", "type":
+      "message"}, {"type": "message", "role": "user", "content": [{"type": "input_text",
+      "text": "What is my name?"}]}], "model": "gpt-5.4", "store": false, "stream":
+      true}'
     headers:
       accept:
       - application/json

@@ -1,11 +1,11 @@
 interactions:
 - request:
-    body: '{"include": ["reasoning.encrypted_content"], "input": [{"role": "user",
-      "content": [{"type": "input_text", "text": "John, age 15, won first prize"}]}],
-      "model": "gpt-5.4", "store": false, "stream": true, "text": {"format": {"type":
-      "json_schema", "name": "structured_data", "schema": {"properties": {"name":
-      {"type": "string"}, "age": {"type": "integer"}}, "required": ["name", "age"],
-      "type": "object", "additionalProperties": false}, "strict": true}}}'
+    body: '{"include": ["reasoning.encrypted_content"], "input": [{"type": "message",
+      "role": "user", "content": [{"type": "input_text", "text": "John, age 15, won
+      first prize"}]}], "model": "gpt-5.4", "store": false, "stream": true, "text":
+      {"format": {"type": "json_schema", "name": "structured_data", "schema": {"properties":
+      {"name": {"type": "string"}, "age": {"type": "integer"}}, "required": ["name",
+      "age"], "type": "object", "additionalProperties": false}, "strict": true}}}'
     headers:
       Accept:
       - application/json

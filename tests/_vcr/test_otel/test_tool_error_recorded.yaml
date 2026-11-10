@@ -1,12 +1,12 @@
 interactions:
 - request:
-    body: '{"input": [{"role": "system", "content": [{"type": "input_text", "text":
-      "Always use the fail_tool to answer. Don''t retry if it errors."}]}, {"role":
-      "user", "content": [{"type": "input_text", "text": "Please call the fail_tool."}]}],
-      "model": "gpt-4o-mini", "store": false, "stream": true, "tools": [{"type": "function",
-      "name": "fail_tool", "description": "A tool that always fails", "parameters":
-      {"properties": {}, "type": "object", "additionalProperties": false, "required":
-      []}, "strict": true}]}'
+    body: '{"input": [{"type": "message", "role": "system", "content": [{"type": "input_text",
+      "text": "Always use the fail_tool to answer. Don''t retry if it errors."}]},
+      {"type": "message", "role": "user", "content": [{"type": "input_text", "text":
+      "Please call the fail_tool."}]}], "model": "gpt-4o-mini", "store": false, "stream":
+      true, "tools": [{"type": "function", "name": "fail_tool", "description": "A
+      tool that always fails", "parameters": {"properties": {}, "type": "object",
+      "additionalProperties": false, "required": []}, "strict": true}]}'
     headers:
       Accept:
       - application/json
@@ -101,10 +101,10 @@ interactions:
       code: 200
       message: OK
 - request:
-    body: '{"input": [{"role": "system", "content": [{"type": "input_text", "text":
-      "Always use the fail_tool to answer. Don''t retry if it errors."}]}, {"role":
-      "user", "content": [{"type": "input_text", "text": "Please call the fail_tool."}]},
-      {"type": "function_call", "call_id": "fc_03a99456478e666a016a1f5962e95c8190b9d23b1d69687a96",
+    body: '{"input": [{"type": "message", "role": "system", "content": [{"type": "input_text",
+      "text": "Always use the fail_tool to answer. Don''t retry if it errors."}]},
+      {"type": "message", "role": "user", "content": [{"type": "input_text", "text":
+      "Please call the fail_tool."}]}, {"type": "function_call", "call_id": "fc_03a99456478e666a016a1f5962e95c8190b9d23b1d69687a96",
       "name": "fail_tool", "arguments": "{}"}, {"type": "function_call_output", "call_id":
       "fc_03a99456478e666a016a1f5962e95c8190b9d23b1d69687a96", "output": "Tool call
       failed with error: ''intentional test error''"}], "model": "gpt-4o-mini", "store":

@@ -6,6 +6,7 @@
 from typing import Iterable, Literal, Mapping, Optional, Sequence, TypedDict, Union
 
 import anthropic
+import anthropic.types.assistant_message_param
 import anthropic.types.browser_toolset_20260801_param
 import anthropic.types.cache_control_ephemeral_param
 import anthropic.types.code_execution_tool_20250522_param
@@ -14,11 +15,13 @@ import anthropic.types.code_execution_tool_20260120_param
 import anthropic.types.code_execution_tool_20260521_param
 import anthropic.types.computer_toolset_20260801_param
 import anthropic.types.container_params
+import anthropic.types.diagnostics_param
 import anthropic.types.memory_tool_20250818_param
-import anthropic.types.message_param
 import anthropic.types.output_config_param
+import anthropic.types.system_message_param
 import anthropic.types.text_block_param
 import anthropic.types.thinking_config_adaptive_param
+import anthropic.types.thinking_config_between_tools_param
 import anthropic.types.thinking_config_disabled_param
 import anthropic.types.thinking_config_enabled_param
 import anthropic.types.tool_bash_20250124_param
@@ -32,6 +35,7 @@ import anthropic.types.tool_search_tool_regex_20251119_param
 import anthropic.types.tool_text_editor_20250124_param
 import anthropic.types.tool_text_editor_20250429_param
 import anthropic.types.tool_text_editor_20250728_param
+import anthropic.types.user_message_param
 import anthropic.types.web_fetch_tool_20250910_param
 import anthropic.types.web_fetch_tool_20260209_param
 import anthropic.types.web_fetch_tool_20260309_param
@@ -43,10 +47,21 @@ import anthropic.types.web_search_tool_20260318_param
 
 class SubmitInputArgs(TypedDict, total=False):
     max_tokens: int
-    messages: Iterable[anthropic.types.message_param.MessageParam]
+    messages: Iterable[
+        Union[
+            anthropic.types.user_message_param.UserMessageParam,
+            anthropic.types.assistant_message_param.AssistantMessageParam,
+            anthropic.types.system_message_param.SystemMessageParam,
+        ]
+    ]
     model: Union[
         Literal[
+            "claude-fable-5-2",
+            "claude-mythos-5-2",
+            "claude-haiku-5-5",
+            "claude-sonnet-5-5",
             "claude-fable-5-1",
+            "claude-opus-5-5",
             "claude-mythos-5-1",
             "claude-sonnet-5",
             "claude-fable-5",
@@ -74,11 +89,15 @@ class SubmitInputArgs(TypedDict, total=False):
     container: Union[
         anthropic.types.container_params.ContainerParams, str, None, anthropic.Omit
     ]
+    diagnostics: Union[
+        anthropic.types.diagnostics_param.DiagnosticsParam, None, anthropic.Omit
+    ]
     inference_geo: Union[str, None, anthropic.Omit]
     output_config: (
         anthropic.types.output_config_param.OutputConfigParam | anthropic.Omit
     )
     service_tier: Union[Literal["auto", "standard_only"], anthropic.Omit]
+    speed: Union[Literal["fast", "standard"], None, anthropic.Omit]
     stop_sequences: Union[Sequence[str], anthropic.Omit]
     stream: Union[Literal[False], Literal[True], anthropic.Omit]
     system: Union[
@@ -87,6 +106,7 @@ class SubmitInputArgs(TypedDict, total=False):
     thinking: Union[
         anthropic.types.thinking_config_enabled_param.ThinkingConfigEnabledParam,
         anthropic.types.thinking_config_disabled_param.ThinkingConfigDisabledParam,
+        anthropic.types.thinking_config_between_tools_param.ThinkingConfigBetweenToolsParam,
         anthropic.types.thinking_config_adaptive_param.ThinkingConfigAdaptiveParam,
         anthropic.Omit,
     ]

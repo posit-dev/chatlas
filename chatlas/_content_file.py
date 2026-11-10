@@ -6,8 +6,10 @@ from urllib.parse import urlparse
 
 import requests
 
+from ._content import ContentDocument, ContentImageRemote, ContentPDF
+
 if TYPE_CHECKING:
-    from ._content import ContentDocument, ContentPDF
+    from ._content import Content
 
 FileContent = Union["ContentPDF", "ContentDocument"]
 
@@ -51,6 +53,31 @@ def ensure_bytes(content: FileContent, kind: str) -> bytes:
 
     content.data = data
     return data
+
+
+def materialize_url_content(content: "Content") -> "Content":
+    """Swap URL content for its bytes, for endpoints that can't fetch URLs.
+
+    Providers whose API can't fetch `url` sources itself (e.g. Bedrock) run
+    content through this before serializing it: a `ContentPDF`/`ContentDocument`
+    with a `url` comes back as a copy with the bytes filled in (downloading and
+    caching them via `ensure_bytes()`), so the provider's usual bytes path kicks
+    in. Remote images are rejected instead, consistent with the Google provider:
+    unlike file content they have no `data` field to cache bytes back onto, so
+    downloading would re-fetch on every request. Anything else passes through.
+    """
+    if isinstance(content, ContentImageRemote):
+        raise ValueError(
+            "Remote images aren't supported by this provider: the endpoint "
+            "can't fetch URLs, and image bytes are never downloaded "
+            "client-side. Consider downloading the image and using "
+            "content_image_file() instead."
+        )
+    if not isinstance(content, (ContentPDF, ContentDocument)) or content.url is None:
+        return content
+    kind = "PDF" if isinstance(content, ContentPDF) else "document"
+    data = ensure_bytes(content, kind)
+    return content.model_copy(update={"data": data, "url": None})
 
 
 def parse_data_url(url: str) -> tuple[str, str]:

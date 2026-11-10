@@ -7,6 +7,7 @@ from typing import (
     Any,
     Awaitable,
     Callable,
+    Literal,
     Mapping,
     Optional,
     Sequence,
@@ -24,7 +25,11 @@ import httpx2
 class ChatClientArgs(TypedDict, total=False):
     api_key: str | None
     auth_token: str | None
-    credentials: anthropic.lib.credentials._types.AccessTokenProvider | None
+    credentials: (
+        anthropic.lib.credentials._types.AccessTokenProvider
+        | anthropic.lib.credentials._types.AsyncAccessTokenProvider
+        | None
+    )
     config: Optional[Mapping[str, Any]]
     profile: str | None
     webhook_key: str | None
@@ -33,6 +38,7 @@ class ChatClientArgs(TypedDict, total=False):
     max_retries: int
     default_headers: Optional[Mapping[str, str]]
     default_query: Optional[Mapping[str, object]]
+    open_telemetry: Union[anthropic.OpenTelemetryOptions, Literal[False], None]
     http_client: httpx2.AsyncClient | None
     middleware: Optional[
         Sequence[

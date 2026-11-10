@@ -42,7 +42,7 @@ from ._content import (
     WebSource,
     check_image_content_type_supported,
 )
-from ._content_file import ensure_bytes
+from ._content_file import ensure_bytes, materialize_url_content
 from ._files import FileMetadata, maybe_write, open_binary
 from ._logging import log_model_default
 from ._provider import (
@@ -119,13 +119,30 @@ def supports_structured_outputs(model: str) -> bool:
     Check if the model supports the structured outputs API.
 
     https://platform.claude.com/docs/en/build-with-claude/structured-outputs
+
+    The pattern isn't anchored to the start, so Bedrock IDs (`anthropic.claude-...`,
+    or with a cross-region prefix such as `us.anthropic.claude-...`) match too.
     """
-    return bool(re.match(r"^claude-[a-z]+-(4-[5-9]|[5-9]|[1-9]\d)(-|$)", model))
+    return bool(re.search(r"claude-[a-z]+-(4-[5-9]|[5-9]|[1-9]\d)(-|$)", model))
 
 
 StructuredOutputMode = Literal["auto", "native", "tool"]
 
 ReasoningEffort = Literal["low", "medium", "high", "xhigh", "max"]
+
+
+def reasoning_kwargs(
+    reasoning: "int | ReasoningEffort | ThinkingConfigEnabledParam | None",
+) -> "SubmitInputArgs":
+    """Translate a `reasoning` argument into the `thinking` request arguments."""
+    if isinstance(reasoning, str):
+        output_config: "OutputConfigParam" = {"effort": reasoning}
+        return {"thinking": {"type": "adaptive"}, "output_config": output_config}
+    if isinstance(reasoning, int):
+        return {"thinking": {"type": "enabled", "budget_tokens": reasoning}}
+    if reasoning is not None:
+        return {"thinking": reasoning}
+    return {}
 
 
 def ChatAnthropic(
@@ -186,12 +203,14 @@ def ChatAnthropic(
     max_tokens
         Maximum number of tokens to generate before stopping.
     reasoning
-        Controls Claude's extended thinking. Pass an integer to set a fixed
-        thinking budget (the number of tokens allocated to reasoning; must be
-        ≥1024 and less than `max_tokens`). Alternatively, pass a string effort
-        level (`"low"`, `"medium"`, `"high"`, `"xhigh"`, or `"max"`) to enable
+        Controls Claude's extended thinking. Pass a string effort level
+        (`"low"`, `"medium"`, `"high"`, `"xhigh"`, or `"max"`) to enable
         adaptive thinking, where Claude decides how much to think based on the
-        requested effort. See [extended
+        requested effort. Alternatively, pass an integer to set a fixed
+        thinking budget (the number of tokens allocated to reasoning; must be
+        ≥1024 and less than `max_tokens`). Fixed budgets are deprecated on
+        Claude Opus 4.6 / Sonnet 4.6 and rejected by later models (including
+        the default, Claude Sonnet 5), so use an effort level there. See [extended
         thinking](https://docs.claude.com/en/docs/build-with-claude/extended-thinking)
         for details.
     cache
@@ -301,17 +320,7 @@ def ChatAnthropic(
     if model is None:
         model = log_model_default("claude-sonnet-5")
 
-    kwargs_chat: "SubmitInputArgs" = {}
-    if isinstance(reasoning, str):
-        output_config: "OutputConfigParam" = {"effort": reasoning}
-        kwargs_chat = {
-            "thinking": {"type": "adaptive"},
-            "output_config": output_config,
-        }
-    elif isinstance(reasoning, int):
-        kwargs_chat = {"thinking": {"type": "enabled", "budget_tokens": reasoning}}
-    elif reasoning is not None:
-        kwargs_chat = {"thinking": reasoning}
+    kwargs_chat = reasoning_kwargs(reasoning)
 
     return Chat(
         provider=AnthropicProvider(
@@ -695,6 +704,21 @@ class AnthropicProvider(
             completion.stop_reason = chunk.delta.stop_reason
             completion.stop_sequence = chunk.delta.stop_sequence
             completion.usage.output_tokens = chunk.usage.output_tokens
+            # Usage on message_delta is cumulative and, with server tools, can
+            # exceed message_start's input and cache counts. Fields are omitted
+            # when not applicable, in which case message_start's value stands.
+            if chunk.usage.input_tokens is not None:
+                completion.usage.input_tokens = chunk.usage.input_tokens
+            if chunk.usage.cache_creation_input_tokens is not None:
+                completion.usage.cache_creation_input_tokens = (
+                    chunk.usage.cache_creation_input_tokens
+                )
+            if chunk.usage.cache_read_input_tokens is not None:
+                completion.usage.cache_read_input_tokens = (
+                    chunk.usage.cache_read_input_tokens
+                )
+            if chunk.usage.server_tool_use is not None:
+                completion.usage.server_tool_use = chunk.usage.server_tool_use
 
         return completion
 
@@ -790,15 +814,20 @@ class AnthropicProvider(
         res: "SubmitInputArgs" = {}
 
         # anthropic>=1.0 removed these sampling parameters from the request
-        # schema; current models ignore them. Forward them via `extra_body`
-        # so older models that still honor them keep working.
+        # schema; Claude 4.7 and later reject non-default values with a 400.
+        # Forward them via `extra_body` so older models that still honor them
+        # keep working.
         removed = [p for p in ("temperature", "top_p", "top_k") if p in params]
         if removed:
             warnings.warn(
-                f"The {', '.join(removed)} sampling parameter(s) no longer have "
-                "an effect on current Anthropic models. They are forwarded via "
-                "`extra_body` for older models that still honor them; this "
-                "forwarding is deprecated and will be removed in a future release.",
+                f"The {', '.join(removed)} sampling parameter(s) are deprecated by "
+                "Anthropic: Claude 4.7 and later models return a 400 error when they "
+                "are set to a non-default value, and API version 2026-10-21 removes "
+                "them for every model "
+                "(https://platform.claude.com/docs/en/about-claude/model-deprecations). "
+                "They are forwarded via `extra_body` for older models that still "
+                "honor them; this forwarding is deprecated and will be removed in a "
+                "future release.",
                 DeprecationWarning,
                 stacklevel=2,
             )
@@ -891,17 +920,22 @@ class AnthropicProvider(
             if not isinstance(turn, (UserTurn, AssistantTurn)):
                 raise ValueError(f"Unknown role {turn.role}")
 
-            content = [
+            content: list[ContentBlockParam] = [
                 self._as_content_block(self._as_replayable_content(c))
                 for c in turn.contents
                 if not isinstance(c, PROVIDER_ANNOTATION_TYPES)
                 or anthropic_replayable(c)
             ]
 
-            # Drop empty assistant turns to avoid an API error
-            # (all messages must have non-empty content)
+            # An assistant turn with no content can't simply be dropped:
+            # doing so could produce two consecutive user messages,
+            # violating the API's user/assistant alternation requirement.
+            # Send a placeholder instead (the API also requires all
+            # messages to have non-empty content).
             if turn.role == "assistant" and len(content) == 0:
-                continue
+                content = [
+                    cast("TextBlockParam", {"type": "text", "text": "[empty string]"})
+                ]
 
             # Add cache control to the last content block in the last turn
             # https://docs.claude.com/en/docs/build-with-claude/prompt-caching#how-automatic-prefix-checking-works
@@ -911,8 +945,10 @@ class AnthropicProvider(
                 if content[-1].get("type") != "thinking":
                     content[-1]["cache_control"] = self._cache_control()  # type: ignore
 
-            role = "user" if isinstance(turn, UserTurn) else "assistant"
-            messages.append({"role": role, "content": content})
+            role: Literal["user", "assistant"] = (
+                "user" if isinstance(turn, UserTurn) else "assistant"
+            )
+            messages.append(cast("MessageParam", {"role": role, "content": content}))
         return messages
 
     @staticmethod
@@ -1313,7 +1349,7 @@ def ChatBedrockAnthropic(
     *,
     model: Optional[str] = None,
     max_tokens: int = 4096,
-    reasoning: Optional["int | ThinkingConfigEnabledParam"] = None,
+    reasoning: Optional["int | ReasoningEffort | ThinkingConfigEnabledParam"] = None,
     cache: Literal["5m", "none"] = "5m",
     structured_output_mode: StructuredOutputMode = "auto",
     aws_secret_key: Optional[str] = None,
@@ -1396,9 +1432,12 @@ def ChatBedrockAnthropic(
     max_tokens
         Maximum number of tokens to generate before stopping.
     reasoning
-        Determines how many tokens Claude can be allocated to reasoning. Must be
-        ≥1024 and less than `max_tokens`. Larger budgets can enable more
-        thorough analysis for complex problems, improving response quality. See
+        Controls Claude's extended thinking, as in `ChatAnthropic`. Pass a
+        string effort level (`"low"`, `"medium"`, `"high"`, `"xhigh"`, or
+        `"max"`) to enable adaptive thinking. Alternatively, pass an integer to
+        set a fixed thinking budget (must be ≥1024 and less than `max_tokens`).
+        Fixed budgets are deprecated on Claude Opus 4.6 / Sonnet 4.6 and
+        rejected by later models (including the default, Claude Sonnet 5). See
         [extended
         thinking](https://docs.claude.com/en/docs/build-with-claude/extended-thinking)
         for details.
@@ -1492,11 +1531,7 @@ def ChatBedrockAnthropic(
     if model is None:
         model = log_model_default("us.anthropic.claude-sonnet-5")
 
-    kwargs_chat: "SubmitInputArgs" = {}
-    if reasoning is not None:
-        if isinstance(reasoning, int):
-            reasoning = {"type": "enabled", "budget_tokens": reasoning}
-        kwargs_chat = {"thinking": reasoning}
+    kwargs_chat = reasoning_kwargs(reasoning)
 
     return Chat(
         provider=AnthropicBedrockProvider(
@@ -1528,6 +1563,12 @@ class AnthropicBedrockProvider(AnthropicProvider):
         "Amazon Bedrock does not run Anthropic's server-side tools; "
         "`ChatAnthropic()` does."
     )
+
+    @staticmethod
+    def _as_content_block(content: Content) -> "ContentBlockParam":
+        # Bedrock's InvokeModel API can't fetch `url` sources:
+        # https://platform.claude.com/docs/en/build-with-claude/claude-in-amazon-bedrock
+        return AnthropicProvider._as_content_block(materialize_url_content(content))
 
     def __init__(
         self,
@@ -1573,6 +1614,18 @@ class AnthropicBedrockProvider(AnthropicProvider):
 
         self._client = AnthropicBedrock(**kwargs_full)  # type: ignore
         self._async_client = AsyncAnthropicBedrock(**kwargs_full)  # type: ignore
+
+    def _chat_perform_args(
+        self,
+        stream: bool,
+        turns: list[Turn],
+        tools: dict[str, Tool | ToolBuiltIn],
+        data_model: Optional[type[BaseModel]] = None,
+        kwargs: Optional["SubmitInputArgs"] = None,
+    ) -> "SubmitInputArgs":
+        return bedrock_anthropic_version(
+            super()._chat_perform_args(stream, turns, tools, data_model, kwargs)
+        )
 
     def list_models(self):
         # boto3 should come via anthropic's bedrock extras
@@ -1666,6 +1719,8 @@ def anthropic_document_sources(
             elif isinstance(content, ContentUploaded):
                 if not content.mime_type.startswith("image/"):
                     sources.append(None)
+            elif isinstance(content, ContentToolResult):
+                sources.extend(anthropic_tool_result_document_sources(content))
 
     for block in contents:
         if block.type != "web_fetch_tool_result":
@@ -1674,6 +1729,36 @@ def anthropic_document_sources(
         if isinstance(result, WebFetchBlock):
             sources.append(WebSource(url=result.url))
 
+    return sources
+
+
+def anthropic_tool_result_document_sources(
+    content: ContentToolResult,
+) -> list[Optional[WebSource]]:
+    """Document slots taken by raw `document` blocks in a tool result.
+
+    A tool can return Anthropic blocks as-is (`model_format="as_is"`), and
+    any `document` block among them is sent inside the `tool_result` and
+    counts toward `document_index`. (`search_result` blocks have their own
+    `search_result_index`, so they don't take a slot.)
+    """
+    # Only an as-is value can carry raw blocks; every other format serializes
+    # to a string. Skip those without rendering them -- this runs for every
+    # citation, and rendering can mean `.to_json()`/`.to_pandas()` calls.
+    if content.model_format != "as_is":
+        return []
+    value = content.get_model_value()
+    if not isinstance(value, list):
+        return []
+    sources: list[Optional[WebSource]] = []
+    for block in value:
+        if not isinstance(block, dict) or block.get("type") != "document":
+            continue
+        source = block.get("source")
+        url = None
+        if isinstance(source, dict) and source.get("type") == "url":
+            url = source.get("url")
+        sources.append(WebSource(url=url) if url else None)
     return sources
 
 
@@ -1775,6 +1860,17 @@ def anthropic_replayable(content: ProviderAnnotation) -> bool:
         isinstance(extra, dict)
         and extra.get("type") in ANTHROPIC_SERVER_TOOL_BLOCK_TYPES
     )
+
+
+def bedrock_anthropic_version(res: "SubmitInputArgs") -> "SubmitInputArgs":
+    # anthropic 2.x defaults the Bedrock request body's `anthropic_version` to
+    # the latest API version; keep sending the value Bedrock has always been
+    # sent (the SDK applies the default with `setdefault`, so an explicit body
+    # value wins). inspect-ai made the same call (UKGovernmentBEIS/inspect_ai#6003).
+    extra_body = dict(cast(dict[str, Any], res.get("extra_body") or {}))
+    extra_body.setdefault("anthropic_version", "bedrock-2023-05-31")
+    res["extra_body"] = extra_body
+    return res
 
 
 def is_anthropic_text_document(mime_type: str) -> bool:

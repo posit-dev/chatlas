@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import mimetypes
 import os
 from contextlib import contextmanager
 from datetime import datetime
@@ -14,7 +15,11 @@ if TYPE_CHECKING:
 
 
 class FileMetadata(BaseModel):
-    """Normalized metadata for a provider-hosted file."""
+    """Normalized metadata for a provider-hosted file.
+
+    Can be passed straight to `.chat()` (and other chat methods) to reference
+    the file in a turn, just like the result of `chat.files.upload()`.
+    """
 
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
@@ -34,13 +39,55 @@ class FileMetadata(BaseModel):
     serialized as part of a chat's turns.
     """
 
+    def to_content(self) -> ContentUploaded:
+        """Build a `ContentUploaded` reference to this file.
+
+        You rarely need to call this yourself: `.chat()` (and other chat
+        methods) accept `FileMetadata` directly and do this conversion for
+        you. It's here for when you want the `ContentUploaded` itself --
+        e.g. to build a `UserTurn` by hand or stash the reference for later.
+
+        When the provider doesn't report a MIME type (OpenAI's Files API
+        never does), it's guessed from `filename`, falling back to
+        `"application/octet-stream"` -- the same guessing `chat.files.upload()`
+        applies. The returned reference's `extra` is a plain, serializable
+        dict of the normalized fields, not the provider's own file object
+        held on `FileMetadata.extra`.
+
+        On Google, this raises if the file failed to upload or is still
+        processing, since Gemini can't reference such a file in a turn.
+
+        Returns
+        -------
+        ContentUploaded
+            A reference to the file, usable as content in `.chat()`.
+        """
+        if self.provider == "google":
+            # Local import: ._provider_google imports this module.
+            from ._provider_google import google_check_meta
+
+            google_check_meta(self)
+
+        mime_type = (
+            self.mime_type
+            or mimetypes.guess_type(self.filename or "")[0]
+            or "application/octet-stream"
+        )
+        return ContentUploaded(
+            id=self.id,
+            mime_type=mime_type,
+            provider=self.provider,
+            extra={"filename": self.filename, "size_bytes": self.size_bytes},
+        )
+
 
 class FileManager:
     """Manage files hosted by a chat's provider. Accessed via `chat.files`.
 
-    Upload a file once with `.upload()`, then pass the returned
-    `ContentUploaded` to `.chat()` (and other chat methods) like any other
-    content, instead of re-sending the file's bytes on every turn.
+    Upload a file once with `.upload()`, then pass the returned reference to
+    `.chat()` (and other chat methods) like any other content, instead of
+    re-sending the file's bytes on every turn. To reuse a file uploaded in an
+    earlier session, pass the result of `.get()` to `.chat()` the same way.
 
     Supported for `ChatOpenAI()` (the Responses API), `ChatAnthropic()`, and
     `ChatGoogle()` (the Gemini Developer API). Every other provider --
@@ -148,7 +195,14 @@ class FileManager:
         Returns
         -------
         FileMetadata
-            Metadata for the file.
+            Metadata for the file, which can be passed straight to `.chat()`
+            (and other chat methods) to reference the file in a turn -- e.g.
+            to reuse a file uploaded in an earlier session:
+
+            ```python
+            report = chat.files.get("file_011CRabc...")
+            chat.chat("Summarize the key findings.", report)
+            ```
         """
         return self._provider.file_get(id)
 

@@ -4,7 +4,17 @@ import base64
 import inspect
 import warnings
 from pprint import pformat
-from typing import TYPE_CHECKING, Any, Literal, Optional, Union, cast, get_args
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Literal,
+    Optional,
+    Protocol,
+    Union,
+    cast,
+    get_args,
+    runtime_checkable,
+)
 
 import orjson
 from pydantic import (
@@ -249,6 +259,26 @@ class Content(BaseModel):
         return self.__str__()
 
 
+@runtime_checkable
+class SupportsContent(Protocol):
+    """Structural type for objects that can be coerced to `Content`.
+
+    Any object implementing `to_content() -> Content` is accepted anywhere
+    user-facing APIs take content (`.chat()`, `.stream()`, `.extract_data()`,
+    etc.) -- no need to inherit from a chatlas class. `FileMetadata` (returned
+    by `chat.files.get()`/`.list()`) is the built-in example; third-party
+    packages can opt their own objects in the same way.
+
+    The coercion happens at the turn boundary: the returned `Content` is what
+    enters the chat's turns (and its serialization), never the original
+    object.
+    """
+
+    def to_content(self) -> Content:
+        """Return this object as a `Content` object."""
+        ...
+
+
 SourceTypeEnum = Literal["web"]
 
 
@@ -350,10 +380,14 @@ class ContentImageInline(ContentImage):
         The content type of the image.
     data
         The base64-encoded image data.
+    detail
+        A detail setting for the image. Can be `"auto"`, `"low"`, or `"high"`.
+        Only forwarded by OpenAI providers; ignored by others.
     """
 
     image_content_type: ImageContentTypes
     data: str
+    detail: Literal["auto", "low", "high"] = "auto"
 
     content_type: ContentTypeEnum = "image_inline"
 
@@ -703,9 +737,7 @@ class ContentToolResult(Content):
         else:
             args = pre_code(str(args))
 
-        params = (
-            f"<strong>Input parameters:</strong>{args}" if args else ""
-        )
+        params = f"<strong>Input parameters:</strong>{args}" if args else ""
         result = f"<strong>Result:</strong>{pre_code(self._get_display_value())}"
 
         # Put both the result and parameters into a container
@@ -1147,6 +1179,13 @@ class ContentCitation(Content):
         return f"**citation**: {label}"
 
 
+# Input types accepted anywhere user-facing APIs take content (`.chat()` and
+# friends): a `Content` object, a plain string (wrapped in `ContentText`), or
+# any object implementing `to_content()` (e.g. `FileMetadata` from
+# `chat.files.get()`/`.list()`), which is coerced via that method.
+ContentInput = Union[Content, str, SupportsContent]
+
+
 ContentUnion = Union[
     ContentText,
     ContentImageRemote,
@@ -1286,8 +1325,7 @@ def serialize_content_value(value: Any, *, mode: str) -> Any:
         return tuple(serialize_content_value(item, mode=mode) for item in value)
     if isinstance(value, dict):
         return {
-            key: serialize_content_value(item, mode=mode)
-            for key, item in value.items()
+            key: serialize_content_value(item, mode=mode) for key, item in value.items()
         }
     return value
 
@@ -1301,9 +1339,8 @@ def restore_content_value(value: Any) -> Any:
     if isinstance(value, dict):
         if set(value) == {CONTENT_VALUE_SENTINEL}:
             content = value[CONTENT_VALUE_SENTINEL]
-            if (
-                isinstance(content, dict)
-                and content.get("content_type") in get_args(ContentTypeEnum)
+            if isinstance(content, dict) and content.get("content_type") in get_args(
+                ContentTypeEnum
             ):
                 return create_content(content)
         return {key: restore_content_value(item) for key, item in value.items()}

@@ -542,3 +542,25 @@ def test_check_finish_reason_warning_points_past_intervening_chatlas_frames():
         finalize_assistant_turn(ChatAnthropic().provider, turn)
 
     assert caught[0].filename == __file__
+
+
+def test_user_turn_accepts_supports_content_objects():
+    # Any object implementing .to_content() -- e.g. a third-party package's
+    # own attachment/file type -- is accepted as a chat input, coerced at the
+    # turn boundary.
+    class CustomAttachment:
+        def to_content(self) -> ContentText:
+            return ContentText(text="hello from a custom object")
+
+    turn = UserTurn(["describe this", CustomAttachment()])
+
+    assert turn.contents[1] == ContentText(text="hello from a custom object")
+
+
+def test_user_turn_rejects_bad_to_content_return():
+    class Broken:
+        def to_content(self):
+            return "not a Content object"
+
+    with pytest.raises(TypeError, match=r"to_content\(\) must return a Content"):
+        UserTurn([Broken()])

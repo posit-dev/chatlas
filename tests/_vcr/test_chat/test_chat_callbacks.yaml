@@ -1,11 +1,12 @@
 interactions:
 - request:
-    body: '{"include": ["reasoning.encrypted_content"], "input": [{"role": "user",
-      "content": [{"type": "input_text", "text": "What are Joe and Hadley''s favorite
-      colors?"}]}], "model": "gpt-5.4", "store": false, "stream": true, "tools": [{"type":
-      "function", "name": "test_tool", "description": "Find out a user''s favorite
-      color", "parameters": {"properties": {"user": {"type": "string"}}, "required":
-      ["user"], "type": "object", "additionalProperties": false}, "strict": true}]}'
+    body: '{"include": ["reasoning.encrypted_content"], "input": [{"type": "message",
+      "role": "user", "content": [{"type": "input_text", "text": "What are Joe and
+      Hadley''s favorite colors?"}]}], "model": "gpt-5.4", "store": false, "stream":
+      true, "tools": [{"type": "function", "name": "test_tool", "description": "Find
+      out a user''s favorite color", "parameters": {"properties": {"user": {"type":
+      "string"}}, "required": ["user"], "type": "object", "additionalProperties":
+      false}, "strict": true}]}'
     headers:
       Accept:
       - application/json
@@ -127,9 +128,9 @@ interactions:
       code: 200
       message: OK
 - request:
-    body: '{"include": ["reasoning.encrypted_content"], "input": [{"role": "user",
-      "content": [{"type": "input_text", "text": "What are Joe and Hadley''s favorite
-      colors?"}]}, {"type": "function_call", "call_id": "fc_0ac6a4d9e19151d50169fb7cb76ccc81939c747589e4dddeb4",
+    body: '{"include": ["reasoning.encrypted_content"], "input": [{"type": "message",
+      "role": "user", "content": [{"type": "input_text", "text": "What are Joe and
+      Hadley''s favorite colors?"}]}, {"type": "function_call", "call_id": "fc_0ac6a4d9e19151d50169fb7cb76ccc81939c747589e4dddeb4",
       "name": "test_tool", "arguments": "{\"user\":\"Joe\"}"}, {"type": "function_call",
       "call_id": "fc_0ac6a4d9e19151d50169fb7cb76cdc819384be259721da45e4", "name":
       "test_tool", "arguments": "{\"user\":\"Hadley\"}"}, {"type": "function_call_output",

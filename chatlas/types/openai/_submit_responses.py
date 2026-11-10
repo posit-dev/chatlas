@@ -47,6 +47,9 @@ import openai.types.shared_params.reasoning
 
 
 class SubmitInputArgs(TypedDict, total=False):
+    access_programs: (
+        openai.types.responses.response_create_params.AccessPrograms | openai.Omit
+    )
     background: Union[bool, None, openai.Omit]
     context_management: Union[
         Iterable[openai.types.responses.response_create_params.ContextManagement],
@@ -59,6 +62,7 @@ class SubmitInputArgs(TypedDict, total=False):
         None,
         openai.Omit,
     ]
+    image: openai.types.responses.response_create_params.Image | openai.Omit
     include: Union[
         list[
             Literal[
@@ -124,6 +128,10 @@ class SubmitInputArgs(TypedDict, total=False):
         str,
         Literal[
             "gpt-6-astra",
+            "gpt-6.1-sol",
+            "gpt-6.1-terra",
+            "gpt-6-sol",
+            "gpt-6-luna",
             "gpt-5.6-sol",
             "gpt-5.6-terra",
             "gpt-5.6-luna",
@@ -174,6 +182,8 @@ class SubmitInputArgs(TypedDict, total=False):
             "gpt-4o-2024-11-20",
             "gpt-4o-2024-08-06",
             "gpt-4o-2024-05-13",
+            "gpt-audio-mini",
+            "gpt-audio-mini-2025-12-15",
             "gpt-4o-audio-preview",
             "gpt-4o-audio-preview-2024-10-01",
             "gpt-4o-audio-preview-2024-12-17",
@@ -228,6 +238,9 @@ class SubmitInputArgs(TypedDict, total=False):
             "gpt-daybreak-blue-latest",
             "gpt-daybreak-red-latest",
             "gpt-5.6-cyber",
+            "gpt-6-cyber",
+            "gpt-rosalind-research",
+            "gpt-6-rosalind",
         ],
         openai.Omit,
     ]

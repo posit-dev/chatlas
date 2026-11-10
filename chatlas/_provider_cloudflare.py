@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import os
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Any, Optional
 
 from ._chat import Chat
 from ._logging import log_model_default
@@ -166,8 +166,37 @@ def ChatCloudflare(
 
 
 class CloudflareProvider(OpenAICompletionsProvider):
+    def stream_content(self, chunk, completion, turns=()):
+        for choice in chunk.choices or []:
+            _coerce_numeric_content(choice.delta)
+        return super().stream_content(chunk, completion, turns)
+
+    def stream_merge_chunks(self, completion, chunk):
+        for choice in chunk.choices or []:
+            _coerce_numeric_content(choice.delta)
+        return super().stream_merge_chunks(completion, chunk)
+
+    def value_turn(self, completion, has_data_model, turns=()):
+        for choice in completion.choices or []:
+            _coerce_numeric_content(choice.message)
+        return super().value_turn(completion, has_data_model, turns)
+
     def list_models(self):
         raise NotImplementedError(
             ".list_models() is not yet implemented for Cloudflare. "
             "To view model availability online, see https://developers.cloudflare.com/workers-ai/models/"
         )
+
+
+def _coerce_numeric_content(message: Any) -> None:
+    """Coerce a numeric `content` field to a string, in place.
+
+    Cloudflare sends content that consists only of a number as a JSON number
+    (e.g. `"content": 2`), which the openai SDK passes through unvalidated.
+    Left as a number, it breaks text display, chunk merging, and `ContentText`
+    validation downstream.
+    """
+    content = getattr(message, "content", None)
+    # Exclude bool, which is a subclass of int but never valid content
+    if isinstance(content, (int, float)) and not isinstance(content, bool):
+        message.content = str(content)

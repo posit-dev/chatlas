@@ -10,10 +10,12 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from ._content import (
     Content,
+    ContentInput,
     ContentText,
     ContentToolRequest,
     ContentToolResult,
     ContentUnion,
+    SupportsContent,
     create_content,
 )
 from ._content_expand import expand_tool_result, merge_tool_results, tool_results_first
@@ -89,7 +91,7 @@ class Turn(BaseModel):
 
     def __init__(
         self,
-        contents: str | Sequence[Content | str],
+        contents: str | Sequence[ContentInput],
         **kwargs,
     ):
         if isinstance(contents, str):
@@ -103,8 +105,19 @@ class Turn(BaseModel):
                 contents2.append(ContentText(text=x))
             elif isinstance(x, dict):
                 contents2.append(create_content(x))
+            elif isinstance(x, SupportsContent):
+                content = x.to_content()
+                if not isinstance(content, Content):
+                    raise TypeError(
+                        f"{type(x).__name__}.to_content() must return a Content "
+                        f"object, not {type(content).__name__}."
+                    )
+                contents2.append(content)
             else:
-                raise ValueError("All contents must be Content objects or str.")
+                raise ValueError(
+                    "All contents must be Content objects, str, or objects "
+                    "implementing .to_content()."
+                )
 
         super().__init__(
             contents=contents2,
@@ -261,7 +274,7 @@ class UserTurn(Turn):
     # Make contents a positional argument for convenience
     def __init__(
         self,
-        contents: str | Sequence[Content | str],
+        contents: str | Sequence[ContentInput],
         **kwargs,
     ):
         super().__init__(contents, **kwargs)
@@ -304,7 +317,7 @@ class SystemTurn(Turn):
     # Make contents a positional argument for convenience
     def __init__(
         self,
-        contents: str | Sequence[Content | str],
+        contents: str | Sequence[ContentInput],
         **kwargs,
     ):
         super().__init__(contents, **kwargs)
@@ -367,7 +380,7 @@ class AssistantTurn(Turn, Generic[CompletionT]):
 
     def __init__(
         self,
-        contents: str | Sequence[Content | str],
+        contents: str | Sequence[ContentInput],
         *,
         tokens: Optional[tuple[int, int, int] | list[int]] = None,
         finish_reason: Optional[FinishReason | str] = None,
@@ -395,7 +408,7 @@ class AssistantTurn(Turn, Generic[CompletionT]):
 
 
 def user_turn(
-    *args: Content | str,
+    *args: ContentInput,
     prior_turns: Optional[list[Turn]] = None,
 ) -> UserTurn:
     if len(args) == 0:

@@ -1,8 +1,8 @@
 interactions:
 - request:
-    body: '{"include": ["reasoning.encrypted_content"], "input": [{"role": "user",
-      "content": [{"type": "input_text", "text": "Tell me a short joke"}]}], "model":
-      "gpt-5.4", "store": false, "stream": true}'
+    body: '{"include": ["reasoning.encrypted_content"], "input": [{"type": "message",
+      "role": "user", "content": [{"type": "input_text", "text": "Tell me a short
+      joke"}]}], "model": "gpt-5.4", "store": false, "stream": true}'
     headers:
       Accept:
       - application/json
@@ -24,43 +24,131 @@ interactions:
     uri: https://api.openai.com/v1/responses
   response:
     body:
-      string: "event: response.created\ndata: {\"type\":\"response.created\",\"response\":{\"id\":\"resp_0e452a37369fe1d40169fb7cb1ffd081a1a5de282222447418\",\"object\":\"response\",\"created_at\":1778089138,\"status\":\"in_progress\",\"background\":false,\"completed_at\":null,\"error\":null,\"frequency_penalty\":0.0,\"incomplete_details\":null,\"instructions\":null,\"max_output_tokens\":null,\"max_tool_calls\":null,\"model\":\"gpt-5.4-2026-03-05\",\"moderation\":null,\"output\":[],\"parallel_tool_calls\":true,\"presence_penalty\":0.0,\"previous_response_id\":null,\"prompt_cache_key\":null,\"prompt_cache_retention\":\"in_memory\",\"reasoning\":{\"effort\":\"none\",\"summary\":null},\"safety_identifier\":null,\"service_tier\":\"auto\",\"store\":false,\"temperature\":1.0,\"text\":{\"format\":{\"type\":\"text\"},\"verbosity\":\"medium\"},\"tool_choice\":\"auto\",\"tools\":[],\"top_logprobs\":0,\"top_p\":0.98,\"truncation\":\"disabled\",\"usage\":null,\"user\":null,\"metadata\":{}},\"sequence_number\":0}\n\nevent:
-        response.in_progress\ndata: {\"type\":\"response.in_progress\",\"response\":{\"id\":\"resp_0e452a37369fe1d40169fb7cb1ffd081a1a5de282222447418\",\"object\":\"response\",\"created_at\":1778089138,\"status\":\"in_progress\",\"background\":false,\"completed_at\":null,\"error\":null,\"frequency_penalty\":0.0,\"incomplete_details\":null,\"instructions\":null,\"max_output_tokens\":null,\"max_tool_calls\":null,\"model\":\"gpt-5.4-2026-03-05\",\"moderation\":null,\"output\":[],\"parallel_tool_calls\":true,\"presence_penalty\":0.0,\"previous_response_id\":null,\"prompt_cache_key\":null,\"prompt_cache_retention\":\"in_memory\",\"reasoning\":{\"effort\":\"none\",\"summary\":null},\"safety_identifier\":null,\"service_tier\":\"auto\",\"store\":false,\"temperature\":1.0,\"text\":{\"format\":{\"type\":\"text\"},\"verbosity\":\"medium\"},\"tool_choice\":\"auto\",\"tools\":[],\"top_logprobs\":0,\"top_p\":0.98,\"truncation\":\"disabled\",\"usage\":null,\"user\":null,\"metadata\":{}},\"sequence_number\":1}\n\nevent:
-        response.output_item.added\ndata: {\"type\":\"response.output_item.added\",\"item\":{\"id\":\"msg_0e452a37369fe1d40169fb7cb2563081a185b82a8cd9c5e6ed\",\"type\":\"message\",\"status\":\"in_progress\",\"content\":[],\"phase\":\"final_answer\",\"role\":\"assistant\"},\"output_index\":0,\"sequence_number\":2}\n\nevent:
-        response.content_part.added\ndata: {\"type\":\"response.content_part.added\",\"content_index\":0,\"item_id\":\"msg_0e452a37369fe1d40169fb7cb2563081a185b82a8cd9c5e6ed\",\"output_index\":0,\"part\":{\"type\":\"output_text\",\"annotations\":[],\"logprobs\":[],\"text\":\"\"},\"sequence_number\":3}\n\nevent:
-        response.output_text.delta\ndata: {\"type\":\"response.output_text.delta\",\"content_index\":0,\"delta\":\"Why\",\"item_id\":\"msg_0e452a37369fe1d40169fb7cb2563081a185b82a8cd9c5e6ed\",\"logprobs\":[],\"obfuscation\":\"vPsN54ojqRskK\",\"output_index\":0,\"sequence_number\":4}\n\nevent:
-        response.output_text.delta\ndata: {\"type\":\"response.output_text.delta\",\"content_index\":0,\"delta\":\"
-        don\",\"item_id\":\"msg_0e452a37369fe1d40169fb7cb2563081a185b82a8cd9c5e6ed\",\"logprobs\":[],\"obfuscation\":\"hFzE5p0MLoB6\",\"output_index\":0,\"sequence_number\":5}\n\nevent:
-        response.output_text.delta\ndata: {\"type\":\"response.output_text.delta\",\"content_index\":0,\"delta\":\"\u2019t\",\"item_id\":\"msg_0e452a37369fe1d40169fb7cb2563081a185b82a8cd9c5e6ed\",\"logprobs\":[],\"obfuscation\":\"AnWt8sG6q7yxcH\",\"output_index\":0,\"sequence_number\":6}\n\nevent:
-        response.output_text.delta\ndata: {\"type\":\"response.output_text.delta\",\"content_index\":0,\"delta\":\"
-        skeleton\",\"item_id\":\"msg_0e452a37369fe1d40169fb7cb2563081a185b82a8cd9c5e6ed\",\"logprobs\":[],\"obfuscation\":\"aGqSnlR\",\"output_index\":0,\"sequence_number\":7}\n\nevent:
-        response.output_text.delta\ndata: {\"type\":\"response.output_text.delta\",\"content_index\":0,\"delta\":\"s\",\"item_id\":\"msg_0e452a37369fe1d40169fb7cb2563081a185b82a8cd9c5e6ed\",\"logprobs\":[],\"obfuscation\":\"QWlfWufbnZfTTZS\",\"output_index\":0,\"sequence_number\":8}\n\nevent:
-        response.output_text.delta\ndata: {\"type\":\"response.output_text.delta\",\"content_index\":0,\"delta\":\"
-        fight\",\"item_id\":\"msg_0e452a37369fe1d40169fb7cb2563081a185b82a8cd9c5e6ed\",\"logprobs\":[],\"obfuscation\":\"qTrYpWcBfi\",\"output_index\":0,\"sequence_number\":9}\n\nevent:
-        response.output_text.delta\ndata: {\"type\":\"response.output_text.delta\",\"content_index\":0,\"delta\":\"
-        each\",\"item_id\":\"msg_0e452a37369fe1d40169fb7cb2563081a185b82a8cd9c5e6ed\",\"logprobs\":[],\"obfuscation\":\"pNn3uncQPZo\",\"output_index\":0,\"sequence_number\":10}\n\nevent:
-        response.output_text.delta\ndata: {\"type\":\"response.output_text.delta\",\"content_index\":0,\"delta\":\"
-        other\",\"item_id\":\"msg_0e452a37369fe1d40169fb7cb2563081a185b82a8cd9c5e6ed\",\"logprobs\":[],\"obfuscation\":\"3AB25ertp7\",\"output_index\":0,\"sequence_number\":11}\n\nevent:
-        response.output_text.delta\ndata: {\"type\":\"response.output_text.delta\",\"content_index\":0,\"delta\":\"?\\n\\n\",\"item_id\":\"msg_0e452a37369fe1d40169fb7cb2563081a185b82a8cd9c5e6ed\",\"logprobs\":[],\"obfuscation\":\"ZvczuGjArZXJr\",\"output_index\":0,\"sequence_number\":12}\n\nevent:
-        response.output_text.delta\ndata: {\"type\":\"response.output_text.delta\",\"content_index\":0,\"delta\":\"They\",\"item_id\":\"msg_0e452a37369fe1d40169fb7cb2563081a185b82a8cd9c5e6ed\",\"logprobs\":[],\"obfuscation\":\"tBEv20Tg4Xrf\",\"output_index\":0,\"sequence_number\":13}\n\nevent:
-        response.output_text.delta\ndata: {\"type\":\"response.output_text.delta\",\"content_index\":0,\"delta\":\"
-        don\",\"item_id\":\"msg_0e452a37369fe1d40169fb7cb2563081a185b82a8cd9c5e6ed\",\"logprobs\":[],\"obfuscation\":\"nQGdOJdM0gfZ\",\"output_index\":0,\"sequence_number\":14}\n\nevent:
-        response.output_text.delta\ndata: {\"type\":\"response.output_text.delta\",\"content_index\":0,\"delta\":\"\u2019t\",\"item_id\":\"msg_0e452a37369fe1d40169fb7cb2563081a185b82a8cd9c5e6ed\",\"logprobs\":[],\"obfuscation\":\"TyhERzpiJnReil\",\"output_index\":0,\"sequence_number\":15}\n\nevent:
-        response.output_text.delta\ndata: {\"type\":\"response.output_text.delta\",\"content_index\":0,\"delta\":\"
-        have\",\"item_id\":\"msg_0e452a37369fe1d40169fb7cb2563081a185b82a8cd9c5e6ed\",\"logprobs\":[],\"obfuscation\":\"TfJRUBKeD2C\",\"output_index\":0,\"sequence_number\":16}\n\nevent:
-        response.output_text.delta\ndata: {\"type\":\"response.output_text.delta\",\"content_index\":0,\"delta\":\"
-        the\",\"item_id\":\"msg_0e452a37369fe1d40169fb7cb2563081a185b82a8cd9c5e6ed\",\"logprobs\":[],\"obfuscation\":\"n1ObPRC0lYUx\",\"output_index\":0,\"sequence_number\":17}\n\nevent:
-        response.output_text.delta\ndata: {\"type\":\"response.output_text.delta\",\"content_index\":0,\"delta\":\"
-        guts\",\"item_id\":\"msg_0e452a37369fe1d40169fb7cb2563081a185b82a8cd9c5e6ed\",\"logprobs\":[],\"obfuscation\":\"LQaFcTiKjXG\",\"output_index\":0,\"sequence_number\":18}\n\nevent:
-        response.output_text.delta\ndata: {\"type\":\"response.output_text.delta\",\"content_index\":0,\"delta\":\".\",\"item_id\":\"msg_0e452a37369fe1d40169fb7cb2563081a185b82a8cd9c5e6ed\",\"logprobs\":[],\"obfuscation\":\"bUM755v3HR3xA7r\",\"output_index\":0,\"sequence_number\":19}\n\nevent:
-        response.output_text.done\ndata: {\"type\":\"response.output_text.done\",\"content_index\":0,\"item_id\":\"msg_0e452a37369fe1d40169fb7cb2563081a185b82a8cd9c5e6ed\",\"logprobs\":[],\"output_index\":0,\"sequence_number\":20,\"text\":\"Why
-        don\u2019t skeletons fight each other?\\n\\nThey don\u2019t have the guts.\"}\n\nevent:
-        response.content_part.done\ndata: {\"type\":\"response.content_part.done\",\"content_index\":0,\"item_id\":\"msg_0e452a37369fe1d40169fb7cb2563081a185b82a8cd9c5e6ed\",\"output_index\":0,\"part\":{\"type\":\"output_text\",\"annotations\":[],\"logprobs\":[],\"text\":\"Why
-        don\u2019t skeletons fight each other?\\n\\nThey don\u2019t have the guts.\"},\"sequence_number\":21}\n\nevent:
-        response.output_item.done\ndata: {\"type\":\"response.output_item.done\",\"item\":{\"id\":\"msg_0e452a37369fe1d40169fb7cb2563081a185b82a8cd9c5e6ed\",\"type\":\"message\",\"status\":\"completed\",\"content\":[{\"type\":\"output_text\",\"annotations\":[],\"logprobs\":[],\"text\":\"Why
-        don\u2019t skeletons fight each other?\\n\\nThey don\u2019t have the guts.\"}],\"phase\":\"final_answer\",\"role\":\"assistant\"},\"output_index\":0,\"sequence_number\":22}\n\nevent:
-        response.completed\ndata: {\"type\":\"response.completed\",\"response\":{\"id\":\"resp_0e452a37369fe1d40169fb7cb1ffd081a1a5de282222447418\",\"object\":\"response\",\"created_at\":1778089138,\"status\":\"completed\",\"background\":false,\"completed_at\":1778089138,\"error\":null,\"frequency_penalty\":0.0,\"incomplete_details\":null,\"instructions\":null,\"max_output_tokens\":null,\"max_tool_calls\":null,\"model\":\"gpt-5.4-2026-03-05\",\"moderation\":null,\"output\":[{\"id\":\"msg_0e452a37369fe1d40169fb7cb2563081a185b82a8cd9c5e6ed\",\"type\":\"message\",\"status\":\"completed\",\"content\":[{\"type\":\"output_text\",\"annotations\":[],\"logprobs\":[],\"text\":\"Why
-        don\u2019t skeletons fight each other?\\n\\nThey don\u2019t have the guts.\"}],\"phase\":\"final_answer\",\"role\":\"assistant\"}],\"parallel_tool_calls\":true,\"presence_penalty\":0.0,\"previous_response_id\":null,\"prompt_cache_key\":null,\"prompt_cache_retention\":\"in_memory\",\"reasoning\":{\"effort\":\"none\",\"summary\":null},\"safety_identifier\":null,\"service_tier\":\"default\",\"store\":false,\"temperature\":1.0,\"text\":{\"format\":{\"type\":\"text\"},\"verbosity\":\"medium\"},\"tool_choice\":\"auto\",\"tools\":[],\"top_logprobs\":0,\"top_p\":0.98,\"truncation\":\"disabled\",\"usage\":{\"input_tokens\":11,\"input_tokens_details\":{\"cached_tokens\":0},\"output_tokens\":20,\"output_tokens_details\":{\"reasoning_tokens\":0},\"total_tokens\":31},\"user\":null,\"metadata\":{}},\"sequence_number\":23}\n\n"
+      string: 'event: response.created
+
+        data: {"type":"response.created","response":{"id":"resp_0e452a37369fe1d40169fb7cb1ffd081a1a5de282222447418","object":"response","created_at":1778089138,"status":"in_progress","background":false,"completed_at":null,"error":null,"frequency_penalty":0.0,"incomplete_details":null,"instructions":null,"max_output_tokens":null,"max_tool_calls":null,"model":"gpt-5.4-2026-03-05","moderation":null,"output":[],"parallel_tool_calls":true,"presence_penalty":0.0,"previous_response_id":null,"prompt_cache_key":null,"prompt_cache_retention":"in_memory","reasoning":{"effort":"none","summary":null},"safety_identifier":null,"service_tier":"auto","store":false,"temperature":1.0,"text":{"format":{"type":"text"},"verbosity":"medium"},"tool_choice":"auto","tools":[],"top_logprobs":0,"top_p":0.98,"truncation":"disabled","usage":null,"user":null,"metadata":{}},"sequence_number":0}
+
+
+        event: response.in_progress
+
+        data: {"type":"response.in_progress","response":{"id":"resp_0e452a37369fe1d40169fb7cb1ffd081a1a5de282222447418","object":"response","created_at":1778089138,"status":"in_progress","background":false,"completed_at":null,"error":null,"frequency_penalty":0.0,"incomplete_details":null,"instructions":null,"max_output_tokens":null,"max_tool_calls":null,"model":"gpt-5.4-2026-03-05","moderation":null,"output":[],"parallel_tool_calls":true,"presence_penalty":0.0,"previous_response_id":null,"prompt_cache_key":null,"prompt_cache_retention":"in_memory","reasoning":{"effort":"none","summary":null},"safety_identifier":null,"service_tier":"auto","store":false,"temperature":1.0,"text":{"format":{"type":"text"},"verbosity":"medium"},"tool_choice":"auto","tools":[],"top_logprobs":0,"top_p":0.98,"truncation":"disabled","usage":null,"user":null,"metadata":{}},"sequence_number":1}
+
+
+        event: response.output_item.added
+
+        data: {"type":"response.output_item.added","item":{"id":"msg_0e452a37369fe1d40169fb7cb2563081a185b82a8cd9c5e6ed","type":"message","status":"in_progress","content":[],"phase":"final_answer","role":"assistant"},"output_index":0,"sequence_number":2}
+
+
+        event: response.content_part.added
+
+        data: {"type":"response.content_part.added","content_index":0,"item_id":"msg_0e452a37369fe1d40169fb7cb2563081a185b82a8cd9c5e6ed","output_index":0,"part":{"type":"output_text","annotations":[],"logprobs":[],"text":""},"sequence_number":3}
+
+
+        event: response.output_text.delta
+
+        data: {"type":"response.output_text.delta","content_index":0,"delta":"Why","item_id":"msg_0e452a37369fe1d40169fb7cb2563081a185b82a8cd9c5e6ed","logprobs":[],"obfuscation":"vPsN54ojqRskK","output_index":0,"sequence_number":4}
+
+
+        event: response.output_text.delta
+
+        data: {"type":"response.output_text.delta","content_index":0,"delta":" don","item_id":"msg_0e452a37369fe1d40169fb7cb2563081a185b82a8cd9c5e6ed","logprobs":[],"obfuscation":"hFzE5p0MLoB6","output_index":0,"sequence_number":5}
+
+
+        event: response.output_text.delta
+
+        data: {"type":"response.output_text.delta","content_index":0,"delta":"’t","item_id":"msg_0e452a37369fe1d40169fb7cb2563081a185b82a8cd9c5e6ed","logprobs":[],"obfuscation":"AnWt8sG6q7yxcH","output_index":0,"sequence_number":6}
+
+
+        event: response.output_text.delta
+
+        data: {"type":"response.output_text.delta","content_index":0,"delta":" skeleton","item_id":"msg_0e452a37369fe1d40169fb7cb2563081a185b82a8cd9c5e6ed","logprobs":[],"obfuscation":"aGqSnlR","output_index":0,"sequence_number":7}
+
+
+        event: response.output_text.delta
+
+        data: {"type":"response.output_text.delta","content_index":0,"delta":"s","item_id":"msg_0e452a37369fe1d40169fb7cb2563081a185b82a8cd9c5e6ed","logprobs":[],"obfuscation":"QWlfWufbnZfTTZS","output_index":0,"sequence_number":8}
+
+
+        event: response.output_text.delta
+
+        data: {"type":"response.output_text.delta","content_index":0,"delta":" fight","item_id":"msg_0e452a37369fe1d40169fb7cb2563081a185b82a8cd9c5e6ed","logprobs":[],"obfuscation":"qTrYpWcBfi","output_index":0,"sequence_number":9}
+
+
+        event: response.output_text.delta
+
+        data: {"type":"response.output_text.delta","content_index":0,"delta":" each","item_id":"msg_0e452a37369fe1d40169fb7cb2563081a185b82a8cd9c5e6ed","logprobs":[],"obfuscation":"pNn3uncQPZo","output_index":0,"sequence_number":10}
+
+
+        event: response.output_text.delta
+
+        data: {"type":"response.output_text.delta","content_index":0,"delta":" other","item_id":"msg_0e452a37369fe1d40169fb7cb2563081a185b82a8cd9c5e6ed","logprobs":[],"obfuscation":"3AB25ertp7","output_index":0,"sequence_number":11}
+
+
+        event: response.output_text.delta
+
+        data: {"type":"response.output_text.delta","content_index":0,"delta":"?\n\n","item_id":"msg_0e452a37369fe1d40169fb7cb2563081a185b82a8cd9c5e6ed","logprobs":[],"obfuscation":"ZvczuGjArZXJr","output_index":0,"sequence_number":12}
+
+
+        event: response.output_text.delta
+
+        data: {"type":"response.output_text.delta","content_index":0,"delta":"They","item_id":"msg_0e452a37369fe1d40169fb7cb2563081a185b82a8cd9c5e6ed","logprobs":[],"obfuscation":"tBEv20Tg4Xrf","output_index":0,"sequence_number":13}
+
+
+        event: response.output_text.delta
+
+        data: {"type":"response.output_text.delta","content_index":0,"delta":" don","item_id":"msg_0e452a37369fe1d40169fb7cb2563081a185b82a8cd9c5e6ed","logprobs":[],"obfuscation":"nQGdOJdM0gfZ","output_index":0,"sequence_number":14}
+
+
+        event: response.output_text.delta
+
+        data: {"type":"response.output_text.delta","content_index":0,"delta":"’t","item_id":"msg_0e452a37369fe1d40169fb7cb2563081a185b82a8cd9c5e6ed","logprobs":[],"obfuscation":"TyhERzpiJnReil","output_index":0,"sequence_number":15}
+
+
+        event: response.output_text.delta
+
+        data: {"type":"response.output_text.delta","content_index":0,"delta":" have","item_id":"msg_0e452a37369fe1d40169fb7cb2563081a185b82a8cd9c5e6ed","logprobs":[],"obfuscation":"TfJRUBKeD2C","output_index":0,"sequence_number":16}
+
+
+        event: response.output_text.delta
+
+        data: {"type":"response.output_text.delta","content_index":0,"delta":" the","item_id":"msg_0e452a37369fe1d40169fb7cb2563081a185b82a8cd9c5e6ed","logprobs":[],"obfuscation":"n1ObPRC0lYUx","output_index":0,"sequence_number":17}
+
+
+        event: response.output_text.delta
+
+        data: {"type":"response.output_text.delta","content_index":0,"delta":" guts","item_id":"msg_0e452a37369fe1d40169fb7cb2563081a185b82a8cd9c5e6ed","logprobs":[],"obfuscation":"LQaFcTiKjXG","output_index":0,"sequence_number":18}
+
+
+        event: response.output_text.delta
+
+        data: {"type":"response.output_text.delta","content_index":0,"delta":".","item_id":"msg_0e452a37369fe1d40169fb7cb2563081a185b82a8cd9c5e6ed","logprobs":[],"obfuscation":"bUM755v3HR3xA7r","output_index":0,"sequence_number":19}
+
+
+        event: response.output_text.done
+
+        data: {"type":"response.output_text.done","content_index":0,"item_id":"msg_0e452a37369fe1d40169fb7cb2563081a185b82a8cd9c5e6ed","logprobs":[],"output_index":0,"sequence_number":20,"text":"Why
+        don’t skeletons fight each other?\n\nThey don’t have the guts."}
+
+
+        event: response.content_part.done
+
+        data: {"type":"response.content_part.done","content_index":0,"item_id":"msg_0e452a37369fe1d40169fb7cb2563081a185b82a8cd9c5e6ed","output_index":0,"part":{"type":"output_text","annotations":[],"logprobs":[],"text":"Why
+        don’t skeletons fight each other?\n\nThey don’t have the guts."},"sequence_number":21}
+
+
+        event: response.output_item.done
+
+        data: {"type":"response.output_item.done","item":{"id":"msg_0e452a37369fe1d40169fb7cb2563081a185b82a8cd9c5e6ed","type":"message","status":"completed","content":[{"type":"output_text","annotations":[],"logprobs":[],"text":"Why
+        don’t skeletons fight each other?\n\nThey don’t have the guts."}],"phase":"final_answer","role":"assistant"},"output_index":0,"sequence_number":22}
+
+
+        event: response.completed
+
+        data: {"type":"response.completed","response":{"id":"resp_0e452a37369fe1d40169fb7cb1ffd081a1a5de282222447418","object":"response","created_at":1778089138,"status":"completed","background":false,"completed_at":1778089138,"error":null,"frequency_penalty":0.0,"incomplete_details":null,"instructions":null,"max_output_tokens":null,"max_tool_calls":null,"model":"gpt-5.4-2026-03-05","moderation":null,"output":[{"id":"msg_0e452a37369fe1d40169fb7cb2563081a185b82a8cd9c5e6ed","type":"message","status":"completed","content":[{"type":"output_text","annotations":[],"logprobs":[],"text":"Why
+        don’t skeletons fight each other?\n\nThey don’t have the guts."}],"phase":"final_answer","role":"assistant"}],"parallel_tool_calls":true,"presence_penalty":0.0,"previous_response_id":null,"prompt_cache_key":null,"prompt_cache_retention":"in_memory","reasoning":{"effort":"none","summary":null},"safety_identifier":null,"service_tier":"default","store":false,"temperature":1.0,"text":{"format":{"type":"text"},"verbosity":"medium"},"tool_choice":"auto","tools":[],"top_logprobs":0,"top_p":0.98,"truncation":"disabled","usage":{"input_tokens":11,"input_tokens_details":{"cached_tokens":0},"output_tokens":20,"output_tokens_details":{"reasoning_tokens":0},"total_tokens":31},"user":null,"metadata":{}},"sequence_number":23}
+
+
+        '
     headers:
       CF-Cache-Status:
       - DYNAMIC
