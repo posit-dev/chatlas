@@ -320,7 +320,7 @@ class OpenAICompletionsProvider(
         reasoning = getattr(delta, "reasoning", None) or getattr(
             delta, "reasoning_content", None
         )
-        if reasoning is not None:
+        if reasoning:
             return [ContentThinkingDelta(thinking=reasoning)]
 
         text = delta.content
