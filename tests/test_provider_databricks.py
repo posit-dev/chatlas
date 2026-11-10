@@ -25,18 +25,22 @@ from .conftest import (
 )
 
 
-def _databricks_provider() -> DatabricksProvider:
-    """A DatabricksProvider that never touches the network."""
+def _workspace_client_stub() -> Any:
+    """A stub of databricks.sdk.WorkspaceClient that never touches the network."""
     sync_client = OpenAI(
         api_key="no-token",
         base_url="https://workspace.example.com/serving-endpoints",
         http_client=cast(Any, httpx.Client()),
     )
-    workspace_client = SimpleNamespace(
+    return SimpleNamespace(
         serving_endpoints=SimpleNamespace(get_open_ai_client=lambda: sync_client)
     )
+
+
+def _databricks_provider() -> DatabricksProvider:
+    """A DatabricksProvider that never touches the network."""
     return DatabricksProvider(
-        model="test", workspace_client=cast(Any, workspace_client)
+        model="test", workspace_client=cast(Any, _workspace_client_stub())
     )
 
 
@@ -132,8 +136,10 @@ def test_connect_without_openai_key(monkeypatch):
     # Ensure OPENAI_API_KEY is not set
     monkeypatch.delenv("OPENAI_API_KEY", raising=False)
 
-    # This should not raise an error
-    chat = ChatDatabricks()
+    # This should not raise an error. Use the stub since a real WorkspaceClient()
+    # probes the host's metadata endpoint with a ~300s retry budget when the host
+    # is unreachable (e.g., the dummy DATABRICKS_HOST set in conftest).
+    chat = ChatDatabricks(workspace_client=_workspace_client_stub())
     assert chat is not None
 
 
