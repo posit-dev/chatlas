@@ -371,6 +371,24 @@ def converse_cache_point(
     return {"type": "default"}
 
 
+def request_cache_point_ttls(
+    args: "ConverseRequestTypeDef",
+) -> "list[Literal['5m', '1h']]":
+    """TTLs of the cache points present in a Converse request."""
+    ttls: list[Literal["5m", "1h"]] = []
+    blocks: list[dict] = list(args.get("system") or [])
+    for message in args.get("messages") or []:
+        content = message.get("content")
+        if isinstance(content, list):
+            blocks.extend(cast("list[dict]", content))
+    for block in blocks:
+        if isinstance(block, dict) and "cachePoint" in block:
+            cache_point = block["cachePoint"]
+            is_1h = isinstance(cache_point, dict) and cache_point.get("ttl") == "1h"
+            ttls.append("1h" if is_1h else "5m")
+    return ttls
+
+
 CONVERSE_IMAGE_FORMATS: dict[str, ImageFormatType] = {
     "image/png": "png",
     "image/jpeg": "jpeg",
@@ -428,6 +446,10 @@ class BedrockConverseProvider(
         self._aws_region = aws_region
         self._max_tokens = max_tokens
         self._cache: Literal["auto", "5m", "1h", "none"] = cache
+        # TTLs of the cache points in the most recent request, since the
+        # caller can place their own via kwargs with a TTL that differs from
+        # `cache`. `None` until a request is built.
+        self._request_cache_ttls: Optional[list[Literal["5m", "1h"]]] = None
 
         resolved_base_url = base_url or bedrock_base_url("converse", aws_region)
         # `LazyCredentials` defers the botocore credential chain to the first
@@ -730,7 +752,14 @@ class BedrockConverseProvider(
         if not model_id.startswith("anthropic."):
             cache_write_mult = 1.0
         else:
-            cache_write_mult = 2.0 if self._cache == "1h" else 1.25
+            ttls = self._request_cache_ttls
+            if ttls is None:
+                # No request built yet; assume the configured cache setting.
+                ttls = ["1h"] if self._cache == "1h" else ["5m"]
+            # Usage reports a single write count, so writes from mixed-TTL
+            # cache points can't be attributed exactly; the 1h multiplier
+            # overestimates rather than underbills.
+            cache_write_mult = 2.0 if "1h" in ttls else 1.25
         return converse_tokens(completion["usage"], cache_write_mult)
 
     def token_count(
@@ -859,6 +888,7 @@ class BedrockConverseProvider(
             assert tool_config is not None
             args["toolConfig"] = tool_config
 
+        self._request_cache_ttls = request_cache_point_ttls(args)
         return args
 
     def _request_target(

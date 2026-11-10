@@ -871,6 +871,26 @@ class TestResponseParsing:
         ).value_tokens(response)
         assert tokens == (900, 5, 0)
 
+    def test_explicit_cache_point_ttls_override_the_configured_cache(self):
+        provider = self.provider_for("us.anthropic.claude-sonnet-4-6", cache="none")
+        provider._chat_perform_args(
+            stream=False,
+            turns=[UserTurn("hi")],
+            tools={},
+            kwargs=cast(
+                "ConverseSubmitArgs",
+                {
+                    "system": [
+                        {"text": "be terse"},
+                        {"cachePoint": {"type": "default", "ttl": "1h"}},
+                    ]
+                },
+            ),
+        )
+        tokens = provider.value_tokens(self._usage_response(cacheWriteInputTokens=400))
+        # 100 + 400 * 2.0 (1 hour cache write)
+        assert tokens == (900, 5, 0)
+
     def test_other_models_count_cache_writes_as_regular_input(self):
         response = self._usage_response(cacheWriteInputTokens=400)
         tokens = self.provider_for("amazon.nova-pro-v1:0").value_tokens(response)
