@@ -399,22 +399,6 @@ class BedrockMessagesProvider(AnthropicProvider):
         stream: bool,
         turns: list["Turn"],
         tools: dict[str, "Tool | ToolBuiltIn"],
-        data_model: Optional["type[BaseModel]"] = None,
-        kwargs: Optional["AnthropicSubmitInputArgs"] = None,
-    ) -> "AnthropicSubmitInputArgs":
-        return bedrock_anthropic_version(
-            super()._chat_perform_args(stream, turns, tools, data_model, kwargs)
-        )
-
-    @staticmethod
-    def _as_content_block(content: "Content") -> "ContentBlockParam":
-        return AnthropicProvider._as_content_block(materialize_url_content(content))
-
-    def _chat_perform_args(
-        self,
-        stream: bool,
-        turns: list["Turn"],
-        tools: dict[str, "Tool | ToolBuiltIn"],
         data_model: Optional[type[BaseModel]] = None,
         kwargs: Optional["AnthropicSubmitInputArgs"] = None,
     ) -> "AnthropicSubmitInputArgs":
@@ -444,7 +428,13 @@ class BedrockMessagesProvider(AnthropicProvider):
             new_kwargs.pop("tools", None)
             new_kwargs.pop("tool_choice", None)
             kwargs = cast("AnthropicSubmitInputArgs", new_kwargs)
-        return super()._chat_perform_args(stream, turns, tools, data_model, kwargs)
+        return bedrock_anthropic_version(
+            super()._chat_perform_args(stream, turns, tools, data_model, kwargs)
+        )
+
+    @staticmethod
+    def _as_content_block(content: "Content") -> "ContentBlockParam":
+        return AnthropicProvider._as_content_block(materialize_url_content(content))
 
     # -- Native structured-output probing ------------------------------------
     #
