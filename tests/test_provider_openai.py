@@ -18,13 +18,15 @@ from chatlas._provider_openai import (
 from chatlas.types import ContentCitation, ContentText, ContentToolRequestSearch
 from openai.types.responses import (
     Response,
-    ResponseOutputTextAnnotationAddedEvent,
     ResponseOutputMessage,
     ResponseOutputText,
+    ResponseOutputTextAnnotationAddedEvent,
+    ResponseUsage,
 )
 from openai.types.responses.response_output_text_annotation_added_event import (
     AnnotationURLCitation,
 )
+from openai.types.responses.response_usage import InputTokensDetails
 
 from .conftest import (
     assert_data_extraction,
@@ -674,10 +676,6 @@ def test_openai_truncated_plain_text_still_returns_a_turn():
 
 
 def _usage_completion(**details):
-    from openai.types.responses import ResponseUsage
-
-    # Parsed like the SDK parses a response, so unknown fields such as
-    # `cache_write_tokens_details` stay extra fields holding plain dicts.
     usage = ResponseUsage.model_validate(
         {
             "input_tokens": 12000,
@@ -744,3 +742,23 @@ def test_openai_value_tokens_without_cache_writes_is_unchanged():
     # input rate (models before GPT-5.6), so no premium is added.
     completion = _usage_completion(cached_tokens=4000, cache_write_tokens=7000)
     assert provider.value_tokens(completion) == (8000, 100, 4000)
+
+
+def test_openai_value_tokens_cache_write_breakdown_from_untyped_sdk():
+    provider = OpenAIProvider(model="gpt-5.6-sol", api_key="dummy")
+
+    # `openai` < 3.45 doesn't type `cache_write_tokens_details`, so it arrives
+    # as a plain dict. Simulate that by skipping validation for the field.
+    completion = _usage_completion(cached_tokens=4000)
+    assert completion.usage is not None
+    completion.usage.input_tokens_details = InputTokensDetails.construct(
+        cached_tokens=4000,
+        cache_write_tokens=7000,
+        cache_write_tokens_details={"ttl_30m_tokens": 7000, "ttl_12h_tokens": 0},
+    )
+
+    assert provider.value_tokens(completion) == (
+        12000 - 4000 + int(0.25 * 7000),
+        100,
+        4000,
+    )

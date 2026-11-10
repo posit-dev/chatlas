@@ -20,6 +20,7 @@ from openai.types.responses.response_output_text import (
 from openai.types.responses.response_output_text_annotation_added_event import (
     AnnotationURLCitation as StreamAnnotationURLCitation,
 )
+from openai.types.responses.response_usage import InputTokensDetails
 from pydantic import BaseModel
 
 from ._chat import Chat
@@ -54,6 +55,7 @@ from ._provider_openai_generic import BatchResult, OpenAIAbstractProvider
 from ._tools import Tool, ToolBuiltIn, basemodel_to_param_schema
 from ._tools_builtin import ToolWebSearch
 from ._turn import AssistantTurn, FinishReason, Turn, check_finish_reason
+from ._typing_extensions import TypedDict
 
 if TYPE_CHECKING:
     import os
@@ -458,15 +460,8 @@ class OpenAIProvider(
         # Only the models that bill writes report the per-lifetime breakdown, so
         # a response without it (earlier models: no write charge) adds nothing.
         # https://developers.openai.com/api/docs/guides/prompt-caching
-        # The SDK doesn't type `cache_write_tokens_details` (it keeps it as an extra
-        # field, a plain dict), and chatlas doesn't pin a minimum `openai` version.
-        write_details = (details.model_extra or {}).get("cache_write_tokens_details")
-        if write_details is None:
-            write_premium = 0
-        else:
-            write_30m = write_details.get("ttl_30m_tokens") or 0
-            write_12h = write_details.get("ttl_12h_tokens") or 0
-            write_premium = int(0.25 * write_30m + 1.5 * write_12h)
+        write_30m, write_12h = cache_write_tokens_by_lifetime(details)
+        write_premium = int(0.25 * write_30m + 1.5 * write_12h)
 
         return (
             usage.input_tokens - cached_tokens + write_premium,
@@ -695,6 +690,29 @@ class OpenAIProvider(
 
     async def file_delete_async(self, id: str) -> None:  # noqa: A002
         await self._async_client.files.delete(id)
+
+
+def cache_write_tokens_by_lifetime(details: InputTokensDetails) -> tuple[int, int]:
+    """Prompt-cache write tokens, split by lifetime: (30-minute, 12-hour).
+
+    `openai` only typed `cache_write_tokens_details` in 3.45; older versions
+    keep it as an extra field holding a plain dict, which pydantic still
+    exposes as an attribute, so `getattr` reaches it either way.
+    """
+    write = getattr(details, "cache_write_tokens_details", None)
+    if write is None:
+        return (0, 0)
+    if isinstance(write, dict):
+        write = cast(CacheWriteTokensDetailsDict, write)
+        return (write.get("ttl_30m_tokens") or 0, write.get("ttl_12h_tokens") or 0)
+    return (write.ttl_30m_tokens, write.ttl_12h_tokens)
+
+
+class CacheWriteTokensDetailsDict(TypedDict, total=False):
+    """The un-typed shape `openai` < 3.45 reports for `cache_write_tokens_details`."""
+
+    ttl_30m_tokens: int
+    ttl_12h_tokens: int
 
 
 def openai_web_search_request(
