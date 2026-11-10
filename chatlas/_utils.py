@@ -5,7 +5,16 @@ import functools
 import inspect
 import os
 import re
-from typing import Any, AsyncIterable, Awaitable, Callable, Iterable, TypeVar, cast
+from typing import (
+    Any,
+    AsyncIterable,
+    Awaitable,
+    Callable,
+    Coroutine,
+    Iterable,
+    TypeVar,
+    cast,
+)
 
 import httpx
 import httpx2
@@ -226,3 +235,21 @@ def html_escape(text: str, attr: bool = True) -> str:
     for key, value in table.items():
         text = text.replace(key, value)
     return text
+
+
+def run_coro_sync(coro_fn: Callable[[], "Awaitable[T]"], *, what: str) -> T:
+    """Run an async operation from synchronous code.
+
+    Takes a zero-argument callable returning an awaitable (rather than a
+    coroutine) so that no coroutine is created -- and left un-awaited -- when
+    the running-loop error is raised.
+    """
+    try:
+        asyncio.get_running_loop()
+    except RuntimeError:
+        return asyncio.run(cast("Coroutine[Any, Any, T]", coro_fn()))
+    raise RuntimeError(
+        f"Cannot {what} from within a running event loop. Use the async "
+        "equivalents instead (e.g. `register_mcp_tools_async()`, "
+        "`chat_async()`), or call from synchronous code."
+    )
