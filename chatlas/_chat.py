@@ -2792,7 +2792,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                     controller=controller,
                     _otel_parent=agent_span,
                 ):
-                    if separator.needed_before(chunk):
+                    if content == "text" and separator.needed_before(chunk):
                         yield "\n\n"
                     yield chunk
 
@@ -2885,7 +2885,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                 )
                 try:
                     async for chunk in turn_generator:
-                        if separator.needed_before(chunk):
+                        if content == "text" and separator.needed_before(chunk):
                             yield "\n\n"
                         yield chunk
                 finally:

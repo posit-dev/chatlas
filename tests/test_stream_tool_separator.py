@@ -75,6 +75,18 @@ async def test_stream_async_text_does_not_start_with_a_separator():
     assert out == "Done."
 
 
+def test_stream_all_gains_no_separator_chunks():
+    chunks = list(_chat().stream("hi", content="all"))
+    assert "\n\n" not in [x for x in chunks if isinstance(x, str)]
+
+
+@pytest.mark.asyncio
+async def test_stream_async_all_gains_no_separator_chunks():
+    stream = await _chat().stream_async("hi", content="all")
+    chunks = [x async for x in stream]
+    assert "\n\n" not in [x for x in chunks if isinstance(x, str)]
+
+
 def test_chat_text_separates_text_around_a_tool_call():
     assert str(_chat().chat("hi", echo="none")) == "Checking.\n\nDone."
     assert str(_chat("").chat("hi", echo="none")) == "Done."
