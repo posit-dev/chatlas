@@ -900,6 +900,81 @@ class TestResponseParsing:
         # Accounting from the stored completion agrees with the turn
         assert provider.value_tokens(turn.completion) == turn.tokens
 
+    def _explicit_1h_args(self, provider, stream: bool):
+        return provider._chat_perform_args(
+            stream=stream,
+            turns=[UserTurn("hi")],
+            tools={},
+            kwargs=cast(
+                "ConverseSubmitArgs",
+                {
+                    "system": [
+                        {"text": "be terse"},
+                        {"cachePoint": {"type": "default", "ttl": "1h"}},
+                    ]
+                },
+            ),
+        )
+
+    def test_stream_turn_retains_cache_point_ttls(self):
+        from chatlas._provider_bedrock_converse import _CACHE_POINT_TTLS_KEY
+
+        provider = self.provider_for("us.anthropic.claude-sonnet-4-6", cache="none")
+        merged = None
+        for event in [
+            {_CACHE_POINT_TTLS_KEY: ["1h"]},
+            {"messageStart": {"role": "assistant"}},
+            {"messageStop": {"stopReason": "end_turn"}},
+            {
+                "metadata": {
+                    "usage": {
+                        "inputTokens": 100,
+                        "outputTokens": 5,
+                        "totalTokens": 505,
+                        "cacheWriteInputTokens": 400,
+                    }
+                }
+            },
+        ]:
+            merged = provider.stream_merge_chunks(merged, event)
+        assert merged is not None
+        turn = provider.stream_turn(merged, has_data_model=False)
+        # 100 + 400 * 2.0 (1 hour cache write)
+        assert turn.tokens == (900, 5, 0)
+        assert provider.value_tokens(turn.completion) == turn.tokens
+
+    def test_converse_stream_leads_with_cache_point_ttls(self):
+        from chatlas._provider_bedrock_converse import _CACHE_POINT_TTLS_KEY
+
+        provider = self.provider_for("us.anthropic.claude-sonnet-4-6", cache="none")
+        provider._client = httpx.Client(
+            base_url="https://bedrock-runtime.example.com",
+            transport=httpx.MockTransport(
+                lambda request: httpx.Response(200, content=b"")
+            ),
+        )
+        events = list(provider._converse_stream(self._explicit_1h_args(provider, True)))
+        assert events[0] == {_CACHE_POINT_TTLS_KEY: ["1h"]}
+
+    @pytest.mark.asyncio
+    async def test_converse_stream_async_leads_with_cache_point_ttls(self):
+        from chatlas._provider_bedrock_converse import _CACHE_POINT_TTLS_KEY
+
+        provider = self.provider_for("us.anthropic.claude-sonnet-4-6", cache="none")
+        provider._async_client = httpx.AsyncClient(
+            base_url="https://bedrock-runtime.example.com",
+            transport=httpx.MockTransport(
+                lambda request: httpx.Response(200, content=b"")
+            ),
+        )
+        events = [
+            event
+            async for event in provider._converse_stream_async(
+                self._explicit_1h_args(provider, True)
+            )
+        ]
+        assert events[0] == {_CACHE_POINT_TTLS_KEY: ["1h"]}
+
     def test_request_cache_point_ttls_scans_tool_config(self):
         from chatlas._provider_bedrock_converse import request_cache_point_ttls
 
