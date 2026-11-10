@@ -895,7 +895,10 @@ class TestResponseParsing:
         response = self._usage_response(cacheWriteInputTokens=400)
         cast(dict, response)[_CACHE_POINT_TTLS_KEY] = request_cache_point_ttls(args)
         # 100 + 400 * 2.0 (1 hour cache write)
-        assert provider.value_tokens(response) == (900, 5, 0)
+        turn = provider.value_turn(response, has_data_model=False)
+        assert turn.tokens == (900, 5, 0)
+        # Accounting from the stored completion agrees with the turn
+        assert provider.value_tokens(turn.completion) == turn.tokens
 
     def test_request_cache_point_ttls_scans_tool_config(self):
         from chatlas._provider_bedrock_converse import request_cache_point_ttls

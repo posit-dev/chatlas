@@ -766,6 +766,9 @@ class BedrockConverseProvider(
         if not model_id.startswith("anthropic."):
             cache_write_mult = 1.0
         else:
+            # Retained on the completion (rather than popped when the turn is
+            # built) so `value_tokens()`/`value_cost()` on `turn.completion`
+            # agree with the turn's recorded tokens.
             ttls = cast(dict, completion).get(_CACHE_POINT_TTLS_KEY)
             if ttls is None:
                 # Completion didn't come through `chat_perform()` (e.g. a raw
@@ -962,8 +965,6 @@ class BedrockConverseProvider(
     ) -> AssistantTurn[ConverseResponseTypeDef]:
         finish_reason = converse_stop_reason(completion["stopReason"])
         tokens = self.value_tokens(completion)
-        # Don't leak the request-scoped TTL metadata onto the stored turn
-        cast(dict, completion).pop(_CACHE_POINT_TTLS_KEY, None)
         if has_data_model:
             check_finish_reason(finish_reason, "error")
 
