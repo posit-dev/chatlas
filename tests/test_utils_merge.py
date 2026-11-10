@@ -48,3 +48,97 @@ def test_respects_index_when_merging_lists():
     assert merge_dicts(
         {"a": [{"index": 0, "b": "a"}]}, {"a": [{"index": 1, "b": "b"}]}
     ) == {"a": [{"index": 0, "b": "a"}, {"index": 1, "b": "b"}]}
+
+
+def _tool_call_chunk(**fields):
+    return {"tool_calls": [fields]}
+
+
+def test_tool_call_fragments_without_index_are_joined():
+    # Some OpenAI-compatible servers omit `index` on streamed tool calls; the
+    # argument fragments that follow the first chunk carry no id either.
+    chunks = [
+        _tool_call_chunk(id="call_1", function={"name": "f", "arguments": ""}),
+        _tool_call_chunk(function={"arguments": '{"x":'}),
+        _tool_call_chunk(function={"arguments": " 1}"}),
+    ]
+    merged = merge_dicts({}, *chunks)
+    assert merged["tool_calls"] == [
+        {"id": "call_1", "function": {"name": "f", "arguments": '{"x": 1}'}}
+    ]
+
+
+def test_tool_calls_without_index_and_different_ids_stay_separate():
+    chunks = [
+        _tool_call_chunk(id="call_1", function={"name": "f", "arguments": "{}"}),
+        _tool_call_chunk(id="call_2", function={"name": "g", "arguments": "{}"}),
+    ]
+    merged = merge_dicts({}, *chunks)
+    assert [c["id"] for c in merged["tool_calls"]] == ["call_1", "call_2"]
+
+
+def test_fragments_route_to_parallel_unindexed_calls_by_completeness():
+    # When parallel calls are announced together, an anonymous fragment
+    # continues the first call whose arguments aren't complete yet; merging
+    # every fragment into the last call would corrupt its JSON.
+    chunks = [
+        _tool_call_chunk(id="call_1", function={"name": "f"}),
+        _tool_call_chunk(id="call_2", function={"name": "g"}),
+        _tool_call_chunk(function={"arguments": '{"x":'}),
+        _tool_call_chunk(function={"arguments": "1}"}),
+        _tool_call_chunk(function={"arguments": '{"y":'}),
+        _tool_call_chunk(function={"arguments": "2}"}),
+    ]
+    merged = merge_dicts({}, *chunks)
+    assert [c["function"]["arguments"] for c in merged["tool_calls"]] == [
+        '{"x":1}',
+        '{"y":2}',
+    ]
+
+
+def test_fragment_after_an_empty_arguments_call_routes_to_the_active_call():
+    # A call announced with `""` arguments has a complete (empty) payload, so
+    # fragments from the call that follows it must not merge into it
+    chunks = [
+        _tool_call_chunk(id="call_1", function={"name": "f", "arguments": ""}),
+        _tool_call_chunk(id="call_2", function={"name": "g", "arguments": '{"x":'}),
+        _tool_call_chunk(function={"arguments": "1}"}),
+    ]
+    merged = merge_dicts({}, *chunks)
+    assert [c["function"]["arguments"] for c in merged["tool_calls"]] == [
+        "",
+        '{"x":1}',
+    ]
+
+
+def test_unindexed_fragments_continue_an_indexed_call():
+    # Some servers send `index` on the first chunk of a tool call but omit it
+    # on the argument fragments that follow
+    chunks = [
+        _tool_call_chunk(
+            index=0, id="call_1", function={"name": "f", "arguments": '{"x":'}
+        ),
+        _tool_call_chunk(function={"arguments": " 1}"}),
+    ]
+    merged = merge_dicts({}, *chunks)
+    assert merged["tool_calls"] == [
+        {
+            "index": 0,
+            "id": "call_1",
+            "function": {"name": "f", "arguments": '{"x": 1}'},
+        }
+    ]
+
+
+def test_indexed_chunk_after_unindexed_element_does_not_raise():
+    merged = merge_dicts(
+        {"tool_calls": [{"id": "call_1", "function": {"arguments": "{}"}}]},
+        _tool_call_chunk(index=0, function={"arguments": ""}),
+    )
+    assert len(merged["tool_calls"]) == 2
+
+
+def test_tool_call_fragment_with_empty_left_list_is_appended():
+    fragment = {"function": {"arguments": "{"}}
+    merged = merge_dicts({"tool_calls": []}, {"tool_calls": [fragment]})
+    assert merged == {"tool_calls": [fragment]}
