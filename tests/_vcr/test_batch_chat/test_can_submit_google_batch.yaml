@@ -20,12 +20,12 @@ interactions:
       x-goog-api-client:
       - google-genai-sdk/2.11.0 gl-python/3.12.13
     method: POST
-    uri: https://generativelanguage.googleapis.com/v1/models/gemini-3.5-flash:batchGenerateContent
+    uri: https://generativelanguage.googleapis.com/v1/models/gemini-3.7-flash:batchGenerateContent
   response:
     body:
       string: "{\n  \"name\": \"batches/gpv3pjje0g931jdhnalwqk9sv4pbqgjlqhi9\",\n
         \ \"metadata\": {\n    \"@type\": \"type.googleapis.com/google.ai.generativelanguage.v1main.GenerateContentBatch\",\n
-        \   \"model\": \"models/gemini-3.5-flash\",\n    \"createTime\": \"2026-07-21T16:05:49.689379878Z\",\n
+        \   \"model\": \"models/gemini-3.7-flash\",\n    \"createTime\": \"2026-07-21T16:05:49.689379878Z\",\n
         \   \"updateTime\": \"2026-07-21T16:05:49.689379878Z\",\n    \"batchStats\":
         {\n      \"requestCount\": \"2\",\n      \"pendingRequestCount\": \"2\"\n
         \   },\n    \"state\": \"BATCH_STATE_PENDING\",\n    \"name\": \"batches/gpv3pjje0g931jdhnalwqk9sv4pbqgjlqhi9\"\n

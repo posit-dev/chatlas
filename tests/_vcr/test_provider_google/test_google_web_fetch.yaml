@@ -19,20 +19,20 @@ interactions:
       x-goog-api-client:
       - google-genai-sdk/2.10.0 gl-python/3.12.13
     method: POST
-    uri: https://generativelanguage.googleapis.com/v1/models/gemini-3.5-flash:streamGenerateContent?alt=sse
+    uri: https://generativelanguage.googleapis.com/v1/models/gemini-3.7-flash:streamGenerateContent?alt=sse
   response:
     body:
       string: "data: {\"candidates\": [{\"content\": {\"parts\": [{\"text\": \"The
         first movie listed on that\"}],\"role\": \"model\"},\"index\": 0}],\"usageMetadata\":
         {\"promptTokenCount\": 25,\"candidatesTokenCount\": 6,\"totalTokenCount\":
         94,\"promptTokensDetails\": [{\"modality\": \"TEXT\",\"tokenCount\": 25}],\"thoughtsTokenCount\":
-        63,\"serviceTier\": \"standard\"},\"modelVersion\": \"gemini-3.5-flash\",\"responseId\":
+        63,\"serviceTier\": \"standard\"},\"modelVersion\": \"gemini-3.7-flash\",\"responseId\":
         \"aYFfavXOBYDQjrEP1JudsA4\"}\r\n\r\ndata: {\"candidates\": [{\"content\":
         {\"parts\": [{\"text\": \" page is ***The Phantom Menace***.\"}],\"role\":
         \"model\"},\"index\": 0}],\"usageMetadata\": {\"promptTokenCount\": 25,\"candidatesTokenCount\":
         6,\"totalTokenCount\": 94,\"promptTokensDetails\": [{\"modality\": \"TEXT\",\"tokenCount\":
         25}],\"thoughtsTokenCount\": 63,\"serviceTier\": \"standard\"},\"modelVersion\":
-        \"gemini-3.5-flash\",\"responseId\": \"aYFfavXOBYDQjrEP1JudsA4\"}\r\n\r\ndata:
+        \"gemini-3.7-flash\",\"responseId\": \"aYFfavXOBYDQjrEP1JudsA4\"}\r\n\r\ndata:
         {\"candidates\": [{\"content\": {\"parts\": [{\"text\": \"\",\"thoughtSignature\":
         \"ErcCCrQCARFNMg+1ZorWCI0r1CNh7X04kqq/pWLdmIR42TkMHS+XAIM4O6t0DjdUEq2m23dML1ik7hkLC/vYPJgJKbSWPuQIWc8S0qVaFVa1yufdRiaqAavsKmK6aJVOkRWnSZzeuNr9E3sZOkRkUiQUTsF7TMMl8FwBs+JCWRgyGliMt4kMEyDeVoWA4dAtd+TMGSCH7Ls9G2tNcZ/nch58QpSJ48idVxy/r5Zqgdkn6RYnWiXjsQ9lQ0mReQZtmPhjK0LjWYi9yKqqhTXkFbfplMQowV1DBvxQoqfPpblrbQUiIgjMFo2CgFckIOnmF9uQfeU6proDbXAuf+d/YDpDKtLKNe8R6Msv6dXMWN5RmeoD0+E0yv7zdDO9nLim7Bkn4y195BkRXWr8gm+hQ04lLLp7vnmG1Q4=\"}],\"role\":
         \"model\"},\"finishReason\": \"STOP\",\"index\": 0,\"groundingMetadata\":
@@ -46,7 +46,7 @@ interactions:
         [{\"modality\": \"TEXT\",\"tokenCount\": 132}],\"toolUsePromptTokenCount\":
         1355,\"toolUsePromptTokensDetails\": [{\"modality\": \"TEXT\",\"tokenCount\":
         1355}],\"thoughtsTokenCount\": 170,\"serviceTier\": \"standard\"},\"modelVersion\":
-        \"gemini-3.5-flash\",\"responseId\": \"aYFfavXOBYDQjrEP1JudsA4\"}\r\n\r\n"
+        \"gemini-3.7-flash\",\"responseId\": \"aYFfavXOBYDQjrEP1JudsA4\"}\r\n\r\n"
     headers:
       Alt-Svc:
       - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
@@ -97,7 +97,7 @@ interactions:
       x-goog-api-client:
       - google-genai-sdk/2.10.0 gl-python/3.12.13
     method: POST
-    uri: https://generativelanguage.googleapis.com/v1/models/gemini-3.5-flash:streamGenerateContent?alt=sse
+    uri: https://generativelanguage.googleapis.com/v1/models/gemini-3.7-flash:streamGenerateContent?alt=sse
   response:
     body:
       string: "data: {\"candidates\": [{\"content\": {\"parts\": [{\"text\": \"According
@@ -105,12 +105,12 @@ interactions:
         0}],\"usageMetadata\": {\"promptTokenCount\": 46,\"candidatesTokenCount\":
         13,\"totalTokenCount\": 97,\"promptTokensDetails\": [{\"modality\": \"TEXT\",\"tokenCount\":
         46}],\"thoughtsTokenCount\": 38,\"serviceTier\": \"standard\"},\"modelVersion\":
-        \"gemini-3.5-flash\",\"responseId\": \"a4FfaoS0DsW8sOIPxon_iAc\"}\r\n\r\ndata:
+        \"gemini-3.7-flash\",\"responseId\": \"a4FfaoS0DsW8sOIPxon_iAc\"}\r\n\r\ndata:
         {\"candidates\": [{\"content\": {\"parts\": [{\"text\": \".\"}],\"role\":
         \"model\"},\"index\": 0}],\"usageMetadata\": {\"promptTokenCount\": 46,\"candidatesTokenCount\":
         13,\"totalTokenCount\": 97,\"promptTokensDetails\": [{\"modality\": \"TEXT\",\"tokenCount\":
         46}],\"thoughtsTokenCount\": 38,\"serviceTier\": \"standard\"},\"modelVersion\":
-        \"gemini-3.5-flash\",\"responseId\": \"a4FfaoS0DsW8sOIPxon_iAc\"}\r\n\r\ndata:
+        \"gemini-3.7-flash\",\"responseId\": \"a4FfaoS0DsW8sOIPxon_iAc\"}\r\n\r\ndata:
         {\"candidates\": [{\"content\": {\"parts\": [{\"text\": \"\",\"thoughtSignature\":
         \"EskBCsYBARFNMg9CqXxES6t/5HXqbXNoKVWIh/Xx7q09oIcU6VBkFCmaKzi3CL9PqXGEXwnxQYbibNUhh4WeTFdNnlJW/qGLU9Z2u6F6H8V/t4Hs19O4wz2U6Eyh16niKYzV9PbMlsBdl4O71Tv5LAU9flgRCp8W9elPbim3VGoaPhnFCB1qVfyT5I8iGyhOsQ39JkA/ZyJWzgzOHaNQSVhljA6CELF5scPNlFCMYFAR4Krk0Y9rqw51EdeWusVSHRrBXf6jONP08u5G\"}],\"role\":
         \"model\"},\"finishReason\": \"STOP\",\"index\": 0,\"groundingMetadata\":
@@ -124,7 +124,7 @@ interactions:
         [{\"modality\": \"TEXT\",\"tokenCount\": 258}],\"toolUsePromptTokenCount\":
         1479,\"toolUsePromptTokensDetails\": [{\"modality\": \"TEXT\",\"tokenCount\":
         1479}],\"thoughtsTokenCount\": 250,\"serviceTier\": \"standard\"},\"modelVersion\":
-        \"gemini-3.5-flash\",\"responseId\": \"a4FfaoS0DsW8sOIPxon_iAc\"}\r\n\r\n"
+        \"gemini-3.7-flash\",\"responseId\": \"a4FfaoS0DsW8sOIPxon_iAc\"}\r\n\r\n"
     headers:
       Alt-Svc:
       - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000

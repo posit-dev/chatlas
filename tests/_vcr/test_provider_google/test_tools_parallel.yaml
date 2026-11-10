@@ -23,7 +23,7 @@ interactions:
       x-goog-api-client:
       - google-genai-sdk/2.10.0 gl-python/3.12.13
     method: POST
-    uri: https://generativelanguage.googleapis.com/v1/models/gemini-3.5-flash:streamGenerateContent?alt=sse
+    uri: https://generativelanguage.googleapis.com/v1/models/gemini-3.7-flash:streamGenerateContent?alt=sse
   response:
     body:
       string: "data: {\"candidates\": [{\"content\": {\"parts\": [{\"functionCall\":
@@ -32,18 +32,18 @@ interactions:
         \"model\"},\"index\": 0}],\"usageMetadata\": {\"promptTokenCount\": 85,\"candidatesTokenCount\":
         17,\"totalTokenCount\": 229,\"promptTokensDetails\": [{\"modality\": \"TEXT\",\"tokenCount\":
         85}],\"thoughtsTokenCount\": 127,\"serviceTier\": \"standard\"},\"modelVersion\":
-        \"gemini-3.5-flash\",\"responseId\": \"NoFfas7rAsidjrEP3fymkA4\"}\r\n\r\ndata:
+        \"gemini-3.7-flash\",\"responseId\": \"NoFfas7rAsidjrEP3fymkA4\"}\r\n\r\ndata:
         {\"candidates\": [{\"content\": {\"parts\": [{\"functionCall\": {\"name\":
         \"favorite_color\",\"args\": {\"_person\": \"Hadley\"},\"id\": \"brynwdxm\"}}],\"role\":
         \"model\"},\"index\": 0}],\"usageMetadata\": {\"promptTokenCount\": 85,\"candidatesTokenCount\":
         35,\"totalTokenCount\": 247,\"promptTokensDetails\": [{\"modality\": \"TEXT\",\"tokenCount\":
         85}],\"thoughtsTokenCount\": 127,\"serviceTier\": \"standard\"},\"modelVersion\":
-        \"gemini-3.5-flash\",\"responseId\": \"NoFfas7rAsidjrEP3fymkA4\"}\r\n\r\ndata:
+        \"gemini-3.7-flash\",\"responseId\": \"NoFfas7rAsidjrEP3fymkA4\"}\r\n\r\ndata:
         {\"candidates\": [{\"content\": {\"parts\": [{\"text\": \"\"}],\"role\": \"model\"},\"finishReason\":
         \"STOP\",\"index\": 0}],\"usageMetadata\": {\"promptTokenCount\": 85,\"candidatesTokenCount\":
         35,\"totalTokenCount\": 247,\"promptTokensDetails\": [{\"modality\": \"TEXT\",\"tokenCount\":
         85}],\"thoughtsTokenCount\": 127,\"serviceTier\": \"standard\"},\"modelVersion\":
-        \"gemini-3.5-flash\",\"responseId\": \"NoFfas7rAsidjrEP3fymkA4\"}\r\n\r\n"
+        \"gemini-3.7-flash\",\"responseId\": \"NoFfas7rAsidjrEP3fymkA4\"}\r\n\r\n"
     headers:
       Alt-Svc:
       - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
@@ -102,20 +102,20 @@ interactions:
       x-goog-api-client:
       - google-genai-sdk/2.10.0 gl-python/3.12.13
     method: POST
-    uri: https://generativelanguage.googleapis.com/v1/models/gemini-3.5-flash:streamGenerateContent?alt=sse
+    uri: https://generativelanguage.googleapis.com/v1/models/gemini-3.7-flash:streamGenerateContent?alt=sse
   response:
     body:
       string: "data: {\"candidates\": [{\"content\": {\"parts\": [{\"text\": \"Joe
         sage green Hadley red\"}],\"role\": \"model\"},\"index\": 0}],\"usageMetadata\":
         {\"promptTokenCount\": 147,\"candidatesTokenCount\": 5,\"totalTokenCount\":
         512,\"promptTokensDetails\": [{\"modality\": \"TEXT\",\"tokenCount\": 147}],\"thoughtsTokenCount\":
-        360,\"serviceTier\": \"standard\"},\"modelVersion\": \"gemini-3.5-flash\",\"responseId\":
+        360,\"serviceTier\": \"standard\"},\"modelVersion\": \"gemini-3.7-flash\",\"responseId\":
         \"N4FfaraYJYDQjrEP1JudsA4\"}\r\n\r\ndata: {\"candidates\": [{\"content\":
         {\"parts\": [{\"text\": \"\",\"thoughtSignature\": \"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\"}],\"role\":
         \"model\"},\"finishReason\": \"STOP\",\"index\": 0}],\"usageMetadata\": {\"promptTokenCount\":
         274,\"candidatesTokenCount\": 5,\"totalTokenCount\": 639,\"promptTokensDetails\":
         [{\"modality\": \"TEXT\",\"tokenCount\": 274}],\"thoughtsTokenCount\": 360,\"serviceTier\":
-        \"standard\"},\"modelVersion\": \"gemini-3.5-flash\",\"responseId\": \"N4FfaraYJYDQjrEP1JudsA4\"}\r\n\r\n"
+        \"standard\"},\"modelVersion\": \"gemini-3.7-flash\",\"responseId\": \"N4FfaraYJYDQjrEP1JudsA4\"}\r\n\r\n"
     headers:
       Alt-Svc:
       - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000

@@ -24,7 +24,7 @@ interactions:
       x-goog-api-client:
       - google-genai-sdk/2.10.0 gl-python/3.12.13
     method: POST
-    uri: https://generativelanguage.googleapis.com/v1/models/gemini-3.5-flash:generateContent
+    uri: https://generativelanguage.googleapis.com/v1/models/gemini-3.7-flash:generateContent
   response:
     body:
       string: "{\n  \"candidates\": [\n    {\n      \"content\": {\n        \"parts\":
@@ -36,7 +36,7 @@ interactions:
         40,\n    \"candidatesTokenCount\": 18,\n    \"totalTokenCount\": 314,\n    \"promptTokensDetails\":
         [\n      {\n        \"modality\": \"TEXT\",\n        \"tokenCount\": 40\n
         \     }\n    ],\n    \"thoughtsTokenCount\": 256,\n    \"serviceTier\": \"standard\"\n
-        \ },\n  \"modelVersion\": \"gemini-3.5-flash\",\n  \"responseId\": \"PoFfaruLA626jrEPj5Sr8Q4\"\n}\n"
+        \ },\n  \"modelVersion\": \"gemini-3.7-flash\",\n  \"responseId\": \"PoFfaruLA626jrEPj5Sr8Q4\"\n}\n"
     headers:
       Alt-Svc:
       - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
@@ -95,7 +95,7 @@ interactions:
       x-goog-api-client:
       - google-genai-sdk/2.10.0 gl-python/3.12.13
     method: POST
-    uri: https://generativelanguage.googleapis.com/v1/models/gemini-3.5-flash:generateContent
+    uri: https://generativelanguage.googleapis.com/v1/models/gemini-3.7-flash:generateContent
   response:
     body:
       string: "{\n  \"candidates\": [\n    {\n      \"content\": {\n        \"parts\":
@@ -106,7 +106,7 @@ interactions:
         96,\n    \"candidatesTokenCount\": 15,\n    \"totalTokenCount\": 340,\n    \"promptTokensDetails\":
         [\n      {\n        \"modality\": \"TEXT\",\n        \"tokenCount\": 96\n
         \     }\n    ],\n    \"thoughtsTokenCount\": 229,\n    \"serviceTier\": \"standard\"\n
-        \ },\n  \"modelVersion\": \"gemini-3.5-flash\",\n  \"responseId\": \"P4Ffau-rOYersOIPqaaF8Ag\"\n}\n"
+        \ },\n  \"modelVersion\": \"gemini-3.7-flash\",\n  \"responseId\": \"P4Ffau-rOYersOIPqaaF8Ag\"\n}\n"
     headers:
       Alt-Svc:
       - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
@@ -167,7 +167,7 @@ interactions:
       x-goog-api-client:
       - google-genai-sdk/2.10.0 gl-python/3.12.13
     method: POST
-    uri: https://generativelanguage.googleapis.com/v1/models/gemini-3.5-flash:generateContent
+    uri: https://generativelanguage.googleapis.com/v1/models/gemini-3.7-flash:generateContent
   response:
     body:
       string: "{\n  \"candidates\": [\n    {\n      \"content\": {\n        \"parts\":
@@ -178,7 +178,7 @@ interactions:
         123,\n    \"candidatesTokenCount\": 11,\n    \"totalTokenCount\": 509,\n    \"promptTokensDetails\":
         [\n      {\n        \"modality\": \"TEXT\",\n        \"tokenCount\": 123\n
         \     }\n    ],\n    \"thoughtsTokenCount\": 375,\n    \"serviceTier\": \"standard\"\n
-        \ },\n  \"modelVersion\": \"gemini-3.5-flash\",\n  \"responseId\": \"RYFfaqXWCODwjrEP-tONkAs\"\n}\n"
+        \ },\n  \"modelVersion\": \"gemini-3.7-flash\",\n  \"responseId\": \"RYFfaqXWCODwjrEP-tONkAs\"\n}\n"
     headers:
       Alt-Svc:
       - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
@@ -237,20 +237,20 @@ interactions:
       x-goog-api-client:
       - google-genai-sdk/2.10.0 gl-python/3.12.13
     method: POST
-    uri: https://generativelanguage.googleapis.com/v1/models/gemini-3.5-flash:streamGenerateContent?alt=sse
+    uri: https://generativelanguage.googleapis.com/v1/models/gemini-3.7-flash:streamGenerateContent?alt=sse
   response:
     body:
       string: "data: {\"candidates\": [{\"content\": {\"parts\": [{\"text\": \"{\\\"name\\\":\\\"Alice
         Smith\\\"}\"}],\"role\": \"model\"},\"index\": 0}],\"usageMetadata\": {\"promptTokenCount\":
         144,\"candidatesTokenCount\": 6,\"totalTokenCount\": 516,\"promptTokensDetails\":
         [{\"modality\": \"TEXT\",\"tokenCount\": 144}],\"thoughtsTokenCount\": 366,\"serviceTier\":
-        \"standard\"},\"modelVersion\": \"gemini-3.5-flash\",\"responseId\": \"ZoFfaq6LLaCjjrEP37Ov6A8\"}\r\n\r\ndata:
+        \"standard\"},\"modelVersion\": \"gemini-3.7-flash\",\"responseId\": \"ZoFfaq6LLaCjjrEP37Ov6A8\"}\r\n\r\ndata:
         {\"candidates\": [{\"content\": {\"parts\": [{\"text\": \"\",\"thoughtSignature\":
         \"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\"}],\"role\":
         \"model\"},\"finishReason\": \"STOP\",\"index\": 0}],\"usageMetadata\": {\"promptTokenCount\":
         144,\"candidatesTokenCount\": 6,\"totalTokenCount\": 516,\"promptTokensDetails\":
         [{\"modality\": \"TEXT\",\"tokenCount\": 144}],\"thoughtsTokenCount\": 366,\"serviceTier\":
-        \"standard\"},\"modelVersion\": \"gemini-3.5-flash\",\"responseId\": \"ZoFfaq6LLaCjjrEP37Ov6A8\"}\r\n\r\n"
+        \"standard\"},\"modelVersion\": \"gemini-3.7-flash\",\"responseId\": \"ZoFfaq6LLaCjjrEP37Ov6A8\"}\r\n\r\n"
     headers:
       Alt-Svc:
       - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
