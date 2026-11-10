@@ -128,6 +128,33 @@ def test_streamed_refusal_is_yielded_and_ends_the_turn():
     assert turn.finish_reason == "content_filter"
 
 
+def test_streamed_refusal_with_empty_content_is_yielded():
+    # Some servers send `content: ""` alongside the refusal instead of
+    # omitting content entirely
+    from openai.types.chat import ChatCompletionChunk
+
+    chunk = ChatCompletionChunk.model_validate(
+        {
+            "id": "chatcmpl-1",
+            "object": "chat.completion.chunk",
+            "created": 0,
+            "model": "test-model",
+            "choices": [
+                {
+                    "index": 0,
+                    "delta": {"content": "", "refusal": "I can't help."},
+                    "finish_reason": None,
+                }
+            ],
+        }
+    )
+
+    provider = OpenAICompletionsProvider(model="test-model", api_key="test-key")
+    contents = provider.stream_content(chunk, provider.stream_merge_chunks(None, chunk))
+
+    assert [x.text for x in contents] == ["I can't help."]
+
+
 @pytest.mark.vcr
 def test_openai_simple_request():
     chat = ChatOpenAICompletions(

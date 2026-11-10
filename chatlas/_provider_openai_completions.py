@@ -324,11 +324,11 @@ class OpenAICompletionsProvider(
             return [ContentThinkingDelta(thinking=reasoning)]
 
         text = delta.content
+        # A refused request streams its text as `refusal` instead of `content`
+        refusal = getattr(delta, "refusal", None)
+        if refusal and not text:
+            return [ContentText.model_construct(text=refusal)]
         if text is None:
-            # A refused request streams its text as `refusal` instead of `content`
-            refusal = getattr(delta, "refusal", None)
-            if refusal:
-                return [ContentText.model_construct(text=refusal)]
             return []
         return [ContentText.model_construct(text=text)]
 
