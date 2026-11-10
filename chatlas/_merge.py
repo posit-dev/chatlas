@@ -104,25 +104,25 @@ def merge_lists(
                     # Some OpenAI-compatible servers omit `index` on streamed tool
                     # calls; a fragment without an id or name continues a previous
                     # call. With several calls in flight, it belongs to the first
-                    # whose arguments don't parse as complete JSON yet (a JSON
-                    # object has no proper prefix that parses), falling back to
-                    # the most recent call. Fragments interleaved across parallel
+                    # whose arguments aren't complete yet, falling back to the
+                    # most recent call. Fragments interleaved across parallel
                     # calls carry no routing signal at all, so that ordering
                     # can't be recovered by any strategy.
-                    target = next(
-                        (
-                            i
-                            for i, c in enumerate(merged)
-                            if _is_tool_call_target(c) and not _arguments_complete(c)
-                        ),
-                        None,
-                    )
-                    if target is None and _is_tool_call_target(merged[-1]):
-                        target = len(merged) - 1
-                    if target is None:
+                    targets = [
+                        i for i, c in enumerate(merged) if _is_tool_call_target(c)
+                    ]
+                    if not targets:
                         merged.append(e)
+                        continue
+                    if len(targets) == 1:
+                        # No routing decision to make; skip the JSON parse
+                        target = targets[0]
                     else:
-                        merged[target] = merge_dicts(merged[target], e)
+                        target = next(
+                            (i for i in targets if not _arguments_complete(merged[i])),
+                            targets[-1],
+                        )
+                    merged[target] = merge_dicts(merged[target], e)
                 else:
                     merged.append(e)
     return merged
@@ -150,6 +150,10 @@ def _arguments_complete(tool_call: dict[str, Any]) -> bool:
         # Announced with only an id/name; still awaiting its arguments
         return False
     if not isinstance(arguments, str):
+        return True
+    if arguments == "":
+        # An explicitly empty payload is complete (it parses as {} downstream),
+        # not a call still awaiting its arguments
         return True
     try:
         json.loads(arguments)

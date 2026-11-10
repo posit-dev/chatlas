@@ -82,19 +82,32 @@ def test_fragments_route_to_parallel_unindexed_calls_by_completeness():
     # continues the first call whose arguments aren't complete yet; merging
     # every fragment into the last call would corrupt its JSON.
     chunks = [
-        _tool_call_chunk(
-            id="call_1", function={"name": "f", "arguments": ""}
-        ),
-        _tool_call_chunk(
-            id="call_2", function={"name": "g", "arguments": ""}
-        ),
-        _tool_call_chunk(function={"arguments": '{"x":1}'}),
-        _tool_call_chunk(function={"arguments": '{"y":2}'}),
+        _tool_call_chunk(id="call_1", function={"name": "f"}),
+        _tool_call_chunk(id="call_2", function={"name": "g"}),
+        _tool_call_chunk(function={"arguments": '{"x":'}),
+        _tool_call_chunk(function={"arguments": "1}"}),
+        _tool_call_chunk(function={"arguments": '{"y":'}),
+        _tool_call_chunk(function={"arguments": "2}"}),
     ]
     merged = merge_dicts({}, *chunks)
     assert [c["function"]["arguments"] for c in merged["tool_calls"]] == [
         '{"x":1}',
         '{"y":2}',
+    ]
+
+
+def test_fragment_after_an_empty_arguments_call_routes_to_the_active_call():
+    # A call announced with `""` arguments has a complete (empty) payload, so
+    # fragments from the call that follows it must not merge into it
+    chunks = [
+        _tool_call_chunk(id="call_1", function={"name": "f", "arguments": ""}),
+        _tool_call_chunk(id="call_2", function={"name": "g", "arguments": '{"x":'}),
+        _tool_call_chunk(function={"arguments": "1}"}),
+    ]
+    merged = merge_dicts({}, *chunks)
+    assert [c["function"]["arguments"] for c in merged["tool_calls"]] == [
+        "",
+        '{"x":1}',
     ]
 
 
@@ -114,20 +127,6 @@ def test_unindexed_fragments_continue_an_indexed_call():
             "id": "call_1",
             "function": {"name": "f", "arguments": '{"x": 1}'},
         }
-    ]
-
-
-def test_fragments_route_to_calls_announced_without_arguments():
-    chunks = [
-        _tool_call_chunk(id="call_1", function={"name": "f"}),
-        _tool_call_chunk(id="call_2", function={"name": "g"}),
-        _tool_call_chunk(function={"arguments": '{"x":1}'}),
-        _tool_call_chunk(function={"arguments": '{"y":2}'}),
-    ]
-    merged = merge_dicts({}, *chunks)
-    assert [c["function"]["arguments"] for c in merged["tool_calls"]] == [
-        '{"x":1}',
-        '{"y":2}',
     ]
 
 
