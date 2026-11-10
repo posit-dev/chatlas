@@ -371,6 +371,32 @@ def converse_cache_point(
     return {"type": "default"}
 
 
+# Responses carry their request's cache-point TTLs under this private key so
+# `value_tokens()` can weight cache writes per response, even when requests
+# with different TTLs are in flight concurrently on a shared provider.
+_CACHE_POINT_TTLS_KEY = "chatlasCachePointTtls"
+
+
+def request_cache_point_ttls(
+    args: "ConverseRequestTypeDef",
+) -> "list[Literal['5m', '1h']]":
+    """TTLs of the cache points present in a Converse request."""
+    ttls: list[Literal["5m", "1h"]] = []
+    blocks: list[dict] = list(args.get("system") or [])
+    tool_config = args.get("toolConfig") or {}
+    blocks.extend(cast("list[dict]", tool_config.get("tools") or []))
+    for message in args.get("messages") or []:
+        content = message.get("content")
+        if isinstance(content, (list, tuple)):
+            blocks.extend(cast("list[dict]", content))
+    for block in blocks:
+        if isinstance(block, dict) and "cachePoint" in block:
+            cache_point = block["cachePoint"]
+            is_1h = isinstance(cache_point, dict) and cache_point.get("ttl") == "1h"
+            ttls.append("1h" if is_1h else "5m")
+    return ttls
+
+
 CONVERSE_IMAGE_FORMATS: dict[str, ImageFormatType] = {
     "image/png": "png",
     "image/jpeg": "jpeg",
@@ -523,7 +549,9 @@ class BedrockConverseProvider(
         args = self._chat_perform_args(stream, turns, tools, data_model, kwargs)
         if stream:
             return self._converse_stream(args)
-        return self._converse(args)
+        response = self._converse(args)
+        cast(dict, response)[_CACHE_POINT_TTLS_KEY] = request_cache_point_ttls(args)
+        return response
 
     @overload
     async def chat_perform_async(
@@ -559,7 +587,9 @@ class BedrockConverseProvider(
         args = self._chat_perform_args(stream, turns, tools, data_model, kwargs)
         if stream:
             return self._converse_stream_async(args)
-        return await self._converse_async(args)
+        response = await self._converse_async(args)
+        cast(dict, response)[_CACHE_POINT_TTLS_KEY] = request_cache_point_ttls(args)
+        return response
 
     def stream_content(
         self,
@@ -581,7 +611,9 @@ class BedrockConverseProvider(
         chunk: dict,
     ) -> Optional[ConverseAccumulator]:
         merged: ConverseAccumulator = completion or {}
-        if "messageStart" in chunk:
+        if _CACHE_POINT_TTLS_KEY in chunk:
+            cast(dict, merged)[_CACHE_POINT_TTLS_KEY] = chunk[_CACHE_POINT_TTLS_KEY]
+        elif "messageStart" in chunk:
             merged["role"] = chunk["messageStart"]["role"]
         elif "contentBlockStart" in chunk:
             start_event = chunk["contentBlockStart"]
@@ -709,6 +741,10 @@ class BedrockConverseProvider(
                 "usage": usage,
             },
         )
+        if _CACHE_POINT_TTLS_KEY in completion:
+            cast(dict, response)[_CACHE_POINT_TTLS_KEY] = cast(dict, completion)[
+                _CACHE_POINT_TTLS_KEY
+            ]
         return self._as_turn(response, has_data_model)
 
     def value_turn(
@@ -723,7 +759,27 @@ class BedrockConverseProvider(
         self,
         completion: ConverseResponseTypeDef,
     ) -> tuple[int, int, int] | None:
-        return converse_tokens(completion["usage"])
+        # Cache writes are billed above the regular input rate on Anthropic
+        # models (125% for 5m, 200% for 1h) and at it elsewhere, so fold them
+        # into the input count the same way the Anthropic provider does.
+        model_id = CROSS_REGION_PREFIX.sub("", self.model)
+        if not model_id.startswith("anthropic."):
+            cache_write_mult = 1.0
+        else:
+            # Retained on the completion (rather than popped when the turn is
+            # built) so `value_tokens()`/`value_cost()` on `turn.completion`
+            # agree with the turn's recorded tokens.
+            ttls = cast(dict, completion).get(_CACHE_POINT_TTLS_KEY)
+            if ttls is None:
+                # Completion didn't come through `chat_perform()` (e.g. a raw
+                # response passed to `value_tokens()` directly); assume the
+                # configured cache setting.
+                ttls = ["1h"] if self._cache == "1h" else ["5m"]
+            # Usage reports a single write count, so writes from mixed-TTL
+            # cache points can't be attributed exactly; the 1h multiplier
+            # overestimates rather than underbills.
+            cache_write_mult = 2.0 if "1h" in ttls else 1.25
+        return converse_tokens(completion["usage"], cache_write_mult)
 
     def token_count(
         self,
@@ -882,6 +938,7 @@ class BedrockConverseProvider(
         return converse_response_from_json(response.json())
 
     def _converse_stream(self, args: ConverseRequestTypeDef) -> Iterator[dict]:
+        yield {_CACHE_POINT_TTLS_KEY: request_cache_point_ttls(args)}
         url, body = self._request_target(args, "converse-stream")
         with self._client.stream("POST", url, json=body) as response:
             if not response.is_success:
@@ -892,6 +949,7 @@ class BedrockConverseProvider(
     async def _converse_stream_async(
         self, args: ConverseRequestTypeDef
     ) -> AsyncIterator[dict]:
+        yield {_CACHE_POINT_TTLS_KEY: request_cache_point_ttls(args)}
         url, body = self._request_target(args, "converse-stream")
         async with self._async_client.stream("POST", url, json=body) as response:
             if not response.is_success:
@@ -1001,9 +1059,12 @@ def converse_stop_reason(reason: str) -> str:
     return CONVERSE_FINISH_REASONS.get(reason, reason)
 
 
-def converse_tokens(usage: TokenUsageTypeDef) -> tuple[int, int, int]:
+def converse_tokens(
+    usage: TokenUsageTypeDef, cache_write_mult: float = 1.0
+) -> tuple[int, int, int]:
+    cache_write = usage.get("cacheWriteInputTokens", 0)
     return (
-        usage["inputTokens"],
+        usage["inputTokens"] + int(cache_write * cache_write_mult),
         usage["outputTokens"],
         usage.get("cacheReadInputTokens", 0),
     )

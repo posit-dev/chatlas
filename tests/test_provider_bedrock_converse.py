@@ -831,6 +831,177 @@ class TestResponseParsing:
         assert turn.tokens[0] == 19
         assert turn.tokens[1] == 5
 
+    def _usage_response(self, **usage):
+        return cast(
+            "ConverseResponseTypeDef",
+            {
+                **CONVERSE_RESPONSE,
+                "usage": {
+                    "inputTokens": 100,
+                    "outputTokens": 5,
+                    "totalTokens": 105,
+                    **usage,
+                },
+            },
+        )
+
+    def provider_for(self, model: str, cache="auto"):
+        from chatlas._provider_bedrock_converse import BedrockConverseProvider
+
+        return BedrockConverseProvider(
+            model=model,
+            aws_profile=None,
+            aws_region="us-east-1",
+            base_url=None,
+            cache=cache,
+        )
+
+    def test_anthropic_cache_writes_count_as_input_at_the_write_multiplier(self):
+        response = self._usage_response(
+            cacheReadInputTokens=20, cacheWriteInputTokens=400
+        )
+        tokens = self.provider().value_tokens(response)
+        # 100 + 400 * 1.25 (5 minute cache write)
+        assert tokens == (600, 5, 20)
+
+    def test_anthropic_one_hour_cache_writes_use_the_higher_multiplier(self):
+        response = self._usage_response(cacheWriteInputTokens=400)
+        tokens = self.provider_for(
+            "us.anthropic.claude-sonnet-4-6", cache="1h"
+        ).value_tokens(response)
+        assert tokens == (900, 5, 0)
+
+    def test_explicit_cache_point_ttls_override_the_configured_cache(self):
+        from chatlas._provider_bedrock_converse import (
+            _CACHE_POINT_TTLS_KEY,
+            request_cache_point_ttls,
+        )
+
+        provider = self.provider_for("us.anthropic.claude-sonnet-4-6", cache="none")
+        args = provider._chat_perform_args(
+            stream=False,
+            turns=[UserTurn("hi")],
+            tools={},
+            kwargs=cast(
+                "ConverseSubmitArgs",
+                {
+                    "system": [
+                        {"text": "be terse"},
+                        {"cachePoint": {"type": "default", "ttl": "1h"}},
+                    ]
+                },
+            ),
+        )
+        response = self._usage_response(cacheWriteInputTokens=400)
+        cast(dict, response)[_CACHE_POINT_TTLS_KEY] = request_cache_point_ttls(args)
+        # 100 + 400 * 2.0 (1 hour cache write)
+        turn = provider.value_turn(response, has_data_model=False)
+        assert turn.tokens == (900, 5, 0)
+        # Accounting from the stored completion agrees with the turn
+        assert provider.value_tokens(turn.completion) == turn.tokens
+
+    def _explicit_1h_args(self, provider, stream: bool):
+        return provider._chat_perform_args(
+            stream=stream,
+            turns=[UserTurn("hi")],
+            tools={},
+            kwargs=cast(
+                "ConverseSubmitArgs",
+                {
+                    "system": [
+                        {"text": "be terse"},
+                        {"cachePoint": {"type": "default", "ttl": "1h"}},
+                    ]
+                },
+            ),
+        )
+
+    def test_stream_turn_retains_cache_point_ttls(self):
+        from chatlas._provider_bedrock_converse import _CACHE_POINT_TTLS_KEY
+
+        provider = self.provider_for("us.anthropic.claude-sonnet-4-6", cache="none")
+        merged = None
+        for event in [
+            {_CACHE_POINT_TTLS_KEY: ["1h"]},
+            {"messageStart": {"role": "assistant"}},
+            {"messageStop": {"stopReason": "end_turn"}},
+            {
+                "metadata": {
+                    "usage": {
+                        "inputTokens": 100,
+                        "outputTokens": 5,
+                        "totalTokens": 505,
+                        "cacheWriteInputTokens": 400,
+                    }
+                }
+            },
+        ]:
+            merged = provider.stream_merge_chunks(merged, event)
+        assert merged is not None
+        turn = provider.stream_turn(merged, has_data_model=False)
+        # 100 + 400 * 2.0 (1 hour cache write)
+        assert turn.tokens == (900, 5, 0)
+        assert provider.value_tokens(turn.completion) == turn.tokens
+
+    def test_converse_stream_leads_with_cache_point_ttls(self):
+        from chatlas._provider_bedrock_converse import _CACHE_POINT_TTLS_KEY
+
+        provider = self.provider_for("us.anthropic.claude-sonnet-4-6", cache="none")
+        provider._client = httpx.Client(
+            base_url="https://bedrock-runtime.example.com",
+            transport=httpx.MockTransport(
+                lambda request: httpx.Response(200, content=b"")
+            ),
+        )
+        events = list(provider._converse_stream(self._explicit_1h_args(provider, True)))
+        assert events[0] == {_CACHE_POINT_TTLS_KEY: ["1h"]}
+
+    @pytest.mark.asyncio
+    async def test_converse_stream_async_leads_with_cache_point_ttls(self):
+        from chatlas._provider_bedrock_converse import _CACHE_POINT_TTLS_KEY
+
+        provider = self.provider_for("us.anthropic.claude-sonnet-4-6", cache="none")
+        provider._async_client = httpx.AsyncClient(
+            base_url="https://bedrock-runtime.example.com",
+            transport=httpx.MockTransport(
+                lambda request: httpx.Response(200, content=b"")
+            ),
+        )
+        events = [
+            event
+            async for event in provider._converse_stream_async(
+                self._explicit_1h_args(provider, True)
+            )
+        ]
+        assert events[0] == {_CACHE_POINT_TTLS_KEY: ["1h"]}
+
+    def test_request_cache_point_ttls_scans_tool_config(self):
+        from chatlas._provider_bedrock_converse import request_cache_point_ttls
+
+        args = cast(
+            "ConverseRequestTypeDef",
+            {
+                "modelId": "m",
+                "messages": [],
+                "toolConfig": {
+                    "tools": [
+                        {"toolSpec": {"name": "t", "inputSchema": {"json": {}}}},
+                        {"cachePoint": {"type": "default", "ttl": "1h"}},
+                    ]
+                },
+            },
+        )
+        assert request_cache_point_ttls(args) == ["1h"]
+
+    def test_other_models_count_cache_writes_as_regular_input(self):
+        response = self._usage_response(cacheWriteInputTokens=400)
+        tokens = self.provider_for("amazon.nova-pro-v1:0").value_tokens(response)
+        assert tokens == (500, 5, 0)
+
+    def test_missing_cache_write_field_is_zero(self):
+        tokens = self.provider().value_tokens(self._usage_response())
+        assert tokens == (100, 5, 0)
+
     def test_tool_use_response_becomes_a_tool_request(self):
         from chatlas._content import ContentToolRequest
 
