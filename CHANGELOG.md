@@ -21,6 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * The `snowflake` extra (i.e., `pip install "chatlas[snowflake]"`) no longer installs `snowflake-ml-python`, which pulled in the heavy torch ecosystem and blocked installation on Python 3.13+. `ChatSnowflake()` has used the Cortex REST API (`snowflake.core`) since v0.11.0, so it only needs `snowflake-core` and `snowflake-snowpark-python`.
 * The `eval` extra (i.e., `pip install "chatlas[eval]"`) now requires Python 3.11 or later, because the inspect-ai release that supports the current Anthropic SDK (v2) dropped Python 3.10. (#493)
+* Updated default models: `ChatGoogle()` and `ChatVertex()` now default to `gemini-3.7-flash` (previously `gemini-3.5-flash`), `ChatDatabricks()` to `databricks-claude-sonnet-5` (previously `databricks-claude-sonnet-4-6`), and `ChatSnowflake()` to `claude-sonnet-5` (previously `claude-sonnet-4-6`). (#500)
 
 ### New features
 

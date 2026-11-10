@@ -195,7 +195,7 @@ def ChatGoogle(
     """
 
     if model is None:
-        model = log_model_default("gemini-3.5-flash")
+        model = log_model_default("gemini-3.7-flash")
 
     kwargs_chat: "SubmitInputArgs" = {}
     if reasoning is not None:
@@ -1280,7 +1280,7 @@ def ChatVertex(
     kwargs["location"] = location
 
     if model is None:
-        model = log_model_default("gemini-3.5-flash")
+        model = log_model_default("gemini-3.7-flash")
 
     return Chat(
         provider=GoogleProvider(
@@ -1377,7 +1377,7 @@ def google_supports_mixed_tools(model: str) -> bool:
     support this; older models reject the combination outright.
     """
     # `list_models()` surfaces IDs prefixed with "models/" (e.g.
-    # "models/gemini-3.5-flash"), so strip that before matching.
+    # "models/gemini-3.7-flash"), so strip that before matching.
     model = model.removeprefix("models/")
     return bool(re.match(r"^gemini-([3-9]|[0-9]{2,})", model))
 

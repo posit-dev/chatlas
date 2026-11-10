@@ -108,7 +108,7 @@ def ChatDatabricks(
         A chat object that retains the state of the conversation.
     """
     if model is None:
-        model = log_model_default("databricks-claude-sonnet-4-6")
+        model = log_model_default("databricks-claude-sonnet-5")
 
     return Chat(
         provider=DatabricksProvider(
