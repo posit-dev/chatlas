@@ -456,6 +456,15 @@ class OpenAIProvider(
             cached_tokens,
         )
 
+    def value_reasoning_tokens(self, completion):
+        usage = completion.usage
+        if usage is None:
+            return None
+        details = usage.output_tokens_details
+        if details is None:
+            return None
+        return details.reasoning_tokens
+
     def value_cost(
         self,
         completion,

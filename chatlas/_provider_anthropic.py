@@ -593,6 +593,15 @@ class AnthropicProvider(
 
         return kwargs_full
 
+    def structured_output_tool(self, data_model: type[BaseModel]) -> "Tool | None":
+        mode = self._structured_output_mode
+        use_native = mode == "native" or (
+            mode == "auto" and supports_structured_outputs(self.model)
+        )
+        if use_native:
+            return None
+        return self.create_data_model_tool(data_model)
+
     @staticmethod
     def create_data_model_tool(data_model: type[BaseModel]) -> Tool:
         def _structured_tool_call(**kwargs: Any):

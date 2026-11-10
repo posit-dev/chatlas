@@ -752,6 +752,11 @@ class BedrockConverseProvider(
             "(e.g. chat.get_last_turn().tokens)."
         )
 
+    def structured_output_tool(self, data_model: type[BaseModel]) -> Tool:
+        # The Converse API has no native structured output support, so
+        # `data_model` is always implemented via a private tool call.
+        return AnthropicProvider.create_data_model_tool(data_model)
+
     def translate_model_params(self, params: StandardModelParams) -> ConverseSubmitArgs:
         inference_config: InferenceConfigurationTypeDef = {}
         if "max_tokens" in params:
@@ -791,7 +796,8 @@ class BedrockConverseProvider(
         tool_specs = [converse_tool_spec(tool) for tool in tools.values()]
         tool_config: Optional[ToolConfigurationTypeDef] = None
         if data_model is not None:
-            data_model_tool = AnthropicProvider.create_data_model_tool(data_model)
+            data_model_tool = self.structured_output_tool(data_model)
+            assert data_model_tool is not None
             tool_specs.append(converse_tool_spec(data_model_tool))
 
         if tool_specs:

@@ -3,26 +3,32 @@ from __future__ import annotations
 import json
 from collections.abc import AsyncIterator, Iterator, Sequence
 from types import SimpleNamespace
-from typing import cast
+from typing import Any, cast
 
 import pytest
 
 pytest.importorskip("opentelemetry.sdk")
 
-from chatlas import ChatOpenAI, _chat, _otel
+from chatlas import ChatAnthropic, ChatGoogle, ChatOpenAI, _chat, _otel
 from chatlas._content import (
     Content,
+    ContentImageInline,
     ContentText,
     ContentThinkingDelta,
     ContentToolRequest,
     ContentToolResult,
     ToolInfo,
 )
+from chatlas._stream_controller import StreamController
 from chatlas._tools import ToolBuiltIn
-from chatlas._turn import AssistantTurn, Turn
+from chatlas._turn import AssistantTurn, Turn, user_turn
+from opentelemetry.sdk.metrics import MeterProvider
+from opentelemetry.sdk.metrics.export import InMemoryMetricReader
 from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import SimpleSpanProcessor
 from opentelemetry.sdk.trace.export.in_memory_span_exporter import InMemorySpanExporter
+from opentelemetry.trace import SpanKind
+from pydantic import BaseModel
 
 
 @pytest.fixture(autouse=True)
@@ -38,6 +44,96 @@ def otel_setup():
 
     exporter.clear()
     _otel.tracer = orig_tracer
+
+
+@pytest.fixture
+def otel_metrics():
+    reader = InMemoryMetricReader()
+    provider = MeterProvider(metric_readers=[reader])
+
+    orig_meter = _otel.meter
+    _otel.meter = provider.get_meter("co.posit.python-package.chatlas")
+    # Instruments are cached per meter; don't leak them across tests.
+    _otel._histograms.clear()
+    _otel._counters.clear()
+
+    yield reader
+
+    _otel.meter = orig_meter
+    _otel._histograms.clear()
+    _otel._counters.clear()
+
+
+def _metric_points(reader: InMemoryMetricReader) -> dict[str, list[Any]]:
+    """Flatten recorded metrics into data point lists named by instrument."""
+    data = reader.get_metrics_data()
+    points: dict[str, list[Any]] = {}
+    for rm in data.resource_metrics:
+        for sm in rm.scope_metrics:
+            for metric in sm.metrics:
+                points.setdefault(metric.name, []).extend(metric.data.data_points)
+    return points
+
+
+def _mock_completion(
+    chat: ChatOpenAI,
+    tokens: tuple[int, int, int] = (10, 5, 3),
+    reasoning: int | None = 2,
+):
+    """Mock the (non-streaming) provider call to return a completion with
+    known usage info. ``tokens`` is (input, output, cached_input)."""
+    usage = SimpleNamespace(
+        input_tokens=tokens[0] + tokens[2],
+        output_tokens=tokens[1],
+        input_tokens_details=SimpleNamespace(cached_tokens=tokens[2]),
+        output_tokens_details=SimpleNamespace(reasoning_tokens=reasoning),
+    )
+    completion = SimpleNamespace(
+        model="gpt-4o-mini-2024-07-18",
+        id="resp_123",
+        usage=usage,
+        service_tier=None,
+    )
+
+    def fake_value_turn(completion, has_data_model, turns=()):
+        return AssistantTurn(
+            "hi",
+            tokens=tokens,
+            finish_reason="success",
+            completion=completion,
+        )
+
+    chat.provider.chat_perform = lambda *args, **kwargs: completion  # type: ignore[method-assign]
+    chat.provider.value_turn = fake_value_turn  # type: ignore[method-assign]
+    return completion
+
+
+def _mock_streaming_provider(chat: ChatOpenAI, n_chunks: int = 3):
+    def streaming_perform(*args, **kwargs):
+        def gen():
+            for _ in range(n_chunks):
+                yield object()
+
+        return gen()
+
+    chat.provider.chat_perform = streaming_perform  # type: ignore[method-assign]
+    chat.provider.stream_content = lambda chunk, completion, turns=(): [  # type: ignore[method-assign]
+        ContentText(text="hi")
+    ]
+    chat.provider.stream_merge_chunks = (  # type: ignore[method-assign]
+        lambda result, chunk: chunk
+    )
+    chat.provider.stream_turn = (  # type: ignore[method-assign]
+        lambda completion, has_data_model, turns=(): AssistantTurn(
+            "hi", finish_reason="success"
+        )
+    )
+
+
+def _finished_span(exporter: InMemorySpanExporter, prefix: str):
+    return next(
+        s for s in exporter.get_finished_spans() if s.name.startswith(prefix)
+    )
 
 
 @pytest.mark.vcr
@@ -272,11 +368,10 @@ def test_streaming_span_lifecycle(otel_setup: InMemorySpanExporter):
     assert chat_span.end_time is not None, (
         "Chat span should be finished after stream is consumed"
     )
-    # Per the OTel spec, instrumentation libraries leave successful spans UNSET
-    # rather than marking them OK (OK is reserved for app/operator use and is
-    # treated as final, which would mask a later error on the same span).
-    assert chat_span.status.status_code.name == "UNSET", (
-        f"Successful chat span should be UNSET, got {chat_span.status.status_code.name}"
+    # Successful requests are marked OK (matching ellmer), so dashboards can
+    # distinguish them from spans still in flight.
+    assert chat_span.status.status_code.name == "OK", (
+        f"Successful chat span should be OK, got {chat_span.status.status_code.name}"
     )
     # Time to first token is recorded on the streamed chat span.
     attrs = chat_span.attributes or {}
@@ -295,6 +390,7 @@ def test_streaming_span_lifecycle(otel_setup: InMemorySpanExporter):
 )
 async def test_ttft_recorded_at_first_non_empty_token(
     otel_setup: InMemorySpanExporter,
+    otel_metrics: InMemoryMetricReader,
     monkeypatch: pytest.MonkeyPatch,
     async_mode: bool,
     first_content: ContentText | ContentThinkingDelta,
@@ -365,6 +461,10 @@ async def test_ttft_recorded_at_first_non_empty_token(
     assert len(chat_spans) == 1
     attrs = chat_spans[0].attributes or {}
     assert attrs.get("gen_ai.response.time_to_first_chunk") == 5.0
+    points = _metric_points(otel_metrics)["gen_ai.client.inference.time_to_first_chunk"]
+    assert len(points) == 1
+    assert points[0].count == 1
+    assert points[0].sum == 2.0
 
 
 def test_chat_error_recorded(otel_setup: InMemorySpanExporter):
@@ -759,3 +859,550 @@ async def test_async_generator_tool_internal_span_nests_under_tool_span(
     assert _parent_span_id(db_span) == tool_span.context.span_id, (
         "span created inside an async generator tool should nest under the execute_tool span"
     )
+
+
+# ---------------------------------------------------------------------------
+# GenAI semantic convention attributes and metrics
+# ---------------------------------------------------------------------------
+
+
+def test_agent_and_chat_span_kinds(otel_setup: InMemorySpanExporter):
+    chat = ChatOpenAI(model="gpt-4o-mini")
+    _mock_completion(chat)
+    chat.chat("Say hello.", stream=False)
+
+    agent_span = _finished_span(otel_setup, "invoke_agent")
+    chat_span = _finished_span(otel_setup, "chat ")
+    # chatlas's agent loop runs in-process, so invoke_agent is an internal span
+    assert agent_span.kind == SpanKind.INTERNAL
+    assert chat_span.kind == SpanKind.CLIENT
+
+
+def test_chat_span_status_ok_on_success(otel_setup: InMemorySpanExporter):
+    chat = ChatOpenAI(model="gpt-4o-mini")
+    _mock_completion(chat)
+    chat.chat("Say hello.", stream=False)
+
+    chat_span = _finished_span(otel_setup, "chat ")
+    assert chat_span.status.status_code.name == "OK"
+
+
+def test_chat_span_response_and_usage_attributes(otel_setup: InMemorySpanExporter):
+    chat = ChatOpenAI(model="gpt-4o-mini")
+    _mock_completion(chat, tokens=(10, 5, 3), reasoning=2)
+    chat.chat("Say hello.", stream=False)
+
+    chat_span = _finished_span(otel_setup, "chat ")
+    attrs = chat_span.attributes or {}
+    assert attrs.get("gen_ai.response.model") == "gpt-4o-mini-2024-07-18"
+    assert attrs.get("gen_ai.response.id") == "resp_123"
+    assert attrs.get("gen_ai.usage.input_tokens") == 13
+    assert attrs.get("gen_ai.usage.output_tokens") == 5
+    assert attrs.get("gen_ai.usage.cache_read.input_tokens") == 3
+    assert attrs.get("gen_ai.usage.reasoning.output_tokens") == 2
+    assert tuple(attrs.get("gen_ai.response.finish_reasons") or ()) == ("success",)
+    # Not a streaming request, so the stream attribute is left unset
+    assert "gen_ai.request.stream" not in attrs
+
+
+def test_server_attributes_on_chat_span(otel_setup: InMemorySpanExporter):
+    chat = ChatOpenAI(model="gpt-4o-mini")
+    _mock_completion(chat)
+    chat.chat("Say hello.", stream=False)
+
+    chat_span = _finished_span(otel_setup, "chat ")
+    attrs = chat_span.attributes or {}
+    assert attrs.get("server.address") == "api.openai.com"
+    assert attrs.get("server.port") == 443
+
+
+def test_request_params_recorded_on_chat_and_agent_spans(
+    otel_setup: InMemorySpanExporter,
+):
+    chat = ChatOpenAI(model="gpt-4o-mini")
+    chat.set_model_params(max_tokens=50, temperature=0.5)
+    # seed isn't supported by OpenAI's Responses API, so it's dropped (with a
+    # warning) at set-time and must not show up on the spans.
+    with pytest.warns(UserWarning, match="not supported"):
+        chat.set_model_params(seed=42)
+    _mock_completion(chat)
+    chat.chat("Say hello.", stream=False)
+
+    for prefix in ("invoke_agent", "chat "):
+        span = _finished_span(otel_setup, prefix)
+        attrs = span.attributes or {}
+        assert attrs.get("gen_ai.request.max_tokens") == 50
+        assert attrs.get("gen_ai.request.temperature") == 0.5
+        assert "gen_ai.request.seed" not in attrs
+        assert "gen_ai.request.top_p" not in attrs
+
+
+def test_reasoning_level_recorded_from_kwargs(otel_setup: InMemorySpanExporter):
+    chat = ChatOpenAI(model="gpt-5-mini", reasoning="low")
+    _mock_completion(chat)
+    chat.chat("Say hello.", stream=False)
+
+    chat_span = _finished_span(otel_setup, "chat ")
+    attrs = chat_span.attributes or {}
+    assert attrs.get("gen_ai.request.reasoning.level") == "low"
+
+
+def test_output_type_and_tool_definitions_with_data_model(
+    otel_setup: InMemorySpanExporter, monkeypatch: pytest.MonkeyPatch
+):
+    monkeypatch.setenv("OTEL_INSTRUMENTATION_GENAI_CAPTURE_MESSAGE_CONTENT", "true")
+
+    class Person(BaseModel):
+        name: str
+
+    chat = ChatOpenAI(model="gpt-4o-mini")
+    _mock_completion(chat)
+
+    def get_date() -> str:
+        "Return the current date"
+        return "2026-05-12"
+
+    chat.register_tool(get_date)
+
+    turn = user_turn("Say hello.")
+    for _ in chat._submit_turns(
+        turn,
+        echo="none",
+        stream=False,
+        data_model=Person,
+        controller=StreamController(),
+    ):
+        pass
+
+    chat_span = _finished_span(otel_setup, "chat ")
+    attrs = chat_span.attributes or {}
+    assert attrs.get("gen_ai.output.type") == "json"
+
+    defs = json.loads(str(attrs["gen_ai.tool.definitions"]))
+    assert isinstance(defs, list)
+    # OpenAI implements structured output natively, so only user tools appear
+    assert [d["name"] for d in defs] == ["get_date"]
+    get_date_def = defs[0]
+    assert get_date_def["type"] == "function"
+    assert get_date_def["description"] == "Return the current date"
+    assert get_date_def["parameters"]["type"] == "object"
+
+
+def test_tool_definitions_omitted_without_content_capture(
+    otel_setup: InMemorySpanExporter,
+):
+    chat = ChatOpenAI(model="gpt-4o-mini")
+    _mock_completion(chat)
+
+    def get_date() -> str:
+        "Return the current date"
+        return "2026-05-12"
+
+    chat.register_tool(get_date)
+    chat.chat("Say hello.", stream=False)
+
+    chat_span = _finished_span(otel_setup, "chat ")
+    attrs = chat_span.attributes or {}
+    assert "gen_ai.tool.definitions" not in attrs
+
+
+def test_anthropic_structured_output_tool_modes():
+    class Person(BaseModel):
+        name: str
+
+    # claude-3-5 lacks native structured outputs, so a private tool is used
+    chat = ChatAnthropic(model="claude-3-5-sonnet-latest")
+    tool = chat.provider.structured_output_tool(Person)
+    assert tool is not None
+    assert tool.name == "_structured_tool_call"
+
+    # Claude 4.5+ uses native structured outputs, so no tool is needed
+    chat = ChatAnthropic(model="claude-sonnet-4-5")
+    assert chat.provider.structured_output_tool(Person) is None
+
+    # ...unless tool mode is forced
+    chat = ChatAnthropic(model="claude-sonnet-4-5", structured_output_mode="tool")
+    assert chat.provider.structured_output_tool(Person) is not None
+
+
+def test_otel_provider_name_mapping():
+    assert _otel.otel_provider_name(ChatOpenAI(model="gpt-4o-mini").provider) == "openai"
+    assert (
+        _otel.otel_provider_name(ChatAnthropic(model="claude-sonnet-4-5").provider)
+        == "anthropic"
+    )
+
+
+def test_inference_metrics_recorded(
+    otel_setup: InMemorySpanExporter, otel_metrics: InMemoryMetricReader
+):
+    chat = ChatOpenAI(model="gpt-4o-mini")
+    _mock_completion(chat, tokens=(10, 5, 3), reasoning=2)
+    chat.chat("Say hello.", stream=False)
+
+    points = _metric_points(otel_metrics)
+
+    duration = points["gen_ai.client.inference.duration"]
+    assert len(duration) == 1
+    assert duration[0].count == 1
+    assert duration[0].sum >= 0
+    attrs = duration[0].attributes
+    assert "error.type" not in attrs
+    assert attrs["gen_ai.operation.name"] == "chat"
+    assert attrs["gen_ai.provider.name"] == "openai"
+    assert attrs["gen_ai.request.model"] == "gpt-4o-mini"
+    assert attrs["gen_ai.response.model"] == "gpt-4o-mini-2024-07-18"
+    assert attrs["server.address"] == "api.openai.com"
+
+    in_hist = points["gen_ai.client.inference.operation.input_tokens"]
+    assert len(in_hist) == 1
+    assert in_hist[0].sum == 13
+    out_hist = points["gen_ai.client.inference.operation.output_tokens"]
+    assert len(out_hist) == 1
+    assert out_hist[0].sum == 5
+
+    def counter_value(name: str) -> int:
+        pts = points[name]
+        assert len(pts) == 1
+        assert pts[0].attributes["gen_ai.token.modality"] == "unknown"
+        assert pts[0].attributes["gen_ai.provider.name"] == "openai"
+        return pts[0].value
+
+    assert counter_value("gen_ai.client.inference.usage.input_tokens") == 13
+    assert counter_value("gen_ai.client.inference.usage.output_tokens") == 5
+    assert counter_value("gen_ai.client.inference.usage.cache_read.input_tokens") == 3
+    assert counter_value("gen_ai.client.inference.usage.reasoning.output_tokens") == 2
+
+
+def test_agent_metrics_and_span_attributes(
+    otel_setup: InMemorySpanExporter, otel_metrics: InMemoryMetricReader
+):
+    chat = ChatOpenAI(model="gpt-4o-mini")
+
+    def get_date() -> str:
+        "Return the current date"
+        return "2026-05-12"
+
+    chat.register_tool(get_date)
+
+    usage = SimpleNamespace(
+        input_tokens=10,
+        output_tokens=5,
+        input_tokens_details=SimpleNamespace(cached_tokens=0),
+        output_tokens_details=SimpleNamespace(reasoning_tokens=None),
+    )
+    completion = SimpleNamespace(
+        model="gpt-4o-mini-2024-07-18", id="resp_123", usage=usage, service_tier=None
+    )
+    turns = [
+        AssistantTurn(
+            [ContentToolRequest(id="call_1", name="get_date", arguments={})],
+            tokens=(10, 5, 0),
+            finish_reason="tool_use",
+            completion=completion,
+        ),
+        AssistantTurn(
+            "The date is 2026-05-12.",
+            tokens=(20, 8, 0),
+            finish_reason="success",
+            completion=completion,
+        ),
+    ]
+    chat.provider.chat_perform = lambda *args, **kwargs: completion  # type: ignore[method-assign]
+    chat.provider.value_turn = lambda *args, **kwargs: turns.pop(0)  # type: ignore[method-assign]
+
+    chat.chat("What is today's date?", stream=False)
+
+    agent_span = _finished_span(otel_setup, "invoke_agent")
+    attrs = agent_span.attributes or {}
+    assert attrs.get("gen_ai.invoke_agent.inference_calls") == 2
+    assert attrs.get("gen_ai.invoke_agent.tool_calls") == 1
+    assert isinstance(attrs.get("gen_ai.invoke_agent.duration"), float)
+    assert attrs.get("gen_ai.usage.input_tokens") == 30
+    assert attrs.get("gen_ai.usage.output_tokens") == 13
+    assert agent_span.status.status_code.name == "UNSET"
+
+    points = _metric_points(otel_metrics)
+    assert points["gen_ai.invoke_agent.inference_calls"][0].sum == 2
+    assert points["gen_ai.invoke_agent.tool_calls"][0].sum == 1
+    agent_duration = points["gen_ai.invoke_agent.duration"][0]
+    assert "error.type" not in agent_duration.attributes
+    assert agent_duration.attributes["gen_ai.operation.name"] == "invoke_agent"
+
+    tool_duration = points["gen_ai.execute_tool.duration"][0]
+    assert tool_duration.attributes["gen_ai.tool.name"] == "get_date"
+    assert tool_duration.attributes["gen_ai.tool.type"] == "function"
+    assert "error.type" not in tool_duration.attributes
+
+
+def test_tool_error_duration_metric(otel_metrics: InMemoryMetricReader):
+    chat = ChatOpenAI(model="gpt-4o-mini")
+    request = ContentToolRequest(id="missing-tool", name="missing_tool", arguments={})
+
+    results = list(chat._invoke_tool(request))
+    assert isinstance(results[0].error, RuntimeError)
+
+    points = _metric_points(otel_metrics)
+    tool_duration = points["gen_ai.execute_tool.duration"][0]
+    assert tool_duration.attributes["gen_ai.tool.name"] == "missing_tool"
+    assert tool_duration.attributes["error.type"] == "RuntimeError"
+
+
+def test_chat_error_duration_metric(
+    otel_setup: InMemorySpanExporter, otel_metrics: InMemoryMetricReader
+):
+    chat = ChatOpenAI(model="gpt-4o-mini")
+
+    def boom(*args, **kwargs):
+        raise RuntimeError("provider blew up")
+
+    chat.provider.chat_perform = boom  # type: ignore[method-assign]
+
+    with pytest.raises(RuntimeError, match="provider blew up"):
+        chat.chat("Say hello.", stream=False)
+
+    points = _metric_points(otel_metrics)
+    duration = points["gen_ai.client.inference.duration"][0]
+    assert duration.attributes["error.type"] == "RuntimeError"
+    # No usage info is available for a failed request
+    assert "gen_ai.client.inference.operation.input_tokens" not in points
+
+    chat_span = _finished_span(otel_setup, "chat ")
+    attrs = chat_span.attributes or {}
+    assert tuple(attrs.get("gen_ai.response.finish_reasons") or ()) == ("error",)
+
+    agent_duration = points["gen_ai.invoke_agent.duration"][0]
+    assert agent_duration.attributes["error.type"] == "RuntimeError"
+
+
+def test_streaming_ttft_and_chunk_metrics(
+    otel_setup: InMemorySpanExporter, otel_metrics: InMemoryMetricReader
+):
+    chat = ChatOpenAI(model="gpt-4o-mini")
+    _mock_streaming_provider(chat, n_chunks=3)
+    list(chat.stream("Say hello."))
+
+    chat_span = _finished_span(otel_setup, "chat ")
+    attrs = chat_span.attributes or {}
+    assert attrs.get("gen_ai.request.stream") is True
+    ttft = attrs.get("gen_ai.response.time_to_first_chunk")
+    assert isinstance(ttft, float) and ttft >= 0
+    assert tuple(attrs.get("gen_ai.response.finish_reasons") or ()) == ("success",)
+    assert chat_span.status.status_code.name == "OK"
+
+    points = _metric_points(otel_metrics)
+    assert len(points["gen_ai.client.inference.time_to_first_chunk"]) == 1
+    # One point per chunk after the first
+    chunk_points = points["gen_ai.client.inference.time_per_output_chunk"]
+    assert len(chunk_points) == 1
+    assert chunk_points[0].count == 2
+
+
+def test_cancelled_stream_recorded_with_error_status(
+    otel_setup: InMemorySpanExporter, otel_metrics: InMemoryMetricReader
+):
+    chat = ChatOpenAI(model="gpt-4o-mini")
+    _mock_streaming_provider(chat, n_chunks=10)
+    ctrl = StreamController()
+
+    chunks = []
+    for chunk in chat.stream("Say hello.", controller=ctrl):
+        chunks.append(chunk)
+        ctrl.cancel()
+    assert len(chunks) == 1
+
+    chat_span = _finished_span(otel_setup, "chat ")
+    assert chat_span.status.status_code.name == "ERROR"
+    attrs = chat_span.attributes or {}
+    assert attrs.get("error.type") == "cancelled"
+    assert tuple(attrs.get("gen_ai.response.finish_reasons") or ()) == ("cancelled",)
+
+    agent_span = _finished_span(otel_setup, "invoke_agent")
+    assert agent_span.status.status_code.name == "ERROR"
+    assert (agent_span.attributes or {}).get("error.type") == "cancelled"
+
+    points = _metric_points(otel_metrics)
+    duration = points["gen_ai.client.inference.duration"][0]
+    assert duration.attributes["error.type"] == "cancelled"
+    agent_duration = points["gen_ai.invoke_agent.duration"][0]
+    assert agent_duration.attributes["error.type"] == "cancelled"
+
+    # The partial turn is still preserved in the chat history
+    last = chat.get_last_turn(role="assistant")
+    assert last is not None and last.is_partial
+
+
+def test_abandoned_stream_recorded_as_interrupted(
+    otel_setup: InMemorySpanExporter, otel_metrics: InMemoryMetricReader
+):
+    chat = ChatOpenAI(model="gpt-4o-mini")
+    _mock_streaming_provider(chat, n_chunks=10)
+
+    gen = chat.stream("Say hello.")
+    next(gen)
+    # Abandoning the stream unwinds it without a success or error record
+    gen.close()
+
+    chat_span = _finished_span(otel_setup, "chat ")
+    assert chat_span.status.status_code.name == "ERROR"
+    attrs = chat_span.attributes or {}
+    assert attrs.get("error.type") == "interrupted"
+    assert tuple(attrs.get("gen_ai.response.finish_reasons") or ()) == (
+        "interrupted",
+    )
+
+    agent_span = _finished_span(otel_setup, "invoke_agent")
+    assert (agent_span.attributes or {}).get("error.type") == "interrupted"
+
+    points = _metric_points(otel_metrics)
+    duration = points["gen_ai.client.inference.duration"][0]
+    assert duration.attributes["error.type"] == "interrupted"
+    agent_duration = points["gen_ai.invoke_agent.duration"][0]
+    assert agent_duration.attributes["error.type"] == "interrupted"
+
+
+@pytest.mark.vcr("test_span_hierarchy_with_tools.yaml")
+@pytest.mark.asyncio
+async def test_closing_async_stream_finishes_tool_before_agent(
+    otel_setup: InMemorySpanExporter, otel_metrics: InMemoryMetricReader
+) -> None:
+    chat = ChatOpenAI(
+        model="gpt-4o-mini",
+        system_prompt="Always use the get_date tool to answer questions about the date.",
+    )
+
+    def get_date() -> str:
+        "Return the current date"
+        return "2026-05-12"
+
+    chat.register_tool(get_date)
+    stream = await chat.stream_async("What is today's date?", content="all")
+    try:
+        request = await stream.__anext__()
+        result = await stream.__anext__()
+    finally:
+        await stream.aclose()
+
+    assert isinstance(request, ContentToolRequest)
+    assert isinstance(result, ContentToolResult)
+    assert result.value == "2026-05-12"
+    assert [span.name for span in otel_setup.get_finished_spans()] == [
+        "chat gpt-4o-mini",
+        "execute_tool get_date",
+        "invoke_agent",
+    ]
+    tool_duration = _metric_points(otel_metrics)["gen_ai.execute_tool.duration"]
+    assert len(tool_duration) == 1
+    assert tool_duration[0].count == 1
+    assert tool_duration[0].attributes["error.type"] == "interrupted"
+
+
+def test_content_tool_result_value_becomes_otel_part():
+    # A `Content` tool-result value (e.g. an image) converts to an otel part
+    # rather than stringifying or dropping the message.
+    img = ContentImageInline(image_content_type="image/png", data="aW1hZ2U=")
+    part = _otel.as_otel_part(ContentToolResult(value=img))
+    assert part["response"] == {"type": "generic", "class": "ContentImageInline"}
+
+    # A list of `Content` values converts element-wise.
+    result = ContentToolResult(
+        value=[ContentText(text="a"), ContentText(text="b")]
+    )
+    part = _otel.as_otel_part(result)
+    assert part["response"] == [
+        {"type": "text", "content": "a"},
+        {"type": "text", "content": "b"},
+    ]
+
+
+def test_error_during_turn_build_not_masked_by_ok_status(
+    otel_setup: InMemorySpanExporter,
+):
+    # The request itself succeeds, but building the turn from the response
+    # fails (e.g. a truncated data_model response raising in the provider).
+    # The span must report the error, not the OK that was nearly stamped:
+    # the SDK treats Ok as final and would otherwise mask the late failure.
+    chat = ChatOpenAI(model="gpt-4o-mini")
+    _mock_completion(chat)
+
+    def bad_value_turn(completion, has_data_model, turns=()):
+        raise ValueError("response cannot be parsed")
+
+    chat.provider.value_turn = bad_value_turn  # type: ignore[method-assign]
+
+    with pytest.raises(ValueError, match="cannot be parsed"):
+        chat.chat("Say hello.", stream=False)
+
+    chat_span = _finished_span(otel_setup, "chat ")
+    assert chat_span.status.status_code.name == "ERROR"
+    attrs = chat_span.attributes or {}
+    assert attrs.get("error.type") == "ValueError"
+    assert tuple(attrs.get("gen_ai.response.finish_reasons") or ()) == ("error",)
+    # Usage from the completed request is still recorded
+    assert attrs.get("gen_ai.usage.input_tokens") == 13
+    exc_events = [e for e in chat_span.events if e.name == "exception"]
+    assert len(exc_events) == 1
+
+
+def test_error_during_stream_turn_build_not_masked_by_ok_status(
+    otel_setup: InMemorySpanExporter,
+):
+    chat = ChatOpenAI(model="gpt-4o-mini")
+    _mock_streaming_provider(chat, n_chunks=2)
+
+    def bad_stream_turn(completion, has_data_model, turns=()):
+        raise ValueError("response cannot be parsed")
+
+    chat.provider.stream_turn = bad_stream_turn  # type: ignore[method-assign]
+
+    with pytest.raises(ValueError, match="cannot be parsed"):
+        list(chat.stream("Say hello."))
+
+    chat_span = _finished_span(otel_setup, "chat ")
+    assert chat_span.status.status_code.name == "ERROR"
+    attrs = chat_span.attributes or {}
+    assert attrs.get("error.type") == "ValueError"
+    assert tuple(attrs.get("gen_ai.response.finish_reasons") or ()) == ("error",)
+
+
+def test_server_attributes_google(otel_setup: InMemorySpanExporter):
+    chat = ChatGoogle(model="gemini-2.5-flash")
+    completion = SimpleNamespace(model="gemini-2.5-flash", id="resp_123")
+    chat.provider.chat_perform = lambda *args, **kwargs: completion  # type: ignore[method-assign]
+    chat.provider.value_turn = lambda *args, **kwargs: AssistantTurn("hi")  # type: ignore[method-assign]
+
+    chat.chat("Say hello.", stream=False)
+
+    chat_span = _finished_span(otel_setup, "chat ")
+    attrs = chat_span.attributes or {}
+    assert attrs.get("server.address") == "generativelanguage.googleapis.com"
+    assert attrs.get("server.port") == 443
+
+
+def test_reasoning_level_recorded_for_google(otel_setup: InMemorySpanExporter):
+    chat = ChatGoogle(model="gemini-3-flash", reasoning="low")
+    completion = SimpleNamespace(model="gemini-3-flash", id="resp_123")
+    chat.provider.chat_perform = lambda *args, **kwargs: completion  # type: ignore[method-assign]
+    chat.provider.value_turn = lambda *args, **kwargs: AssistantTurn("hi")  # type: ignore[method-assign]
+
+    chat.chat("Say hello.", stream=False)
+
+    chat_span = _finished_span(otel_setup, "chat ")
+    attrs = chat_span.attributes or {}
+    assert attrs.get("gen_ai.request.reasoning.level") == "low"
+
+
+def test_histogram_buckets_follow_semconv_advisory(
+    otel_metrics: InMemoryMetricReader,
+):
+    chat = ChatOpenAI(model="gpt-4o-mini")
+    _mock_completion(chat)
+    chat.chat("Say hello.", stream=False)
+
+    points = _metric_points(otel_metrics)
+    bounds = list(points["gen_ai.client.inference.duration"][0].explicit_bounds)
+    assert bounds == _otel._DURATION_BUCKETS
+    token_bounds = list(
+        points["gen_ai.client.inference.operation.input_tokens"][0].explicit_bounds
+    )
+    assert token_bounds == _otel._TOKEN_BUCKETS
