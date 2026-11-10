@@ -150,6 +150,9 @@ _OPENAI_COMPLETIONS_FINISH_REASON_MAP: dict[str, FinishReason] = {
     "tool_calls": "tool_use",
     "length": "max_tokens",
     "content_filter": "content_filter",
+    # Mistral: the request ran into the model's context length
+    # https://docs.mistral.ai/api/endpoint/chat
+    "model_length": "context_window",
 }
 
 

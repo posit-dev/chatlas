@@ -60,6 +60,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Providers built on the Chat Completions API (`ChatOpenAICompletions()`, `ChatGroq()`, `ChatOpenRouter()`, `ChatDeepSeek()`, etc.) now put the tool results of a turn ahead of the user's text in the same turn, as the API requires. Resuming a chat that ended with an unanswered tool request (or any turn that mixes tool results and new text) sent the user message first, which these APIs reject because a tool message must directly follow the assistant message that requested it. (#476)
 * `ChatBedrockAnthropic()` and `ChatBedrock(api="messages")` now work with anthropic SDK 2.0. That SDK changed the default API version it sends to Bedrock, which Bedrock rejects with `400 Invalid API version` for Claude models older than 4.7; chatlas now keeps sending the version Bedrock expects. (#493)
 * The Inspect integration (e.g., `chat.to_solver()`) no longer crashes on conversations that include thinking/reasoning content, which thinking-enabled Claude models produce. (#493)
+* `ChatMistral()` now reports `"context_window"` as the finish reason when a response stops with Mistral's `model_length` (the request reached the model's context length), instead of passing the raw string through. As for other providers, this makes chatlas warn about the truncated response (or raise an error when a data model was requested). (#477)
 
 
 ## [0.23.0] - 2026-09-04
